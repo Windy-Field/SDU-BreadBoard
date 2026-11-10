@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f9fa">
+    <title>SDU 面包板 · SDU-BreadBoard</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=1.0.7">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico?v=1.0.7">
+    <meta name="author" content="Octorange/Windy-Field">
+    <link rel="stylesheet" href="styles/app.css">
+    <script src="vendor/lucide.min.js" defer></script>
+    <script src="application.js" defer></script>
+</head>
+<body>
+    <header class="app-header">
+        <div class="brand"><i data-lucide="circuit-board" aria-hidden="true"></i><h1>SDU 面包板</h1><span class="version">SDU-BreadBoard</span></div>
+        <div class="document-name"><input id="project-name" aria-label="电路名称" maxlength="80" value="双符号位补码运算器"><label class="read-only-control"><input id="read-only-toggle" type="checkbox"><i data-lucide="lock-keyhole" aria-hidden="true"></i><span>只读</span></label><span id="save-status">手动保存</span></div>
+        <div class="header-actions">
+            <label class="autosave-control"><input id="autosave-toggle" type="checkbox">自动保存</label>
+            <button class="icon-button" id="save-project" data-tip="保存当前实验 Ctrl+S" aria-label="保存当前实验"><i data-lucide="save"></i></button>
+            <button class="icon-button" id="quick-delete" data-tip="删除选中对象或当前实验" aria-label="快捷删除"><i data-lucide="trash-2"></i></button>
+            <button class="icon-button" id="new-project" data-tip="新建空电路" aria-label="新建空电路"><i data-lucide="file-plus-2"></i></button>
+            <button class="icon-button" id="import-project" data-tip="导入电路" aria-label="导入电路"><i data-lucide="folder-open"></i></button>
+            <button class="icon-button" id="export-project" data-tip="导出电路" aria-label="导出电路"><i data-lucide="download"></i></button>
+            <button class="icon-button" id="help-button" data-tip="实验说明" aria-label="实验说明"><i data-lucide="circle-help"></i></button>
+            <label class="power-control"><input type="checkbox" id="power-toggle" checked><span class="power-dot"></span>电源</label>
+        </div>
+    </header>
+    <main class="workspace">
+        <aside class="library" aria-label="器件库">
+            <div class="panel-heading"><h2>器件库</h2><span id="model-count">7</span></div>
+            <label class="search-field"><i data-lucide="search" aria-hidden="true"></i><input id="chip-search" placeholder="搜索型号" aria-label="搜索芯片型号"></label>
+            <div id="chip-library" class="chip-library"></div>
+            <section class="library-section">
+                <h2>我的实验</h2>
+                <label class="experiment-picker-label" for="experiment-picker">切换实验</label><select id="experiment-picker" aria-label="切换实验"></select>
+                <button id="new-experiment" class="preset-button"><i data-lucide="file-plus-2" aria-hidden="true"></i><span>新建空白实验</span></button>
+                <button id="load-preset" class="preset-button"><i data-lucide="workflow" aria-hidden="true"></i><span>双符号位补码运算器</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></button>
+                <button id="audit-preset" class="preset-button"><i data-lucide="list-checks" aria-hidden="true"></i><span>核对当前实验接线</span></button>
+            </section>
+            <div class="library-footer"><a class="sidebar-action" href="assets/reference-board.jpg" target="_blank" rel="noopener"><i data-lucide="image" aria-hidden="true"></i><span>原板对照图</span></a><button id="export-workspace" class="sidebar-action"><i data-lucide="archive" aria-hidden="true"></i><span>备份全部实验</span></button></div>
+        </aside>
+        <section class="workbench" aria-label="接线工作区">
+            <div class="toolbar">
+                <div class="segmented" role="group" aria-label="工具">
+                    <button id="tool-wire" class="icon-button selected" data-tip="接线" aria-label="接线" aria-pressed="true"><i data-lucide="cable"></i></button>
+                    <button id="tool-select" class="icon-button" data-tip="选择和检查" aria-label="选择和检查" aria-pressed="false"><i data-lucide="mouse-pointer-2"></i></button>
+                    <button id="tool-delete" class="icon-button" data-tip="删除" aria-label="删除" aria-pressed="false"><i data-lucide="eraser"></i></button>
+                </div>
+                <div class="palette" id="wire-palette" role="group" aria-label="导线颜色"></div>
+                <label class="custom-color" data-tip="自选颜色"><input type="color" id="custom-color" value="#1976d2" aria-label="自选导线颜色"><i data-lucide="pipette" aria-hidden="true"></i></label>
+                <div class="toolbar-end">
+                    <button id="undo" class="icon-button" data-tip="撤销" aria-label="撤销"><i data-lucide="undo-2"></i></button>
+                    <button id="redo" class="icon-button" data-tip="重做" aria-label="重做"><i data-lucide="redo-2"></i></button>
+                    <button id="cancel-wire" class="icon-button" data-tip="取消当前接线" aria-label="取消当前接线" disabled><i data-lucide="x"></i></button>
+                    <span class="toolbar-divider"></span>
+                    <button id="zoom-out" class="icon-button" data-tip="缩小" aria-label="缩小"><i data-lucide="minus"></i></button>
+                    <output id="zoom-label">100%</output>
+                    <button id="zoom-in" class="icon-button" data-tip="放大" aria-label="放大"><i data-lucide="plus"></i></button>
+                    <button id="fit-board" class="icon-button" data-tip="适应宽度" aria-label="适应宽度"><i data-lucide="scan"></i></button>
+                    <button id="export-image" class="icon-button" data-tip="导出接线图片" aria-label="导出接线图片"><i data-lucide="camera"></i></button>
+                </div>
+            </div>
+            <div class="board-status"><span><span class="status-dot"></span><span id="simulation-status">电路就绪</span></span><label><input type="checkbox" id="show-internals">内部连通</label><label><input type="checkbox" id="show-levels">节点电平</label><span class="rail-note">右侧：GND │ +5V</span></div>
+            <div id="board-viewport" class="board-viewport">
+                <div id="canvas-size"><canvas id="board-canvas" width="2600" height="2560" tabindex="0" aria-label="四块面包板接线画布，右侧外侧两列依次为GND和+5V"></canvas></div>
+            </div>
+            <div class="board-footer"><span id="pointer-status">面包板</span><span id="circuit-count">5 片芯片 · 61 根导线</span></div>
+            <section class="io-strip" aria-label="实验操作">
+                <div class="mode-controls"><label>模式<select id="project-mode"><option value="general">通用模式</option><option value="complement">补码实验</option></select></label><label class="general-setting">输入位数<input id="input-count" type="number" min="1" max="24" value="8"></label><label class="general-setting">输出位数<input id="output-count" type="number" min="1" max="24" value="8"></label></div>
+                <div class="result-block"><span id="output-label" class="field-label">输出 L5…L0</span><output id="binary-result">XX XXXX</output><span id="result-meaning" class="result-meaning">等待清零</span><div id="output-leds" class="io-leds"></div></div>
+                <div class="input-block"><span id="input-label" class="field-label">输入 K4…K0</span><div id="quick-switches" class="quick-switches"></div><span id="input-decimal" class="input-decimal">0</span></div>
+                <div class="operation-block"><label id="subtract-control" class="operation-toggle"><input id="subtract-toggle" type="checkbox"><span>减法 K5</span></label><button id="clear-register" class="button"><i data-lucide="rotate-ccw" aria-hidden="true"></i>清零 K6</button><button id="pulse-negative" class="button primary"><i data-lucide="activity" aria-hidden="true"></i>P− 单脉冲</button><button id="pulse-positive" class="button" aria-label="P正单脉冲">P+</button></div>
+            </section>
+        </section>
+        <aside class="inspector" aria-label="电路检查">
+            <section id="pinned-chip" class="pinned-chip" aria-label="固定芯片引脚信息" hidden></section>
+            <div class="inspector-tabs" role="tablist" aria-label="检查面板"><button id="tab-inspect" role="tab" aria-selected="true" class="active">检查</button><button id="tab-wires" role="tab" aria-selected="false">导线 <span id="wire-count">61</span></button><button id="tab-diagnostics" role="tab" aria-selected="false">诊断 <span id="issue-count">0</span></button><button id="tab-notes" role="tab" aria-selected="false">备注</button></div>
+            <div id="inspect-panel" role="tabpanel" class="inspector-content"></div>
+            <div id="wires-panel" role="tabpanel" class="inspector-content" hidden></div>
+            <div id="diagnostics-panel" role="tabpanel" class="inspector-content" hidden></div>
+            <div id="notes-panel" role="tabpanel" class="inspector-content notes-panel" hidden><div class="notes-heading"><h2>电路备注</h2><div class="segmented" role="group" aria-label="备注视图"><button id="notes-preview-button" class="icon-button selected" aria-label="预览备注" aria-pressed="true" data-tip="预览"><i data-lucide="eye"></i></button><button id="notes-edit-button" class="icon-button" aria-label="编辑Markdown备注" aria-pressed="false" data-tip="编辑 Markdown"><i data-lucide="square-pen"></i></button></div></div><label id="notes-editor-label" for="notes-editor" hidden>Markdown 备注</label><textarea id="notes-editor" maxlength="50000" spellcheck="false" hidden></textarea><article id="notes-preview" class="markdown"></article><span id="notes-status" class="notes-status">备注随电路保存</span></div>
+            <section class="terminal-connect"><h2>按端点接线</h2><label>起点<input id="from-endpoint" placeholder="K0 或 B1:G:3"></label><label>终点<input id="to-endpoint" placeholder="B1:G:4"></label><button id="connect-endpoints" class="button"><i data-lucide="link-2" aria-hidden="true"></i>连接</button></section>
+        </aside>
+    </main>
+    <footer class="app-footer"><span class="release-info"><span id="app-version">v1.0.0</span><time id="current-time"></time></span><span id="action-status" role="status">就绪</span><span>0 低电平 · 1 高电平 · X 未知 · Z 悬空</span></footer>
+    <div id="toast-region" class="toast-region" aria-label="操作提示" aria-live="polite"></div>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title"><div class="dialog-heading"><h2 id="confirm-title">确认删除</h2></div><p id="confirm-message" class="dialog-body"></p><div class="dialog-actions"><button id="confirm-cancel" class="button">取消</button><button id="confirm-accept" class="button danger">确认删除</button></div></dialog>
+    <dialog id="help-dialog"><div class="dialog-heading"><h2>实验说明</h2><button id="close-help" class="icon-button" aria-label="关闭"><i data-lucide="x"></i></button></div><div class="dialog-body"><p>你可以在“我的实验”中新建独立的空白实验，或切回已保存的实验。新实验默认使用通用模式，你可以设置需要显示的输入和输出位数，并在“备注”中填写 Markdown 说明。</p><p>选择芯片型号后，点击面包板放置。画布中的芯片缺口朝左，跨 E/F 沟槽。接线时依次选择起点和终点，点击空白可以增加转折点，按 Esc 取消。每个孔只插一根线，同一节点需要分支时，你可以选择同组的其他空孔。</p><p>同列 A～E 相通，F～J 相通，沟槽两边分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通。</p><p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。你也可以使用工具栏的缩放和适应宽度按钮。</p><p>选中芯片后，引脚图、脚号、电平和位置会固定显示。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列。</p><p>标题旁的“只读”开关用于保护接线和备注。开启后，你仍可以调整输入、清零、发脉冲、查看资料和导出实验。左侧的接线核对按钮会比较当前电路与标准补码示例，并在诊断面板列出差异。</p><p>补码示例按 K4～K0 输入五位补码：K0 最低，K4 为符号位。K5 为 0 时加、1 时减，K6 拉低时清零。P− 脉冲恢复为高电平时，74LS273 保存结果。输入和输出 LED 都在已知高电平 1 时点亮。</p><p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件。导入、重新打开或结构撤销后，你需要给寄存器重新清零。</p><p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 删除选中对象，Ctrl+S 导出电路。</p></div></dialog>
+</body>
+</html>

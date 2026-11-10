@@ -1,0 +1,23 @@
+{
+  "name": "sdu-breadboard",
+  "version": "1.0.8",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "lint": "node tests/style.mjs",
+    "test": "node --test tests/engine.test.mjs",
+    "test:ui": "node tests/browser.mjs && node tests/interaction.mjs",
+    "package": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1",
+    "test:package": "node tests/package.mjs"
+  },
+  "devDependencies": {
+    "acorn": "^8.15.0",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.62.1"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "marked": "^18.2.0"
+  }
+}
