@@ -2,12 +2,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const ROOT = process.cwd();
 const POWERSHELL = "powershell.exe";
+// 大型图片资料压缩较慢，快捷打包测试最多等待两分钟
+const LAUNCHER_TIMEOUT = 120000;
+// 使用含中文和空格的目录验证双击入口，打包文件与实际发布脚本保持一致
+const LAUNCHER_FILES = ["package.cmd", "package.json", "scripts/package.ps1", "index.html", "application.js", "styles", "vendor", "assets", "examples", "docs", "README.md", "LICENSE"];
 
 // 记录离线包页面的脚本错误，便于测试结束时统一断言
 function collectError(errors, error) {
@@ -24,13 +28,42 @@ function cleanTemporaryDirectory(directory) {
     fs.rmSync(target, { recursive: true, force: true });
 }
 
+// 检查批处理换行，并从项目外启动真实入口，返回生成离线包的目录
+function testPackageLauncher(temporaryRoot) {
+    const launcherText = fs.readFileSync(path.join(ROOT, "package.cmd"), "utf8");
+    assert.equal(launcherText.replaceAll("\r\n", "").includes("\n"), false, "批处理必须使用 CRLF 换行，避免 Windows 截断指令");
+    const projectRoot = path.join(temporaryRoot, "中文 打包测试");
+    for (const name of LAUNCHER_FILES) {
+        const destination = path.join(projectRoot, name);
+        fs.mkdirSync(path.dirname(destination), { recursive: true });
+        fs.cpSync(path.join(ROOT, name), destination, { recursive: true });
+    }
+    const environment = Object.assign({}, process.env);
+    environment.SDU_PACKAGE_LAUNCHER = path.join(projectRoot, "package.cmd");
+    const options = { cwd: temporaryRoot, env: environment, input: "\r\n", encoding: "utf8", timeout: LAUNCHER_TIMEOUT, windowsVerbatimArguments: true };
+    const success = spawnSync("cmd.exe", ["/d", "/c", "call \"%SDU_PACKAGE_LAUNCHER%\""], options);
+    assert.ifError(success.error);
+    assert.equal(success.status, 0, success.stdout + success.stderr);
+    assert.match(success.stdout, /打包完成/);
+    assert.match(success.stdout, /Press any key|请按任意键/i, "成功后应保留暂停提示");
+
+    // 缺少运行文件时也要显示失败信息并暂停，让用户能看清错误
+    fs.unlinkSync(path.join(projectRoot, "application.js"));
+    const failure = spawnSync("cmd.exe", ["/d", "/c", "call \"%SDU_PACKAGE_LAUNCHER%\""], options);
+    assert.ifError(failure.error);
+    assert.equal(failure.status, 1);
+    assert.match(failure.stdout, /打包未完成/);
+    assert.match(failure.stdout + failure.stderr, /application\.js/);
+    assert.match(failure.stdout, /Press any key|请按任意键/i, "失败后应保留暂停提示");
+    return path.join(projectRoot, "releases");
+}
+
 // 用游客实际拿到的 ZIP 验证解压后直接运行，结束时关闭浏览器并清理测试目录
 async function testOfflinePackage() {
     const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sdu-package-test-"));
     let browser = null;
     try {
-        const output = path.join(temporaryRoot, "output");
-        execFileSync(POWERSHELL, ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path.join(ROOT, "scripts", "package.ps1"), "-OutputDirectory", output], { stdio: "pipe" });
+        const output = testPackageLauncher(temporaryRoot);
         const archives = fs.readdirSync(output);
         assert.equal(archives.length, 1);
         const archive = path.join(output, archives[0]);
