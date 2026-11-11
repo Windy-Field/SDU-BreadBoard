@@ -4,7 +4,7 @@ import { segmentCrossesBounds, simplifyWirePath, WIRE_PATH } from "./wire-path.m
 // 拐角数相同时的比较参数：重叠、贴线和交叉的代价高于同长度的空闲路径
 const ROUTE_COST = { overlap: 70, nearby: 3, crossing: 10, clearance: 6, coordinateDigits: 6 };
 // 直线方向固定排序，保证相同输入生成相同的走线
-const DIRECTIONS = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 1 }, { x: -1, y: 1 }, { x: -1, y: -1 }, { x: 1, y: -1 }];
+const DIRECTIONS = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }];
 
 // 将路径拆成线段，供后续线路比较重叠和交叉
 export function routeSegments(points) {
@@ -61,16 +61,14 @@ function segmentCost(first, last, occupied) {
 }
 
 // 检查直线方向是否合法，返回固定方向编号，不合法时返回 -1
-function lineDirection(first, last, angle) {
+function lineDirection(first, last) {
     const horizontal = last.x - first.x;
     const vertical = last.y - first.y;
     if (horizontal === 0 && vertical === 0) {
         return -1;
     }
     if (horizontal !== 0 && vertical !== 0) {
-        if (angle !== 45 || Math.abs(Math.abs(horizontal) - Math.abs(vertical)) > WIRE_PATH.tolerance) {
-            return -1;
-        }
+        return -1;
     }
     for (let index = 0; index < DIRECTIONS.length; index = index + 1) {
         const direction = DIRECTIONS[index];
@@ -99,16 +97,13 @@ function allowedPath(points, obstacles, boundary) {
 }
 
 // 直接线和单拐角路径可以穷举，先解决这些线路，避免不必要的整图搜索
-function simpleRoute(first, last, obstacles, occupied, boundary, angle) {
-    if (lineDirection(first, last, angle) >= 0 && allowedPath([first, last], obstacles, boundary)) {
+function simpleRoute(first, last, obstacles, occupied, boundary) {
+    if (lineDirection(first, last) >= 0 && allowedPath([first, last], obstacles, boundary)) {
         return [first, last];
     }
     let best = [];
     let bestCost = Infinity;
-    let count = 4;
-    if (angle === 45) {
-        count = DIRECTIONS.length;
-    }
+    const count = DIRECTIONS.length;
     for (let incoming = 0; incoming < count; incoming = incoming + 1) {
         for (let outgoing = 0; outgoing < count; outgoing = outgoing + 1) {
             const start = DIRECTIONS[incoming];
@@ -158,17 +153,13 @@ function addPoint(graph, x, y) {
     }
 }
 
-// 将点按直线分组，每组只连接相邻且没有障碍的点
+// 将点按横线与竖线分组，每组只连接相邻且没有障碍的点
 function groupPoints(graph, family) {
     const groups = new Map();
     for (const point of graph.points) {
         let key = point.y;
         if (family === 1) {
             key = point.x;
-        } else if (family === 2) {
-            key = point.x - point.y;
-        } else if (family === 3) {
-            key = point.x + point.y;
         }
         const groupKey = key.toFixed(ROUTE_COST.coordinateDigits);
         if (!groups.has(groupKey)) {
@@ -181,7 +172,7 @@ function groupPoints(graph, family) {
         for (let index = 1; index < points.length; index = index + 1) {
             const first = points[index - 1];
             const last = points[index];
-            if (lineDirection(first, last, graph.angle) < 0 || !allowedPath([first, last], graph.obstacles, graph.boundary)) {
+            if (lineDirection(first, last) < 0 || !allowedPath([first, last], graph.obstacles, graph.boundary)) {
                 continue;
             }
             const cost = segmentCost(first, last, graph.occupied);
@@ -201,10 +192,10 @@ function comparePoints(first, last) {
 }
 
 // 建立稀疏通道图，端点使用原始小数坐标，不吸附到网格
-function createGraph(first, last, obstacles, occupied, boundary, angle) {
+function createGraph(first, last, obstacles, occupied, boundary) {
     const graph = {
         points: [], positions: new Map(), states: new Map(), dirtyNodes: [],
-        obstacles: obstacles, occupied: occupied, boundary: boundary, angle: angle, maximumCost: 0,
+        obstacles: obstacles, occupied: occupied, boundary: boundary, maximumCost: 0,
         neighbors: neighbors, cleanDirty: pathfinding.Graph.prototype.cleanDirty, markDirty: pathfinding.Graph.prototype.markDirty
     };
     const horizontal = new Set([first.x, last.x, boundary.x, boundary.right]);
@@ -235,23 +226,7 @@ function createGraph(first, last, obstacles, occupied, boundary, angle) {
             addPoint(graph, x, y);
         }
     }
-    if (angle === 45) {
-        for (const endpoint of [first, last]) {
-            for (const sign of [-1, 1]) {
-                for (const x of columns) {
-                    addPoint(graph, x, endpoint.y + sign * (x - endpoint.x));
-                }
-                for (const y of rows) {
-                    addPoint(graph, endpoint.x + sign * (y - endpoint.y), y);
-                }
-            }
-        }
-    }
-    let families = 2;
-    if (angle === 45) {
-        families = 4;
-    }
-    for (let family = 0; family < families; family = family + 1) {
+    for (let family = 0; family < 2; family = family + 1) {
         groupPoints(graph, family);
     }
     // 一条最优路径不会重复同一方向状态，全部次要代价之和严格小于一个拐角
@@ -291,7 +266,7 @@ function neighbors(state) {
     }
     const result = [];
     for (const link of state.point.links) {
-        const direction = lineDirection(state.point, link.point, this.angle);
+        const direction = lineDirection(state.point, link.point);
         result.push(routeState(this, link.point, direction));
     }
     return result;
@@ -320,12 +295,12 @@ function zeroHeuristic() {
 }
 
 // 返回少拐角且不穿过芯片的路径，拐角相同时再比较重叠、间距和长度
-export function findRoute(first, last, obstacles, occupied, boundary, angle) {
-    const simple = simpleRoute(first, last, obstacles, occupied, boundary, angle);
+export function findRoute(first, last, obstacles, occupied, boundary) {
+    const simple = simpleRoute(first, last, obstacles, occupied, boundary);
     if (simple.length > 0) {
         return simple;
     }
-    const graph = createGraph(first, last, obstacles, occupied, boundary, angle);
+    const graph = createGraph(first, last, obstacles, occupied, boundary);
     if (!graph.start || !graph.goal) {
         return [];
     }

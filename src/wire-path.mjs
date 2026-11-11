@@ -1,5 +1,7 @@
-// 路径坐标比较容差，单位为画布逻辑像素
-export const WIRE_PATH = { tolerance: 0.000001 };
+import { BOARD } from "./board.mjs";
+
+// 斜角横纵各最多一个孔距，实际斜线长度最多为孔距乘以根号二
+export const WIRE_PATH = { tolerance: 0.000001, cornerSize: BOARD.pitch, cornerPortion: 1 / 3 };
 
 // 去掉重复点及同向直线上的中间点，返回新的路径，不修改传入坐标
 export function simplifyWirePath(points) {
@@ -28,7 +30,7 @@ export function simplifyWirePath(points) {
     return result;
 }
 
-// 在指定点之间补上横线或竖线，使每段只包含水平、竖直和 45° 方向
+// 将长斜线改成横竖主路径和短斜角，保留指定节点与已经合规的线段
 export function angleWirePath(points) {
     if (points.length === 0) {
         return [];
@@ -39,15 +41,66 @@ export function angleWirePath(points) {
         const last = points[index];
         const horizontal = last.x - first.x;
         const vertical = last.y - first.y;
-        const distance = Math.min(Math.abs(horizontal), Math.abs(vertical));
-        if (distance > 0 && Math.abs(horizontal) !== Math.abs(vertical)) {
-            const diagonalEnd = {
-                x: first.x + Math.sign(horizontal) * distance,
-                y: first.y + Math.sign(vertical) * distance
-            };
-            result.push(diagonalEnd);
+        if (horizontal !== 0 && vertical !== 0) {
+            const diagonal = Math.abs(Math.abs(horizontal) - Math.abs(vertical)) <= WIRE_PATH.tolerance;
+            if (!diagonal || Math.abs(horizontal) > WIRE_PATH.cornerSize + WIRE_PATH.tolerance) {
+                const corner = { x: last.x, y: first.y };
+                const section = shortCornerPath([first, corner, last], [], Infinity);
+                for (let position = 1; position < section.length - 1; position = position + 1) {
+                    result.push(section[position]);
+                }
+            }
         }
         result.push(last);
+    }
+    return simplifyWirePath(result);
+}
+
+// 将横竖路径的直角改成短斜角，保护端点、芯片避让区和允许的路径点数
+export function shortCornerPath(points, obstacles, maximumPoints) {
+    const result = [];
+    for (let index = 0; index < points.length; index = index + 1) {
+        const corner = points[index];
+        if (index === 0 || index === points.length - 1) {
+            result.push(corner);
+            continue;
+        }
+        const before = points[index - 1];
+        const after = points[index + 1];
+        const incomingX = corner.x - before.x;
+        const incomingY = corner.y - before.y;
+        const outgoingX = after.x - corner.x;
+        const outgoingY = after.y - corner.y;
+        const incomingAxis = incomingX === 0 || incomingY === 0;
+        const outgoingAxis = outgoingX === 0 || outgoingY === 0;
+        const perpendicular = incomingX * outgoingX + incomingY * outgoingY === 0;
+        const remaining = points.length - index - 1;
+        if (!incomingAxis || !outgoingAxis || !perpendicular || result.length + remaining + 2 > maximumPoints) {
+            result.push(corner);
+            continue;
+        }
+        // 每个转角最多占相邻线段的三分之一，避免相邻斜角合并成长斜线
+        const incomingLength = Math.hypot(incomingX, incomingY);
+        const outgoingLength = Math.hypot(outgoingX, outgoingY);
+        const size = Math.min(WIRE_PATH.cornerSize, incomingLength * WIRE_PATH.cornerPortion, outgoingLength * WIRE_PATH.cornerPortion);
+        if (size <= WIRE_PATH.tolerance) {
+            result.push(corner);
+            continue;
+        }
+        const first = { x: corner.x - Math.sign(incomingX) * size, y: corner.y - Math.sign(incomingY) * size };
+        const last = { x: corner.x + Math.sign(outgoingX) * size, y: corner.y + Math.sign(outgoingY) * size };
+        let blocked = false;
+        for (const obstacle of obstacles) {
+            if (segmentCrossesBounds(first, last, obstacle)) {
+                blocked = true;
+                break;
+            }
+        }
+        if (blocked) {
+            result.push(corner);
+        } else {
+            result.push(first, last);
+        }
     }
     return simplifyWirePath(result);
 }

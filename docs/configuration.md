@@ -8,7 +8,7 @@
 | `src/board.mjs` | 实物孔距、母线分段、电源轨、端口数量、默认显示位数、备注上限和线色 |
 | `src/storage.mjs` | 导入大小、芯片和导线数量、转折点上限、名称长度及旧文件坐标范围 |
 | `src/geometry.mjs` | 选择范围、吸附距离、默认折线通道和芯片外框 |
-| `src/wire-path.mjs` | 路径坐标的浮点比较容差 |
+| `src/wire-path.mjs` | 路径坐标比较容差、短斜角的最大孔距与相邻线段占比 |
 | `src/render.mjs` | 画布像素倍率、线宽、灯和按键模块的显示位置 |
 | `src/routing.mjs` | 芯片避让距离和寻路边界 |
 | `src/routing-graph.mjs` | 拐角优先寻路的重叠、间距、交叉代价和通道坐标精度 |

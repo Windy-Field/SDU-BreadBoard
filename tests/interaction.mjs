@@ -63,6 +63,8 @@ function checkWireAngles(project) {
             const vertical = Math.abs(points[segment].y - points[segment - 1].y);
             assert.ok(horizontal === 0 || vertical === 0 || Math.abs(horizontal - vertical) < 0.000001);
             if (horizontal > 0 && vertical > 0) {
+                assert.ok(horizontal <= BOARD.pitch + 0.000001, "页面斜角横向不能超过一个孔距");
+                assert.ok(vertical <= BOARD.pitch + 0.000001, "页面斜角纵向不能超过一个孔距");
                 diagonal = diagonal + 1;
             }
         }
@@ -211,6 +213,7 @@ async function testPresetRouting(page) {
         assert.deepEqual(wire.bends, expectedRoutes[wire.id]);
         assert.equal(wire.angle, 45);
     }
+    assert.ok(checkWireAngles(updated) > 0);
     await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "preset-fewer-corners.png"), fullPage: true });
     assert.equal(updated.notes, before.notes);
     assert.deepEqual(updated.chips, before.chips);

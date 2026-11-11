@@ -1,7 +1,7 @@
 import { BOARD, endpointPosition } from "./board.mjs";
 import { chipBounds } from "./geometry.mjs";
 import { LIMITS } from "./storage.mjs";
-import { simplifyWirePath } from "./wire-path.mjs";
+import { simplifyWirePath, shortCornerPath } from "./wire-path.mjs";
 import { findRoute, routeSegments } from "./routing-graph.mjs";
 
 // 芯片周围留出的距离和画布边界，单位为画布逻辑像素
@@ -27,7 +27,7 @@ function routingObstacles(project) {
     return obstacles;
 }
 
-// 为电路生成路径表，先减少拐角，再比较重叠和长度，angle 为 45 时允许斜线
+// 先整理少拐角的横竖主路径，angle 为 45 时只将局部转角处理为短斜线
 export async function routeWires(project, angle) {
     const obstacles = routingObstacles(project);
     const occupied = [];
@@ -42,11 +42,14 @@ export async function routeWires(project, angle) {
     const routes = {};
     for (const entry of ordered) {
         const boundary = { x: ROUTING.sideMargin, y: Math.min(ROUTING.topBoundary, entry.first.y, entry.last.y), right: BOARD.width - ROUTING.sideMargin, bottom: Math.max(ROUTING.bottomBoundary, entry.first.y, entry.last.y) };
-        const path = findRoute(entry.first, entry.last, obstacles, occupied, boundary, angle);
+        const path = findRoute(entry.first, entry.last, obstacles, occupied, boundary);
         if (path.length === 0) {
             throw new Error("找不到导线路径：" + entry.wire.id);
         }
-        const simplified = simplifyWirePath(path);
+        let simplified = simplifyWirePath(path);
+        if (angle === 45) {
+            simplified = shortCornerPath(simplified, obstacles, LIMITS.bends + 2);
+        }
         const bends = simplified.slice(1, -1);
         // 直线保留中点，避免空转折点触发画布原有的默认折线
         if (bends.length === 0) {

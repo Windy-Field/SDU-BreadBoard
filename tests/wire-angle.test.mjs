@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { angleWirePath, simplifyWirePath, segmentCrossesBounds } from "../src/wire-path.mjs";
+import { angleWirePath, shortCornerPath, simplifyWirePath, segmentCrossesBounds, WIRE_PATH } from "../src/wire-path.mjs";
 import { findRoute } from "../src/routing-graph.mjs";
 import { wirePoints, hitTest, wireHandleAt } from "../src/geometry.mjs";
 import { emptyProject, endpointPosition } from "../src/board.mjs";
@@ -21,6 +21,8 @@ function assertAngles(points) {
         const vertical = Math.abs(points[index].y - points[index - 1].y);
         assert.ok(horizontal === 0 || vertical === 0 || Math.abs(horizontal - vertical) < 0.000001);
         if (horizontal > 0 && vertical > 0) {
+            assert.ok(horizontal <= WIRE_PATH.cornerSize + WIRE_PATH.tolerance, "斜角横向最多一个孔距");
+            assert.ok(vertical <= WIRE_PATH.cornerSize + WIRE_PATH.tolerance, "斜角纵向最多一个孔距");
             diagonal = diagonal + 1;
         }
     }
@@ -56,10 +58,29 @@ function testCornerPriority() {
     const first = { x: 20, y: 50 };
     const last = { x: 180, y: 50 };
     const occupied = [{ first: first, last: last }];
-    assert.deepEqual(findRoute(first, last, [], occupied, ROUTE_BOUNDARY, 45), [first, last]);
-    const diagonal = findRoute({ x: 20, y: 20 }, { x: 180, y: 120 }, [], [], ROUTE_BOUNDARY, 45);
-    assert.equal(diagonal.length, 3);
-    assert.equal(assertAngles(diagonal), 1);
+    assert.deepEqual(findRoute(first, last, [], occupied, ROUTE_BOUNDARY), [first, last]);
+    const path = findRoute({ x: 20, y: 20 }, { x: 180, y: 120 }, [], [], ROUTE_BOUNDARY);
+    assert.equal(path.length, 3);
+    assert.equal(assertAngles(path), 0);
+}
+
+// 转角只削去一个孔距，相邻转角、障碍和点数限制不会生成长斜线
+function testShortCorners() {
+    const points = [{ x: 20, y: 20 }, { x: 180, y: 20 }, { x: 180, y: 160 }, { x: 200, y: 160 }];
+    const result = shortCornerPath(points, [], 26);
+    assert.equal(assertAngles(result), 2);
+    assert.deepEqual(result[0], points[0]);
+    assert.deepEqual(result[result.length - 1], points[points.length - 1]);
+    assert.deepEqual(angleWirePath(result), result);
+    assert.deepEqual(shortCornerPath(points, [], points.length), points);
+    const blocked = [{ x: 165, y: 23, width: 12, height: 12 }];
+    const protectedPath = shortCornerPath(points, blocked, 26);
+    for (let index = 1; index < protectedPath.length; index = index + 1) {
+        assert.equal(segmentCrossesBounds(protectedPath[index - 1], protectedPath[index], blocked[0]), false);
+    }
+    const longDiagonal = angleWirePath([{ x: 20, y: 20 }, { x: 240, y: 240 }]);
+    assert.ok(longDiagonal.length > 2);
+    assertAngles(longDiagonal);
 }
 
 // 绕障碍需要两个拐角时，优先选重叠少的一侧，并检查小数端点精确保留
@@ -68,16 +89,16 @@ function testOverlapPriority() {
     const last = { x: 180, y: 50.25 };
     const obstacle = { x: 80, y: 30, width: 40, height: 40 };
     const occupied = [{ first: { x: 0, y: 30 }, last: { x: 300, y: 30 } }];
-    const path = findRoute(first, last, [obstacle], occupied, ROUTE_BOUNDARY, 0);
+    const path = findRoute(first, last, [obstacle], occupied, ROUTE_BOUNDARY);
     assert.equal(path.length, 4);
     assert.deepEqual(path[0], first);
     assert.deepEqual(path[path.length - 1], last);
     assert.ok(path[1].y >= 70);
     assert.ok(path[2].y >= 70);
     assertAngles(path);
-    assert.deepEqual(findRoute(first, last, [obstacle], occupied, ROUTE_BOUNDARY, 0), path);
+    assert.deepEqual(findRoute(first, last, [obstacle], occupied, ROUTE_BOUNDARY), path);
     const blocked = { x: 0, y: 0, width: 300, height: 300 };
-    assert.deepEqual(findRoute(first, last, [blocked], [], ROUTE_BOUNDARY, 45), []);
+    assert.deepEqual(findRoute(first, last, [blocked], [], ROUTE_BOUNDARY), []);
 }
 
 // 保存与导入保留角度，斜线中段可选中，自动补出的转折点也能用于拖动
@@ -162,6 +183,7 @@ async function testAngledPreset() {
 test("45°路径覆盖四个方向、轴向和折返", testAngleGeometry);
 test("任意方向的路径可检查芯片保护区", testCornerProtection);
 test("减少拐角优先于避免导线重叠", testCornerPriority);
+test("单个斜角最长根号二个孔距并保护相邻转弯", testShortCorners);
 test("相同拐角数量优先减少重叠并保留精确端点", testOverlapPriority);
 test("45°导线保存、导入、命中和转折点一致", testAngleStorageAndPicking);
 test("45°自动整理保持电气结果并绕开芯片", testAngledRouting);

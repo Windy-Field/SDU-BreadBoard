@@ -4475,7 +4475,7 @@
   }
 
   // src/wire-path.mjs
-  var WIRE_PATH = { tolerance: 1e-6 };
+  var WIRE_PATH = { tolerance: 1e-6, cornerSize: BOARD.pitch, cornerPortion: 1 / 3 };
   function simplifyWirePath(points) {
     const result = [];
     for (const point of points) {
@@ -4511,15 +4511,63 @@
       const last = points[index];
       const horizontal = last.x - first.x;
       const vertical = last.y - first.y;
-      const distance = Math.min(Math.abs(horizontal), Math.abs(vertical));
-      if (distance > 0 && Math.abs(horizontal) !== Math.abs(vertical)) {
-        const diagonalEnd = {
-          x: first.x + Math.sign(horizontal) * distance,
-          y: first.y + Math.sign(vertical) * distance
-        };
-        result.push(diagonalEnd);
+      if (horizontal !== 0 && vertical !== 0) {
+        const diagonal = Math.abs(Math.abs(horizontal) - Math.abs(vertical)) <= WIRE_PATH.tolerance;
+        if (!diagonal || Math.abs(horizontal) > WIRE_PATH.cornerSize + WIRE_PATH.tolerance) {
+          const corner = { x: last.x, y: first.y };
+          const section = shortCornerPath([first, corner, last], [], Infinity);
+          for (let position = 1; position < section.length - 1; position = position + 1) {
+            result.push(section[position]);
+          }
+        }
       }
       result.push(last);
+    }
+    return simplifyWirePath(result);
+  }
+  function shortCornerPath(points, obstacles, maximumPoints) {
+    const result = [];
+    for (let index = 0; index < points.length; index = index + 1) {
+      const corner = points[index];
+      if (index === 0 || index === points.length - 1) {
+        result.push(corner);
+        continue;
+      }
+      const before = points[index - 1];
+      const after = points[index + 1];
+      const incomingX = corner.x - before.x;
+      const incomingY = corner.y - before.y;
+      const outgoingX = after.x - corner.x;
+      const outgoingY = after.y - corner.y;
+      const incomingAxis = incomingX === 0 || incomingY === 0;
+      const outgoingAxis = outgoingX === 0 || outgoingY === 0;
+      const perpendicular = incomingX * outgoingX + incomingY * outgoingY === 0;
+      const remaining = points.length - index - 1;
+      if (!incomingAxis || !outgoingAxis || !perpendicular || result.length + remaining + 2 > maximumPoints) {
+        result.push(corner);
+        continue;
+      }
+      const incomingLength = Math.hypot(incomingX, incomingY);
+      const outgoingLength = Math.hypot(outgoingX, outgoingY);
+      const size = Math.min(WIRE_PATH.cornerSize, incomingLength * WIRE_PATH.cornerPortion, outgoingLength * WIRE_PATH.cornerPortion);
+      if (size <= WIRE_PATH.tolerance) {
+        result.push(corner);
+        continue;
+      }
+      const first = { x: corner.x - Math.sign(incomingX) * size, y: corner.y - Math.sign(incomingY) * size };
+      const last = { x: corner.x + Math.sign(outgoingX) * size, y: corner.y + Math.sign(outgoingY) * size };
+      let blocked = false;
+      for (const obstacle of obstacles) {
+        if (segmentCrossesBounds(first, last, obstacle)) {
+          blocked = true;
+          break;
+        }
+      }
+      if (blocked) {
+        result.push(corner);
+      } else {
+        result.push(first, last);
+      }
     }
     return simplifyWirePath(result);
   }
@@ -4904,7 +4952,7 @@
   // src/routing-graph.mjs
   var import_javascript_astar = __toESM(require_astar(), 1);
   var ROUTE_COST = { overlap: 70, nearby: 3, crossing: 10, clearance: 6, coordinateDigits: 6 };
-  var DIRECTIONS = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 1 }, { x: -1, y: 1 }, { x: -1, y: -1 }, { x: 1, y: -1 }];
+  var DIRECTIONS = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }];
   function routeSegments(points) {
     const result = [];
     for (let index = 1; index < points.length; index = index + 1) {
@@ -4953,16 +5001,14 @@
     }
     return cost;
   }
-  function lineDirection(first, last, angle) {
+  function lineDirection(first, last) {
     const horizontal = last.x - first.x;
     const vertical = last.y - first.y;
     if (horizontal === 0 && vertical === 0) {
       return -1;
     }
     if (horizontal !== 0 && vertical !== 0) {
-      if (angle !== 45 || Math.abs(Math.abs(horizontal) - Math.abs(vertical)) > WIRE_PATH.tolerance) {
-        return -1;
-      }
+      return -1;
     }
     for (let index = 0; index < DIRECTIONS.length; index = index + 1) {
       const direction = DIRECTIONS[index];
@@ -4987,16 +5033,13 @@
     }
     return true;
   }
-  function simpleRoute(first, last, obstacles, occupied2, boundary, angle) {
-    if (lineDirection(first, last, angle) >= 0 && allowedPath([first, last], obstacles, boundary)) {
+  function simpleRoute(first, last, obstacles, occupied2, boundary) {
+    if (lineDirection(first, last) >= 0 && allowedPath([first, last], obstacles, boundary)) {
       return [first, last];
     }
     let best = [];
     let bestCost = Infinity;
-    let count = 4;
-    if (angle === 45) {
-      count = DIRECTIONS.length;
-    }
+    const count = DIRECTIONS.length;
     for (let incoming = 0; incoming < count; incoming = incoming + 1) {
       for (let outgoing = 0; outgoing < count; outgoing = outgoing + 1) {
         const start2 = DIRECTIONS[incoming];
@@ -5047,10 +5090,6 @@
       let key = point.y;
       if (family === 1) {
         key = point.x;
-      } else if (family === 2) {
-        key = point.x - point.y;
-      } else if (family === 3) {
-        key = point.x + point.y;
       }
       const groupKey = key.toFixed(ROUTE_COST.coordinateDigits);
       if (!groups.has(groupKey)) {
@@ -5063,7 +5102,7 @@
       for (let index = 1; index < points.length; index = index + 1) {
         const first = points[index - 1];
         const last = points[index];
-        if (lineDirection(first, last, graph.angle) < 0 || !allowedPath([first, last], graph.obstacles, graph.boundary)) {
+        if (lineDirection(first, last) < 0 || !allowedPath([first, last], graph.obstacles, graph.boundary)) {
           continue;
         }
         const cost = segmentCost(first, last, graph.occupied);
@@ -5079,7 +5118,7 @@
     }
     return first.y - last.y;
   }
-  function createGraph(first, last, obstacles, occupied2, boundary, angle) {
+  function createGraph(first, last, obstacles, occupied2, boundary) {
     const graph = {
       points: [],
       positions: /* @__PURE__ */ new Map(),
@@ -5088,7 +5127,6 @@
       obstacles,
       occupied: occupied2,
       boundary,
-      angle,
       maximumCost: 0,
       neighbors,
       cleanDirty: import_javascript_astar.default.Graph.prototype.cleanDirty,
@@ -5121,23 +5159,7 @@
         addPoint(graph, x2, y2);
       }
     }
-    if (angle === 45) {
-      for (const endpoint of [first, last]) {
-        for (const sign of [-1, 1]) {
-          for (const x2 of columns) {
-            addPoint(graph, x2, endpoint.y + sign * (x2 - endpoint.x));
-          }
-          for (const y2 of rows) {
-            addPoint(graph, endpoint.x + sign * (y2 - endpoint.y), y2);
-          }
-        }
-      }
-    }
-    let families = 2;
-    if (angle === 45) {
-      families = 4;
-    }
-    for (let family = 0; family < families; family = family + 1) {
+    for (let family = 0; family < 2; family = family + 1) {
       groupPoints(graph, family);
     }
     graph.secondaryScale = (graph.points.length * DIRECTIONS.length + 2) * (graph.maximumCost + 1);
@@ -5170,7 +5192,7 @@
     }
     const result = [];
     for (const link of state2.point.links) {
-      const direction = lineDirection(state2.point, link.point, this.angle);
+      const direction = lineDirection(state2.point, link.point);
       result.push(routeState(this, link.point, direction));
     }
     return result;
@@ -5193,12 +5215,12 @@
   function zeroHeuristic() {
     return 0;
   }
-  function findRoute(first, last, obstacles, occupied2, boundary, angle) {
-    const simple = simpleRoute(first, last, obstacles, occupied2, boundary, angle);
+  function findRoute(first, last, obstacles, occupied2, boundary) {
+    const simple = simpleRoute(first, last, obstacles, occupied2, boundary);
     if (simple.length > 0) {
       return simple;
     }
-    const graph = createGraph(first, last, obstacles, occupied2, boundary, angle);
+    const graph = createGraph(first, last, obstacles, occupied2, boundary);
     if (!graph.start || !graph.goal) {
       return [];
     }
@@ -5243,11 +5265,14 @@
     const routes = {};
     for (const entry of ordered) {
       const boundary = { x: ROUTING.sideMargin, y: Math.min(ROUTING.topBoundary, entry.first.y, entry.last.y), right: BOARD.width - ROUTING.sideMargin, bottom: Math.max(ROUTING.bottomBoundary, entry.first.y, entry.last.y) };
-      const path = findRoute(entry.first, entry.last, obstacles, occupied2, boundary, angle);
+      const path = findRoute(entry.first, entry.last, obstacles, occupied2, boundary);
       if (path.length === 0) {
         throw new Error("\u627E\u4E0D\u5230\u5BFC\u7EBF\u8DEF\u5F84\uFF1A" + entry.wire.id);
       }
-      const simplified = simplifyWirePath(path);
+      let simplified = simplifyWirePath(path);
+      if (angle === 45) {
+        simplified = shortCornerPath(simplified, obstacles, LIMITS.bends + 2);
+      }
       const bends = simplified.slice(1, -1);
       if (bends.length === 0) {
         bends.push({ x: (entry.first.x + entry.last.x) / 2, y: (entry.first.y + entry.last.y) / 2 });
@@ -9459,7 +9484,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.6.0";
+  var APP_VERSION = "1.6.1";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs
