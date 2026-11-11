@@ -986,6 +986,26 @@
   Vector3vl.x = Vector3vl.xes(1);
   _Display3vlWithRegex_regex = /* @__PURE__ */ new WeakMap();
 
+  // src/extra-chips.mjs
+  var EXTRA_CHIPS = {
+    "74LS03": { title: "\u56DB\u8DEFOC\u4E0E\u975E\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "1Y", "2A", "2B", "2Y", "GND", "3Y", "3A", "3B", "4Y", "4A", "4B", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [3, 6, 8, 11], kind: "open-collector", gates: [[1, 2, 3], [4, 5, 6], [9, 10, 8], [12, 13, 11]] },
+    "74LS20": { title: "\u53CC\u56DB\u8F93\u5165\u4E0E\u975E\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "NC", "2A", "2B", "1Y", "GND", "2Y", "2C", "2D", "NC", "1C", "1D", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [6, 8], kind: "nand4", gates: [[1, 2, 12, 13, 6], [4, 5, 9, 10, 8]] },
+    "CD4011": { title: "\u56DB\u8DEFCMOS\u4E0E\u975E\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "1Y", "2Y", "2A", "2B", "VSS", "3A", "3B", "3Y", "4Y", "4A", "4B", "VDD"], inputs: [1, 2, 5, 6, 8, 9, 12, 13], outputs: [3, 4, 10, 11], kind: "cmos-nand", gates: [[1, 2, 3], [5, 6, 4], [8, 9, 10], [12, 13, 11]] },
+    "74LS125": { title: "\u56DB\u8DEF\u4E09\u6001\u7F13\u51B2\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1G\u2032", "1A", "1Y", "2G\u2032", "2A", "2Y", "GND", "3Y", "3A", "3G\u2032", "4Y", "4A", "4G\u2032", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [3, 6, 8, 11], kind: "tristate", gates: [[1, 2, 3], [4, 5, 6], [10, 9, 8], [13, 12, 11]] },
+    "74LS138": { title: "\u4E09\u7EBF\u516B\u7EBF\u8BD1\u7801\u5668", count: 16, power: 16, ground: 8, labels: ["", "A0", "A1", "A2", "S3\u2032(G2A\u2032)", "S2\u2032(G2B\u2032)", "S1(G1)", "Y7\u2032", "GND", "Y6\u2032", "Y5\u2032", "Y4\u2032", "Y3\u2032", "Y2\u2032", "Y1\u2032", "Y0\u2032", "VCC"], inputs: [1, 2, 3, 4, 5, 6], outputs: [15, 14, 13, 12, 11, 10, 9, 7], kind: "decoder8" },
+    "74LS139": { title: "\u53CC\u4E8C\u7EBF\u56DB\u7EBF\u8BD1\u7801\u5668", count: 16, power: 16, ground: 8, labels: ["", "1G\u2032", "1A", "1B", "1Y0\u2032", "1Y1\u2032", "1Y2\u2032", "1Y3\u2032", "GND", "2Y3\u2032", "2Y2\u2032", "2Y1\u2032", "2Y0\u2032", "2B", "2A", "2G\u2032", "VCC"], inputs: [1, 2, 3, 13, 14, 15], outputs: [4, 5, 6, 7, 12, 11, 10, 9], kind: "dual-decoder" },
+    "74LS151": { title: "\u516B\u9009\u4E00\u6570\u636E\u9009\u62E9\u5668", count: 16, power: 16, ground: 8, labels: ["", "D3", "D2", "D1", "D0", "Y", "W\u2032(Y\u2032)", "G\u2032", "GND", "C", "B", "A", "D7", "D6", "D5", "D4", "VCC"], inputs: [1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15], outputs: [5, 6], kind: "mux8" },
+    "74LS153": { title: "\u53CC\u56DB\u9009\u4E00\u6570\u636E\u9009\u62E9\u5668", count: 16, power: 16, ground: 8, labels: ["", "1G\u2032", "B", "1C3", "1C2", "1C1", "1C0", "1Y", "GND", "2Y", "2C0", "2C1", "2C2", "2C3", "A", "2G\u2032", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15], outputs: [7, 9], kind: "dual-mux" },
+    "74LS85": { title: "\u56DB\u4F4D\u6570\u503C\u6BD4\u8F83\u5668", count: 16, power: 16, ground: 8, labels: ["", "B3", "A<B\u8F93\u5165", "A=B\u8F93\u5165", "A>B\u8F93\u5165", "A>B", "A=B", "A<B", "GND", "B0", "A0", "B1", "A1", "B2", "A2", "A3", "VCC"], inputs: [1, 2, 3, 4, 9, 10, 11, 12, 13, 14, 15], outputs: [5, 6, 7], kind: "comparator" },
+    "74LS48": { title: "BCD\u4E03\u6BB5\u8BD1\u7801\u5668", count: 16, power: 16, ground: 8, labels: ["", "B", "C", "LT\u2032", "BI\u2032/RBO\u2032", "RBI\u2032", "D", "A", "GND", "e", "d", "c", "b", "a", "g", "f", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7], outputs: [13, 12, 11, 10, 9, 15, 14, 4], bidirectional: [4], kind: "seven-segment" },
+    "74LS74": { title: "\u53CCD\u89E6\u53D1\u5668", count: 14, power: 14, ground: 7, labels: ["", "1RD\u2032", "1D", "1CP", "1SD\u2032", "1Q", "1Q\u2032", "GND", "2Q\u2032", "2Q", "2SD\u2032", "2CP", "2D", "2RD\u2032", "VCC"], inputs: [1, 2, 3, 4, 10, 11, 12, 13], outputs: [5, 6, 9, 8], sequential: "flipflop", edge: "rising", channels: [{ reset: 1, set: 4, clock: 3, data: 2, output: 5, inverted: 6 }, { reset: 13, set: 10, clock: 11, data: 12, output: 9, inverted: 8 }] },
+    "74LS112": { title: "\u53CCJK\u4E0B\u964D\u6CBF\u89E6\u53D1\u5668", count: 16, power: 16, ground: 8, labels: ["", "1CP", "1K", "1J", "1SD\u2032", "1Q", "1Q\u2032", "2Q", "GND", "2Q\u2032", "2SD\u2032", "2J", "2K", "2CP", "2RD\u2032", "1RD\u2032", "VCC"], inputs: [1, 2, 3, 4, 10, 11, 12, 13, 14, 15], outputs: [5, 6, 7, 9], sequential: "flipflop", edge: "falling", channels: [{ reset: 15, set: 4, clock: 1, first: 3, second: 2, output: 5, inverted: 6 }, { reset: 14, set: 10, clock: 13, first: 11, second: 12, output: 7, inverted: 9 }] },
+    "CD4027": { title: "\u53CCJK\u4E0A\u5347\u6CBF\u89E6\u53D1\u5668", count: 16, power: 16, ground: 8, labels: ["", "Q2", "Q2\u2032", "CLK2", "RESET2", "K2", "J2", "SET2", "VSS", "SET1", "J1", "K1", "RESET1", "CLK1", "Q1\u2032", "Q1", "VDD"], inputs: [3, 4, 5, 6, 7, 9, 10, 11, 12, 13], outputs: [15, 14, 1, 2], sequential: "flipflop", edge: "rising", activeHigh: true, channels: [{ reset: 12, set: 9, clock: 13, first: 10, second: 11, output: 15, inverted: 14 }, { reset: 4, set: 7, clock: 3, first: 6, second: 5, output: 1, inverted: 2 }] },
+    "74LS160": { title: "\u540C\u6B65\u5341\u8FDB\u5236\u8BA1\u6570\u5668", count: 16, power: 16, ground: 8, labels: ["", "CLR\u2032", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD\u2032", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10], outputs: [14, 13, 12, 11, 15], sequential: "counter", modulus: 10 },
+    "74LS161": { title: "\u540C\u6B65\u4E8C\u8FDB\u5236\u8BA1\u6570\u5668", count: 16, power: 16, ground: 8, labels: ["", "CLR\u2032", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD\u2032", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10], outputs: [14, 13, 12, 11, 15], sequential: "counter", modulus: 16 },
+    "74LS194": { title: "\u56DB\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668", count: 16, power: 16, ground: 8, labels: ["", "CLR\u2032", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11], outputs: [12, 13, 14, 15], sequential: "shift" }
+  };
+
   // src/chips.mjs
   var CHIP_MODELS = {
     "74LS273": {
@@ -1065,6 +1085,9 @@
       operation: "not"
     }
   };
+  for (const name of Object.keys(EXTRA_CHIPS)) {
+    CHIP_MODELS[name] = EXTRA_CHIPS[name];
+  }
   function toVector(value) {
     if (value === 0) {
       return Vector3vl.zero;
@@ -1123,7 +1146,7 @@
   var BUS_SEGMENTS = [[1, 17], [19, 41], [43, 59]];
   var IO_LIMIT = 24;
   var NOTES_LIMIT = 5e4;
-  var GENERAL_NOTES = "# \u7535\u8DEF\u8BF4\u660E\n\n## \u529F\u80FD\n\n\u586B\u5199\u8FD9\u4E2A\u7535\u8DEF\u7684\u7528\u9014\u3002\n\n## \u8F93\u5165\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| K0 | \u5F85\u586B\u5199 |\n\n## \u8F93\u51FA\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| L0 | \u5F85\u586B\u5199 |\n\n## \u64CD\u4F5C\u6B65\u9AA4\n\n1. \u68C0\u67E5\u4F9B\u7535\u548C\u63A5\u7EBF\u3002\n2. \u8BBE\u7F6E\u8F93\u5165\uFF0C\u89C2\u5BDF\u8F93\u51FA\u3002\n";
+  var GENERAL_NOTES = "# \u7535\u8DEF\u8BF4\u660E\n\n## \u529F\u80FD\n\n\u586B\u5199\u8FD9\u4E2A\u7535\u8DEF\u7684\u7528\u9014\n\n## \u8F93\u5165\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| K0 | \u5F85\u586B\u5199 |\n\n## \u8F93\u51FA\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| L0 | \u5F85\u586B\u5199 |\n\n## \u64CD\u4F5C\u6B65\u9AA4\n\n1. \u68C0\u67E5\u4F9B\u7535\u548C\u63A5\u7EBF\n2. \u8BBE\u7F6E\u8F93\u5165\uFF0C\u89C2\u5BDF\u8F93\u51FA\n";
   var WIRE_COLORS = ["#dc3545", "#1976d2", "#16845b", "#d68a0b", "#8b55c5", "#0d939d", "#d44f93", "#46515f", "#93a619", "#e26c2b", "#8494a7", "#65483d"];
   function columnX(column) {
     return BOARD.startX + (column - 1) * BOARD.pitch;
@@ -1264,14 +1287,14 @@
   }
   function placementError(chips, candidate, ignoredId) {
     if (!Object.hasOwn(CHIP_MODELS, candidate.model)) {
-      return "\u4E0D\u652F\u6301\u8FD9\u4E2A\u82AF\u7247\u578B\u53F7\u3002";
+      return "\u4E0D\u652F\u6301\u8FD9\u4E2A\u82AF\u7247\u578B\u53F7";
     }
     const half = CHIP_MODELS[candidate.model].count / 2;
     if (!Number.isInteger(candidate.section) || candidate.section < 0 || candidate.section >= BOARD.sections) {
-      return "\u8BF7\u628A\u82AF\u7247\u653E\u5728\u5DF2\u6709\u7684\u9762\u5305\u677F\u4E0A\u3002";
+      return "\u8BF7\u628A\u82AF\u7247\u653E\u5728\u5DF2\u6709\u7684\u9762\u5305\u677F\u4E0A";
     }
     if (!Number.isInteger(candidate.column) || candidate.column < 1 || candidate.column + half - 1 > BOARD.columns) {
-      return "\u82AF\u7247\u5F15\u811A\u8D85\u51FA\u4E86\u9762\u5305\u677F\u8303\u56F4\u3002";
+      return "\u82AF\u7247\u5F15\u811A\u8D85\u51FA\u4E86\u9762\u5305\u677F\u8303\u56F4";
     }
     for (const chip of chips) {
       if (chip.id === ignoredId || chip.section !== candidate.section) {
@@ -1280,7 +1303,7 @@
       const last = chip.column + CHIP_MODELS[chip.model].count / 2 - 1;
       const candidateLast = candidate.column + half - 1;
       if (candidate.column <= last && candidateLast >= chip.column) {
-        return "\u6B64\u5904\u5DF2\u6709\u82AF\u7247\uFF0C\u8BF7\u6362\u4E00\u7EC4\u7A7A\u5217\u3002";
+        return "\u6B64\u5904\u5DF2\u6709\u82AF\u7247\uFF0C\u8BF7\u6362\u4E00\u7EC4\u7A7A\u5217";
       }
     }
     return "";
@@ -1290,10 +1313,376 @@
     for (let index = 0; index < 24; index = index + 1) {
       switches.push(0);
     }
-    return { version: 1, mode: "general", inputCount: 8, outputCount: 8, notes: GENERAL_NOTES, name: "\u672A\u547D\u540D\u7535\u8DEF", chips: [], wires: [], switches, power: true };
+    return { version: 1, inputCount: 8, outputCount: 8, notes: GENERAL_NOTES, name: "\u672A\u547D\u540D\u7535\u8DEF", chips: [], wires: [], pullUps: [], switches, power: true };
   }
   function copyProject(project) {
     return JSON.parse(JSON.stringify(project));
+  }
+
+  // src/chip-logic.mjs
+  function logicValue(value) {
+    if (value === 0 || value === 1) {
+      return value;
+    }
+    return "X";
+  }
+  function andValues(values) {
+    let result = 1;
+    for (const value of values) {
+      result = logicGate("and", result, value);
+    }
+    return result;
+  }
+  function readNumber(pins, order) {
+    let result = 0;
+    for (let bit = 0; bit < order.length; bit = bit + 1) {
+      const value = logicValue(pins[order[bit]]);
+      if (value === "X") {
+        return "X";
+      }
+      result = result + value * 2 ** bit;
+    }
+    return result;
+  }
+  function possibleAddresses(pins, order) {
+    const possible = [];
+    for (let number = 0; number < 2 ** order.length; number = number + 1) {
+      let matches = true;
+      for (let bit = 0; bit < order.length; bit = bit + 1) {
+        const value = logicValue(pins[order[bit]]);
+        if (value !== "X" && value !== (number >> bit & 1)) {
+          matches = false;
+        }
+      }
+      if (matches) {
+        possible.push(number);
+      }
+    }
+    return possible;
+  }
+  function commonValue(values) {
+    const first = values[0];
+    for (const value of values) {
+      if (value !== first) {
+        return "X";
+      }
+    }
+    return first;
+  }
+  function decode(pins, addressPins, enable, outputPins, outputs) {
+    const addresses = possibleAddresses(pins, addressPins);
+    for (let index = 0; index < outputPins.length; index = index + 1) {
+      const candidates = [];
+      for (const address of addresses) {
+        let match = 0;
+        if (address === index) {
+          match = 1;
+        }
+        const active = logicGate("and", enable, match);
+        candidates.push(logicGate("not", active, 0));
+      }
+      outputs[outputPins[index]] = commonValue(candidates);
+    }
+  }
+  function multiplex(pins, addressPins, dataPins, enable) {
+    const candidates = [];
+    for (const address of possibleAddresses(pins, addressPins)) {
+      candidates.push(logicValue(pins[dataPins[address]]));
+    }
+    return logicGate("and", enable, commonValue(candidates));
+  }
+  function compare(pins, outputs) {
+    const first = readNumber(pins, [10, 12, 14, 15]);
+    const second = readNumber(pins, [9, 11, 13, 1]);
+    outputs[5] = "X";
+    outputs[6] = "X";
+    outputs[7] = "X";
+    if (first === "X" || second === "X") {
+      return;
+    }
+    if (first !== second) {
+      outputs[5] = 0;
+      outputs[6] = 0;
+      outputs[7] = 0;
+      if (first > second) {
+        outputs[5] = 1;
+      } else {
+        outputs[7] = 1;
+      }
+      return;
+    }
+    outputs[6] = logicValue(pins[3]);
+    const notEqual = logicGate("not", pins[3], 0);
+    const notLess = logicGate("not", pins[2], 0);
+    const notGreater = logicGate("not", pins[4], 0);
+    outputs[5] = logicGate("and", notEqual, notLess);
+    outputs[7] = logicGate("and", notEqual, notGreater);
+  }
+  function sevenSegment(pins, outputs) {
+    const patterns = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "1011111", "1110000", "1111111", "1111011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
+    const segmentPins = [13, 12, 11, 10, 9, 15, 14];
+    const number = readNumber(pins, [7, 1, 2, 6]);
+    const blankZero = number === 0 && pins[5] === 0 && pins[3] === 1;
+    outputs[4] = "Z";
+    if (blankZero) {
+      outputs[4] = 0;
+    }
+    for (let index = 0; index < segmentPins.length; index = index + 1) {
+      let value = "X";
+      if (pins[4] === 0 || blankZero) {
+        value = 0;
+      } else if (pins[3] === 0 && pins[4] === 1) {
+        value = 1;
+      } else if (pins[3] === 1 && pins[4] === 1 && number !== "X") {
+        if (number !== 0 || pins[5] === 1) {
+          value = Number(patterns[number][index]);
+        }
+      }
+      outputs[segmentPins[index]] = value;
+    }
+  }
+  function evaluateExtra(model, pins) {
+    const outputs = {};
+    if (model.kind === "cmos-nand" || model.kind === "open-collector" || model.kind === "nand4" || model.kind === "tristate") {
+      for (const gate of model.gates) {
+        const outputPin = gate[gate.length - 1];
+        let value = "X";
+        if (model.kind === "tristate") {
+          if (pins[gate[0]] === 1) {
+            value = "Z";
+          } else if (pins[gate[0]] === 0) {
+            value = logicValue(pins[gate[1]]);
+          }
+        } else {
+          const inputs = [];
+          for (let index = 0; index < gate.length - 1; index = index + 1) {
+            inputs.push(pins[gate[index]]);
+          }
+          value = logicGate("not", andValues(inputs), 0);
+          if (model.kind === "open-collector" && value === 1) {
+            value = "Z";
+          }
+        }
+        outputs[outputPin] = value;
+      }
+    } else if (model.kind === "decoder8") {
+      const enable = andValues([pins[6], logicGate("not", pins[4], 0), logicGate("not", pins[5], 0)]);
+      decode(pins, [1, 2, 3], enable, model.outputs, outputs);
+    } else if (model.kind === "dual-decoder") {
+      decode(pins, [2, 3], logicGate("not", pins[1], 0), [4, 5, 6, 7], outputs);
+      decode(pins, [14, 13], logicGate("not", pins[15], 0), [12, 11, 10, 9], outputs);
+    } else if (model.kind === "mux8") {
+      outputs[5] = multiplex(pins, [11, 10, 9], [4, 3, 2, 1, 15, 14, 13, 12], logicGate("not", pins[7], 0));
+      outputs[6] = logicGate("not", outputs[5], 0);
+    } else if (model.kind === "dual-mux") {
+      outputs[7] = multiplex(pins, [14, 2], [6, 5, 4, 3], logicGate("not", pins[1], 0));
+      outputs[9] = multiplex(pins, [14, 2], [10, 11, 12, 13], logicGate("not", pins[15], 0));
+    } else if (model.kind === "comparator") {
+      compare(pins, outputs);
+    } else if (model.kind === "seven-segment") {
+      sevenSegment(pins, outputs);
+    }
+    return outputs;
+  }
+
+  // src/chip-state.mjs
+  function unknownBits(count) {
+    const bits = [];
+    for (let index = 0; index < count; index = index + 1) {
+      bits.push("X");
+    }
+    return bits;
+  }
+  function createChipState(model) {
+    let count = 4;
+    if (model.sequential === "flipflop") {
+      count = 2;
+    }
+    const clocks = unknownBits(count);
+    return { bits: unknownBits(count), inverted: unknownBits(count), clocks };
+  }
+  function hasEdge(previous, current, edge) {
+    if (edge === "falling") {
+      return previous === 1 && current === 0;
+    }
+    return previous === 0 && current === 1;
+  }
+  function uncertainEdge(previous, current, edge) {
+    const first = logicValue(previous);
+    const last = logicValue(current);
+    if (first !== "X" && last !== "X") {
+      return false;
+    }
+    if (edge === "falling") {
+      return first !== 0 && last !== 1;
+    }
+    return first !== 1 && last !== 0;
+  }
+  function nextJk(first, second, previous) {
+    const setPart = logicGate("and", first, logicGate("not", previous, 0));
+    const keepPart = logicGate("and", logicGate("not", second, 0), previous);
+    return logicGate("or", setPart, keepPart);
+  }
+  function updateFlipFlops(model, pins, state2) {
+    const bits = [];
+    const inverted = [];
+    for (let index = 0; index < model.channels.length; index = index + 1) {
+      const channel = model.channels[index];
+      let active = 0;
+      if (model.activeHigh) {
+        active = 1;
+      }
+      const reset = logicValue(pins[channel.reset]);
+      const set = logicValue(pins[channel.set]);
+      let value = state2.bits[index];
+      let inverse = state2.inverted[index];
+      if (reset === active && set === active) {
+        value = 1;
+        inverse = 1;
+      } else if (reset === active) {
+        value = 0;
+        inverse = 1;
+      } else if (set === active) {
+        value = 1;
+        inverse = 0;
+      } else if (reset === "X" || set === "X") {
+        value = "X";
+        inverse = "X";
+      } else {
+        if (value === inverse) {
+          value = "X";
+        }
+        if (hasEdge(state2.clocks[index], pins[channel.clock], model.edge)) {
+          if (channel.data) {
+            value = logicValue(pins[channel.data]);
+          } else {
+            value = nextJk(pins[channel.first], pins[channel.second], value);
+          }
+        } else if (uncertainEdge(state2.clocks[index], pins[channel.clock], model.edge)) {
+          value = "X";
+        }
+        inverse = logicGate("not", value, 0);
+      }
+      bits.push(value);
+      inverted.push(inverse);
+      state2.clocks[index] = logicValue(pins[channel.clock]);
+    }
+    state2.bits = bits;
+    state2.inverted = inverted;
+  }
+  function storedNumber(bits) {
+    let value = 0;
+    for (let bit = 0; bit < bits.length; bit = bit + 1) {
+      if (bits[bit] !== 0 && bits[bit] !== 1) {
+        return "X";
+      }
+      value = value + bits[bit] * 2 ** bit;
+    }
+    return value;
+  }
+  function numberBits(number) {
+    if (number === "X") {
+      return unknownBits(4);
+    }
+    const bits = [];
+    for (let bit = 0; bit < 4; bit = bit + 1) {
+      bits.push(number >> bit & 1);
+    }
+    return bits;
+  }
+  function updateCounter(model, pins, state2) {
+    const edge = hasEdge(state2.clocks[0], pins[2], "rising");
+    if (pins[1] === 0) {
+      state2.bits = [0, 0, 0, 0];
+    } else if (pins[1] !== 1) {
+      state2.bits = unknownBits(4);
+    } else if (edge) {
+      if (pins[9] === 0) {
+        state2.bits = numberBits(readNumber(pins, [3, 4, 5, 6]));
+      } else if (pins[9] !== 1) {
+        state2.bits = unknownBits(4);
+      } else {
+        const enable = andValues([pins[7], pins[10]]);
+        if (enable === 1) {
+          const current = storedNumber(state2.bits);
+          if (current === "X") {
+            state2.bits = unknownBits(4);
+          } else if (current === model.modulus - 1) {
+            state2.bits = [0, 0, 0, 0];
+          } else {
+            state2.bits = numberBits(current + 1 & 15);
+          }
+        } else if (enable === "X") {
+          state2.bits = unknownBits(4);
+        }
+      }
+    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising")) {
+      state2.bits = unknownBits(4);
+    }
+    state2.clocks[0] = logicValue(pins[2]);
+  }
+  function updateShift(pins, state2) {
+    if (pins[1] === 0) {
+      state2.bits = [0, 0, 0, 0];
+    } else if (pins[1] !== 1) {
+      state2.bits = unknownBits(4);
+    } else if (hasEdge(state2.clocks[0], pins[2], "rising")) {
+      const mode = readNumber(pins, [9, 10]);
+      const previous = state2.bits;
+      if (mode === 1) {
+        state2.bits = [logicValue(pins[3]), previous[0], previous[1], previous[2]];
+      } else if (mode === 2) {
+        state2.bits = [previous[1], previous[2], previous[3], logicValue(pins[11])];
+      } else if (mode === 3) {
+        state2.bits = [logicValue(pins[4]), logicValue(pins[5]), logicValue(pins[6]), logicValue(pins[7])];
+      } else if (mode === "X") {
+        state2.bits = unknownBits(4);
+      }
+    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising")) {
+      state2.bits = unknownBits(4);
+    }
+    state2.clocks[0] = logicValue(pins[2]);
+  }
+  function updateChipState(model, pins, state2, powered) {
+    const before = JSON.stringify([state2.bits, state2.inverted]);
+    if (!powered) {
+      state2.bits = unknownBits(state2.bits.length);
+      state2.inverted = unknownBits(state2.inverted.length);
+      state2.clocks = unknownBits(state2.clocks.length);
+    } else if (model.sequential === "flipflop") {
+      updateFlipFlops(model, pins, state2);
+    } else if (model.sequential === "counter") {
+      updateCounter(model, pins, state2);
+    } else if (model.sequential === "shift") {
+      updateShift(pins, state2);
+    }
+    return before !== JSON.stringify([state2.bits, state2.inverted]);
+  }
+  function stateOutputs(model, pins, state2) {
+    const outputs = {};
+    if (model.sequential === "flipflop") {
+      for (let index = 0; index < model.channels.length; index = index + 1) {
+        const channel = model.channels[index];
+        outputs[channel.output] = state2.bits[index];
+        outputs[channel.inverted] = state2.inverted[index];
+      }
+    } else {
+      for (let bit = 0; bit < 4; bit = bit + 1) {
+        outputs[model.outputs[bit]] = state2.bits[bit];
+      }
+      if (model.sequential === "counter") {
+        const number = storedNumber(state2.bits);
+        let terminal = "X";
+        if (number !== "X") {
+          terminal = 0;
+          if (number === model.modulus - 1) {
+            terminal = 1;
+          }
+        }
+        outputs[15] = logicGate("and", terminal, pins[10]);
+      }
+    }
+    return outputs;
   }
 
   // src/engine.mjs
@@ -1328,21 +1717,34 @@
   function nodeFor(topology, endpoint) {
     return findRoot(topology, baseNode(endpoint));
   }
-  function addDriver(drivers, node2, value, source) {
+  function addDriver(drivers, node2, value, source, kind = "push-pull") {
+    if (value === "Z") {
+      return;
+    }
     if (!Object.hasOwn(drivers, node2)) {
       drivers[node2] = [];
     }
-    drivers[node2].push({ value, source });
+    drivers[node2].push({ value, source, kind });
   }
   function resolveDrivers(drivers) {
     if (!drivers || drivers.length === 0) {
       return "Z";
     }
-    let result = drivers[0].value;
+    let result = "Z";
+    let pullUp = false;
     for (const driver of drivers) {
-      if (driver.value === "X" || driver.value !== result) {
+      if (driver.kind === "pull-up") {
+        pullUp = true;
+        continue;
+      }
+      if (result === "Z") {
+        result = driver.value;
+      } else if (driver.value === "X" || driver.value !== result) {
         result = "X";
       }
+    }
+    if (result === "Z" && pullUp) {
+      return 1;
     }
     return result;
   }
@@ -1377,7 +1779,7 @@
     }
     return { bits, clock: "X", powered: false };
   }
-  function chipOutputs(chip, pins, registers) {
+  function chipOutputs(chip, pins, registers, devices) {
     const model = CHIP_MODELS[chip.model];
     const outputs = {};
     if (!chipPowered(chip, pins)) {
@@ -1393,12 +1795,18 @@
     if (chip.model === "74LS283") {
       return evaluateAdder(pins);
     }
+    if (model.sequential) {
+      return stateOutputs(model, pins, devices[chip.id]);
+    }
+    if (model.kind) {
+      return evaluateExtra(model, pins);
+    }
     for (const gate of model.gates) {
       outputs[gate[2]] = logicGate(model.operation, pins[gate[0]], pins[gate[1]]);
     }
     return outputs;
   }
-  function collectDrivers(project, topology, values, registers, pulses) {
+  function collectDrivers(project, topology, values, registers, pulses, devices, previousDrivers) {
     const drivers = {};
     if (project.power) {
       addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
@@ -1409,12 +1817,34 @@
       }
       addDriver(drivers, nodeFor(topology, "P+"), pulses.positive, "P+");
       addDriver(drivers, nodeFor(topology, "P-"), pulses.negative, "P\u2212");
+      for (const endpoint of project.pullUps || []) {
+        addDriver(drivers, nodeFor(topology, endpoint), 1, "\u4E0A\u62C9 " + endpoint, "pull-up");
+      }
       for (const chip of project.chips) {
         const pins = readPins(chip, topology, values);
-        const outputs = chipOutputs(chip, pins, registers);
+        const model = CHIP_MODELS[chip.model];
+        if (model.bidirectional) {
+          for (const pin of model.bidirectional) {
+            const node2 = nodeFor(topology, pinHole(chip, pin));
+            const external = [];
+            const source = chip.id + "-" + pin;
+            const entries2 = previousDrivers[node2] || [];
+            for (const driver of entries2) {
+              if (driver.source !== source) {
+                external.push(driver);
+              }
+            }
+            pins[pin] = resolveDrivers(external);
+          }
+        }
+        const outputs = chipOutputs(chip, pins, registers, devices);
         for (const pin in outputs) {
           const hole = pinHole(chip, Number(pin));
-          addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin);
+          let kind = "push-pull";
+          if (model.kind === "open-collector" || model.bidirectional && model.bidirectional.includes(Number(pin))) {
+            kind = "open-collector";
+          }
+          addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin, kind);
         }
       }
     }
@@ -1439,11 +1869,11 @@
     }
     return true;
   }
-  function settle(project, topology, registers, pulses) {
+  function settle(project, topology, registers, pulses, devices) {
     let values = {};
     let drivers = {};
     for (let pass = 0; pass < MAX_SETTLE_PASSES; pass = pass + 1) {
-      drivers = collectDrivers(project, topology, values, registers, pulses);
+      drivers = collectDrivers(project, topology, values, registers, pulses, devices, drivers);
       const next = driverValues(drivers);
       if (sameValues(values, next)) {
         return { values: next, drivers, stable: true };
@@ -1498,11 +1928,20 @@
       return issues;
     }
     if (nodeFor(result.topology, "VCC") === nodeFor(result.topology, "GND")) {
-      issues.push({ code: "power-short", severity: "error", message: "+5V \u4E0E GND \u88AB\u5BFC\u7EBF\u77ED\u63A5\uFF0C\u8BF7\u65AD\u5F00\u5BF9\u5E94\u8FDE\u7EBF\u3002" });
+      issues.push({ code: "power-short", severity: "error", message: "+5V \u4E0E GND \u88AB\u5BFC\u7EBF\u77ED\u63A5\uFF0C\u8BF7\u65AD\u5F00\u5BF9\u5E94\u8FDE\u7EBF" });
     }
     for (const node2 in result.drivers) {
-      const drivers = result.drivers[node2];
-      if (drivers.length > 1) {
+      const drivers = [];
+      let pushPull = 0;
+      for (const driver of result.drivers[node2]) {
+        if (driver.kind !== "pull-up") {
+          drivers.push(driver);
+          if (driver.kind === "push-pull") {
+            pushPull = pushPull + 1;
+          }
+        }
+      }
+      if (drivers.length > 1 && pushPull > 0) {
         let sources = "";
         let high = false;
         let low = false;
@@ -1518,9 +1957,9 @@
             low = true;
           }
         }
-        let message = "\u591A\u4E2A\u63A8\u633D\u8F93\u51FA\u8FDE\u63A5\u5230\u540C\u4E00\u8282\u70B9\uFF1A" + sources + "\u3002";
+        let message = "\u591A\u4E2A\u63A8\u633D\u8F93\u51FA\u8FDE\u63A5\u5230\u540C\u4E00\u8282\u70B9\uFF1A" + sources;
         if (high && low) {
-          message = "\u9AD8\u4F4E\u7535\u5E73\u51B2\u7A81\uFF1A" + sources + "\uFF0C\u6B64\u8282\u70B9\u7ED3\u679C\u4E3A X\u3002";
+          message = "\u9AD8\u4F4E\u7535\u5E73\u51B2\u7A81\uFF1A" + sources + "\uFF0C\u6B64\u8282\u70B9\u7ED3\u679C\u4E3A X";
         }
         issues.push({ code: "drivers:" + node2, severity: "error", message });
       }
@@ -1528,7 +1967,7 @@
     for (const chip of project.chips) {
       const pins = readPins(chip, result.topology, result.values);
       if (!chipPowered(chip, pins)) {
-        issues.push({ code: "power:" + chip.id, severity: "error", message: chip.id + " \u7535\u6E90\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5 VCC \u548C GND\u3002" });
+        issues.push({ code: "power:" + chip.id, severity: "error", message: chip.id + " \u7535\u6E90\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5 VCC \u548C GND" });
         continue;
       }
       const missing = [];
@@ -1538,16 +1977,16 @@
         }
       }
       if (missing.length > 0) {
-        issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " \u8F93\u5165\u60AC\u7A7A\uFF1A\u7B2C " + missing.join("\u3001") + " \u811A\u3002" });
+        issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " \u8F93\u5165\u60AC\u7A7A\uFF1A\u7B2C " + missing.join("\u3001") + " \u811A" });
       }
     }
     if (!result.stable) {
-      issues.push({ code: "unstable", severity: "error", message: "\u7535\u8DEF\u672A\u8FBE\u5230\u7A33\u5B9A\u72B6\u6001\uFF0C\u8BF7\u68C0\u67E5\u7EC4\u5408\u903B\u8F91\u53CD\u9988\u3002" });
+      issues.push({ code: "unstable", severity: "error", message: "\u7535\u8DEF\u672A\u8FBE\u5230\u7A33\u5B9A\u72B6\u6001\uFF0C\u8BF7\u68C0\u67E5\u7EC4\u5408\u903B\u8F91\u53CD\u9988" });
     }
     return issues;
   }
   function createRuntime() {
-    return { registers: {}, pulses: { positive: 0, negative: 1 } };
+    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 } };
   }
   function simulate(project, runtime) {
     const topology = buildTopology(project);
@@ -1555,34 +1994,32 @@
       if (chip.model === "74LS273" && !Object.hasOwn(runtime.registers, chip.id)) {
         runtime.registers[chip.id] = initialRegister();
       }
+      const model = CHIP_MODELS[chip.model];
+      if (model.sequential && !Object.hasOwn(runtime.devices, chip.id)) {
+        runtime.devices[chip.id] = createChipState(model);
+      }
     }
-    let settled = settle(project, topology, runtime.registers, runtime.pulses);
+    let settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
     let complete = false;
     for (let pass = 0; pass < MAX_SEQUENTIAL_PASSES; pass = pass + 1) {
-      const changed = updateRegisters(project, topology, settled.values, runtime.registers);
+      let changed = updateRegisters(project, topology, settled.values, runtime.registers);
+      for (const chip of project.chips) {
+        const model = CHIP_MODELS[chip.model];
+        if (model.sequential) {
+          const pins = readPins(chip, topology, settled.values);
+          const updated = updateChipState(model, pins, runtime.devices[chip.id], project.power && chipPowered(chip, pins));
+          changed = changed || updated;
+        }
+      }
       if (!changed) {
         complete = true;
         break;
       }
-      settled = settle(project, topology, runtime.registers, runtime.pulses);
+      settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
     }
     const result = { topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
     result.issues = diagnose(project, result);
     return result;
-  }
-  function emitPulse(project, runtime, kind) {
-    runtime.pulses.positive = 0;
-    runtime.pulses.negative = 1;
-    simulate(project, runtime);
-    if (kind === "P+") {
-      runtime.pulses.positive = 1;
-    } else {
-      runtime.pulses.negative = 0;
-    }
-    simulate(project, runtime);
-    runtime.pulses.positive = 0;
-    runtime.pulses.negative = 1;
-    return simulate(project, runtime);
   }
 
   // src/presets.mjs
@@ -1590,7 +2027,7 @@
 
 ## \u529F\u80FD
 
-\u8FDE\u7EED\u8FDB\u884C\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u5230\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD\u3002
+\u8FDE\u7EED\u8FDB\u884C\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u5230\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
 
 ## \u8F93\u5165\u53E3
 
@@ -1603,7 +2040,7 @@
 | P\u2212 | \u5B8C\u6574\u8D1F\u8109\u51B2\u7ED3\u675F\u65F6\u7684\u4E0A\u5347\u6CBF\uFF0C\u4FDD\u5B58\u672C\u6B21\u7ED3\u679C |
 | P+ | \u672C\u793A\u4F8B\u672A\u8FDE\u63A5\uFF0C\u4E0D\u4F1A\u52A0\u8F7D\u7ED3\u679C |
 
-\u8F93\u5165\u987A\u5E8F\u4E3A **K4 K3 K2 K1 K0**\uFF0C\u4F7F\u7528\u4E94\u4F4D\u8865\u7801\uFF0C\u8303\u56F4\u4E3A \u221216\uFF5E15\u3002\u4F8B\uFF1A7 \u4E3A 00111\uFF0C\u221212 \u4E3A 10100\uFF0C\u22122 \u4E3A 11110\u3002\u51CF\u53BB 6 \u65F6\u8F93\u5165\u6B63\u6570 00110\uFF0C\u518D\u628A K5 \u8BBE\u7F6E\u4E3A 1\u3002
+\u8F93\u5165\u987A\u5E8F\u4E3A **K4 K3 K2 K1 K0**\uFF0C\u4F7F\u7528\u4E94\u4F4D\u8865\u7801\uFF0C\u8303\u56F4\u4E3A \u221216\uFF5E15\u3002\u4F8B\uFF1A7 \u4E3A 00111\uFF0C\u221212 \u4E3A 10100\uFF0C\u22122 \u4E3A 11110\u3002\u51CF\u53BB 6 \u65F6\u8F93\u5165\u6B63\u6570 00110\uFF0C\u518D\u628A K5 \u8BBE\u7F6E\u4E3A 1
 
 ## \u8F93\u51FA\u53E3
 
@@ -1614,14 +2051,14 @@
 | L3\u3001L2\u3001L1\u3001L0 | \u7ED3\u679C\u7684\u56DB\u4E2A\u6570\u503C\u4F4D\uFF0CL0 \u6700\u4F4E\u4F4D |
 | L6 | \u4E24\u4E2A\u7B26\u53F7\u4F4D\u5F02\u6216\u7684\u7ED3\u679C\uFF0C1 \u8868\u793A\u5F53\u524D\u7ED3\u679C\u6EA2\u51FA |
 
-\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u4E3A **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u4EAE**\uFF1BX \u6216 Z \u4E0D\u6309\u9AD8\u7535\u5E73\u70B9\u4EAE\u3002
+\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u4E3A **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u4EAE**\uFF1BX \u6216 Z \u4E0D\u6309\u9AD8\u7535\u5E73\u70B9\u4EAE
 
 ## \u64CD\u4F5C\u6B65\u9AA4
 
-1. \u6253\u5F00\u7535\u6E90\uFF0C\u5148\u6309\u201C\u6E05\u96F6 K6\u201D\uFF0C\u8F93\u51FA\u5E94\u4E3A 00 0000\u3002
-2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A\u3002
-3. \u53D1\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\uFF0C\u518D\u8BFB\u53D6\u516D\u4F4D LED\u3002
-4. \u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDB\u884C\u8FDE\u7EED\u8FD0\u7B97\u3002\u5355\u72EC\u6539\u53D8\u8F93\u5165\u4E0D\u4F1A\u66F4\u65B0\u7D2F\u8BA1\u7ED3\u679C\u3002
+1. \u6253\u5F00\u7535\u6E90\uFF0C\u5C06 K6 \u5207\u5230 0 \u518D\u5207\u56DE 1\uFF0CL6\uFF5EL0 \u5E94\u663E\u793A 000 0000
+2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
+3. \u53D1\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\uFF0C\u518D\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF1BL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
+4. \u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDB\u884C\u8FDE\u7EED\u8FD0\u7B97\u3002\u5355\u72EC\u6539\u53D8\u8F93\u5165\u4E0D\u4F1A\u66F4\u65B0\u7D2F\u8BA1\u7ED3\u679C
 
 ## \u9A8C\u6536
 
@@ -1630,7 +2067,7 @@
 | 7\uFF0B5\u22126\uFF0B12 | 00 0111 \u2192 00 1100 \u2192 00 0110 \u2192 **01 0010**\uFF08\u6B63\u6EA2\u51FA\uFF09 |
 | \uFF08\u221212\uFF09\uFF0B\uFF08\u22122\uFF09\u22126 | 11 0100 \u2192 11 0010 \u2192 **10 1100**\uFF08\u8D1F\u6EA2\u51FA\uFF09 |
 
-\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u6613\u5931\u72B6\u6001\u4E0D\u4FDD\u7559\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u8FD9\u662F\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u4E0D\u6A21\u62DF\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u3002
+\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u6613\u5931\u72B6\u6001\u4E0D\u4FDD\u7559\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u8FD9\u662F\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u4E0D\u6A21\u62DF\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6
 `;
   function allocatePin(project, usage, name) {
     if (!name.startsWith("U")) {
@@ -1655,7 +2092,7 @@
       index = usage[name];
     }
     if (index >= rows.length) {
-      throw new Error("\u793A\u4F8B\u7535\u8DEF\u7684\u540C\u5217\u7A7A\u5B54\u4E0D\u8DB3\u3002");
+      throw new Error("\u793A\u4F8B\u7535\u8DEF\u7684\u540C\u5217\u7A7A\u5B54\u4E0D\u8DB3");
     }
     usage[name] = index + 1;
     return holeId(chip.section, rows[index], Number(position[2]));
@@ -1668,9 +2105,8 @@
   }
   function complementPreset() {
     const project = emptyProject();
-    project.mode = "complement";
-    project.inputCount = 5;
-    project.outputCount = 6;
+    project.inputCount = 7;
+    project.outputCount = 7;
     project.notes = COMPLEMENT_NOTES;
     project.name = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
     project.chips = [
@@ -1921,7 +2357,13 @@
     for (const name of ["P+", "P-"]) {
       const location = endpointPosition(name);
       label(context, name, location.x, 1156 + offset, 10, colors["module-text"], "center");
-      circle(context, location.x, 1208 + offset, 14, colors["chip-text"]);
+      let buttonColor = colors["chip-text"];
+      let buttonY = 1208 + offset;
+      if (state2.pressedPulse === name) {
+        buttonColor = colors["led-on"];
+        buttonY = buttonY + 3;
+      }
+      circle(context, location.x, buttonY, 14, buttonColor);
       label(context, "\u8109\u51B2", location.x, 1237 + offset, 9, colors["module-text"], "center");
     }
     for (const name of ["GND", "VCC"]) {
@@ -2165,34 +2607,43 @@
   var LIMITS = { chips: 40, wires: 800, bends: 24, fileBytes: 2e6 };
   function validateProject(value) {
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
-      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F\u3002");
+      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
     }
     if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== 24) {
-      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E\u3002");
+      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
     }
     const project = emptyProject();
-    if (value.mode === void 0) {
-      project.mode = "complement";
-      project.inputCount = 5;
-      project.outputCount = 6;
-    } else {
-      if (value.mode !== "general" && value.mode !== "complement") {
-        throw new Error("\u7535\u8DEF\u6A21\u5F0F\u4E0D\u53D7\u652F\u6301\u3002");
-      }
-      project.mode = value.mode;
+    if (value.inputCount !== void 0 || value.outputCount !== void 0) {
       if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
-        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E24\u3002");
+        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E24");
       }
       project.inputCount = value.inputCount;
       project.outputCount = value.outputCount;
     }
-    if (value.notes === void 0 && project.mode === "complement") {
+    if (value.mode === "complement") {
+      project.inputCount = Math.max(project.inputCount, 7);
+      project.outputCount = Math.max(project.outputCount, 7);
+    }
+    if (value.notes === void 0 && value.mode === "complement") {
       project.notes = COMPLEMENT_NOTES;
     } else if (value.notes !== void 0) {
       if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
-        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 50000 \u4E2A\u5B57\u7B26\u3002");
+        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 50000 \u4E2A\u5B57\u7B26");
       }
       project.notes = value.notes;
+    }
+    if (value.pullUps !== void 0) {
+      if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
+        throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
+      }
+      const seen = /* @__PURE__ */ new Set();
+      for (const endpoint of value.pullUps) {
+        if (!validEndpoint(endpoint) || seen.has(endpoint)) {
+          throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+        }
+        project.pullUps.push(endpoint);
+        seen.add(endpoint);
+      }
     }
     if (typeof value.name === "string") {
       project.name = value.name.slice(0, 80);
@@ -2202,7 +2653,7 @@
     const occupied2 = /* @__PURE__ */ new Set();
     for (const entry of value.chips) {
       if (!entry || typeof entry.id !== "string" || !/^U[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D\u3002");
+        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
       }
       const chip = { id: entry.id, model: entry.model, section: entry.section, column: entry.column };
       const error = placementError(project.chips, chip, "");
@@ -2218,18 +2669,18 @@
     identifiers.clear();
     for (const entry of value.wires) {
       if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D\u3002");
+        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
       }
       if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
-        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528\u3002");
+        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
       }
       if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
-        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5\u3002");
+        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5");
       }
       const bends = [];
       for (const bend of entry.bends) {
         if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y) || bend.x < 0 || bend.x > 1300 || bend.y < 0 || bend.y > 1280) {
-          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4\u3002");
+          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
         }
         bends.push({ x: bend.x, y: bend.y });
       }
@@ -2240,7 +2691,7 @@
     }
     for (let index = 0; index < 24; index = index + 1) {
       if (value.switches[index] !== 0 && value.switches[index] !== 1) {
-        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1\u3002");
+        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
       }
       project.switches[index] = value.switches[index];
     }
@@ -5828,11 +6279,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         }
       }
       if (!found) {
-        issues.push(expected.id + " \u5E94\u4E3A " + expected.model + "\uFF0C\u8BF7\u68C0\u67E5\u82AF\u7247\u578B\u53F7\u548C\u7F16\u53F7\u3002");
+        issues.push(expected.id + " \u5E94\u4E3A " + expected.model + "\uFF0C\u8BF7\u68C0\u67E5\u82AF\u7247\u578B\u53F7\u548C\u7F16\u53F7");
       }
     }
     if (project.chips.length !== reference.chips.length) {
-      issues.push("\u6807\u51C6\u5B9E\u9A8C\u4F7F\u7528 5 \u7247\u82AF\u7247\uFF0C\u5F53\u524D\u6709 " + project.chips.length + " \u7247\u3002");
+      issues.push("\u6807\u51C6\u5B9E\u9A8C\u4F7F\u7528 5 \u7247\u82AF\u7247\uFF0C\u5F53\u524D\u6709 " + project.chips.length + " \u7247");
     }
     if (issues.length > 0) {
       return issues;
@@ -5849,9 +6300,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         const expectedSame = nodeFor(expectedTopology, expectedTerminals[firstName]) === nodeFor(expectedTopology, expectedTerminals[secondName]);
         const actualSame = nodeFor(actualTopology, actualTerminals[firstName]) === nodeFor(actualTopology, actualTerminals[secondName]);
         if (expectedSame !== actualSame) {
-          let message = firstName + " \u4E0E " + secondName + " \u5E94\u5F53\u8FDE\u901A\uFF0C\u8BF7\u68C0\u67E5\u8FD9\u6761\u901A\u8DEF\u3002";
+          let message = firstName + " \u4E0E " + secondName + " \u5E94\u5F53\u8FDE\u901A\uFF0C\u8BF7\u68C0\u67E5\u8FD9\u6761\u901A\u8DEF";
           if (actualSame) {
-            message = firstName + " \u4E0E " + secondName + " \u88AB\u989D\u5916\u63A5\u901A\uFF0C\u8BF7\u68C0\u67E5\u76F8\u5173\u5BFC\u7EBF\u3002";
+            message = firstName + " \u4E0E " + secondName + " \u88AB\u989D\u5916\u63A5\u901A\uFF0C\u8BF7\u68C0\u67E5\u76F8\u5173\u5BFC\u7EBF";
           }
           issues.push(message);
         }
@@ -5860,23 +6311,110 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     return issues;
   }
 
+  // src/document-references.mjs
+  var DOCUMENT_REFERENCES = {
+    "74LS03": {
+      "image": "assets/pinouts/document/74ls03-1.png",
+      "logicImage": "assets/pinouts/document/74ls03-2.png",
+      "summary": "\u903B\u8F91\u529F\u80FD\u4E0E74LS00\u76F8\u540C\uFF0CY=(AB)\u2032\uFF0C\u4F46\u8F93\u51FA\u7EA7\u4E3A\u96C6\u7535\u6781\u5F00\u8DEF\uFF08OC\uFF09\u7ED3\u6784\uFF0C\u4F7F\u7528\u65F6\u8F93\u51FA\u7AEF\u5FC5\u987B\u5916\u63A5\u4E0A\u62C9\u7535\u963B\u3002OC\u95E8\u53EF\u4EE5\u628A\u591A\u4E2A\u8F93\u51FA\u76F4\u63A5\u5E76\u8054\u5B9E\u73B0\u201C\u7EBF\u4E0E\u201D\uFF0C\u5E38\u7528\u4E8E\u603B\u7EBF\u9A71\u52A8\u548C\u7535\u5E73\u8F6C\u6362"
+    },
+    "74LS20": {
+      "image": "assets/pinouts/document/74ls20-1.png",
+      "logicImage": "assets/pinouts/document/74ls20-2.png",
+      "summary": "\u7247\u5185\u67092\u4E2A\u72EC\u7ACB\u76844\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(ABCD)\u2032\u3002\u5B9E\u9A8C4\u4E2D\u7528\u5B83\u4E0E74LS138\u914D\u5408\u5B9E\u73B0\u7EC4\u5408\u903B\u8F91\u51FD\u6570\uFF1B\u628A\u591A\u4F59\u8F93\u5165\u7AEF\u63A5\u9AD8\u7535\u5E73\u6216\u5C06\u8F93\u5165\u7AEF\u5E76\u63A5\uFF0C\u4E5F\u53EF\u5F53\u4F5C\u53CD\u76F8\u5668\u4F7F\u7528"
+    },
+    "CD4011": {
+      "image": "assets/pinouts/document/cd4011-1.png",
+      "logicImage": "assets/pinouts/document/cd4011-2.png",
+      "summary": "CMOS\u5DE5\u827A\u7684\u56DB2\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(AB)\u2032\u3002\u7535\u6E90\u7535\u538B\u8303\u56F4\u5BBD\uFF083~15V\uFF09\uFF0C\u8F93\u5165\u963B\u6297\u6781\u9AD8\u3001\u9759\u6001\u529F\u8017\u6781\u5C0F\uFF0C\u4F46\u591A\u4F59\u8F93\u5165\u7AEF\u4E0D\u5141\u8BB8\u60AC\u7A7A\uFF0C\u5FC5\u987B\u63A5VDD\u6216VSS\u3002\u5B9E\u9A8C2\u4E2D\u7528\u4E8E\u6D4B\u91CFCMOS\u95E8\u7684\u7535\u538B\u4F20\u8F93\u7279\u6027\u548C\u4F20\u8F93\u5EF6\u8FDF\u65F6\u95F4"
+    },
+    "74LS125": {
+      "image": "assets/pinouts/document/74ls125-1.png",
+      "logicImage": "assets/pinouts/document/74ls125-2.png",
+      "summary": "\u7247\u5185\u67094\u4E2A\u72EC\u7ACB\u7684\u4E09\u6001\u7F13\u51B2\u95E8\uFF0C\u4F7F\u80FD\u7AEFG\u2032\u4F4E\u7535\u5E73\u6709\u6548\uFF1AG\u2032=0\u65F6Y=A\uFF08\u540C\u76F8\u8F93\u51FA\uFF09\uFF0CG\u2032=1\u65F6\u8F93\u51FA\u4E3A\u9AD8\u963B\u6001\u3002\u5E38\u7528\u4E8E\u603B\u7EBF\u7ED3\u6784\u3001\u6570\u636E\u9009\u62E9\u4E0E\u4FE1\u53F7\u9694\u79BB"
+    },
+    "74LS138": {
+      "image": "assets/pinouts/document/74ls138-1.png",
+      "logicImage": "assets/pinouts/document/74ls138-2.png",
+      "summary": "3\u4E2A\u5730\u5740\u8F93\u5165\u7AEFA2A1A0\uFF0C8\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u7684\u8F93\u51FA\u7AEFY0\u2032~Y7\u2032\uFF0C3\u4E2A\u4F7F\u80FD\u7AEFS1\uFF08\u9AD8\u6709\u6548\uFF09\u3001S2\u2032\u3001S3\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u5F53S1=1\u4E14S2\u2032+S3\u2032=0\u65F6\u8BD1\u7801\uFF0CYi\u2032=(mi\xB7S)\u2032\uFF0C\u88AB\u9009\u4E2D\u7AEF\u8F93\u51FA\u4F4E\u7535\u5E73\uFF1B\u7981\u6B62\u65F6\u8F93\u51FA\u5168\u4E3A\u9AD8\u3002\u53EF\u4F5C\u5730\u5740\u8BD1\u7801\u5668\u3001\u8109\u51B2\u5206\u914D\u5668\uFF0C\u914D\u4E0E\u975E\u95E8\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u7EC4\u5408\u903B\u8F91\u51FD\u6570"
+    },
+    "74LS139": {
+      "image": "assets/pinouts/document/74ls139-1.png",
+      "logicImage": "assets/pinouts/document/74ls139-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A\u5B8C\u5168\u72EC\u7ACB\u76842\u7EBF-4\u7EBF\u8BD1\u7801\u5668\uFF0C\u5404\u6709\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u5730\u5740\u7AEF1A/1B\uFF082A/2B\uFF0CA\u4E3A\u4F4E\u4F4D\u3001B\u4E3A\u9AD8\u4F4D\uFF09\u548C4\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u8F93\u51FA\u7AEF\u3002\u5F53G\u2032=0\u65F6\u6309\u5730\u5740\u9009\u4E2D\u4E00\u4E2A\u8F93\u51FA\u4E3A\u4F4E\u7535\u5E73\u3002\u7528\u4E24\u7247\u534A\u7247\u5E76\u63A5\u5730\u5740\u3001A2\u4F5C\u7247\u9009\uFF08\u7ECF\u53CD\u76F8\uFF09\u53EF\u6269\u5C55\u62103\u7EBF-8\u7EBF\u8BD1\u7801\u5668"
+    },
+    "74LS151": {
+      "image": "assets/pinouts/document/74ls151-1.png",
+      "logicImage": "assets/pinouts/document/74ls151-2.png",
+      "summary": "8\u4E2A\u6570\u636E\u7AEFD0~D7\u30013\u4E2A\u5730\u5740\u7AEFC\uFF08\u6700\u9AD8\u4F4D\uFF09\u3001B\u3001A\uFF08\u6700\u4F4E\u4F4D\uFF09\u3001\u4F4E\u7535\u5E73\u6709\u6548\u7684\u4F7F\u80FD\u7AEFG\u2032\uFF0C\u4EE5\u53CA\u4E92\u8865\u8F93\u51FAY\u3001W\u2032\u3002G\u2032=0\u65F6Y=Di\uFF08i=CBA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u51FD\u6570\uFF1A\u6309F(mi)\u7684\u53D6\u503C\u628ADi\u63A51\u62160\u5373\u53EF"
+    },
+    "74LS153": {
+      "image": "assets/pinouts/document/74ls153-1.png",
+      "logicImage": "assets/pinouts/document/74ls153-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A4\u90091\u9009\u62E9\u5668\uFF0C\u5171\u7528\u5730\u5740\u7AEFA\uFF08\u4F4E\u4F4D\uFF09\u3001B\uFF08\u9AD8\u4F4D\uFF09\uFF0C\u5404\u6709\u72EC\u7ACB\u7684\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\u548C\u6570\u636E\u8F93\u5165\u7AEF1C0~1C3\u30012C0~2C3\u3002G\u2032=0\u65F6Y=Ci\uFF08i=BA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u7528\u4E24\u7247\uFF08\u6216\u591A\u6B21\u590D\u7528\uFF09\u5B9E\u73B0\u56DB\u53D8\u91CF\u51FD\u6570"
+    },
+    "74LS85": {
+      "image": "assets/pinouts/document/74ls85-1.png",
+      "logicImage": "assets/pinouts/document/74ls85-2.png",
+      "summary": "\u6BD4\u8F83A3A2A1A0\u4E0EB3B2B1B0\uFF0C\u8F93\u51FAA>B\u3001A=B\u3001A<B\u4E09\u4E2A\u9AD8\u7535\u5E73\u6709\u6548\u4FE1\u53F7\u30022~4\u811A\u4E3A\u7EA7\u8054\u8F93\u5165\uFF0C\u5355\u7247\u4F7F\u7528\u65F6A>B\u3001A<B\u8F93\u5165\u63A50\u3001A=B\u8F93\u5165\u63A51\uFF1B\u4E24\u7247\u7EA7\u8054\u53EF\u6269\u5C55\u62108\u4F4D\u6BD4\u8F83\u5668"
+    },
+    "74LS48": {
+      "image": "assets/pinouts/document/74ls48-1.png",
+      "logicImage": "assets/pinouts/document/74ls48-2.png",
+      "summary": "\u628A8421BCD\u7801\uFF08D\u4E3A\u6700\u9AD8\u4F4D\u3001A\u4E3A\u6700\u4F4E\u4F4D\uFF09\u8BD1\u6210\u4E03\u6BB5\u5B57\u5F62\uFF0C\u8F93\u51FAa~g\u9AD8\u7535\u5E73\u6709\u6548\uFF0C\u53EF\u76F4\u63A5\u9A71\u52A8\u5171\u9634\u6781\u6570\u7801\u7BA1\uFF0C\u5185\u90E8\u67092k\u03A9\u4E0A\u62C9\u7535\u963B\u3002\u5177\u6709LT\u2032\u706F\u6D4B\u8BD5\u3001RBI\u2032\u706D\u96F6\u8F93\u5165\u3001BI\u2032/RBO\u2032\u706D\u706F\u8F93\u5165/\u52A8\u6001\u706D\u706F\u8F93\u51FA\u529F\u80FD"
+    },
+    "74LS74": {
+      "image": "assets/pinouts/document/74ls74-1.png",
+      "logicImage": "assets/pinouts/document/74ls74-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0A\u5347\u6CBF\u89E6\u53D1D\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002CP\u4E0A\u5347\u6CBF\u5230\u6765\u65F6Q*=D\u3002\u53EF\u6784\u6210\u79FB\u4F4D\u5BC4\u5B58\u5668\u3001\u8BA1\u6570\u5668\u548C\u5206\u9891\u7535\u8DEF"
+    },
+    "74LS112": {
+      "image": "assets/pinouts/document/74ls112-1.png",
+      "logicImage": "assets/pinouts/document/74ls112-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0B\u964D\u6CBF\u89E6\u53D1JK\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u5747\u4F4E\u6709\u6548\uFF09\u3002J=K=1\u65F6CP\u4E0B\u964D\u6CBF\u7FFB\u8F6C\uFF08T\u2032\u529F\u80FD\uFF09\uFF0C\u53EF\u6784\u6210\u8BA1\u6570\u5668\uFF1B\u4E0E74LS74\u914D\u5408\u53EF\u505A\u89E6\u53D1\u5668\u76F8\u4E92\u8F6C\u6362\u5B9E\u9A8C"
+    },
+    "CD4027": {
+      "image": "assets/pinouts/document/cd4027-1.png",
+      "logicImage": "assets/pinouts/document/cd4027-2.png",
+      "summary": "CMOS\u53CCJK\u4E3B\u4ECE\u89E6\u53D1\u5668\uFF0C\u4E0A\u5347\u6CBF\u89E6\u53D1\uFF0C\u7F6E\u4F4D\u7AEFSET\u548C\u590D\u4F4D\u7AEFRESET\u4E3A\u9AD8\u7535\u5E73\u6709\u6548\uFF08\u4E0E\u65F6\u949F\u65E0\u5173\uFF09\u3002\u7535\u6E903~15V\uFF0C\u8F93\u5165\u963B\u6297\u9AD8\u3001\u529F\u8017\u4F4E\u3002\u6CE8\u610F\u5176\u7F6E\u4F4D/\u590D\u4F4D\u6781\u6027\u548C\u5F15\u811A\u6392\u5217\u4E0E74LS112\u4E0D\u540C"
+    },
+    "74LS160": {
+      "image": "assets/pinouts/document/74ls160-1.png",
+      "logicImage": "assets/pinouts/document/74ls160-2.png",
+      "summary": "\u6A2110\u540C\u6B65\u52A0\u8BA1\u6570\u5668\u3002\u5177\u6709\u5F02\u6B65\u6E05\u96F6CLR\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u8BA1\u6570\u4F7F\u80FDENP/ENT\u548C\u8FDB\u4F4D\u8F93\u51FARCO\u3002ENP\u3001ENT\u5747\u4E3A\u9AD8\u7535\u5E73\u65F6\u5728CP\u4E0A\u5347\u6CBF\u8BA1\u6570\uFF1BRCO\u5728\u8BA1\u6570\u503C\u4E3A9\u4E14ENT=1\u65F6\u8F93\u51FA\u9AD8\u7535\u5E73"
+    },
+    "74LS161": {
+      "image": "assets/pinouts/document/74ls161-1.png",
+      "logicImage": "assets/pinouts/document/74ls161-2.png",
+      "summary": "\u6A2116\u540C\u6B65\u52A0\u8BA1\u6570\u5668\uFF0C\u5F15\u811A\u4E0E74LS160\u5B8C\u5168\u76F8\u540C\u3002\u5F02\u6B65\u6E05\u96F6CLR\u2032\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\u3001\u4F7F\u80FDENP/ENT\uFF0C\u8FDB\u4F4D\u8F93\u51FARCO\u3002\u53EF\u7528\u4E8E\u6784\u6210\u4EFB\u610F\u8FDB\u5236\u8BA1\u6570\u5668\uFF08\u53CD\u9988\u6E05\u96F6\u6CD5\u6216\u7F6E\u6570\u6CD5\uFF09"
+    },
+    "74LS194": {
+      "image": "assets/pinouts/document/74ls194-1.png",
+      "logicImage": "assets/pinouts/document/74ls194-2.png",
+      "summary": "4\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668\u3002S1S0=00\u4FDD\u6301\u300101\u53F3\u79FB\u300110\u5DE6\u79FB\u300111\u5E76\u884C\u7F6E\u6570\uFF1BSR\u4E3A\u53F3\u79FB\u4E32\u5165\u7AEF\uFF0CSL\u4E3A\u5DE6\u79FB\u4E32\u5165\u7AEF\uFF0CCLR\u2032\u4E3A\u5F02\u6B65\u6E05\u96F6\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u53EF\u6784\u6210\u73AF\u5F62\u3001\u626D\u73AF\u5F62\u8BA1\u6570\u5668\u53CA\u4E32\u5E76\u8F6C\u6362\u7535\u8DEF"
+    }
+  };
+
   // src/catalog.mjs
   var CHIP_REFERENCES = {
-    "74LS273": { file: "sn74ls273", page: 1, summary: "\u5B83\u80FD\u540C\u65F6\u4FDD\u5B58\u516B\u4F4D\u6570\u636E\u3002\u6E05\u96F6\u811A\u62C9\u4F4E\u65F6\uFF0C\u5168\u90E8\u8F93\u51FA\u53D8\u4E3A 0\uFF1B\u6E05\u96F6\u811A\u4FDD\u6301\u9AD8\u7535\u5E73\u65F6\uFF0C\u65F6\u949F\u4E0A\u5347\u6CBF\u628A D \u8F93\u5165\u4FDD\u5B58\u5230 Q \u8F93\u51FA\u3002" },
-    "74LS283": { file: "sn74ls283", page: 1, summary: "\u5B83\u628A\u4E24\u4E2A\u56DB\u4F4D\u6570\u4E0E\u8F93\u5165\u8FDB\u4F4D C0 \u76F8\u52A0\uFF0C\u8F93\u51FA\u56DB\u4F4D\u548C\u4EE5\u53CA\u8FDB\u4F4D C4\u3002A1\u3001B1\u3001\u03A31 \u5BF9\u5E94\u6700\u4F4E\u4F4D\u3002" },
-    "74LS86": { file: "sn74ls86a", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u5F02\u6216\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u4E0D\u540C\u65F6\u8F93\u51FA 1\uFF0C\u76F8\u540C\u65F6\u8F93\u51FA 0\u3002\u539F\u5382 LS86A \u8D44\u6599\u4E2D\u7684\u8FD9\u7EC4 DIP \u5F15\u811A\u4E0E\u5B9E\u9A8C\u6750\u6599\u4E00\u81F4\u3002" },
-    "74LS00": { file: "sn74ls00", page: 3, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u975E\u95E8\u3002\u53EA\u6709\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\uFF0C\u8F93\u51FA\u624D\u662F 0\u3002\u8BF7\u6309\u672C\u578B\u53F7\u7684\u811A\u540D\u63A5\u7EBF\u3002" },
-    "74LS08": { file: "sn74ls08", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\u8F93\u51FA 1\uFF0C\u5176\u4F59\u60C5\u51B5\u8F93\u51FA 0\u3002" },
-    "74LS32": { file: "sn74ls32", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u6216\u95E8\u3002\u81F3\u5C11\u4E00\u4E2A\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 1\u3002" },
-    "74LS04": { file: "sn74ls04", page: 1, summary: "\u5B83\u5305\u542B\u516D\u4E2A\u72EC\u7ACB\u7684\u975E\u95E8\u3002\u8F93\u5165\u4E3A 0 \u65F6\u8F93\u51FA 1\uFF0C\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 0\u3002" }
+    "74LS273": { file: "sn74ls273", page: 1, summary: "\u5B83\u80FD\u540C\u65F6\u4FDD\u5B58\u516B\u4F4D\u6570\u636E\u3002\u6E05\u96F6\u811A\u62C9\u4F4E\u65F6\uFF0C\u5168\u90E8\u8F93\u51FA\u53D8\u4E3A 0\uFF1B\u6E05\u96F6\u811A\u4FDD\u6301\u9AD8\u7535\u5E73\u65F6\uFF0C\u65F6\u949F\u4E0A\u5347\u6CBF\u628A D \u8F93\u5165\u4FDD\u5B58\u5230 Q \u8F93\u51FA" },
+    "74LS283": { file: "sn74ls283", page: 1, summary: "\u5B83\u628A\u4E24\u4E2A\u56DB\u4F4D\u6570\u4E0E\u8F93\u5165\u8FDB\u4F4D C0 \u76F8\u52A0\uFF0C\u8F93\u51FA\u56DB\u4F4D\u548C\u4EE5\u53CA\u8FDB\u4F4D C4\u3002A1\u3001B1\u3001\u03A31 \u5BF9\u5E94\u6700\u4F4E\u4F4D" },
+    "74LS86": { file: "sn74ls86a", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u5F02\u6216\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u4E0D\u540C\u65F6\u8F93\u51FA 1\uFF0C\u76F8\u540C\u65F6\u8F93\u51FA 0\u3002\u539F\u5382 LS86A \u8D44\u6599\u4E2D\u7684\u8FD9\u7EC4 DIP \u5F15\u811A\u4E0E\u5B9E\u9A8C\u6750\u6599\u4E00\u81F4" },
+    "74LS00": { file: "sn74ls00", page: 3, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u975E\u95E8\u3002\u53EA\u6709\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\uFF0C\u8F93\u51FA\u624D\u662F 0\u3002\u8BF7\u6309\u672C\u578B\u53F7\u7684\u811A\u540D\u63A5\u7EBF" },
+    "74LS08": { file: "sn74ls08", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\u8F93\u51FA 1\uFF0C\u5176\u4F59\u60C5\u51B5\u8F93\u51FA 0" },
+    "74LS32": { file: "sn74ls32", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u6216\u95E8\u3002\u81F3\u5C11\u4E00\u4E2A\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 1" },
+    "74LS04": { file: "sn74ls04", page: 1, summary: "\u5B83\u5305\u542B\u516D\u4E2A\u72EC\u7ACB\u7684\u975E\u95E8\u3002\u8F93\u5165\u4E3A 0 \u65F6\u8F93\u51FA 1\uFF0C\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 0" }
   };
+  for (const model of Object.keys(DOCUMENT_REFERENCES)) {
+    CHIP_REFERENCES[model] = DOCUMENT_REFERENCES[model];
+  }
 
   // src/workspace.mjs
   var WORKSPACE_KEY = "breadboard-lab-workspace-v1";
   var READ_ONLY_KEY = "breadboard-lab-read-only";
   var CLEANUP_BACKUP_KEY = "sdu-breadboard-before-cleanup-v1";
   function isBlankExperiment(project) {
-    if (project.mode !== "general" || project.chips.length > 0 || project.wires.length > 0) {
+    if (project.chips.length > 0 || project.wires.length > 0 || project.pullUps.length > 0) {
       return false;
     }
     if (project.notes !== GENERAL_NOTES || project.inputCount !== 8 || project.outputCount !== 8 || !project.power) {
@@ -5914,8 +6452,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         if (blank === "") {
           blank = id;
         }
-      } else if (project.mode === "complement") {
-        const signature = JSON.stringify({ chips: project.chips, wires: project.wires, notes: project.notes, inputCount: project.inputCount, outputCount: project.outputCount });
+      } else if (project.name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668") {
+        const signature = JSON.stringify({ chips: project.chips, wires: project.wires, notes: project.notes, inputCount: project.inputCount, outputCount: project.outputCount, pullUps: project.pullUps });
         if (signatures.has(signature)) {
           duplicate = signatures.get(signature);
         } else {
@@ -5938,23 +6476,23 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function validateWorkspace(value) {
     if (!value || value.version !== 1 || typeof value.activeId !== "string" || !value.projects || typeof value.projects !== "object") {
-      throw new Error("\u672C\u5730\u5B9E\u9A8C\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u5BFC\u5165\u4F60\u4FDD\u5B58\u7684\u5B9E\u9A8C\u6587\u4EF6\u3002");
+      throw new Error("\u672C\u5730\u5B9E\u9A8C\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u5BFC\u5165\u4F60\u4FDD\u5B58\u7684\u5B9E\u9A8C\u6587\u4EF6");
     }
     const workspace2 = { version: 1, activeId: value.activeId, projects: {} };
     for (const id of Object.keys(value.projects)) {
       if (!/^[a-zA-Z0-9-]{1,80}$/.test(id)) {
-        throw new Error("\u5B9E\u9A8C\u7F16\u53F7\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5\u4FDD\u5B58\u6587\u4EF6\u3002");
+        throw new Error("\u5B9E\u9A8C\u7F16\u53F7\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5\u4FDD\u5B58\u6587\u4EF6");
       }
       workspace2.projects[id] = validateProject(value.projects[id]);
     }
     if (!Object.hasOwn(workspace2.projects, workspace2.activeId)) {
-      throw new Error("\u5F53\u524D\u5B9E\u9A8C\u4E0D\u5728\u5217\u8868\u4E2D\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u5B9E\u9A8C\u3002");
+      throw new Error("\u5F53\u524D\u5B9E\u9A8C\u4E0D\u5728\u5217\u8868\u4E2D\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u5B9E\u9A8C");
     }
     return workspace2;
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.0.8";
+  var APP_VERSION = "1.1.0";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs
@@ -5965,7 +6503,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var canvas = null;
   var zoomAnchor = null;
   var lastPinnedChip = "";
-  var lastMode = "";
   var lastInputCount = 0;
   var boardTransitionFirst = null;
   var boardTransitionLast = null;
@@ -5982,6 +6519,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var ignoreClick = false;
   var cycle = { x: -100, y: -100, signature: "", index: 0 };
   var catalogModel = "";
+  var heldPulse = "";
+  var pulseTimer = 0;
+  var recentAction = "";
+  var PULSE_SETTINGS = { feedbackDuration: 160 };
+  state.pressedPulse = "";
   var expandedSelection = /* @__PURE__ */ new Set();
   state.selection = [];
   function updateClock() {
@@ -6058,7 +6600,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       localStorage.setItem(WORKSPACE_KEY, JSON.stringify(savedExperiments));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(savedExperiments.projects[savedExperiments.activeId]));
     } catch (error) {
-      toast("\u5B9E\u9A8C\u5DF2\u4ECE\u5217\u8868\u79FB\u9664\uFF0C\u4F60\u53EF\u4EE5\u5728\u6D4F\u89C8\u5668\u5B58\u50A8\u6062\u590D\u540E\u4FDD\u5B58\u3002", "warning");
+      toast("\u5B9E\u9A8C\u5DF2\u4ECE\u5217\u8868\u79FB\u9664\uFF0C\u4F60\u53EF\u4EE5\u5728\u6D4F\u89C8\u5668\u5B58\u50A8\u6062\u590D\u540E\u4FDD\u5B58", "warning");
     }
   }
   function quickDelete() {
@@ -6069,11 +6611,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       deleteSelected();
       return;
     }
-    confirmAction("\u5220\u9664\u5F53\u524D\u5B9E\u9A8C\uFF1F", "\u4F60\u5C06\u5220\u9664\u201C" + state.project.name + "\u201D\u3002\u5176\u4ED6\u5B9E\u9A8C\u4F1A\u4FDD\u7559\u3002", deleteCurrentExperiment);
+    confirmAction("\u5220\u9664\u5F53\u524D\u5B9E\u9A8C\uFF1F", "\u4F60\u5C06\u5220\u9664\u201C" + state.project.name + "\u201D\u3002\u5176\u4ED6\u5B9E\u9A8C\u4F1A\u4FDD\u7559", deleteCurrentExperiment);
   }
   function editingLocked() {
     if (readOnly) {
-      toast("\u5F53\u524D\u5B9E\u9A8C\u5904\u4E8E\u53EA\u8BFB\u6A21\u5F0F\u3002\u4F60\u53EF\u4EE5\u6D4B\u8BD5\u8F93\u5165\u8F93\u51FA\uFF1B\u7F16\u8F91\u63A5\u7EBF\u524D\uFF0C\u8BF7\u5173\u95ED\u6807\u9898\u680F\u7684\u53EA\u8BFB\u5F00\u5173\u3002", "info");
+      toast("\u5F53\u524D\u5B9E\u9A8C\u5904\u4E8E\u53EA\u8BFB\u6A21\u5F0F\u3002\u4F60\u53EF\u4EE5\u6D4B\u8BD5\u8F93\u5165\u8F93\u51FA\uFF1B\u7F16\u8F91\u63A5\u7EBF\u524D\uFF0C\u8BF7\u5173\u95ED\u6807\u9898\u680F\u7684\u53EA\u8BFB\u5F00\u5173", "info");
       return true;
     }
     return false;
@@ -6088,7 +6630,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     try {
       localStorage.setItem(READ_ONLY_KEY, String(readOnly));
     } catch (error) {
-      toast("\u53EA\u8BFB\u72B6\u6001\u5DF2\u751F\u6548\uFF1B\u6D4F\u89C8\u5668\u6682\u65F6\u65E0\u6CD5\u8BB0\u4F4F\u8FD9\u4E2A\u8BBE\u7F6E\u3002", "warning");
+      toast("\u53EA\u8BFB\u72B6\u6001\u5DF2\u751F\u6548\uFF1B\u6D4F\u89C8\u5668\u6682\u65F6\u65E0\u6CD5\u8BB0\u4F4F\u8FD9\u4E2A\u8BBE\u7F6E", "warning");
     }
     renderLibrary();
     render();
@@ -6130,9 +6672,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     wiringAudit = auditComplement(state.project);
     state.activeTab = "diagnostics";
     if (wiringAudit.length === 0) {
-      toast("\u5F53\u524D\u82AF\u7247\u548C\u7535\u6C14\u8FDE\u63A5\u4E0E\u8865\u7801\u5B9E\u9A8C\u6807\u51C6\u63A5\u6CD5\u4E00\u81F4\u3002", "info");
+      toast("\u5F53\u524D\u82AF\u7247\u548C\u7535\u6C14\u8FDE\u63A5\u4E0E\u8865\u7801\u5B9E\u9A8C\u6807\u51C6\u63A5\u6CD5\u4E00\u81F4", "info");
     } else {
-      toast("\u53D1\u73B0\u63A5\u7EBF\u5DEE\u5F02\uFF1A" + wiringAudit[0] + " \u4F60\u53EF\u4EE5\u5728\u8BCA\u65AD\u9762\u677F\u67E5\u770B\u8BE6\u60C5\u3002", "warning");
+      toast("\u53D1\u73B0\u63A5\u7EBF\u5DEE\u5F02\uFF1A" + wiringAudit[0] + " \u4F60\u53EF\u4EE5\u5728\u8BCA\u65AD\u9762\u677F\u67E5\u770B\u8BE6\u60C5", "warning");
     }
     render();
   }
@@ -6209,7 +6751,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     while (element("toast-region").children.length > 4) {
       element("toast-region").firstElementChild.remove();
     }
-    element("action-status").textContent = message;
+    recentAction = message;
+    updateActionStatus();
     refreshIcons();
   }
   function remember() {
@@ -6234,7 +6777,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     } catch (error) {
       element("save-status").textContent = "\u672C\u5730\u4FDD\u5B58\u4E0D\u53EF\u7528";
       if (!state.saveFailed) {
-        toast("\u6D4F\u89C8\u5668\u65E0\u6CD5\u4FDD\u5B58\u7535\u8DEF\uFF0C\u8BF7\u4F7F\u7528\u5BFC\u51FA\u6309\u94AE\u4FDD\u7559\u6587\u4EF6\u3002", "warning");
+        toast("\u6D4F\u89C8\u5668\u65E0\u6CD5\u4FDD\u5B58\u7535\u8DEF\uFF0C\u8BF7\u4F7F\u7528\u5BFC\u51FA\u6309\u94AE\u4FDD\u7559\u6587\u4EF6", "warning");
         state.saveFailed = true;
       }
     }
@@ -6253,7 +6796,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (notify && newIssues.length > 0) {
       let message = newIssues[0].message;
       if (newIssues.length > 1) {
-        message = message + " \u53E6\u6709 " + (newIssues.length - 1) + " \u9879\u95EE\u9898\uFF0C\u8BE6\u89C1\u8BCA\u65AD\u3002";
+        message = message + " \u53E6\u6709 " + (newIssues.length - 1) + " \u9879\u95EE\u9898\uFF0C\u8BE6\u89C1\u8BCA\u65AD";
       }
       let kind = "error";
       if (newIssues[0].severity === "warning") {
@@ -6345,19 +6888,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       return false;
     }
     if (!validEndpoint(first) || !validEndpoint(second)) {
-      toast("\u7AEF\u70B9\u540D\u79F0\u4E0D\u6B63\u786E\uFF0C\u8BF7\u9009\u62E9\u63D2\u5B54\u6216\u68C0\u67E5\u7AEF\u70B9\u540D\u79F0\u3002", "error");
+      toast("\u7AEF\u70B9\u540D\u79F0\u4E0D\u6B63\u786E\uFF0C\u8BF7\u9009\u62E9\u63D2\u5B54\u6216\u68C0\u67E5\u7AEF\u70B9\u540D\u79F0", "error");
       return false;
     }
     if (first === second) {
-      toast("\u5BFC\u7EBF\u4E24\u7AEF\u4E0D\u80FD\u662F\u540C\u4E00\u4E2A\u5B54\u3002", "warning");
+      toast("\u5BFC\u7EBF\u4E24\u7AEF\u4E0D\u80FD\u662F\u540C\u4E00\u4E2A\u5B54", "warning");
       return false;
     }
     if (occupied(first) || occupied(second)) {
-      toast("\u8FD9\u4E2A\u5B54\u5DF2\u88AB\u5360\u7528\uFF0C\u8BF7\u8FDE\u63A5\u540C\u5217\u4E94\u5B54\u7EC4\u4E2D\u7684\u5176\u4ED6\u7A7A\u5B54\u3002", "warning");
+      toast("\u8FD9\u4E2A\u5B54\u5DF2\u88AB\u5360\u7528\uFF0C\u8BF7\u8FDE\u63A5\u540C\u5217\u4E94\u5B54\u7EC4\u4E2D\u7684\u5176\u4ED6\u7A7A\u5B54", "warning");
       return false;
     }
     if (state.project.wires.length >= LIMITS.wires) {
-      toast("\u5BFC\u7EBF\u6570\u91CF\u5DF2\u8FBE\u5230\u6B64\u7248\u672C\u7684\u4E0A\u9650\u3002", "error");
+      toast("\u5BFC\u7EBF\u6570\u91CF\u5DF2\u8FBE\u5230\u6B64\u7248\u672C\u7684\u4E0A\u9650", "error");
       return false;
     }
     remember();
@@ -6413,7 +6956,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.pending = null;
     state.tool = "select";
     state.activeTab = "inspect";
-    element("action-status").textContent = "\u6B63\u5728\u67E5\u770B " + model;
     renderLibrary();
     render();
   }
@@ -6435,12 +6977,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const chip = { id: nextId(state.project.chips, "U"), model: state.placing, section, column };
     let error = placementError(state.project.chips, chip, "");
     if (state.project.chips.length >= LIMITS.chips) {
-      error = "\u82AF\u7247\u6570\u91CF\u5DF2\u8FBE\u5230\u6B64\u7248\u672C\u7684\u4E0A\u9650\u3002";
+      error = "\u82AF\u7247\u6570\u91CF\u5DF2\u8FBE\u5230\u6B64\u7248\u672C\u7684\u4E0A\u9650";
     }
     if (error === "") {
       for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
         if (occupied(pinHole(chip, pin))) {
-          error = "\u82AF\u7247\u5F15\u811A\u4F4D\u7F6E\u5DF2\u6709\u5BFC\u7EBF\uFF0C\u8BF7\u6362\u4E00\u7EC4\u7A7A\u5217\u3002";
+          error = "\u82AF\u7247\u5F15\u811A\u4F4D\u7F6E\u5DF2\u6709\u5BFC\u7EBF\uFF0C\u8BF7\u6362\u4E00\u7EC4\u7A7A\u5217";
         }
       }
     }
@@ -6493,7 +7035,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (target && target.kind === "node" && state.tool === "wire") {
       if (occupied(target.id)) {
         state.selected = target;
-        toast("\u6B64\u5B54\u5DF2\u5360\u7528\uFF0C\u63A5\u7EBF\u8BF7\u9009\u540C\u5217\u7684\u5176\u4ED6\u7A7A\u5B54\u3002", "warning");
+        toast("\u6B64\u5B54\u5DF2\u5360\u7528\uFF0C\u63A5\u7EBF\u8BF7\u9009\u540C\u5217\u7684\u5176\u4ED6\u7A7A\u5B54", "warning");
       } else if (!state.pending) {
         state.pending = { from: target.id, bends: [] };
         state.selected = target;
@@ -6502,7 +7044,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
     } else if (state.pending && (!target || target.kind === "wire")) {
       if (state.pending.bends.length >= LIMITS.bends) {
-        toast("\u8FD9\u6839\u7EBF\u7684\u8F6C\u6298\u70B9\u8FC7\u591A\uFF0C\u8BF7\u5148\u5B8C\u6210\u6216\u53D6\u6D88\u63A5\u7EBF\u3002", "warning");
+        toast("\u8FD9\u6839\u7EBF\u7684\u8F6C\u6298\u70B9\u8FC7\u591A\uFF0C\u8BF7\u5148\u5B8C\u6210\u6216\u53D6\u6D88\u63A5\u7EBF", "warning");
       } else {
         state.pending.bends.push({ x: Math.round(point.x), y: Math.round(point.y) });
       }
@@ -6579,6 +7121,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function pointerDown(event) {
+    const target = hitTest(canvasPoint(event), state, endpoints);
+    if (target && target.kind === "pulse" && event.button === 0) {
+      startPulse(target.id);
+      canvas.setPointerCapture(event.pointerId);
+      return;
+    }
     if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey || event.button !== 0) {
       return;
     }
@@ -6613,6 +7161,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderBoard(canvas, state, endpoints);
   }
   function pointerUp(event) {
+    if (heldPulse !== "") {
+      finishPulse();
+      ignoreClick = true;
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+      return;
+    }
     if (!drag) {
       return;
     }
@@ -6635,7 +7191,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
       if (name === "" || occupied(name) && name !== previous) {
         state.project = current.original;
-        toast("\u8BF7\u628A\u7AEF\u70B9\u62D6\u5230\u4E00\u4E2A\u7A7A\u63D2\u5B54\uFF0C\u539F\u63A5\u7EBF\u5DF2\u4FDD\u7559\u3002", "warning");
+        toast("\u8BF7\u628A\u7AEF\u70B9\u62D6\u5230\u4E00\u4E2A\u7A7A\u63D2\u5B54\uFF0C\u539F\u63A5\u7EBF\u5DF2\u4FDD\u7559", "warning");
         render();
         return;
       }
@@ -6650,6 +7206,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     commit();
   }
   function cancelPointer() {
+    finishPulse();
     if (drag && drag.moved) {
       state.project = drag.original;
     }
@@ -6687,6 +7244,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function cancelWire() {
     state.pending = null;
     state.placing = "";
+    catalogModel = "";
     renderLibrary();
     render();
   }
@@ -6773,7 +7331,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       targets.push({ kind: state.selected.kind, id: state.selected.id });
     }
     if (targets.length > 0) {
-      confirmAction("\u5220\u9664\u9009\u4E2D\u7684\u5BF9\u8C61\uFF1F", "\u4F60\u9009\u4E2D\u4E86 " + targets.length + " \u4E2A\u5BF9\u8C61\uFF0C\u786E\u8BA4\u540E\u5C06\u4ECE\u5F53\u524D\u5B9E\u9A8C\u4E2D\u79FB\u9664\u3002", removeTargets.bind(null, targets));
+      confirmAction("\u5220\u9664\u9009\u4E2D\u7684\u5BF9\u8C61\uFF1F", "\u4F60\u9009\u4E2D\u4E86 " + targets.length + " \u4E2A\u5BF9\u8C61\uFF0C\u786E\u8BA4\u540E\u5C06\u4ECE\u5F53\u524D\u5B9E\u9A8C\u4E2D\u79FB\u9664", removeTargets.bind(null, targets));
     }
   }
   function removeTargets(targets) {
@@ -6805,7 +7363,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function deletePinnedChip() {
     if (findChip(state.pinnedChip)) {
       const target = { kind: "chip", id: state.pinnedChip };
-      confirmAction("\u5220\u9664\u82AF\u7247\uFF1F", "\u786E\u8BA4\u5220\u9664 " + target.id + "\uFF1F\u5BFC\u7EBF\u4F1A\u7559\u5728\u539F\u6765\u7684\u63D2\u5B54\u3002", removeTargets.bind(null, [target]));
+      confirmAction("\u5220\u9664\u82AF\u7247\uFF1F", "\u786E\u8BA4\u5220\u9664 " + target.id + "\uFF1F\u5BFC\u7EBF\u4F1A\u7559\u5728\u539F\u6765\u7684\u63D2\u5B54", removeTargets.bind(null, [target]));
     }
   }
   function toggleSwitch(index) {
@@ -6820,40 +7378,59 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function clickQuickSwitch(event) {
     toggleSwitch(Number(event.currentTarget.dataset.bit));
   }
-  function changeOperation(event) {
-    remember();
-    state.project.switches[5] = 0;
-    if (event.currentTarget.checked) {
-      state.project.switches[5] = 1;
-    }
-    commit();
-  }
-  function pulse(kind) {
+  function startPulse(kind) {
     if (!state.project.power) {
-      toast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u8BF7\u5148\u6253\u5F00\u7535\u6E90\u518D\u53D1\u8109\u51B2\u3002", "warning");
+      toast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u8BF7\u5148\u6253\u5F00\u7535\u6E90\u518D\u53D1\u8109\u51B2", "warning");
       return;
     }
-    emitPulse(state.project, state.runtime, kind);
+    if (heldPulse !== "") {
+      return;
+    }
+    window.clearTimeout(pulseTimer);
+    heldPulse = kind;
+    state.pressedPulse = kind;
+    if (kind === "P+") {
+      state.runtime.pulses.positive = 1;
+    } else {
+      state.runtime.pulses.negative = 0;
+    }
     calculate(true);
-    element("action-status").textContent = kind + " \u5355\u8109\u51B2\u5DF2\u5B8C\u6210";
     render();
   }
-  function negativePulse() {
-    pulse("P-");
-  }
-  function positivePulse() {
-    pulse("P+");
-  }
-  function clearRegister() {
-    if (!state.project.power) {
-      toast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u8BF7\u5148\u6253\u5F00\u7535\u6E90\u518D\u6E05\u96F6\u3002", "warning");
+  function finishPulse() {
+    if (heldPulse === "") {
       return;
     }
-    remember();
-    state.project.switches[6] = 0;
-    simulate(state.project, state.runtime);
-    state.project.switches[6] = 1;
-    commit();
+    const kind = heldPulse;
+    heldPulse = "";
+    state.runtime.pulses.positive = 0;
+    state.runtime.pulses.negative = 1;
+    calculate(true);
+    recentAction = kind + " \u5355\u8109\u51B2\u5DF2\u5B8C\u6210";
+    render();
+    pulseTimer = window.setTimeout(clearPulseFeedback, PULSE_SETTINGS.feedbackDuration);
+  }
+  function clearPulseFeedback() {
+    state.pressedPulse = "";
+    render();
+  }
+  function pulse(kind) {
+    startPulse(kind);
+    finishPulse();
+  }
+  function pressPulseButton(event) {
+    startPulse(event.currentTarget.dataset.pulse);
+    if (heldPulse !== "") {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+  }
+  function releasePulseButton() {
+    finishPulse();
+  }
+  function clickPulseButton(event) {
+    if (event.detail === 0) {
+      pulse(event.currentTarget.dataset.pulse);
+    }
   }
   function changePower(event) {
     remember();
@@ -6885,6 +7462,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     commit();
   }
   function resetRuntime() {
+    heldPulse = "";
+    state.pressedPulse = "";
+    window.clearTimeout(pulseTimer);
     state.runtime = createRuntime();
     state.pending = null;
     state.placing = "";
@@ -6904,7 +7484,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       resetRuntime();
       calculate(false);
       render();
-      toast("\u5DF2\u5207\u6362\u5230\u73B0\u6709\u7684\u7A7A\u767D\u5B9E\u9A8C\u3002\u4F60\u5F00\u59CB\u7F16\u8F91\u540E\uFF0C\u53EF\u4EE5\u518D\u65B0\u5EFA\u4E0B\u4E00\u4EFD\u3002", "info");
+      toast("\u5DF2\u5207\u6362\u5230\u73B0\u6709\u7684\u7A7A\u767D\u5B9E\u9A8C\u3002\u4F60\u5F00\u59CB\u7F16\u8F91\u540E\uFF0C\u53EF\u4EE5\u518D\u65B0\u5EFA\u4E0B\u4E00\u4EFD", "info");
       return;
     }
     activeExperiment = newExperimentId();
@@ -6920,7 +7500,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function loadPreset() {
     keepExperiment(workspace, activeExperiment, state.project);
     for (const id of Object.keys(workspace.projects)) {
-      if (workspace.projects[id].mode === "complement" && auditComplement(workspace.projects[id]).length === 0) {
+      if (workspace.projects[id].name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668" && auditComplement(workspace.projects[id]).length === 0) {
         activeExperiment = id;
         state.project = copyProject(workspace.projects[id]);
         resetRuntime();
@@ -6977,7 +7557,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     try {
       if (file.size > LIMITS.fileBytes) {
-        throw new Error("\u7535\u8DEF\u6587\u4EF6\u8FC7\u5927\uFF0C\u8BF7\u9009\u62E9\u5C0F\u4E8E 2 MB \u7684\u6587\u4EF6\u3002");
+        throw new Error("\u7535\u8DEF\u6587\u4EF6\u8FC7\u5927\uFF0C\u8BF7\u9009\u62E9\u5C0F\u4E8E 2 MB \u7684\u6587\u4EF6");
       }
       const content = await file.text();
       const parsed = JSON.parse(content);
@@ -6990,7 +7570,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         cleanWorkspace(workspace);
         stageChanges();
         render();
-        toast("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\u3002\u4F60\u53EF\u4EE5\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u5207\u6362\uFF0C\u6309 Ctrl+S \u4FDD\u5B58\u3002", "info");
+        toast("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\u3002\u4F60\u53EF\u4EE5\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u5207\u6362\uFF0C\u6309 Ctrl+S \u4FDD\u5B58", "info");
         input.value = "";
         return;
       }
@@ -7005,7 +7585,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       commit();
       renderLibrary();
     } catch (error) {
-      let message = "\u7535\u8DEF\u6587\u4EF6\u65E0\u6CD5\u89E3\u6790\uFF0C\u8BF7\u68C0\u67E5 JSON \u683C\u5F0F\u3002";
+      let message = "\u7535\u8DEF\u6587\u4EF6\u65E0\u6CD5\u89E3\u6790\uFF0C\u8BF7\u68C0\u67E5 JSON \u683C\u5F0F";
       if (!(error instanceof SyntaxError)) {
         message = error.message;
       }
@@ -7015,7 +7595,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function receiveImage(blob) {
     if (!blob) {
-      toast("\u65E0\u6CD5\u5BFC\u51FA\u56FE\u7247\uFF0C\u8BF7\u91CD\u8BD5\u3002", "error");
+      toast("\u65E0\u6CD5\u5BFC\u51FA\u56FE\u7247\uFF0C\u8BF7\u91CD\u8BD5", "error");
       return;
     }
     download(blob, "breadboard-wiring.png");
@@ -7157,16 +7737,29 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const reference = CHIP_REFERENCES[chip.model];
     const figure = node("figure", "", "chip-reference");
     const imageLink = node("a", "", "");
-    imageLink.href = "assets/pinouts/" + reference.file + ".png";
+    let imagePath = "assets/pinouts/" + reference.file + ".png";
+    if (reference.image) {
+      imagePath = reference.image;
+    }
+    imageLink.href = imagePath;
     imageLink.target = "_blank";
     imageLink.rel = "noopener";
     const image = document.createElement("img");
     image.src = imageLink.href;
-    image.alt = chip.model + " \u539F\u5382 DIP \u9876\u89C6\u5F15\u811A\u56FE";
+    image.alt = chip.model + " DIP \u5F15\u811A\u56FE";
     imageLink.append(image);
-    figure.append(imageLink, node("figcaption", "\u539F\u5382\u9876\u89C6\u56FE\uFF1A\u7F3A\u53E3\u671D\u4E0A\uFF1B\u753B\u5E03\u4E2D\u7684\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6\u3002", ""));
-    const source = node("a", "TI \u6570\u636E\u624B\u518C \xB7 \u7B2C " + reference.page + " \u9875", "datasheet-link");
+    let caption = "\u539F\u5382\u9876\u89C6\u56FE\uFF1A\u7F3A\u53E3\u671D\u4E0A\uFF1B\u753B\u5E03\u4E2D\u7684\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6";
+    let sourceLabel = "TI \u6570\u636E\u624B\u518C \xB7 \u7B2C " + reference.page + " \u9875";
+    if (reference.image) {
+      caption = "\u7528\u6237\u6750\u6599\u4E2D\u7684\u5F15\u811A\u56FE\uFF1B\u5B89\u88C5\u65F6\u8BF7\u6309\u7269\u7406\u811A\u53F7\u6838\u5BF9";
+      sourceLabel = "\u67E5\u770B\u6750\u6599\u4E2D\u7684\u903B\u8F91\u7B26\u53F7";
+    }
+    figure.append(imageLink, node("figcaption", caption, ""));
+    const source = node("a", sourceLabel, "datasheet-link");
     source.href = "assets/datasheets/" + reference.file + ".pdf#page=" + reference.page;
+    if (reference.logicImage) {
+      source.href = reference.logicImage;
+    }
     source.target = "_blank";
     source.rel = "noopener";
     container.append(figure, source, node("p", reference.summary, "chip-summary"));
@@ -7192,7 +7785,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
         const hole = pinHole(candidate, pin);
         if (wire.from === hole || wire.to === hole) {
-          error = "\u65B0\u4F4D\u7F6E\u7684\u82AF\u7247\u5B54\u88AB\u5BFC\u7EBF\u5360\u7528\uFF0C\u8BF7\u5148\u79FB\u8D70\u5BFC\u7EBF\u3002";
+          error = "\u65B0\u4F4D\u7F6E\u7684\u82AF\u7247\u5B54\u88AB\u5BFC\u7EBF\u5360\u7528\uFF0C\u8BF7\u5148\u79FB\u8D70\u5BFC\u7EBF";
         }
       }
     }
@@ -7241,6 +7834,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (state.selected && state.selected.kind === "node") {
       const name = state.selected.id;
       container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"), node("div", String(readEndpoint(state.result, name)), "node-value"));
+      const pullUp = node("button", "\u4E3A\u6B64\u8282\u70B9\u6DFB\u52A0\u4E0A\u62C9", "button");
+      if (state.project.pullUps.includes(name)) {
+        pullUp.textContent = "\u79FB\u9664\u6B64\u8282\u70B9\u4E0A\u62C9";
+      }
+      pullUp.disabled = readOnly;
+      pullUp.dataset.endpoint = name;
+      pullUp.addEventListener("click", togglePullUp);
+      container.append(pullUp);
       for (const chip of state.project.chips) {
         for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
           if (pinHole(chip, pin) === name) {
@@ -7265,6 +7866,20 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       summary.append(row);
     }
     container.append(summary);
+  }
+  function togglePullUp(event) {
+    if (editingLocked()) {
+      return;
+    }
+    remember();
+    const endpoint = event.currentTarget.dataset.endpoint;
+    const index = state.project.pullUps.indexOf(endpoint);
+    if (index >= 0) {
+      state.project.pullUps.splice(index, 1);
+    } else {
+      state.project.pullUps.push(endpoint);
+    }
+    commit();
   }
   function renderCatalogInfo(container, modelName) {
     const model = CHIP_MODELS[modelName];
@@ -7443,11 +8058,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     container.replaceChildren();
     if (state.result.issues.length === 0 && wiringAudit.length === 0) {
       const item = node("div", "", "diagnostic success");
-      let message = "\u672A\u53D1\u73B0\u4F9B\u7535\u3001\u60AC\u7A7A\u8F93\u5165\u6216\u8F93\u51FA\u51B2\u7A81\u3002";
+      let message = "\u672A\u53D1\u73B0\u4F9B\u7535\u3001\u60AC\u7A7A\u8F93\u5165\u6216\u8F93\u51FA\u51B2\u7A81";
       if (!state.project.power) {
-        message = "\u7535\u6E90\u5DF2\u5173\u95ED\u3002";
+        message = "\u7535\u6E90\u5DF2\u5173\u95ED";
       } else if (state.project.chips.length === 0) {
-        message = "\u5F53\u524D\u6CA1\u6709\u82AF\u7247\u3002";
+        message = "\u5F53\u524D\u6CA1\u6709\u82AF\u7247";
       }
       item.append(icon("circle-check"), node("span", message, ""));
       container.append(item);
@@ -7534,7 +8149,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     return wrapper;
   }
   function ensureInputControls(count) {
-    if (lastInputCount === count && lastMode === state.project.mode) {
+    if (lastInputCount === count) {
       return;
     }
     const container = element("quick-switches");
@@ -7543,7 +8158,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       container.append(createQuickInput(bit));
     }
     lastInputCount = count;
-    lastMode = state.project.mode;
     fadeContent(container);
   }
   function setLedState(led, name, value) {
@@ -7571,13 +8185,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function renderIo() {
-    const complement = state.project.mode === "complement";
-    let inputCount = state.project.inputCount;
-    let outputCount = state.project.outputCount;
-    if (complement) {
-      inputCount = 5;
-      outputCount = 6;
-    }
+    const inputCount = state.project.inputCount;
+    const outputCount = state.project.outputCount;
     ensureInputControls(inputCount);
     let input = 0;
     for (const button of element("quick-switches").querySelectorAll("button")) {
@@ -7589,19 +8198,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       setLedState(led, "K" + bit, readEndpoint(state.result, "K" + bit));
       input = input * 2 + value;
     }
-    if (complement && input >= 16) {
-      input = input - 32;
-    }
     element("input-decimal").textContent = String(input);
-    element("subtract-toggle").checked = state.project.switches[5] === 1;
-    element("subtract-control").hidden = !complement;
-    element("clear-register").hidden = !complement;
-    element("project-mode").value = state.project.mode;
     element("input-count").value = String(state.project.inputCount);
     element("output-count").value = String(state.project.outputCount);
-    for (const label2 of document.querySelectorAll(".general-setting")) {
-      label2.hidden = complement;
-    }
     element("input-label").textContent = "\u8F93\u5165 K" + (inputCount - 1) + "\u2026K0";
     element("output-label").textContent = "\u8F93\u51FA L" + (outputCount - 1) + "\u2026L0";
     let binary = "";
@@ -7610,9 +8209,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     for (let bit = outputCount - 1; bit >= 0; bit = bit - 1) {
       const value = readEndpoint(state.result, "L" + bit);
       binary = binary + String(value);
-      if (complement && bit === 4) {
-        binary = binary + " ";
-      } else if (!complement && bit > 0 && bit % 4 === 0) {
+      if (bit > 0 && bit % 4 === 0) {
         binary = binary + " ";
       }
       if (value !== 0 && value !== 1) {
@@ -7622,38 +8219,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
     }
     element("binary-result").textContent = binary;
-    element("binary-result").classList.toggle("general-binary", !complement);
+    element("binary-result").classList.add("general-binary");
     renderOutputLeds(outputCount);
     let meaning = "\u672A\u77E5 / \u60AC\u7A7A";
     if (!state.project.power) {
       meaning = "\u7535\u6E90\u5173\u95ED";
-    } else if (known && complement) {
-      const high = readEndpoint(state.result, "L5");
-      const low = readEndpoint(state.result, "L4");
-      if (high === 0 && low === 1) {
-        meaning = "\u6B63\u6EA2\u51FA";
-      } else if (high === 1 && low === 0) {
-        meaning = "\u8D1F\u6EA2\u51FA";
-      } else {
-        if (number >= 32) {
-          number = number - 64;
-        }
-        meaning = String(number);
-      }
     } else if (known) {
       meaning = String(number);
     }
     element("result-meaning").textContent = meaning;
-  }
-  function changeMode(event) {
-    if (editingLocked()) {
-      renderIo();
-      return;
-    }
-    remember();
-    state.project.mode = event.currentTarget.value;
-    commit();
-    fadeContent(document.querySelector(".io-strip"));
   }
   function changeIoCount(event) {
     if (editingLocked()) {
@@ -7662,7 +8236,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     const count = Number(event.currentTarget.value);
     if (!Number.isInteger(count) || count < 1 || count > IO_LIMIT) {
-      toast("\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E24\uFF0C\u8BF7\u8F93\u5165\u6574\u6570\u3002", "warning");
+      toast("\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E24\uFF0C\u8BF7\u8F93\u5165\u6574\u6570", "warning");
       renderIo();
       return;
     }
@@ -7721,13 +8295,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("redo").disabled = state.redo.length === 0;
   }
   function render() {
+    updateActionStatus();
+    for (const button of document.querySelectorAll(".pulse-button")) {
+      const pressed = button.dataset.pulse === state.pressedPulse;
+      button.classList.toggle("pressed", pressed);
+      button.setAttribute("aria-pressed", String(pressed));
+    }
     element("save-status").textContent = "\u5F53\u524D\u5B9E\u9A8C\u5DF2\u4FDD\u5B58";
     if (dirtyExperiments.has(activeExperiment)) {
       element("save-status").textContent = "\u5F53\u524D\u5B9E\u9A8C\u672A\u4FDD\u5B58";
     }
     element("read-only-toggle").checked = readOnly;
     element("project-name").readOnly = readOnly;
-    for (const id of ["tool-wire", "tool-delete", "connect-endpoints", "project-mode", "input-count", "output-count", "notes-edit-button"]) {
+    for (const id of ["tool-wire", "tool-delete", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
       element(id).disabled = readOnly;
     }
     element("project-name").value = state.project.name;
@@ -7766,9 +8346,32 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderPanels();
     renderBoard(canvas, state, endpoints);
   }
+  function updateActionStatus() {
+    let message = "\u5C31\u7EEA";
+    if (recentAction !== "") {
+      message = recentAction;
+    }
+    if (state.pressedPulse !== "") {
+      message = state.pressedPulse + " \u8109\u51B2";
+    } else if (state.placing !== "") {
+      message = "\u5F85\u653E\u7F6E " + state.placing;
+    } else if (state.pending) {
+      message = "\u63A5\u7EBF\u8D77\u70B9\uFF1A" + endpointLabel(state.pending.from);
+    } else if (catalogModel !== "") {
+      message = "\u6B63\u5728\u67E5\u770B " + catalogModel;
+    } else if (state.selection.length > 1) {
+      message = "\u5DF2\u9009\u62E9 " + state.selection.length + " \u4E2A\u5BF9\u8C61";
+    } else if (state.selected) {
+      message = "\u5DF2\u9009\u62E9 " + state.selected.id;
+    }
+    element("action-status").textContent = message;
+  }
   function showHelp() {
     const paragraphs = element("help-dialog").querySelectorAll(".dialog-body p");
-    paragraphs[paragraphs.length - 1].textContent = "\u5FEB\u6377\u952E\uFF1ACtrl+Z \u64A4\u9500\uFF0CCtrl+Shift+Z \u91CD\u505A\uFF0CDelete \u8BF7\u6C42\u5220\u9664\u9009\u4E2D\u5BF9\u8C61\uFF0CCtrl+S \u53EA\u4FDD\u5B58\u5F53\u524D\u5B9E\u9A8C\u3002\u4F60\u53EF\u4EE5\u6309\u4F4F Ctrl \u591A\u9009\u5668\u4EF6\u548C\u5BFC\u7EBF\uFF0C\u5728\u9009\u62E9\u6A21\u5F0F\u4E0B\u62D6\u52A8\u5BFC\u7EBF\u7AEF\u70B9\u6216\u8F6C\u6298\u70B9\u3002\u81EA\u52A8\u4FDD\u5B58\u9ED8\u8BA4\u5173\u95ED\uFF1B\u6709\u672A\u4FDD\u5B58\u5185\u5BB9\u65F6\uFF0C\u5173\u95ED\u6216\u5237\u65B0\u9875\u9762\u4F1A\u663E\u793A\u6D4F\u89C8\u5668\u79BB\u5F00\u786E\u8BA4\u3002\u4F60\u9009\u62E9\u7559\u5728\u9875\u9762\u540E\uFF0C\u53EF\u4EE5\u6309 Ctrl+S \u4FDD\u5B58\u3002";
+    paragraphs[0].textContent = "\u4F60\u53EF\u4EE5\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u65B0\u5EFA\u72EC\u7ACB\u5B9E\u9A8C\uFF0C\u6216\u5207\u56DE\u5DF2\u4FDD\u5B58\u7684\u5B9E\u9A8C\u3002\u8F93\u5165\u548C\u8F93\u51FA\u5404\u53EF\u663E\u793A 1\uFF5E24 \u4F4D\uFF0C\u7AEF\u53E3\u4F5C\u7528\u53EF\u4EE5\u5199\u5728 Markdown \u5907\u6CE8\u91CC";
+    paragraphs[1].textContent = "\u70B9\u51FB\u5668\u4EF6\u5E93\u4E2D\u7684\u82AF\u7247\u5148\u67E5\u770B\u529F\u80FD\u548C\u5F15\u811A\u56FE\uFF0C\u518D\u70B9\u51FB\u201C\u653E\u7F6E\u82AF\u7247\u201D\u9009\u62E9\u5B89\u88C5\u4F4D\u7F6E\u3002\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6\uFF0C\u8DE8 E/F \u6C9F\u69FD\u3002\u63A5\u7EBF\u65F6\u4F9D\u6B21\u9009\u62E9\u8D77\u70B9\u548C\u7EC8\u70B9\uFF0C\u70B9\u51FB\u7A7A\u767D\u53EF\u589E\u52A0\u8F6C\u6298\u70B9\uFF0C\u6309 Esc \u53D6\u6D88";
+    paragraphs[6].textContent = "\u8865\u7801\u793A\u4F8B\u4E2D\uFF0CK0\uFF5EK3 \u662F\u6570\u503C\u4F4D\uFF0CK4 \u662F\u7B26\u53F7\u4F4D\uFF0CK5 \u4E3A 0 \u65F6\u52A0\u30011 \u65F6\u51CF\u3002\u4F60\u628A K6 \u5207\u5230 0 \u518D\u5207\u56DE 1 \u5373\u53EF\u6E05\u96F6\u3002\u6309\u4F4F P\u2212 \u540E\u677E\u5F00\uFF0C\u5BC4\u5B58\u5668\u5728\u6062\u590D\u4E0A\u5347\u6CBF\u4FDD\u5B58\u7ED3\u679C\u3002L5\u3001L4 \u662F\u4E24\u4E2A\u7B26\u53F7\u4F4D\uFF0CL6 \u6307\u793A\u6EA2\u51FA";
+    paragraphs[paragraphs.length - 1].textContent = "\u5FEB\u6377\u952E\uFF1ACtrl+Z \u64A4\u9500\uFF0CCtrl+Shift+Z \u91CD\u505A\uFF0CDelete \u8BF7\u6C42\u5220\u9664\u9009\u4E2D\u5BF9\u8C61\uFF0CCtrl+S \u53EA\u4FDD\u5B58\u5F53\u524D\u5B9E\u9A8C\u3002\u4F60\u53EF\u4EE5\u6309\u4F4F Ctrl \u591A\u9009\u5668\u4EF6\u548C\u5BFC\u7EBF\uFF0C\u5728\u9009\u62E9\u6A21\u5F0F\u4E0B\u62D6\u52A8\u5BFC\u7EBF\u7AEF\u70B9\u6216\u8F6C\u6298\u70B9\u3002\u81EA\u52A8\u4FDD\u5B58\u9ED8\u8BA4\u5173\u95ED\uFF1B\u6709\u672A\u4FDD\u5B58\u5185\u5BB9\u65F6\uFF0C\u5173\u95ED\u6216\u5237\u65B0\u9875\u9762\u4F1A\u663E\u793A\u6D4F\u89C8\u5668\u79BB\u5F00\u786E\u8BA4\u3002\u4F60\u9009\u62E9\u7559\u5728\u9875\u9762\u540E\uFF0C\u53EF\u4EE5\u6309 Ctrl+S \u4FDD\u5B58";
     element("help-dialog").showModal();
     fadeContent(element("help-dialog"));
   }
@@ -7837,10 +8440,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("fit-board").addEventListener("click", fitBoard);
     element("show-internals").addEventListener("change", changeDisplayOptions);
     element("show-levels").addEventListener("change", changeDisplayOptions);
-    element("pulse-negative").addEventListener("click", negativePulse);
-    element("pulse-positive").addEventListener("click", positivePulse);
-    element("clear-register").addEventListener("click", clearRegister);
-    element("subtract-toggle").addEventListener("change", changeOperation);
+    for (const button of document.querySelectorAll(".pulse-button")) {
+      button.addEventListener("pointerdown", pressPulseButton);
+      button.addEventListener("pointerup", releasePulseButton);
+      button.addEventListener("pointercancel", releasePulseButton);
+      button.addEventListener("click", clickPulseButton);
+    }
+    window.addEventListener("blur", releasePulseButton);
     element("power-toggle").addEventListener("change", changePower);
     element("new-project").addEventListener("click", newProject);
     element("load-preset").addEventListener("click", loadPreset);
@@ -7854,7 +8460,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("tab-wires").addEventListener("click", changeTab);
     element("tab-diagnostics").addEventListener("click", changeTab);
     element("tab-notes").addEventListener("click", changeTab);
-    element("project-mode").addEventListener("change", changeMode);
     element("input-count").addEventListener("change", changeIoCount);
     element("output-count").addEventListener("change", changeIoCount);
     element("notes-edit-button").addEventListener("click", editNotes);
@@ -7892,7 +8497,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
     } catch (error) {
       state.project = complementPreset();
-      loadError = "\u672C\u5730\u7535\u8DEF\u65E0\u6CD5\u6062\u590D\uFF0C\u5DF2\u6253\u5F00\u793A\u4F8B\u3002\u539F\u6587\u4EF6\u53EF\u91CD\u65B0\u5BFC\u5165\u3002";
+      loadError = "\u672C\u5730\u7535\u8DEF\u65E0\u6CD5\u6062\u590D\uFF0C\u5DF2\u6253\u5F00\u793A\u4F8B\u3002\u539F\u6587\u4EF6\u53EF\u91CD\u65B0\u5BFC\u5165";
     }
     if (activeExperiment === "") {
       activeExperiment = newExperimentId();
@@ -7912,14 +8517,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       toast(loadError, "warning");
     }
     if (removedCount > 0) {
-      toast("\u5DF2\u6574\u7406 " + removedCount + " \u4EFD\u91CD\u590D\u7A7A\u767D\u6216\u8865\u7801\u5B9E\u9A8C\uFF0C\u6574\u7406\u524D\u7684\u5217\u8868\u5DF2\u5907\u4EFD\u3002", "info");
+      toast("\u5DF2\u6574\u7406 " + removedCount + " \u4EFD\u91CD\u590D\u7A7A\u767D\u6216\u8865\u7801\u5B9E\u9A8C\uFF0C\u6574\u7406\u524D\u7684\u5217\u8868\u5DF2\u5907\u4EFD", "info");
     }
-    if (state.project.mode === "complement") {
+    if (state.project.name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668") {
       wiringAudit = auditComplement(state.project);
       if (wiringAudit.length > 0) {
         state.activeTab = "diagnostics";
         render();
-        toast("\u8FD9\u4EFD\u5B9E\u9A8C\u7684\u63A5\u7EBF\u4E0E\u6807\u51C6\u793A\u4F8B\u6709\u5DEE\u5F02\u3002\u4F60\u53EF\u4EE5\u67E5\u770B\u8BCA\u65AD\u9762\u677F\uFF0C\u6216\u6253\u5F00\u4E00\u4EFD\u65B0\u7684\u8865\u7801\u793A\u4F8B\u5BF9\u7167\u3002", "warning");
+        toast("\u8FD9\u4EFD\u5B9E\u9A8C\u7684\u63A5\u7EBF\u4E0E\u6807\u51C6\u793A\u4F8B\u6709\u5DEE\u5F02\u3002\u4F60\u53EF\u4EE5\u67E5\u770B\u8BCA\u65AD\u9762\u677F\uFF0C\u6216\u6253\u5F00\u4E00\u4EFD\u65B0\u7684\u8865\u7801\u793A\u4F8B\u5BF9\u7167", "warning");
       }
     }
   }

@@ -5,7 +5,7 @@ import { readEndpoint, nodeFor } from "./engine.mjs";
 const DRAW = { holeRadius: 3.5, wireWidth: 2.4, pickRadius: 7, chipText: 10 };
 let drawingFont = "";
 
-// 从页面样式读取画布使用的颜色，返回配色对象。
+// 从页面样式读取画布使用的颜色，返回配色对象
 export function canvasColors() {
     const style = getComputedStyle(document.documentElement);
     const colors = {};
@@ -17,7 +17,7 @@ export function canvasColors() {
     return colors;
 }
 
-// 绘制带圆角的实心矩形，参数为位置、尺寸、圆角和填充色。
+// 绘制带圆角的实心矩形，参数为位置、尺寸、圆角和填充色
 function rectangle(context, left, top, width, height, radius, color) {
     context.beginPath();
     context.roundRect(left, top, width, height, radius);
@@ -25,7 +25,7 @@ function rectangle(context, left, top, width, height, radius, color) {
     context.fill();
 }
 
-// 在指定位置画文字，参数包含字号、颜色及对齐方式。
+// 在指定位置画文字，参数包含字号、颜色及对齐方式
 function label(context, content, horizontal, vertical, size, color, align) {
     context.font = size + "px " + drawingFont;
     context.fillStyle = color;
@@ -34,7 +34,7 @@ function label(context, content, horizontal, vertical, size, color, align) {
     context.fillText(content, horizontal, vertical);
 }
 
-// 绘制折线，参数为点数组、颜色和线宽。
+// 绘制折线，参数为点数组、颜色和线宽
 function polyline(context, points, color, width) {
     context.beginPath();
     context.moveTo(points[0].x, points[0].y);
@@ -48,7 +48,7 @@ function polyline(context, points, color, width) {
     context.stroke();
 }
 
-// 绘制圆形端点，参数为位置、半径和填充色。
+// 绘制圆形端点，参数为位置、半径和填充色
 function circle(context, horizontal, vertical, radius, color) {
     context.beginPath();
     context.arc(horizontal, vertical, radius, 0, Math.PI * 2);
@@ -56,7 +56,7 @@ function circle(context, horizontal, vertical, radius, color) {
     context.fill();
 }
 
-// 生成可供接线的所有端点名，芯片占用的孔也保留用于查看引脚。
+// 生成可供接线的所有端点名，芯片占用的孔也保留用于查看引脚
 export function allEndpoints() {
     const endpoints = [];
     for (let section = 0; section < BOARD.sections; section = section + 1) {
@@ -85,7 +85,7 @@ export function allEndpoints() {
     return endpoints;
 }
 
-// 返回芯片在画布中的外框，用于绘制和鼠标选择。
+// 返回芯片在画布中的外框，用于绘制和鼠标选择
 export function chipBounds(chip) {
     const count = CHIP_MODELS[chip.model].count;
     const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - 9;
@@ -93,7 +93,7 @@ export function chipBounds(chip) {
     return { x: left, y: top, width: count / 2 * BOARD.pitch, height: 32 };
 }
 
-// 返回一根导线的折线点；有手动转折点时保留原路径。
+// 返回一根导线的折线点；有手动转折点时保留原路径
 export function wirePoints(wire, index) {
     const first = endpointPosition(wire.from);
     const last = endpointPosition(wire.to);
@@ -115,7 +115,7 @@ export function wirePoints(wire, index) {
     return points;
 }
 
-// 绘制面包板孔和内部五孔连通线，不跨接中央沟槽。
+// 绘制面包板孔和内部五孔连通线，不跨接中央沟槽
 function drawBreadboards(context, state, colors) {
     for (let section = 0; section < BOARD.sections; section = section + 1) {
         const top = BOARD.startY + section * BOARD.sectionHeight - 30;
@@ -140,7 +140,7 @@ function drawBreadboards(context, state, colors) {
         for (const row of BUS_ROWS) {
             const vertical = rowY(section, row);
             label(context, row, 74, vertical, 9, colors.muted, "center");
-            // 三段母线默认只在各自段内相通，不能跨段画成整条线。
+            // 三段母线默认只在各自段内相通，不能跨段画成整条线
             for (const segment of BUS_SEGMENTS) {
                 const first = endpointPosition(holeId(section, row, segment[0]));
                 const last = endpointPosition(holeId(section, row, segment[1]));
@@ -165,7 +165,7 @@ function drawBreadboards(context, state, colors) {
             }
         }
     }
-    // 右侧两列固定为地和电源，顺序与用户的实物板一致。
+    // 右侧两列固定为地和电源，顺序与用户的实物板一致
     polyline(context, [{ x: 1210, y: 85 }, { x: 1210, y: PORT_LAYOUT.inputY + 10 }], colors.hole, 3);
     polyline(context, [{ x: 1242, y: 85 }, { x: 1242, y: PORT_LAYOUT.inputY + 10 }], colors.error, 3);
     label(context, "GND", 1210, 83, 11, colors.ink, "center");
@@ -179,7 +179,7 @@ function drawBreadboards(context, state, colors) {
     }
 }
 
-// 绘制板载按键和指示灯模块，返回值不需要保存。
+// 绘制板载按键和指示灯模块，返回值不需要保存
 function drawModules(context, state, colors) {
     const offset = PORT_LAYOUT.inputY - 1170;
     rectangle(context, BOARD.panelLeft, 14, BOARD.panelWidth, 65, 5, colors.module);
@@ -210,7 +210,13 @@ function drawModules(context, state, colors) {
     for (const name of ["P+", "P-"]) {
         const location = endpointPosition(name);
         label(context, name, location.x, 1156 + offset, 10, colors["module-text"], "center");
-        circle(context, location.x, 1208 + offset, 14, colors["chip-text"]);
+        let buttonColor = colors["chip-text"];
+        let buttonY = 1208 + offset;
+        if (state.pressedPulse === name) {
+            buttonColor = colors["led-on"];
+            buttonY = buttonY + 3;
+        }
+        circle(context, location.x, buttonY, 14, buttonColor);
         label(context, "脉冲", location.x, 1237 + offset, 9, colors["module-text"], "center");
     }
     for (const name of ["GND", "VCC"]) {
@@ -232,7 +238,7 @@ function drawModules(context, state, colors) {
     }
 }
 
-// 绘制芯片的封装、缺口、引脚和脚号。
+// 绘制芯片的封装、缺口、引脚和脚号
 function drawChip(context, chip, state, colors) {
     const bounds = chipBounds(chip);
     const model = CHIP_MODELS[chip.model];
@@ -262,7 +268,7 @@ function drawChip(context, chip, state, colors) {
     }
 }
 
-// 绘制导线，选中的线加粗；端点圆圈与普通交叉区分。
+// 绘制导线，选中的线加粗；端点圆圈与普通交叉区分
 function drawWires(context, state, colors) {
     for (let index = 0; index < state.project.wires.length; index = index + 1) {
         const wire = state.project.wires[index];
@@ -301,7 +307,7 @@ function drawWires(context, state, colors) {
     }
 }
 
-// 绘制选中节点的同组孔高亮，以及可选的节点电平。
+// 绘制选中节点的同组孔高亮，以及可选的节点电平
 function drawHighlights(context, state, endpoints, colors) {
     let selectedNode = "";
     if (state.selected && state.selected.kind === "node") {
@@ -338,7 +344,7 @@ function drawHighlights(context, state, endpoints, colors) {
     }
 }
 
-// 重绘整个面包板，参数为画布、界面状态和所有可连接端点。
+// 重绘整个面包板，参数为画布、界面状态和所有可连接端点
 export function renderBoard(canvas, state, endpoints) {
     const context = canvas.getContext("2d");
     context.setTransform(2, 0, 0, 2, 0, 0);
@@ -357,7 +363,7 @@ export function renderBoard(canvas, state, endpoints) {
     }
 }
 
-// 计算点到线段的距离，供导线选择使用。
+// 计算点到线段的距离，供导线选择使用
 function segmentDistance(point, first, last) {
     const horizontal = last.x - first.x;
     const vertical = last.y - first.y;
@@ -370,7 +376,7 @@ function segmentDistance(point, first, last) {
     return Math.hypot(point.x - first.x - portion * horizontal, point.y - first.y - portion * vertical);
 }
 
-// 判断鼠标位置命中了按键、孔、芯片或导线，返回对象或空值。
+// 判断鼠标位置命中了按键、孔、芯片或导线，返回对象或空值
 export function hitCandidates(point, state, endpoints) {
     const candidates = [];
     if (point.y >= PORT_LAYOUT.inputY + 17 && point.y <= PORT_LAYOUT.inputY + 60) {
@@ -387,7 +393,7 @@ export function hitCandidates(point, state, endpoints) {
             }
         }
     }
-    // 导线先参与命中，避免接口或芯片把重叠导线挡住。
+    // 导线先参与命中，避免接口或芯片把重叠导线挡住
     for (let index = state.project.wires.length - 1; index >= 0; index = index - 1) {
         const wire = state.project.wires[index];
         const points = wirePoints(wire, index);
@@ -413,7 +419,7 @@ export function hitCandidates(point, state, endpoints) {
     return candidates;
 }
 
-// 返回最上层可选择对象，悬停和普通命中沿用这个入口。
+// 返回最上层可选择对象，悬停和普通命中沿用这个入口
 export function hitTest(point, state, endpoints) {
     const candidates = hitCandidates(point, state, endpoints);
     if (candidates.length > 0) {
@@ -422,7 +428,7 @@ export function hitTest(point, state, endpoints) {
     return null;
 }
 
-// 判断对象是否包含在 Ctrl 多选列表中。
+// 判断对象是否包含在 Ctrl 多选列表中
 export function objectSelected(state, kind, id) {
     if (state.selection && state.selection.length > 0) {
         for (const target of state.selection) {
@@ -435,7 +441,7 @@ export function objectSelected(state, kind, id) {
     return Boolean(state.selected && state.selected.kind === kind && state.selected.id === id);
 }
 
-// 找到拖动落点附近的真实插孔，返回孔名或空字符串。
+// 找到拖动落点附近的真实插孔，返回孔名或空字符串
 export function nearestEndpoint(point, endpoints) {
     let nearest = "";
     let distance = 14;
@@ -450,7 +456,7 @@ export function nearestEndpoint(point, endpoints) {
     return nearest;
 }
 
-// 返回所选导线靠近鼠标的端点或转折点，用于拖动而不是新增接线。
+// 返回所选导线靠近鼠标的端点或转折点，用于拖动而不是新增接线
 export function wireHandleAt(point, project, selected) {
     if (!selected || selected.kind !== "wire") {
         return null;

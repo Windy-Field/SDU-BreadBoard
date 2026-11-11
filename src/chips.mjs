@@ -1,4 +1,5 @@
 import { Vector3vl } from "../vendor/logic.mjs";
+import { EXTRA_CHIPS } from "./extra-chips.mjs";
 
 export const CHIP_MODELS = {
     "74LS273": {
@@ -79,7 +80,12 @@ export const CHIP_MODELS = {
     }
 };
 
-// 把界面中的 0、1、X 转换为逻辑库中的单比特向量，返回向量。
+// 已有型号保持原样，只登记文档中新增加的芯片
+for (const name of Object.keys(EXTRA_CHIPS)) {
+    CHIP_MODELS[name] = EXTRA_CHIPS[name];
+}
+
+// 把界面中的 0、1、X 转换为逻辑库中的单比特向量，返回向量
 function toVector(value) {
     if (value === 0) {
         return Vector3vl.zero;
@@ -90,7 +96,7 @@ function toVector(value) {
     return Vector3vl.x;
 }
 
-// 使用三值逻辑库计算门电路，参数为运算名和两个输入，返回 0、1 或 X。
+// 使用三值逻辑库计算门电路，参数为运算名和两个输入，返回 0、1 或 X
 export function logicGate(operation, first, second) {
     const left = toVector(first);
     const right = toVector(second);
@@ -115,7 +121,7 @@ export function logicGate(operation, first, second) {
     return "X";
 }
 
-// 使用逐位全加器计算 74LS283；输入按真实脚号索引，返回输出脚的电平。
+// 使用逐位全加器计算 74LS283；输入按真实脚号索引，返回输出脚的电平
 export function evaluateAdder(pins) {
     const model = CHIP_MODELS["74LS283"];
     const outputs = {};

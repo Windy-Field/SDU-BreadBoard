@@ -7,25 +7,25 @@ import fs from "node:fs";
 const ROOT = process.cwd();
 const SCREENSHOTS = path.join(ROOT, "reports", "screenshots");
 
-// 读取页面宽度是否超出窗口，返回页面宽度和窗口宽度。
+// 读取页面宽度是否超出窗口，返回页面宽度和窗口宽度
 function readPageSize() {
     return { document: document.documentElement.scrollWidth, viewport: window.innerWidth };
 }
 
-// 核对左侧栏内容宽度，确保所有入口都能显示，不依赖隐藏水平滚动条。
+// 核对左侧栏内容宽度，确保所有入口都能显示，不依赖隐藏水平滚动条
 function sidebarFits() {
     const sidebar = document.querySelector(".library");
     return sidebar.scrollWidth <= sidebar.clientWidth + 1;
 }
 
-// 核对只读开关紧跟实验标题，避免固定宽度输入框留下大块空白。
+// 核对只读开关紧跟实验标题，避免固定宽度输入框留下大块空白
 function titleControlGap() {
     const title = document.getElementById("project-name").getBoundingClientRect();
     const control = document.querySelector(".read-only-control").getBoundingClientRect();
     return control.left - title.right;
 }
 
-// 返回画布的像素变化数量，避免只检查画布元素存在而没有实际绘制。
+// 返回画布的像素变化数量，避免只检查画布元素存在而没有实际绘制
 function inspectCanvasPixels() {
     const canvas = document.getElementById("board-canvas");
     const context = canvas.getContext("2d");
@@ -46,17 +46,17 @@ function inspectCanvasPixels() {
     return { dark: dark, green: green };
 }
 
-// 清除测试期间的 Toast，截图保留应用主体状态。
+// 清除测试期间的 Toast，截图保留应用主体状态
 function clearVisibleToasts() {
     document.getElementById("toast-region").replaceChildren();
 }
 
-// 记录浏览器脚本错误，供最后统一检查。
+// 记录浏览器脚本错误，供最后统一检查
 function recordPageError(errors, error) {
     errors.push(error.message);
 }
 
-// 设置快速输入的五个按键，参数为页面和带符号整数。
+// 设置快速输入的五个按键，参数为页面和带符号整数
 async function setUiInput(page, number) {
     let encoded = number;
     if (encoded < 0) {
@@ -72,13 +72,83 @@ async function setUiInput(page, number) {
     }
 }
 
-// 核对界面结果文字。
+// 核对界面结果文字
 async function expectResult(page, expected) {
     const actual = await page.locator("#binary-result").textContent();
-    assert.equal(actual, expected);
+    let bits = expected.replaceAll(" ", "");
+    let overflow = "X";
+    if (bits[0] !== "X" && bits[1] !== "X") {
+        overflow = String(Number(bits[0]) ^ Number(bits[1]));
+    }
+    bits = overflow + bits;
+    assert.equal(actual.replaceAll(" ", ""), bits);
 }
 
-// 通过可见界面运行实验、接线、撤销、导入及窄屏检查。
+// 通过页面上的 K6 输入清零，随后恢复正常工作电平
+async function clearRegisters(page) {
+    await setControl(page, 6, 0);
+    await setControl(page, 6, 1);
+}
+
+// 把指定输入按钮切换到目标值，避免依赖已移除的模式控件
+async function setControl(page, bit, value) {
+    const button = page.getByRole("button", { name: "切换 K" + bit, exact: true });
+    const pressed = await button.getAttribute("aria-pressed");
+    if ((value === 1 && pressed !== "true") || (value === 0 && pressed !== "false")) {
+        await button.click();
+    }
+}
+
+// 通过页面坐标按住脉冲按钮，读取按下期间的输出并在松开后检查更新
+async function testPulseControls(page) {
+    await page.evaluate(clearVisibleToasts);
+    await clearRegisters(page);
+    await setUiInput(page, 1);
+    await page.locator("#pulse-negative").scrollIntoViewIfNeeded();
+    const button = await page.locator("#pulse-negative").boundingBox();
+    await page.mouse.move(button.x + button.width / 2, button.y + button.height / 2);
+    await page.mouse.down();
+    assert.equal(await page.locator("#pulse-negative").getAttribute("aria-pressed"), "true");
+    await expectResult(page, "00 0000");
+    await page.mouse.up();
+    await expectResult(page, "00 0001");
+    await clearRegisters(page);
+    const viewport = page.locator("#board-viewport");
+    await viewport.evaluate(scrollToBottom);
+    const bounds = await page.locator("#board-canvas").boundingBox();
+    const horizontal = bounds.x + bounds.width * 1098 / 1300;
+    const vertical = bounds.y + bounds.height * 1143 / 1215;
+    await page.mouse.move(horizontal, vertical);
+    await page.mouse.down();
+    assert.equal(await page.locator("#pulse-negative").getAttribute("aria-pressed"), "true");
+    await expectResult(page, "00 0000");
+    await page.mouse.up();
+    await expectResult(page, "00 0001");
+    await viewport.evaluate(scrollToTop);
+    await setUiInput(page, 0);
+    await clearRegisters(page);
+}
+
+// 将独立画布滚动到输入按钮处
+function scrollToBottom(element) {
+    element.scrollTop = element.scrollHeight;
+}
+
+// 恢复画布顶部位置，不影响其他滚动区域
+function scrollToTop(element) {
+    element.scrollTop = 0;
+}
+
+// 检查左右两个外部脉冲按钮使用相同尺寸与样式
+function pulseStylesMatch() {
+    const first = document.getElementById("pulse-positive");
+    const second = document.getElementById("pulse-negative");
+    const firstStyle = getComputedStyle(first);
+    const secondStyle = getComputedStyle(second);
+    return firstStyle.backgroundColor === secondStyle.backgroundColor && firstStyle.width === secondStyle.width && firstStyle.height === secondStyle.height;
+}
+
+// 通过可见界面运行实验、接线、撤销、导入及窄屏检查
 async function main() {
     fs.mkdirSync(SCREENSHOTS, { recursive: true });
     const browser = await chromium.launch({ headless: true, channel: "msedge" });
@@ -94,19 +164,21 @@ async function main() {
         await expectResult(page, "XX XXXX");
         assert.equal(await page.evaluate(inspectPalette), true);
         await page.locator("#audit-preset").click();
-        await page.locator("#toast-region").getByText("当前芯片和电气连接与补码实验标准接法一致。", { exact: true }).waitFor();
+        await page.locator("#toast-region").getByText("当前芯片和电气连接与补码实验标准接法一致", { exact: true }).waitFor();
         await page.locator("#tab-inspect").click();
         await page.locator("#read-only-toggle").check();
         assert.equal(await page.locator("#tool-wire").isDisabled(), true);
         assert.equal(await page.locator("#connect-endpoints").isDisabled(), true);
         assert.equal(await page.locator("#notes-edit-button").isDisabled(), true);
-        await page.locator("#clear-register").click();
+        await clearRegisters(page);
         await expectResult(page, "00 0000");
         await page.locator("#read-only-toggle").uncheck();
         const pixels = await page.evaluate(inspectCanvasPixels);
         assert.ok(pixels.dark > 10000);
         assert.ok(pixels.green > 10000);
-        await page.locator("#clear-register").click();
+        assert.equal(await page.evaluate(pulseStylesMatch), true);
+        await testPulseControls(page);
+        await clearRegisters(page);
         await expectResult(page, "00 0000");
         await setUiInput(page, 7);
         await expectResult(page, "00 0000");
@@ -116,19 +188,19 @@ async function main() {
         await page.locator("#pulse-negative").click();
         await expectResult(page, "00 1100");
         await setUiInput(page, 6);
-        await page.locator("#subtract-toggle").check();
+        await setControl(page, 5, 1);
         await page.locator("#pulse-negative").click();
         await expectResult(page, "00 0110");
         await setUiInput(page, 12);
-        await page.locator("#subtract-toggle").uncheck();
+        await setControl(page, 5, 0);
         await page.locator("#pulse-negative").click();
         await expectResult(page, "01 0010");
-        assert.equal(await page.locator("#result-meaning").textContent(), "正溢出");
+        assert.equal(await page.locator("[data-output-led='6']").getAttribute("data-value"), "1");
         await page.evaluate(clearVisibleToasts);
         await page.screenshot({ path: path.join(SCREENSHOTS, "desktop.png"), fullPage: true });
         fs.mkdirSync(path.join(ROOT, "assets", "screenshots"), { recursive: true });
         await page.screenshot({ path: path.join(ROOT, "assets", "screenshots", "latest.png"), fullPage: true });
-        await page.locator("#clear-register").click();
+        await clearRegisters(page);
         await setUiInput(page, -12);
         await page.locator("#pulse-negative").click();
         await expectResult(page, "11 0100");
@@ -136,7 +208,7 @@ async function main() {
         await page.locator("#pulse-negative").click();
         await expectResult(page, "11 0010");
         await setUiInput(page, 6);
-        await page.locator("#subtract-toggle").check();
+        await setControl(page, 5, 1);
         await page.locator("#pulse-negative").click();
         await expectResult(page, "10 1100");
         await page.locator("#from-endpoint").fill("R:GND:0");
@@ -154,8 +226,8 @@ async function main() {
         assert.equal(await page.locator("#wire-count").textContent(), "61");
         await page.locator("#new-project").click();
         assert.equal(await page.locator("#wire-count").textContent(), "0");
-        assert.equal(await page.locator("#project-mode").inputValue(), "general");
-        assert.equal(await page.locator("#clear-register").isVisible(), false);
+        assert.equal(await page.locator("#project-mode").count(), 0);
+        assert.equal(await page.locator("#clear-register").count(), 0);
         await page.locator("#input-count").fill("12");
         await page.locator("#input-count").press("Tab");
         assert.equal(await page.locator("#quick-switches button").count(), 12);
@@ -208,13 +280,13 @@ async function main() {
         const presetId = await page.locator("#experiment-picker").inputValue();
         await page.locator("#new-experiment").click();
         assert.equal(await page.locator("#wire-count").textContent(), "0");
-        assert.equal(await page.locator("#project-mode").inputValue(), "general");
+        assert.equal(await page.locator("#project-mode").count(), 0);
         await page.locator("#experiment-picker").selectOption(presetId);
         assert.equal(await page.locator("#wire-count").textContent(), "61");
         await page.locator("#tab-notes").click();
         assert.match(await page.locator("#notes-preview").textContent(), /低电平|异步清零/);
         await page.locator("#tab-inspect").click();
-        await page.locator("#clear-register").click();
+        await clearRegisters(page);
         await page.locator("#read-only-toggle").check();
         const readOnlyCount = await page.locator("#wire-count").textContent();
         await page.keyboard.press("Delete");
@@ -252,29 +324,30 @@ async function main() {
         await page.keyboard.press("Escape");
         assert.equal(await page.locator("#help-dialog").isVisible(), false);
         assert.deepEqual(errors, []);
-        console.log("浏览器验证通过：两组验收、Toast、接线、放置芯片、撤销、导入校验、5种视口与画布像素。");
+        console.log("浏览器验证通过：两组验收、Toast、接线、放置芯片、撤销、导入校验、5种视口与画布像素");
     } finally {
+        await page.screenshot({ path: path.join(SCREENSHOTS, "last-state.png"), fullPage: true });
         await browser.close();
     }
 }
 
-// 等待异步导入结束，避免读取文件尚未完成时检查数量。
+// 等待异步导入结束，避免读取文件尚未完成时检查数量
 function wireCountRestored() {
     return document.getElementById("wire-count").textContent === "61";
 }
 
-// 等待缩放显示连续两帧不再变化，测试不依赖固定动画时长。
+// 等待缩放显示连续两帧不再变化，测试不依赖固定动画时长
 async function waitForZoom(page) {
     await page.waitForTimeout(240);
 }
 
-// 读取正在显示的缩放百分比，返回数字。
+// 读取正在显示的缩放百分比，返回数字
 async function zoomPercent(page) {
     const text = await page.locator("#zoom-label").textContent();
     return Number(text.replace("%", ""));
 }
 
-// 检查 Markdown 安全预览，不允许脚本、事件属性或危险链接残留。
+// 检查 Markdown 安全预览，不允许脚本、事件属性或危险链接残留
 function inspectMarkdownSafety() {
     const preview = document.getElementById("notes-preview");
     for (const entry of preview.querySelectorAll("*")) {
@@ -287,7 +360,7 @@ function inspectMarkdownSafety() {
     return preview.querySelector("script, img, iframe, a[href^='javascript:']") === null;
 }
 
-// 检查调色板每行正好六个，第二行与第一行各列对齐。
+// 检查调色板每行正好六个，第二行与第一行各列对齐
 function inspectPalette() {
     const buttons = document.querySelectorAll("#wire-palette button");
     for (let index = 0; index < 6; index = index + 1) {
@@ -300,12 +373,12 @@ function inspectPalette() {
     return buttons.length === 12;
 }
 
-// 读取当前滚动位置，核对普通滚轮只滚动而不缩放。
+// 读取当前滚动位置，核对普通滚轮只滚动而不缩放
 function readBoardScroll() {
     return document.getElementById("board-viewport").scrollTop;
 }
 
-// 返回原厂引脚图片是否已成功加载。
+// 返回原厂引脚图片是否已成功加载
 function pinoutLoaded() {
     const image = document.querySelector("#pinned-chip img");
     return image && image.complete && image.naturalWidth > 100;

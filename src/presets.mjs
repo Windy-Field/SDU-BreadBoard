@@ -5,7 +5,7 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 
 ## 功能
 
-连续进行补码加、减运算。U1（74LS273）保存 **两个符号位和四个数值位**，共六位，并把结果反馈到下一轮运算。U2、U3（74LS283）计算数值位和符号位，U4、U5（74LS86）负责输入取反和溢出判断。
+连续进行补码加、减运算。U1（74LS273）保存 **两个符号位和四个数值位**，共六位，并把结果反馈到下一轮运算。U2、U3（74LS283）计算数值位和符号位，U4、U5（74LS86）负责输入取反和溢出判断
 
 ## 输入口
 
@@ -18,7 +18,7 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 | P− | 完整负脉冲结束时的上升沿，保存本次结果 |
 | P+ | 本示例未连接，不会加载结果 |
 
-输入顺序为 **K4 K3 K2 K1 K0**，使用五位补码，范围为 −16～15。例：7 为 00111，−12 为 10100，−2 为 11110。减去 6 时输入正数 00110，再把 K5 设置为 1。
+输入顺序为 **K4 K3 K2 K1 K0**，使用五位补码，范围为 −16～15。例：7 为 00111，−12 为 10100，−2 为 11110。减去 6 时输入正数 00110，再把 K5 设置为 1
 
 ## 输出口
 
@@ -29,14 +29,14 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 | L3、L2、L1、L0 | 结果的四个数值位，L0 最低位 |
 | L6 | 两个符号位异或的结果，1 表示当前结果溢出 |
 
-按 **L5 L4｜L3 L2 L1 L0** 读取。符号 00、11 为未溢出，01 为正溢出，10 为负溢出。所有输入、输出指示灯均为 **已知高电平 1 亮**；X 或 Z 不按高电平点亮。
+按 **L5 L4｜L3 L2 L1 L0** 读取。符号 00、11 为未溢出，01 为正溢出，10 为负溢出。所有输入、输出指示灯均为 **已知高电平 1 亮**；X 或 Z 不按高电平点亮
 
 ## 操作步骤
 
-1. 打开电源，先按“清零 K6”，输出应为 00 0000。
-2. 设置 K4～K0 和加减控制 K5，保持输入稳定。
-3. 发一次完整 P− 脉冲，再读取六位 LED。
-4. 重复输入和发脉冲，进行连续运算。单独改变输入不会更新累计结果。
+1. 打开电源，将 K6 切到 0 再切回 1，L6～L0 应显示 000 0000
+2. 设置 K4～K0 和加减控制 K5，保持输入稳定
+3. 发一次完整 P− 脉冲，再读取 L5～L0 的六位结果；L6 单独指示溢出
+4. 重复输入和发脉冲，进行连续运算。单独改变输入不会更新累计结果
 
 ## 验收
 
@@ -45,10 +45,10 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 | 7＋5−6＋12 | 00 0111 → 00 1100 → 00 0110 → **01 0010**（正溢出） |
 | （−12）＋（−2）−6 | 11 0100 → 11 0010 → **10 1100**（负溢出） |
 
-重新加载文件、断电或撤销后，寄存器易失状态不保留，需要再次清零。这是理想数字逻辑模型，不模拟电流、按键抖动和实际传播时延。
+重新加载文件、断电或撤销后，寄存器易失状态不保留，需要再次清零。这是理想数字逻辑模型，不模拟电流、按键抖动和实际传播时延
 `;
 
-// 在同一个芯片脚的五孔组中分配空孔，返回可接线的物理孔名。
+// 在同一个芯片脚的五孔组中分配空孔，返回可接线的物理孔名
 function allocatePin(project, usage, name) {
     if (!name.startsWith("U")) {
         return name;
@@ -72,13 +72,13 @@ function allocatePin(project, usage, name) {
         index = usage[name];
     }
     if (index >= rows.length) {
-        throw new Error("示例电路的同列空孔不足。");
+        throw new Error("示例电路的同列空孔不足");
     }
     usage[name] = index + 1;
     return holeId(chip.section, rows[index], Number(position[2]));
 }
 
-// 为示例增加一根导线，按物理孔分配端点。
+// 为示例增加一根导线，按物理孔分配端点
 function connect(project, usage, first, second, color) {
     const from = allocatePin(project, usage, first);
     const to = allocatePin(project, usage, second);
@@ -86,12 +86,11 @@ function connect(project, usage, first, second, color) {
     project.wires.push({ id: "W" + number, from: from, to: to, color: WIRE_COLORS[color], bends: [] });
 }
 
-// 创建已接好的双符号位补码运算器，芯片位置与前面的接线图一致。
+// 创建已接好的双符号位补码运算器，芯片位置与前面的接线图一致
 export function complementPreset() {
     const project = emptyProject();
-    project.mode = "complement";
-    project.inputCount = 5;
-    project.outputCount = 6;
+    project.inputCount = 7;
+    project.outputCount = 7;
     project.notes = COMPLEMENT_NOTES;
     project.name = "双符号位补码运算器";
     project.chips = [

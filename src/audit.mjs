@@ -3,7 +3,7 @@ import { pinHole } from "./board.mjs";
 import { buildTopology, nodeFor } from "./engine.mjs";
 import { complementPreset } from "./presets.mjs";
 
-// 收集电路中的电源、输入输出口和每一片芯片引脚，返回实际连接端点。
+// 收集电路中的电源、输入输出口和每一片芯片引脚，返回实际连接端点
 function terminalMap(project) {
     const terminals = {};
     for (const name of ["VCC", "GND", "P+", "P-"]) {
@@ -21,7 +21,7 @@ function terminalMap(project) {
     return terminals;
 }
 
-// 按真实电气连通关系核对标准补码实验，不把线色或折线路径当作接线错误。
+// 按真实电气连通关系核对标准补码实验，不把线色或折线路径当作接线错误
 export function auditComplement(project) {
     const reference = complementPreset();
     const issues = [];
@@ -33,11 +33,11 @@ export function auditComplement(project) {
             }
         }
         if (!found) {
-            issues.push(expected.id + " 应为 " + expected.model + "，请检查芯片型号和编号。");
+            issues.push(expected.id + " 应为 " + expected.model + "，请检查芯片型号和编号");
         }
     }
     if (project.chips.length !== reference.chips.length) {
-        issues.push("标准实验使用 5 片芯片，当前有 " + project.chips.length + " 片。");
+        issues.push("标准实验使用 5 片芯片，当前有 " + project.chips.length + " 片");
     }
     if (issues.length > 0) {
         return issues;
@@ -54,9 +54,9 @@ export function auditComplement(project) {
             const expectedSame = nodeFor(expectedTopology, expectedTerminals[firstName]) === nodeFor(expectedTopology, expectedTerminals[secondName]);
             const actualSame = nodeFor(actualTopology, actualTerminals[firstName]) === nodeFor(actualTopology, actualTerminals[secondName]);
             if (expectedSame !== actualSame) {
-                let message = firstName + " 与 " + secondName + " 应当连通，请检查这条通路。";
+                let message = firstName + " 与 " + secondName + " 应当连通，请检查这条通路";
                 if (actualSame) {
-                    message = firstName + " 与 " + secondName + " 被额外接通，请检查相关导线。";
+                    message = firstName + " 与 " + secondName + " 被额外接通，请检查相关导线";
                 }
                 issues.push(message);
             }

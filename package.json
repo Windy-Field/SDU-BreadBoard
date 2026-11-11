@@ -1,12 +1,12 @@
 {
   "name": "sdu-breadboard",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "lint": "node tests/style.mjs",
-    "test": "node --test tests/engine.test.mjs",
+    "test": "node --test tests/engine.test.mjs tests/extra-chips.test.mjs",
     "test:ui": "node tests/browser.mjs && node tests/interaction.mjs",
     "package": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1",
     "test:package": "node tests/package.mjs"

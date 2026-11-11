@@ -29,10 +29,10 @@
     </header>
     <main class="workspace">
         <aside class="library" aria-label="器件库">
-            <div class="panel-heading"><h2>器件库</h2><span id="model-count">7</span></div>
+            <section class="library-chips" aria-label="芯片区域"><div class="panel-heading"><h2>器件库</h2><span id="model-count">23</span></div>
             <label class="search-field"><i data-lucide="search" aria-hidden="true"></i><input id="chip-search" placeholder="搜索型号" aria-label="搜索芯片型号"></label>
-            <div id="chip-library" class="chip-library"></div>
-            <section class="library-section">
+            <div id="chip-library" class="chip-library"></div></section>
+            <section class="library-section" aria-label="实验区域" tabindex="0">
                 <h2>我的实验</h2>
                 <label class="experiment-picker-label" for="experiment-picker">切换实验</label><select id="experiment-picker" aria-label="切换实验"></select>
                 <button id="new-experiment" class="preset-button"><i data-lucide="file-plus-2" aria-hidden="true"></i><span>新建空白实验</span></button>
@@ -68,10 +68,10 @@
             </div>
             <div class="board-footer"><span id="pointer-status">面包板</span><span id="circuit-count">5 片芯片 · 61 根导线</span></div>
             <section class="io-strip" aria-label="实验操作">
-                <div class="mode-controls"><label>模式<select id="project-mode"><option value="general">通用模式</option><option value="complement">补码实验</option></select></label><label class="general-setting">输入位数<input id="input-count" type="number" min="1" max="24" value="8"></label><label class="general-setting">输出位数<input id="output-count" type="number" min="1" max="24" value="8"></label></div>
+                <div class="io-settings"><label>输入位数<input id="input-count" type="number" min="1" max="24" value="8"></label><label>输出位数<input id="output-count" type="number" min="1" max="24" value="8"></label></div>
                 <div class="result-block"><span id="output-label" class="field-label">输出 L5…L0</span><output id="binary-result">XX XXXX</output><span id="result-meaning" class="result-meaning">等待清零</span><div id="output-leds" class="io-leds"></div></div>
                 <div class="input-block"><span id="input-label" class="field-label">输入 K4…K0</span><div id="quick-switches" class="quick-switches"></div><span id="input-decimal" class="input-decimal">0</span></div>
-                <div class="operation-block"><label id="subtract-control" class="operation-toggle"><input id="subtract-toggle" type="checkbox"><span>减法 K5</span></label><button id="clear-register" class="button"><i data-lucide="rotate-ccw" aria-hidden="true"></i>清零 K6</button><button id="pulse-negative" class="button primary"><i data-lucide="activity" aria-hidden="true"></i>P− 单脉冲</button><button id="pulse-positive" class="button" aria-label="P正单脉冲">P+</button></div>
+                <div class="operation-block"><button id="pulse-positive" class="button pulse-button" data-pulse="P+" aria-label="P正单脉冲"><i data-lucide="activity" aria-hidden="true"></i>P+ 单脉冲</button><button id="pulse-negative" class="button pulse-button" data-pulse="P-" aria-label="P负单脉冲"><i data-lucide="activity" aria-hidden="true"></i>P− 单脉冲</button></div>
             </section>
         </section>
         <aside class="inspector" aria-label="电路检查">
@@ -88,6 +88,6 @@
     <div id="toast-region" class="toast-region" aria-label="操作提示" aria-live="polite"></div>
     <input type="file" id="import-file" accept=".json,application/json" hidden>
     <dialog id="confirm-dialog" aria-labelledby="confirm-title"><div class="dialog-heading"><h2 id="confirm-title">确认删除</h2></div><p id="confirm-message" class="dialog-body"></p><div class="dialog-actions"><button id="confirm-cancel" class="button">取消</button><button id="confirm-accept" class="button danger">确认删除</button></div></dialog>
-    <dialog id="help-dialog"><div class="dialog-heading"><h2>实验说明</h2><button id="close-help" class="icon-button" aria-label="关闭"><i data-lucide="x"></i></button></div><div class="dialog-body"><p>你可以在“我的实验”中新建独立的空白实验，或切回已保存的实验。新实验默认使用通用模式，你可以设置需要显示的输入和输出位数，并在“备注”中填写 Markdown 说明。</p><p>选择芯片型号后，点击面包板放置。画布中的芯片缺口朝左，跨 E/F 沟槽。接线时依次选择起点和终点，点击空白可以增加转折点，按 Esc 取消。每个孔只插一根线，同一节点需要分支时，你可以选择同组的其他空孔。</p><p>同列 A～E 相通，F～J 相通，沟槽两边分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通。</p><p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。你也可以使用工具栏的缩放和适应宽度按钮。</p><p>选中芯片后，引脚图、脚号、电平和位置会固定显示。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列。</p><p>标题旁的“只读”开关用于保护接线和备注。开启后，你仍可以调整输入、清零、发脉冲、查看资料和导出实验。左侧的接线核对按钮会比较当前电路与标准补码示例，并在诊断面板列出差异。</p><p>补码示例按 K4～K0 输入五位补码：K0 最低，K4 为符号位。K5 为 0 时加、1 时减，K6 拉低时清零。P− 脉冲恢复为高电平时，74LS273 保存结果。输入和输出 LED 都在已知高电平 1 时点亮。</p><p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件。导入、重新打开或结构撤销后，你需要给寄存器重新清零。</p><p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 删除选中对象，Ctrl+S 导出电路。</p></div></dialog>
+    <dialog id="help-dialog"><div class="dialog-heading"><h2>实验说明</h2><button id="close-help" class="icon-button" aria-label="关闭"><i data-lucide="x"></i></button></div><div class="dialog-body"><p>你可以在“我的实验”中新建独立的空白实验，或切回已保存的实验。新实验默认使用通用模式，你可以设置需要显示的输入和输出位数，并在“备注”中填写 Markdown 说明</p><p>选择芯片型号后，点击面包板放置。画布中的芯片缺口朝左，跨 E/F 沟槽。接线时依次选择起点和终点，点击空白可以增加转折点，按 Esc 取消。每个孔只插一根线，同一节点需要分支时，你可以选择同组的其他空孔</p><p>同列 A～E 相通，F～J 相通，沟槽两边分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通</p><p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。你也可以使用工具栏的缩放和适应宽度按钮</p><p>选中芯片后，引脚图、脚号、电平和位置会固定显示。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p><p>标题旁的“只读”开关用于保护接线和备注。开启后，你仍可以调整输入、清零、发脉冲、查看资料和导出实验。左侧的接线核对按钮会比较当前电路与标准补码示例，并在诊断面板列出差异</p><p>补码示例按 K4～K0 输入五位补码：K0 最低，K4 为符号位。K5 为 0 时加、1 时减，K6 拉低时清零。P− 脉冲恢复为高电平时，74LS273 保存结果。输入和输出 LED 都在已知高电平 1 时点亮</p><p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件。导入、重新打开或结构撤销后，你需要给寄存器重新清零</p><p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 删除选中对象，Ctrl+S 导出电路</p></div></dialog>
 </body>
 </html>

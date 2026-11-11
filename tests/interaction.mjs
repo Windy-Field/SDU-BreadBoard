@@ -9,7 +9,7 @@ import { emptyProject, endpointPosition, BOARD } from "../src/board.mjs";
 const ROOT = process.cwd();
 const URL = pathToFileURL(path.join(ROOT, "index.html")).href;
 
-// 读取浏览器中的已保存实验，返回序列化对象而不访问应用内部状态。
+// 读取浏览器中的已保存实验，返回序列化对象而不访问应用内部状态
 function readSavedWorkspace() {
     const saved = localStorage.getItem("breadboard-lab-workspace-v1");
     if (saved) {
@@ -18,24 +18,24 @@ function readSavedWorkspace() {
     return null;
 }
 
-// 把测试用旧实验列表写入这个独立浏览器上下文，验证升级清理逻辑。
+// 把测试用旧实验列表写入这个独立浏览器上下文，验证升级清理逻辑
 function seedWorkspace(workspace) {
     localStorage.setItem("breadboard-lab-workspace-v1", JSON.stringify(workspace));
 }
 
-// 获取测试端点在浏览器窗口里的位置，适用于缩放后的画布。
+// 获取测试端点在浏览器窗口里的位置，适用于缩放后的画布
 async function screenPoint(page, point) {
     const bounds = await page.locator("#board-canvas").boundingBox();
     return { x: bounds.x + point.x / BOARD.width * bounds.width, y: bounds.y + point.y / BOARD.height * bounds.height };
 }
 
-// 在画布逻辑坐标上单击，坐标由端口或芯片布局得出。
+// 在画布逻辑坐标上单击，坐标由端口或芯片布局得出
 async function clickPoint(page, point) {
     const position = await screenPoint(page, point);
     await page.mouse.click(position.x, position.y);
 }
 
-// 导出当前实验供断言，不依赖编译产物中的私有变量。
+// 导出当前实验供断言，不依赖编译产物中的私有变量
 async function exportedProject(page) {
     const waiting = page.waitForEvent("download");
     await page.locator("#export-project").click();
@@ -44,12 +44,12 @@ async function exportedProject(page) {
     return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-// 记录脚本错误，最后一并检查。
+// 记录脚本错误，最后一并检查
 function collectError(errors, error) {
     errors.push(error.message);
 }
 
-// 从导线列表选择两根导线，使用真实的 Ctrl 点击保留多选。
+// 从导线列表选择两根导线，使用真实的 Ctrl 点击保留多选
 async function selectTwoWires(page) {
     await page.locator("#tab-wires").click();
     await page.locator("#wires-panel button[data-wire='W1']").first().click();
@@ -60,7 +60,7 @@ async function selectTwoWires(page) {
     assert.equal(await page.locator("#inspect-panel .selection-item[data-kind='wire']").count(), 2);
 }
 
-// 验证预设色、自选色、只读保护及一次撤销恢复整批导线。
+// 验证预设色、自选色、只读保护及一次撤销恢复整批导线
 async function testBatchColors(page) {
     const before = await exportedProject(page);
     await selectTwoWires(page);
@@ -85,7 +85,7 @@ async function testBatchColors(page) {
     assert.deepEqual((await exportedProject(page)).wires, before.wires);
 }
 
-// 核对保存隔离、草稿限制、选择切换、多选删除与导线端点拖动。
+// 核对保存隔离、草稿限制、选择切换、多选删除与导线端点拖动
 async function main() {
     const browser = await chromium.launch({ headless: true, channel: "msedge" });
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
@@ -207,7 +207,7 @@ async function main() {
         }
         await page.locator("#read-only-toggle").uncheck();
         assert.deepEqual(errors, []);
-        console.log("交互验证通过：当前实验独立保存、空白去重、重复点击、Ctrl多选、批量改色、删除确认、拖动端点与旧列表整理。");
+        console.log("交互验证通过：当前实验独立保存、空白去重、重复点击、Ctrl多选、批量改色、删除确认、拖动端点与旧列表整理");
         await page.locator("#save-project").click();
     } finally {
         await browser.close();

@@ -1,0 +1,1706 @@
+{
+  "74LS00": {
+    "title": "74LS00  四2输入与非门（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS00  四2输入与非门（DIP-14）",
+      "【功能介绍】片内有4个独立的2输入与非门，逻辑关系Y=(AB)′。TTL工艺，电源+5V，输出高电平≥2.4V、低电平≤0.4V，扇出能力约为10个同类门。常用来做基本门电路实验、用两个输入端并接当反相器使用，以及构成基本RS锁存器。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1门输入A"
+      },
+      "8": {
+        "label": "3Y",
+        "description": "第3门输出"
+      },
+      "2": {
+        "label": "1B",
+        "description": "第1门输入B"
+      },
+      "9": {
+        "label": "3A",
+        "description": "第3门输入A"
+      },
+      "3": {
+        "label": "1Y",
+        "description": "第1门输出"
+      },
+      "10": {
+        "label": "3B",
+        "description": "第3门输入B"
+      },
+      "4": {
+        "label": "2A",
+        "description": "第2门输入A"
+      },
+      "11": {
+        "label": "4Y",
+        "description": "第4门输出"
+      },
+      "5": {
+        "label": "2B",
+        "description": "第2门输入B"
+      },
+      "12": {
+        "label": "4A",
+        "description": "第4门输入A"
+      },
+      "6": {
+        "label": "2Y",
+        "description": "第2门输出"
+      },
+      "13": {
+        "label": "4B",
+        "description": "第4门输入B"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls00-1.png",
+      "74ls00-2.png"
+    ]
+  },
+  "74LS03": {
+    "title": "74LS03  四2输入与非门（OC开路输出）（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS03  四2输入与非门（OC开路输出）（DIP-14）",
+      "【功能介绍】逻辑功能与74LS00相同，Y=(AB)′，但输出级为集电极开路（OC）结构，使用时输出端必须外接上拉电阻。OC门可以把多个输出直接并联实现“线与”，常用于总线驱动和电平转换。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1门输入A"
+      },
+      "8": {
+        "label": "3Y",
+        "description": "第3门输出（OC）"
+      },
+      "2": {
+        "label": "1B",
+        "description": "第1门输入B"
+      },
+      "9": {
+        "label": "3A",
+        "description": "第3门输入A"
+      },
+      "3": {
+        "label": "1Y",
+        "description": "第1门输出（OC）"
+      },
+      "10": {
+        "label": "3B",
+        "description": "第3门输入B"
+      },
+      "4": {
+        "label": "2A",
+        "description": "第2门输入A"
+      },
+      "11": {
+        "label": "4Y",
+        "description": "第4门输出（OC）"
+      },
+      "5": {
+        "label": "2B",
+        "description": "第2门输入B"
+      },
+      "12": {
+        "label": "4A",
+        "description": "第4门输入A"
+      },
+      "6": {
+        "label": "2Y",
+        "description": "第2门输出（OC）"
+      },
+      "13": {
+        "label": "4B",
+        "description": "第4门输入B"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls03-1.png",
+      "74ls03-2.png"
+    ]
+  },
+  "74LS04": {
+    "title": "74LS04  六反相器（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS04  六反相器（DIP-14）",
+      "【功能介绍】片内有6个独立的反相器，Y=A′。常用于信号取反、门电路之间的相互转换，也是组成环形振荡器、测量门电路平均传输延迟时间的常用器件。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1反相器输入"
+      },
+      "8": {
+        "label": "4Y",
+        "description": "第4反相器输出"
+      },
+      "2": {
+        "label": "1Y",
+        "description": "第1反相器输出"
+      },
+      "9": {
+        "label": "4A",
+        "description": "第4反相器输入"
+      },
+      "3": {
+        "label": "2A",
+        "description": "第2反相器输入"
+      },
+      "10": {
+        "label": "5Y",
+        "description": "第5反相器输出"
+      },
+      "4": {
+        "label": "2Y",
+        "description": "第2反相器输出"
+      },
+      "11": {
+        "label": "5A",
+        "description": "第5反相器输入"
+      },
+      "5": {
+        "label": "3A",
+        "description": "第3反相器输入"
+      },
+      "12": {
+        "label": "6Y",
+        "description": "第6反相器输出"
+      },
+      "6": {
+        "label": "3Y",
+        "description": "第3反相器输出"
+      },
+      "13": {
+        "label": "6A",
+        "description": "第6反相器输入"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls04-1.png",
+      "74ls04-2.png"
+    ]
+  },
+  "74LS08": {
+    "title": "74LS08  四2输入与门（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS08  四2输入与门（DIP-14）",
+      "【功能介绍】片内有4个独立的2输入与门，Y=AB。用于实现与逻辑，例如产生乘法运算的部分积、8421BCD码全加器的修正信号等。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1门输入A"
+      },
+      "8": {
+        "label": "3Y",
+        "description": "第3门输出"
+      },
+      "2": {
+        "label": "1B",
+        "description": "第1门输入B"
+      },
+      "9": {
+        "label": "3A",
+        "description": "第3门输入A"
+      },
+      "3": {
+        "label": "1Y",
+        "description": "第1门输出"
+      },
+      "10": {
+        "label": "3B",
+        "description": "第3门输入B"
+      },
+      "4": {
+        "label": "2A",
+        "description": "第2门输入A"
+      },
+      "11": {
+        "label": "4Y",
+        "description": "第4门输出"
+      },
+      "5": {
+        "label": "2B",
+        "description": "第2门输入B"
+      },
+      "12": {
+        "label": "4A",
+        "description": "第4门输入A"
+      },
+      "6": {
+        "label": "2Y",
+        "description": "第2门输出"
+      },
+      "13": {
+        "label": "4B",
+        "description": "第4门输入B"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls08-1.png",
+      "74ls08-2.png"
+    ]
+  },
+  "74LS20": {
+    "title": "74LS20  双4输入与非门（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS20  双4输入与非门（DIP-14）",
+      "【功能介绍】片内有2个独立的4输入与非门，Y=(ABCD)′。实验4中用它与74LS138配合实现组合逻辑函数；把多余输入端接高电平或将输入端并接，也可当作反相器使用。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1门输入A"
+      },
+      "8": {
+        "label": "2Y",
+        "description": "第2门输出"
+      },
+      "2": {
+        "label": "1B",
+        "description": "第1门输入B"
+      },
+      "9": {
+        "label": "2C",
+        "description": "第2门输入C"
+      },
+      "3": {
+        "label": "NC",
+        "description": "空脚"
+      },
+      "10": {
+        "label": "2D",
+        "description": "第2门输入D"
+      },
+      "4": {
+        "label": "2A",
+        "description": "第2门输入A"
+      },
+      "11": {
+        "label": "NC",
+        "description": "空脚"
+      },
+      "5": {
+        "label": "2B",
+        "description": "第2门输入B"
+      },
+      "12": {
+        "label": "1C",
+        "description": "第1门输入C"
+      },
+      "6": {
+        "label": "1Y",
+        "description": "第1门输出"
+      },
+      "13": {
+        "label": "1D",
+        "description": "第1门输入D"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls20-1.png",
+      "74ls20-2.png"
+    ]
+  },
+  "74LS32": {
+    "title": "74LS32  四2输入或门（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS32  四2输入或门（DIP-14）",
+      "【功能介绍】片内有4个独立的2输入或门，Y=A+B。用于实现或逻辑，也是“与或式转或非/与非”设计的常用器件。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1门输入A"
+      },
+      "8": {
+        "label": "3Y",
+        "description": "第3门输出"
+      },
+      "2": {
+        "label": "1B",
+        "description": "第1门输入B"
+      },
+      "9": {
+        "label": "3A",
+        "description": "第3门输入A"
+      },
+      "3": {
+        "label": "1Y",
+        "description": "第1门输出"
+      },
+      "10": {
+        "label": "3B",
+        "description": "第3门输入B"
+      },
+      "4": {
+        "label": "2A",
+        "description": "第2门输入A"
+      },
+      "11": {
+        "label": "4Y",
+        "description": "第4门输出"
+      },
+      "5": {
+        "label": "2B",
+        "description": "第2门输入B"
+      },
+      "12": {
+        "label": "4A",
+        "description": "第4门输入A"
+      },
+      "6": {
+        "label": "2Y",
+        "description": "第2门输出"
+      },
+      "13": {
+        "label": "4B",
+        "description": "第4门输入B"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls32-1.png",
+      "74ls32-2.png"
+    ]
+  },
+  "74LS86": {
+    "title": "74LS86  四2输入异或门（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS86  四2输入异或门（DIP-14）",
+      "【功能介绍】片内有4个独立的2输入异或门，Y=A⊕B。把一端接控制信号M、另一端接数据B时，Y=M⊕B：M=0时同相、M=1时反相，可作可控反相器。实验5中用它把B取反，与74LS283配合实现减法运算。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1门输入A"
+      },
+      "8": {
+        "label": "3Y",
+        "description": "第3门输出"
+      },
+      "2": {
+        "label": "1B",
+        "description": "第1门输入B"
+      },
+      "9": {
+        "label": "3A",
+        "description": "第3门输入A"
+      },
+      "3": {
+        "label": "1Y",
+        "description": "第1门输出"
+      },
+      "10": {
+        "label": "3B",
+        "description": "第3门输入B"
+      },
+      "4": {
+        "label": "2A",
+        "description": "第2门输入A"
+      },
+      "11": {
+        "label": "4Y",
+        "description": "第4门输出"
+      },
+      "5": {
+        "label": "2B",
+        "description": "第2门输入B"
+      },
+      "12": {
+        "label": "4A",
+        "description": "第4门输入A"
+      },
+      "6": {
+        "label": "2Y",
+        "description": "第2门输出"
+      },
+      "13": {
+        "label": "4B",
+        "description": "第4门输入B"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls86-1.png",
+      "74ls86-2.png"
+    ]
+  },
+  "CD4011": {
+    "title": "CD4011  四2输入与非门（CMOS）（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "CD4011  四2输入与非门（CMOS）（DIP-14）",
+      "【功能介绍】CMOS工艺的四2输入与非门，Y=(AB)′。电源电压范围宽（3~15V），输入阻抗极高、静态功耗极小，但多余输入端不允许悬空，必须接VDD或VSS。实验2中用于测量CMOS门的电压传输特性和传输延迟时间。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1A",
+        "description": "第1门输入A"
+      },
+      "8": {
+        "label": "3A",
+        "description": "第3门输入A"
+      },
+      "2": {
+        "label": "1B",
+        "description": "第1门输入B"
+      },
+      "9": {
+        "label": "3B",
+        "description": "第3门输入B"
+      },
+      "3": {
+        "label": "1Y",
+        "description": "第1门输出"
+      },
+      "10": {
+        "label": "3Y",
+        "description": "第3门输出"
+      },
+      "4": {
+        "label": "2Y",
+        "description": "第2门输出"
+      },
+      "11": {
+        "label": "4Y",
+        "description": "第4门输出"
+      },
+      "5": {
+        "label": "2A",
+        "description": "第2门输入A"
+      },
+      "12": {
+        "label": "4A",
+        "description": "第4门输入A"
+      },
+      "6": {
+        "label": "2B",
+        "description": "第2门输入B"
+      },
+      "13": {
+        "label": "4B",
+        "description": "第4门输入B"
+      },
+      "7": {
+        "label": "VSS",
+        "description": "接地（电源负极）"
+      },
+      "14": {
+        "label": "VDD",
+        "description": "电源正极"
+      }
+    },
+    "images": [
+      "cd4011-1.png",
+      "cd4011-2.png"
+    ]
+  },
+  "74LS125": {
+    "title": "74LS125  四三态缓冲门（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS125  四三态缓冲门（DIP-14）",
+      "【功能介绍】片内有4个独立的三态缓冲门，使能端G′低电平有效：G′=0时Y=A（同相输出），G′=1时输出为高阻态。常用于总线结构、数据选择与信号隔离。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】",
+      "二、组合逻辑中规模芯片"
+    ],
+    "pins": {
+      "1": {
+        "label": "1G′",
+        "description": "第1门使能（低有效）"
+      },
+      "8": {
+        "label": "3Y",
+        "description": "第3门输出"
+      },
+      "2": {
+        "label": "1A",
+        "description": "第1门输入"
+      },
+      "9": {
+        "label": "3A",
+        "description": "第3门输入"
+      },
+      "3": {
+        "label": "1Y",
+        "description": "第1门输出"
+      },
+      "10": {
+        "label": "3G′",
+        "description": "第3门使能（低有效）"
+      },
+      "4": {
+        "label": "2G′",
+        "description": "第2门使能（低有效）"
+      },
+      "11": {
+        "label": "4Y",
+        "description": "第4门输出"
+      },
+      "5": {
+        "label": "2A",
+        "description": "第2门输入"
+      },
+      "12": {
+        "label": "4A",
+        "description": "第4门输入"
+      },
+      "6": {
+        "label": "2Y",
+        "description": "第2门输出"
+      },
+      "13": {
+        "label": "4G′",
+        "description": "第4门使能（低有效）"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls125-1.png",
+      "74ls125-2.png"
+    ]
+  },
+  "74LS138": {
+    "title": "74LS138  3线-8线译码器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS138  3线-8线译码器（DIP-16）",
+      "【功能介绍】3个地址输入端A2A1A0，8个低电平有效的输出端Y0′~Y7′，3个使能端S1（高有效）、S2′、S3′（低有效）。当S1=1且S2′+S3′=0时译码，Yi′=(mi·S)′，被选中端输出低电平；禁止时输出全为高。可作地址译码器、脉冲分配器，配与非门可实现任意三变量组合逻辑函数。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "A0",
+        "description": "地址输入（最低位）"
+      },
+      "9": {
+        "label": "Y6′",
+        "description": "输出"
+      },
+      "2": {
+        "label": "A1",
+        "description": "地址输入"
+      },
+      "10": {
+        "label": "Y5′",
+        "description": "输出"
+      },
+      "3": {
+        "label": "A2",
+        "description": "地址输入（最高位）"
+      },
+      "11": {
+        "label": "Y4′",
+        "description": "输出"
+      },
+      "4": {
+        "label": "S3′(G2A′)",
+        "description": "使能输入，低电平有效"
+      },
+      "12": {
+        "label": "Y3′",
+        "description": "输出"
+      },
+      "5": {
+        "label": "S2′(G2B′)",
+        "description": "使能输入，低电平有效"
+      },
+      "13": {
+        "label": "Y2′",
+        "description": "输出"
+      },
+      "6": {
+        "label": "S1(G1)",
+        "description": "使能输入，高电平有效"
+      },
+      "14": {
+        "label": "Y1′",
+        "description": "输出"
+      },
+      "7": {
+        "label": "Y7′",
+        "description": "输出（低电平有效）"
+      },
+      "15": {
+        "label": "Y0′",
+        "description": "输出"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls138-1.png",
+      "74ls138-2.png"
+    ]
+  },
+  "74LS139": {
+    "title": "74LS139  双2线-4线译码器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS139  双2线-4线译码器（DIP-16）",
+      "【功能介绍】片内两个完全独立的2线-4线译码器，各有使能端1G′/2G′（低有效）、地址端1A/1B（2A/2B，A为低位、B为高位）和4个低电平有效输出端。当G′=0时按地址选中一个输出为低电平。用两片半片并接地址、A2作片选（经反相）可扩展成3线-8线译码器。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1G′",
+        "description": "第1组使能（低有效）"
+      },
+      "9": {
+        "label": "2Y3′",
+        "description": "第2组输出3"
+      },
+      "2": {
+        "label": "1A",
+        "description": "第1组地址（低位）"
+      },
+      "10": {
+        "label": "2Y2′",
+        "description": "第2组输出2"
+      },
+      "3": {
+        "label": "1B",
+        "description": "第1组地址（高位）"
+      },
+      "11": {
+        "label": "2Y1′",
+        "description": "第2组输出1"
+      },
+      "4": {
+        "label": "1Y0′",
+        "description": "第1组输出0"
+      },
+      "12": {
+        "label": "2Y0′",
+        "description": "第2组输出0"
+      },
+      "5": {
+        "label": "1Y1′",
+        "description": "第1组输出1"
+      },
+      "13": {
+        "label": "2B",
+        "description": "第2组地址（高位）"
+      },
+      "6": {
+        "label": "1Y2′",
+        "description": "第1组输出2"
+      },
+      "14": {
+        "label": "2A",
+        "description": "第2组地址（低位）"
+      },
+      "7": {
+        "label": "1Y3′",
+        "description": "第1组输出3"
+      },
+      "15": {
+        "label": "2G′",
+        "description": "第2组使能（低有效）"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls139-1.png",
+      "74ls139-2.png"
+    ]
+  },
+  "74LS151": {
+    "title": "74LS151  八选一数据选择器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS151  八选一数据选择器（DIP-16）",
+      "【功能介绍】8个数据端D0~D7、3个地址端C（最高位）、B、A（最低位）、低电平有效的使能端G′，以及互补输出Y、W′。G′=0时Y=Di（i=CBA），G′=1时Y=0。可实现任意三变量函数：按F(mi)的取值把Di接1或0即可。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "D3",
+        "description": "数据输入D3"
+      },
+      "9": {
+        "label": "C",
+        "description": "地址（最高位）"
+      },
+      "2": {
+        "label": "D2",
+        "description": "数据输入D2"
+      },
+      "10": {
+        "label": "B",
+        "description": "地址"
+      },
+      "3": {
+        "label": "D1",
+        "description": "数据输入D1"
+      },
+      "11": {
+        "label": "A",
+        "description": "地址（最低位）"
+      },
+      "4": {
+        "label": "D0",
+        "description": "数据输入D0"
+      },
+      "12": {
+        "label": "D7",
+        "description": "数据输入D7"
+      },
+      "5": {
+        "label": "Y",
+        "description": "输出（同相）"
+      },
+      "13": {
+        "label": "D6",
+        "description": "数据输入D6"
+      },
+      "6": {
+        "label": "W′(Y′)",
+        "description": "输出（反相）"
+      },
+      "14": {
+        "label": "D5",
+        "description": "数据输入D5"
+      },
+      "7": {
+        "label": "G′",
+        "description": "使能，低电平有效"
+      },
+      "15": {
+        "label": "D4",
+        "description": "数据输入D4"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls151-1.png",
+      "74ls151-2.png"
+    ]
+  },
+  "74LS153": {
+    "title": "74LS153  双四选一数据选择器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS153  双四选一数据选择器（DIP-16）",
+      "【功能介绍】片内两个4选1选择器，共用地址端A（低位）、B（高位），各有独立的使能端1G′/2G′和数据输入端1C0~1C3、2C0~2C3。G′=0时Y=Ci（i=BA），G′=1时Y=0。可用两片（或多次复用）实现四变量函数。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1G′",
+        "description": "第1组使能（低有效）"
+      },
+      "9": {
+        "label": "2Y",
+        "description": "第2组输出"
+      },
+      "2": {
+        "label": "B",
+        "description": "地址（高位）"
+      },
+      "10": {
+        "label": "2C0",
+        "description": "第2组数据0"
+      },
+      "3": {
+        "label": "1C3",
+        "description": "第1组数据3"
+      },
+      "11": {
+        "label": "2C1",
+        "description": "第2组数据1"
+      },
+      "4": {
+        "label": "1C2",
+        "description": "第1组数据2"
+      },
+      "12": {
+        "label": "2C2",
+        "description": "第2组数据2"
+      },
+      "5": {
+        "label": "1C1",
+        "description": "第1组数据1"
+      },
+      "13": {
+        "label": "2C3",
+        "description": "第2组数据3"
+      },
+      "6": {
+        "label": "1C0",
+        "description": "第1组数据0"
+      },
+      "14": {
+        "label": "A",
+        "description": "地址（低位）"
+      },
+      "7": {
+        "label": "1Y",
+        "description": "第1组输出"
+      },
+      "15": {
+        "label": "2G′",
+        "description": "第2组使能（低有效）"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls153-1.png",
+      "74ls153-2.png"
+    ]
+  },
+  "74LS283": {
+    "title": "74LS283  四位二进制全加器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS283  四位二进制全加器（DIP-16）",
+      "【功能介绍】完成 A3A2A1A0 + B3B2B1B0 + CI 的加法，输出四位和S3S2S1S0与进位CO。把B端经异或门取反、CI接1，即可完成A−B（补码加法）；多片级联可扩展位数，用于二进制加减法与乘法运算电路。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "S1",
+        "description": "和输出S1"
+      },
+      "9": {
+        "label": "CO",
+        "description": "进位输出C4"
+      },
+      "2": {
+        "label": "B1",
+        "description": "加数B1"
+      },
+      "10": {
+        "label": "S3",
+        "description": "和输出S3"
+      },
+      "3": {
+        "label": "A1",
+        "description": "加数A1"
+      },
+      "11": {
+        "label": "B3",
+        "description": "加数B3"
+      },
+      "4": {
+        "label": "S0",
+        "description": "和输出S0"
+      },
+      "12": {
+        "label": "A3",
+        "description": "加数A3（最高位）"
+      },
+      "5": {
+        "label": "A0",
+        "description": "加数A0（最低位）"
+      },
+      "13": {
+        "label": "S2",
+        "description": "和输出S2"
+      },
+      "6": {
+        "label": "B0",
+        "description": "加数B0（最低位）"
+      },
+      "14": {
+        "label": "A2",
+        "description": "加数A2"
+      },
+      "7": {
+        "label": "CI",
+        "description": "进位输入C0"
+      },
+      "15": {
+        "label": "B2",
+        "description": "加数B2"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls283-1.png",
+      "74ls283-2.png"
+    ]
+  },
+  "74LS85": {
+    "title": "74LS85  四位数值比较器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS85  四位数值比较器（DIP-16）",
+      "【功能介绍】比较A3A2A1A0与B3B2B1B0，输出A>B、A=B、A<B三个高电平有效信号。2~4脚为级联输入，单片使用时A>B、A<B输入接0、A=B输入接1；两片级联可扩展成8位比较器。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "B3",
+        "description": "比较输入B3"
+      },
+      "9": {
+        "label": "B0",
+        "description": "比较输入B0"
+      },
+      "2": {
+        "label": "A<B",
+        "description": "级联输入A<B"
+      },
+      "10": {
+        "label": "A0",
+        "description": "比较输入A0"
+      },
+      "3": {
+        "label": "A=B",
+        "description": "级联输入A=B"
+      },
+      "11": {
+        "label": "B1",
+        "description": "比较输入B1"
+      },
+      "4": {
+        "label": "A>B",
+        "description": "级联输入A>B"
+      },
+      "12": {
+        "label": "A1",
+        "description": "比较输入A1"
+      },
+      "5": {
+        "label": "A>B",
+        "description": "比较输出A>B"
+      },
+      "13": {
+        "label": "B2",
+        "description": "比较输入B2"
+      },
+      "6": {
+        "label": "A=B",
+        "description": "比较输出A=B"
+      },
+      "14": {
+        "label": "A2",
+        "description": "比较输入A2"
+      },
+      "7": {
+        "label": "A<B",
+        "description": "比较输出A<B"
+      },
+      "15": {
+        "label": "A3",
+        "description": "比较输入A3"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls85-1.png",
+      "74ls85-2.png"
+    ]
+  },
+  "74LS48": {
+    "title": "74LS48  BCD-七段字形译码器/驱动器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS48  BCD-七段字形译码器/驱动器（DIP-16）",
+      "【功能介绍】把8421BCD码（D为最高位、A为最低位）译成七段字形，输出a~g高电平有效，可直接驱动共阴极数码管，内部有2kΩ上拉电阻。具有LT′灯测试、RBI′灭零输入、BI′/RBO′灭灯输入/动态灭灯输出功能。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】",
+      "三、触发器、计数器与移位寄存器"
+    ],
+    "pins": {
+      "1": {
+        "label": "B",
+        "description": "BCD输入B"
+      },
+      "9": {
+        "label": "e",
+        "description": "段输出e"
+      },
+      "2": {
+        "label": "C",
+        "description": "BCD输入C"
+      },
+      "10": {
+        "label": "d",
+        "description": "段输出d"
+      },
+      "3": {
+        "label": "LT′",
+        "description": "灯测试（低有效）"
+      },
+      "11": {
+        "label": "c",
+        "description": "段输出c"
+      },
+      "4": {
+        "label": "BI′/RBO′",
+        "description": "灭灯输入/动态灭灯输出"
+      },
+      "12": {
+        "label": "b",
+        "description": "段输出b"
+      },
+      "5": {
+        "label": "RBI′",
+        "description": "动态灭零输入（低有效）"
+      },
+      "13": {
+        "label": "a",
+        "description": "段输出a"
+      },
+      "6": {
+        "label": "D",
+        "description": "BCD输入D（最高位）"
+      },
+      "14": {
+        "label": "g",
+        "description": "段输出g"
+      },
+      "7": {
+        "label": "A",
+        "description": "BCD输入A（最低位）"
+      },
+      "15": {
+        "label": "f",
+        "description": "段输出f"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls48-1.png",
+      "74ls48-2.png"
+    ]
+  },
+  "74LS74": {
+    "title": "74LS74  双D触发器（上升沿）（DIP-14）",
+    "count": 14,
+    "paragraphs": [
+      "74LS74  双D触发器（上升沿）（DIP-14）",
+      "【功能介绍】片内两个独立的上升沿触发D触发器，带异步置位端SD′（低有效）和异步复位端RD′（低有效）。CP上升沿到来时Q*=D。可构成移位寄存器、计数器和分频电路。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1RD′",
+        "description": "第1触发器复位（低有效）"
+      },
+      "8": {
+        "label": "2Q′",
+        "description": "第2触发器输出Q′"
+      },
+      "2": {
+        "label": "1D",
+        "description": "第1触发器D输入"
+      },
+      "9": {
+        "label": "2Q",
+        "description": "第2触发器输出Q"
+      },
+      "3": {
+        "label": "1CP",
+        "description": "第1触发器时钟"
+      },
+      "10": {
+        "label": "2SD′",
+        "description": "第2触发器置位（低有效）"
+      },
+      "4": {
+        "label": "1SD′",
+        "description": "第1触发器置位（低有效）"
+      },
+      "11": {
+        "label": "2CP",
+        "description": "第2触发器时钟"
+      },
+      "5": {
+        "label": "1Q",
+        "description": "第1触发器输出Q"
+      },
+      "12": {
+        "label": "2D",
+        "description": "第2触发器D输入"
+      },
+      "6": {
+        "label": "1Q′",
+        "description": "第1触发器输出Q′"
+      },
+      "13": {
+        "label": "2RD′",
+        "description": "第2触发器复位（低有效）"
+      },
+      "7": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "14": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls74-1.png",
+      "74ls74-2.png"
+    ]
+  },
+  "74LS112": {
+    "title": "74LS112  双JK触发器（下降沿）（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS112  双JK触发器（下降沿）（DIP-16）",
+      "【功能介绍】片内两个独立的下降沿触发JK触发器，带异步置位端SD′和异步复位端RD′（均低有效）。J=K=1时CP下降沿翻转（T′功能），可构成计数器；与74LS74配合可做触发器相互转换实验。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "1CP",
+        "description": "第1触发器时钟"
+      },
+      "9": {
+        "label": "2Q′",
+        "description": "第2触发器输出Q′"
+      },
+      "2": {
+        "label": "1K",
+        "description": "第1触发器K输入"
+      },
+      "10": {
+        "label": "2SD′",
+        "description": "第2触发器置位（低有效）"
+      },
+      "3": {
+        "label": "1J",
+        "description": "第1触发器J输入"
+      },
+      "11": {
+        "label": "2J",
+        "description": "第2触发器J输入"
+      },
+      "4": {
+        "label": "1SD′",
+        "description": "第1触发器置位（低有效）"
+      },
+      "12": {
+        "label": "2K",
+        "description": "第2触发器K输入"
+      },
+      "5": {
+        "label": "1Q",
+        "description": "第1触发器输出Q"
+      },
+      "13": {
+        "label": "2CP",
+        "description": "第2触发器时钟"
+      },
+      "6": {
+        "label": "1Q′",
+        "description": "第1触发器输出Q′"
+      },
+      "14": {
+        "label": "2RD′",
+        "description": "第2触发器复位（低有效）"
+      },
+      "7": {
+        "label": "2Q",
+        "description": "第2触发器输出Q"
+      },
+      "15": {
+        "label": "1RD′",
+        "description": "第1触发器复位（低有效）"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls112-1.png",
+      "74ls112-2.png"
+    ]
+  },
+  "CD4027": {
+    "title": "CD4027  双JK触发器（CMOS，上升沿）（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "CD4027  双JK触发器（CMOS，上升沿）（DIP-16）",
+      "【功能介绍】CMOS双JK主从触发器，上升沿触发，置位端SET和复位端RESET为高电平有效（与时钟无关）。电源3~15V，输入阻抗高、功耗低。注意其置位/复位极性和引脚排列与74LS112不同。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "Q2",
+        "description": "第2触发器输出Q"
+      },
+      "9": {
+        "label": "SET1",
+        "description": "第1触发器置位（高有效）"
+      },
+      "2": {
+        "label": "Q2′",
+        "description": "第2触发器输出Q′"
+      },
+      "10": {
+        "label": "J1",
+        "description": "第1触发器J输入"
+      },
+      "3": {
+        "label": "CLK2",
+        "description": "第2触发器时钟"
+      },
+      "11": {
+        "label": "K1",
+        "description": "第1触发器K输入"
+      },
+      "4": {
+        "label": "RESET2",
+        "description": "第2触发器复位（高有效）"
+      },
+      "12": {
+        "label": "RESET1",
+        "description": "第1触发器复位（高有效）"
+      },
+      "5": {
+        "label": "K2",
+        "description": "第2触发器K输入"
+      },
+      "13": {
+        "label": "CLK1",
+        "description": "第1触发器时钟"
+      },
+      "6": {
+        "label": "J2",
+        "description": "第2触发器J输入"
+      },
+      "14": {
+        "label": "Q1′",
+        "description": "第1触发器输出Q′"
+      },
+      "7": {
+        "label": "SET2",
+        "description": "第2触发器置位（高有效）"
+      },
+      "15": {
+        "label": "Q1",
+        "description": "第1触发器输出Q"
+      },
+      "8": {
+        "label": "VSS",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VDD",
+        "description": "电源正极"
+      }
+    },
+    "images": [
+      "cd4027-1.png",
+      "cd4027-2.png"
+    ]
+  },
+  "74LS160": {
+    "title": "74LS160  同步十进制计数器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS160  同步十进制计数器（DIP-16）",
+      "【功能介绍】模10同步加计数器。具有异步清零CLR′（低有效）、同步置数LOAD′（低有效）、计数使能ENP/ENT和进位输出RCO。ENP、ENT均为高电平时在CP上升沿计数；RCO在计数值为9且ENT=1时输出高电平。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "CLR′",
+        "description": "异步清零（低有效）"
+      },
+      "9": {
+        "label": "LOAD′",
+        "description": "同步置数（低有效）"
+      },
+      "2": {
+        "label": "CP",
+        "description": "时钟输入（上升沿）"
+      },
+      "10": {
+        "label": "ENT",
+        "description": "计数使能T"
+      },
+      "3": {
+        "label": "D0",
+        "description": "置数输入D0"
+      },
+      "11": {
+        "label": "Q3",
+        "description": "输出Q3（最高位）"
+      },
+      "4": {
+        "label": "D1",
+        "description": "置数输入D1"
+      },
+      "12": {
+        "label": "Q2",
+        "description": "输出Q2"
+      },
+      "5": {
+        "label": "D2",
+        "description": "置数输入D2"
+      },
+      "13": {
+        "label": "Q1",
+        "description": "输出Q1"
+      },
+      "6": {
+        "label": "D3",
+        "description": "置数输入D3"
+      },
+      "14": {
+        "label": "Q0",
+        "description": "输出Q0（最低位）"
+      },
+      "7": {
+        "label": "ENP",
+        "description": "计数使能P"
+      },
+      "15": {
+        "label": "RCO",
+        "description": "进位输出"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls160-1.png",
+      "74ls160-2.png"
+    ]
+  },
+  "74LS161": {
+    "title": "74LS161  同步四位二进制计数器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS161  同步四位二进制计数器（DIP-16）",
+      "【功能介绍】模16同步加计数器，引脚与74LS160完全相同。异步清零CLR′、同步置数LOAD′、使能ENP/ENT，进位输出RCO。可用于构成任意进制计数器（反馈清零法或置数法）。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "CLR′",
+        "description": "异步清零（低有效）"
+      },
+      "9": {
+        "label": "LOAD′",
+        "description": "同步置数（低有效）"
+      },
+      "2": {
+        "label": "CP",
+        "description": "时钟输入（上升沿）"
+      },
+      "10": {
+        "label": "ENT",
+        "description": "计数使能T"
+      },
+      "3": {
+        "label": "D0",
+        "description": "置数输入D0"
+      },
+      "11": {
+        "label": "Q3",
+        "description": "输出Q3（最高位）"
+      },
+      "4": {
+        "label": "D1",
+        "description": "置数输入D1"
+      },
+      "12": {
+        "label": "Q2",
+        "description": "输出Q2"
+      },
+      "5": {
+        "label": "D2",
+        "description": "置数输入D2"
+      },
+      "13": {
+        "label": "Q1",
+        "description": "输出Q1"
+      },
+      "6": {
+        "label": "D3",
+        "description": "置数输入D3"
+      },
+      "14": {
+        "label": "Q0",
+        "description": "输出Q0（最低位）"
+      },
+      "7": {
+        "label": "ENP",
+        "description": "计数使能P"
+      },
+      "15": {
+        "label": "RCO",
+        "description": "进位输出"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls161-1.png",
+      "74ls161-2.png"
+    ]
+  },
+  "74LS194": {
+    "title": "74LS194  四位双向移位寄存器（DIP-16）",
+    "count": 16,
+    "paragraphs": [
+      "74LS194  四位双向移位寄存器（DIP-16）",
+      "【功能介绍】4位双向移位寄存器。S1S0=00保持、01右移、10左移、11并行置数；SR为右移串入端，SL为左移串入端，CLR′为异步清零（低有效）。可构成环形、扭环形计数器及串并转换电路。",
+      "【引脚分布图】",
+      "【逻辑符号（原理图）】",
+      "【引脚功能表】"
+    ],
+    "pins": {
+      "1": {
+        "label": "CLR′",
+        "description": "异步清零（低有效）"
+      },
+      "9": {
+        "label": "S0",
+        "description": "方式控制S0"
+      },
+      "2": {
+        "label": "CP",
+        "description": "时钟输入（上升沿）"
+      },
+      "10": {
+        "label": "S1",
+        "description": "方式控制S1"
+      },
+      "3": {
+        "label": "SR",
+        "description": "右移串入"
+      },
+      "11": {
+        "label": "SL",
+        "description": "左移串入"
+      },
+      "4": {
+        "label": "A",
+        "description": "并行输入A"
+      },
+      "12": {
+        "label": "QA",
+        "description": "输出QA"
+      },
+      "5": {
+        "label": "B",
+        "description": "并行输入B"
+      },
+      "13": {
+        "label": "QB",
+        "description": "输出QB"
+      },
+      "6": {
+        "label": "C",
+        "description": "并行输入C"
+      },
+      "14": {
+        "label": "QC",
+        "description": "输出QC"
+      },
+      "7": {
+        "label": "D",
+        "description": "并行输入D"
+      },
+      "15": {
+        "label": "QD",
+        "description": "输出QD"
+      },
+      "8": {
+        "label": "GND",
+        "description": "接地"
+      },
+      "16": {
+        "label": "VCC",
+        "description": "电源+5V"
+      }
+    },
+    "images": [
+      "74ls194-1.png",
+      "74ls194-2.png"
+    ]
+  }
+}

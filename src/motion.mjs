@@ -3,18 +3,18 @@ const transitions = new Map();
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let frame = 0;
 
-// 根据页面设置判断是否应减少空间运动。
+// 根据页面设置判断是否应减少空间运动
 export function prefersReducedMotion() {
     return reducedMotion.matches;
 }
 
-// 对进行中的数值过渡计算当前值，参数为进度，返回平滑进度。
+// 对进行中的数值过渡计算当前值，参数为进度，返回平滑进度
 function easing(progress) {
     const remaining = 1 - progress;
     return 1 - remaining * remaining * remaining;
 }
 
-// 推进所有数值过渡，回调函数直接接收当前显示值而不影响电路状态。
+// 推进所有数值过渡，回调函数直接接收当前显示值而不影响电路状态
 function stepTransitions(time) {
     frame = 0;
     for (const entry of transitions) {
@@ -32,7 +32,7 @@ function stepTransitions(time) {
     }
 }
 
-// 平滑改变一个显示数值，相同名称的新过渡会替换旧过渡，避免快速操作排队。
+// 平滑改变一个显示数值，相同名称的新过渡会替换旧过渡，避免快速操作排队
 export function tween(key, first, last, update, duration) {
     transitions.delete(key);
     if (reducedMotion.matches || first === last) {
@@ -45,7 +45,7 @@ export function tween(key, first, last, update, duration) {
     }
 }
 
-// 让刚切换的内容短暂淡入；同一节点的新动画会取代旧动画。
+// 让刚切换的内容短暂淡入；同一节点的新动画会取代旧动画
 export function fadeContent(element) {
     if (reducedMotion.matches) {
         return;

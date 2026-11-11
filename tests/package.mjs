@@ -9,22 +9,22 @@ import { chromium } from "playwright";
 const ROOT = process.cwd();
 const POWERSHELL = "powershell.exe";
 
-// 记录离线包页面的脚本错误，便于测试结束时统一断言。
+// 记录离线包页面的脚本错误，便于测试结束时统一断言
 function collectError(errors, error) {
     errors.push(error.message);
 }
 
-// 确认临时目录位于系统临时文件夹内，再清理本次测试产生的文件。
+// 确认临时目录位于系统临时文件夹内，再清理本次测试产生的文件
 function cleanTemporaryDirectory(directory) {
     const temporaryRoot = path.resolve(os.tmpdir());
     const target = path.resolve(directory);
     if (!target.startsWith(temporaryRoot + path.sep) || !path.basename(target).startsWith("sdu-package-test-")) {
-        throw new Error("临时目录路径不正确，已停止清理。");
+        throw new Error("临时目录路径不正确，已停止清理");
     }
     fs.rmSync(target, { recursive: true, force: true });
 }
 
-// 用游客实际拿到的 ZIP 验证解压后直接运行，结束时关闭浏览器并清理测试目录。
+// 用游客实际拿到的 ZIP 验证解压后直接运行，结束时关闭浏览器并清理测试目录
 async function testOfflinePackage() {
     const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sdu-package-test-"));
     let browser = null;
@@ -36,7 +36,7 @@ async function testOfflinePackage() {
         const archive = path.join(output, archives[0]);
         assert.ok(archive.endsWith("-offline.zip"));
         const expanded = path.join(temporaryRoot, "unpacked");
-        // 参数通过环境变量传递，文件路径不拼进 PowerShell 命令字符串。
+        // 参数通过环境变量传递，文件路径不拼进 PowerShell 命令字符串
         const environment = Object.assign({}, process.env);
         environment.SDU_TEST_ARCHIVE = archive;
         environment.SDU_TEST_EXPANDED = expanded;
@@ -58,11 +58,12 @@ async function testOfflinePackage() {
         await page.waitForSelector(".chip-option");
         assert.match(await page.locator("head link[rel='icon']").getAttribute("href"), /^assets\/favicon\.png/);
         assert.equal(await page.locator("head link[rel='shortcut icon']").count(), 1);
-        await page.locator("#clear-register").click();
-        assert.equal(await page.locator("#binary-result").textContent(), "00 0000");
+        await page.getByRole("button", { name: "切换 K6", exact: true }).click();
+        await page.getByRole("button", { name: "切换 K6", exact: true }).click();
+        assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
         await page.getByRole("button", { name: "切换 K0", exact: true }).click();
         await page.locator("#pulse-negative").click();
-        assert.equal(await page.locator("#binary-result").textContent(), "00 0001");
+        assert.equal(await page.locator("#binary-result").textContent(), "000 0001");
         await page.locator(".chip-option[data-model='74LS273']").click();
         const image = page.locator("#inspect-panel .chip-reference img");
         await image.waitFor();
@@ -72,7 +73,7 @@ async function testOfflinePackage() {
         const download = await downloadEvent;
         assert.equal(download.suggestedFilename(), "breadboard-circuit.json");
         assert.deepEqual(errors, []);
-        console.log("离线包验证通过：解压后直接打开、favicon、芯片引脚图、清零、脉冲运算和电路导出。");
+        console.log("离线包验证通过：解压后直接打开、favicon、芯片引脚图、清零、脉冲运算和电路导出");
     } finally {
         if (browser) {
             await browser.close();
@@ -81,7 +82,7 @@ async function testOfflinePackage() {
     }
 }
 
-// 读取已加载图片的原始宽度，确认离线包引用到真实图片。
+// 读取已加载图片的原始宽度，确认离线包引用到真实图片
 function imageWidth(image) {
     return image.naturalWidth;
 }

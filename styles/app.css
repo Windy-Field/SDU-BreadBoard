@@ -280,3 +280,16 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .selection-chip-body .pin-table { font-size: 10px; }
 .selection-delete { margin-top: 12px; width: 100%; }
 .catalog-place { width: 100%; margin: 4px 0 12px; }
+.io-settings { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.io-settings label { display: flex; align-items: center; gap: 5px; color: var(--color-muted); font-size: 11px; white-space: nowrap; }
+.io-settings input:not([type="checkbox"]) { width: 48px; height: 30px; padding-inline: 5px; }
+.pulse-button { min-width: 104px; background: var(--color-surface); color: var(--color-accent); border-color: var(--color-rule); }
+.pulse-button.pressed { background: var(--color-accent-soft); color: var(--color-accent); transform: translateY(2px); border-color: var(--color-accent); }
+.library { display: block; width: 214px; min-width: 214px; max-width: 214px; overflow: auto; overflow-x: clip; padding: 12px; }
+.library-chips { display: flex; flex-direction: column; min-height: 160px; height: 49dvh; max-height: 520px; }
+.library-chips .panel-heading, .library-chips .search-field { flex-shrink: 0; }
+.chip-library { overflow-y: auto; overflow-x: clip; min-height: 0; padding-right: 4px; }
+.library-section { max-height: 31dvh; min-height: 175px; overflow-y: auto; overflow-x: clip; margin-top: 12px; padding-top: 12px; padding-right: 4px; }
+.library-footer { margin-top: 12px; }
+@media (max-width: 960px) { .library { width: 100%; min-width: 0; max-width: none; max-height: 280px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; } .library-chips { height: 235px; max-height: none; } .chip-library { display: grid; grid-template-columns: minmax(0, 1fr); } .library-section { display: grid; grid-template-columns: minmax(0, 1fr); max-height: 235px; margin: 0; min-height: 0; padding: 0 4px 0 0; border: 0; gap: 6px; } .library-section h2 { display: block; } .library-footer { grid-column: 1 / 3; margin: 0; padding: 6px 0 0; } }
+@media (max-width: 700px) { .pulse-button { min-width: 100px; } .library { max-height: 260px; } .library-chips { height: 205px; } .library-section { max-height: 205px; } .library .chip-option { grid-template-columns: minmax(0, 1fr); } .library .preset-button { font-size: 10px; padding-inline: 2px; gap: 4px; } }
