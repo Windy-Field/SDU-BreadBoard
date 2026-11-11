@@ -9228,7 +9228,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.4.0";
+  var APP_VERSION = "1.4.1";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs
@@ -10290,26 +10290,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     commit();
     renderLibrary();
   }
-  function loadPreset() {
-    keepExperiment(workspace, activeExperiment, state.project);
-    for (const id of Object.keys(workspace.projects)) {
-      if (workspace.projects[id].name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668" && restorePresetRoutes(copyProject(workspace.projects[id]))) {
-        activeExperiment = id;
-        state.project = copyProject(workspace.projects[id]);
-        resetRuntime();
-        calculate(false);
-        render();
-        return;
-      }
-    }
-    activeExperiment = newExperimentId();
-    state.project = complementPreset();
-    resetRuntime();
-    state.undo = [];
-    state.redo = [];
-    commit();
-    renderLibrary();
-  }
   function renameProject(event) {
     if (editingLocked()) {
       render();
@@ -11262,7 +11242,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     window.addEventListener("blur", releasePulseButton);
     element("power-toggle").addEventListener("change", changePower);
     element("new-project").addEventListener("click", newProject);
-    element("load-preset").addEventListener("click", loadPreset);
     element("export-project").addEventListener("click", exportProject);
     element("import-project").addEventListener("click", chooseImport);
     element("import-file").addEventListener("change", importProject);

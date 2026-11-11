@@ -1215,28 +1215,6 @@ function newProject() {
     renderLibrary();
 }
 
-// 载入已经核对的补码运算器示例，寄存器需要再次清零
-function loadPreset() {
-    keepExperiment(workspace, activeExperiment, state.project);
-    for (const id of Object.keys(workspace.projects)) {
-        if (workspace.projects[id].name === "双符号位补码运算器" && restorePresetRoutes(copyProject(workspace.projects[id]))) {
-            activeExperiment = id;
-            state.project = copyProject(workspace.projects[id]);
-            resetRuntime();
-            calculate(false);
-            render();
-            return;
-        }
-    }
-    activeExperiment = newExperimentId();
-    state.project = complementPreset();
-    resetRuntime();
-    state.undo = [];
-    state.redo = [];
-    commit();
-    renderLibrary();
-}
-
 // 更新电路名称和未保存标记，不改变电气状态
 function renameProject(event) {
     if (editingLocked()) {
@@ -2304,7 +2282,6 @@ function bindEvents() {
     window.addEventListener("blur", releasePulseButton);
     element("power-toggle").addEventListener("change", changePower);
     element("new-project").addEventListener("click", newProject);
-    element("load-preset").addEventListener("click", loadPreset);
     element("export-project").addEventListener("click", exportProject);
     element("import-project").addEventListener("click", chooseImport);
     element("import-file").addEventListener("change", importProject);

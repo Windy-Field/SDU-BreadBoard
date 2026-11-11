@@ -276,7 +276,9 @@ async function main() {
         await page.locator("#to-endpoint").fill("B0:A:1");
         await page.locator("#connect-endpoints").click();
         assert.equal(await page.locator("#wire-count").textContent(), "1");
-        await page.locator("#load-preset").click();
+        assert.equal(await page.locator("#load-preset").count(), 0);
+        await page.locator("#import-file").setInputFiles(path.join(ROOT, "examples", "complement-adder.json"));
+        await page.waitForFunction(wireCountRestored);
         const presetId = await page.locator("#experiment-picker").inputValue();
         await page.locator("#new-experiment").click();
         assert.equal(await page.locator("#wire-count").textContent(), "0");

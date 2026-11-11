@@ -94,6 +94,51 @@ function readSelectionStyle(element) {
     return getComputedStyle(element).userSelect;
 }
 
+// 读取搜索框、图标和实验选择框的位置，用于检查边缘对齐及焦点样式
+function inspectSearchField() {
+    const field = document.querySelector(".search-field");
+    const input = document.getElementById("chip-search");
+    const fieldBounds = field.getBoundingClientRect();
+    const inputBounds = input.getBoundingClientRect();
+    const iconBounds = field.querySelector("svg").getBoundingClientRect();
+    const pickerBounds = document.getElementById("experiment-picker-trigger").getBoundingClientRect();
+    const fieldStyle = getComputedStyle(field);
+    return {
+        left: fieldBounds.left,
+        right: fieldBounds.right,
+        height: fieldBounds.height,
+        leftDifference: Math.abs(fieldBounds.left - pickerBounds.left),
+        rightDifference: Math.abs(fieldBounds.right - pickerBounds.right),
+        centerDifference: Math.abs(iconBounds.top + iconBounds.height / 2 - inputBounds.top - inputBounds.height / 2),
+        inputFits: inputBounds.left >= fieldBounds.left && inputBounds.right <= fieldBounds.right,
+        outline: getComputedStyle(input).outlineStyle,
+        shadow: fieldStyle.boxShadow
+    };
+}
+
+// 搜索前后边框不移动，图标和输入区居中，型号筛选和清空保持正常
+async function testSearchField(page) {
+    const input = page.locator("#chip-search");
+    await page.locator("h1").click();
+    const before = await page.evaluate(inspectSearchField);
+    const originalCount = await page.locator(".chip-option").count();
+    await input.focus();
+    await input.fill("74LS139");
+    assert.equal(await page.locator(".chip-option").count(), 1);
+    await input.fill("");
+    assert.equal(await page.locator(".chip-option").count(), originalCount);
+    const focused = await page.evaluate(inspectSearchField);
+    assert.equal(focused.left, before.left);
+    assert.equal(focused.right, before.right);
+    assert.equal(focused.height, before.height);
+    assert.ok(focused.leftDifference <= 1 && focused.rightDifference <= 1, "搜索框应与实验选择框左右对齐");
+    assert.ok(focused.centerDifference <= 1, "搜索图标与输入区应垂直居中");
+    assert.equal(focused.inputFits, true);
+    assert.equal(focused.outline, "none");
+    assert.notEqual(focused.shadow, "none");
+    await page.screenshot({ path: path.join(SCREENSHOTS, "search-focused.png"), fullPage: true });
+}
+
 // 核对左侧栏自身不滚动，器件与实验区域独立容纳内容，底部入口留在栏内
 function inspectSidebarScroll() {
     const sidebar = document.querySelector(".library");
@@ -119,6 +164,7 @@ async function main() {
     try {
         await page.goto(pathToFileURL(path.join(ROOT, "index.html")).href);
         await page.waitForSelector("#experiment-picker-trigger");
+        await testSearchField(page);
         await testTextSelection(page);
         const workspace = { version: 1, activeId: "sample-0", projects: {} };
         for (let index = 0; index < 14; index = index + 1) {
@@ -198,7 +244,9 @@ async function main() {
         assert.equal(await trigger.getAttribute("aria-expanded"), "false");
         await page.setViewportSize({ width: 1600, height: 1000 });
         await page.locator("#read-only-toggle").uncheck();
-        await page.locator("#load-preset").click();
+        assert.equal(await page.locator("#load-preset").count(), 0);
+        await page.locator("#import-file").setInputFiles(path.join(ROOT, "examples", "complement-adder.json"));
+        await page.locator("#inspect-panel [data-chip='U1']").waitFor();
         await page.locator("#inspect-panel [data-chip='U1']").click();
         const section = page.locator("#move-section-trigger");
         await section.click();
