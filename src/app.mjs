@@ -1,6 +1,6 @@
 import { element, node, icon, refreshIcons } from "./dom.mjs";
 import { appendChipReference } from "./chip-reference-view.mjs";
-import { showToast } from "./toast.mjs";
+import { showToast, dismissToast } from "./toast.mjs";
 import { refreshSelect, cleanSelectPanels } from "./select-control.mjs";
 import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
@@ -95,6 +95,7 @@ let heldPulse = "";
 let pulseTimer = 0;
 let recentAction = "";
 let routingBusy = false;
+let routingToastId = "";
 const expandedSelection = new Set();
 
 // 更新时间栏，统一按北京时间显示，版本号来自同一个配置文件
@@ -307,6 +308,7 @@ async function applyWireRouting() {
     const candidate = copyProject(state.project);
     const angle = state.wireAngle;
     routingBusy = true;
+    routingToastId = showToast("正在整理走线，请稍候", "info", true);
     render();
     try {
         // 所有实验使用同一套拐角优先规则，示例也不绕过整理
@@ -335,6 +337,8 @@ async function applyWireRouting() {
     } catch (error) {
         toast("原接线已保留，" + error.message, "warning");
     } finally {
+        dismissToast(routingToastId);
+        routingToastId = "";
         routingBusy = false;
         render();
     }

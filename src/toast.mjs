@@ -38,12 +38,15 @@ function pauseToast(event) {
 // 鼠标或焦点离开后，重新等待完整的显示时长
 function resumeToast(event) {
     const item = event.currentTarget;
+    if (item.dataset.persistent === "true") {
+        return;
+    }
     const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
     item.dataset.timer = String(timer);
 }
 
-// 显示中文提示，参数为消息和类别；此模块只负责提示，不修改电路状态
-export function showToast(message, kind) {
+// 显示中文提示，persistent 为 true 时由调用方负责关闭；返回提示编号
+export function showToast(message, kind, persistent) {
     toastCounter = toastCounter + 1;
     const item = node("div", "", "toast " + kind);
     item.id = "toast-" + toastCounter;
@@ -66,12 +69,25 @@ export function showToast(message, kind) {
     item.addEventListener("focusout", resumeToast);
     const region = element("toast-region");
     region.append(item);
-    const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
-    item.dataset.timer = String(timer);
+    if (persistent) {
+        item.dataset.persistent = "true";
+        close.setAttribute("aria-label", "关闭等待提示");
+    } else {
+        const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
+        item.dataset.timer = String(timer);
+    }
     while (region.children.length > TOAST_SETTINGS.visibleLimit) {
         const oldest = region.firstElementChild;
         window.clearTimeout(Number(oldest.dataset.timer));
         oldest.remove();
     }
     refreshIcons();
+    return item.id;
+}
+
+// 主动关闭指定提示，供长时间任务结束或失败时清理等待信息
+export function dismissToast(id) {
+    if (id !== "") {
+        removeToast(id);
+    }
 }

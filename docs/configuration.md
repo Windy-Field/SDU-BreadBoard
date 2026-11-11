@@ -12,6 +12,7 @@
 | `src/render.mjs` | 画布像素倍率、线宽、灯和按键模块的显示位置 |
 | `src/routing.mjs` | 芯片避让距离和寻路边界 |
 | `src/routing-graph.mjs` | 拐角优先寻路的重叠、间距、交叉代价和通道坐标精度 |
+| `src/wire-display.mjs` | 画布中重叠导线的显示间距 |
 | `src/select-control.mjs` | 下拉位置、高度和键盘名称搜索等待时间 |
 | `src/toast.mjs`、`src/motion.mjs` | 提示停留数量与时间、动画时长和淡入透明度 |
 | `src/notes.mjs` | Markdown 解析选项、安全标签、属性和链接协议 |

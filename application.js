@@ -552,10 +552,13 @@
   }
   function resumeToast(event) {
     const item = event.currentTarget;
+    if (item.dataset.persistent === "true") {
+      return;
+    }
     const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
     item.dataset.timer = String(timer);
   }
-  function showToast(message, kind) {
+  function showToast(message, kind, persistent) {
     toastCounter = toastCounter + 1;
     const item = node("div", "", "toast " + kind);
     item.id = "toast-" + toastCounter;
@@ -578,14 +581,25 @@
     item.addEventListener("focusout", resumeToast);
     const region = element("toast-region");
     region.append(item);
-    const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
-    item.dataset.timer = String(timer);
+    if (persistent) {
+      item.dataset.persistent = "true";
+      close.setAttribute("aria-label", "\u5173\u95ED\u7B49\u5F85\u63D0\u793A");
+    } else {
+      const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
+      item.dataset.timer = String(timer);
+    }
     while (region.children.length > TOAST_SETTINGS.visibleLimit) {
       const oldest = region.firstElementChild;
       window.clearTimeout(Number(oldest.dataset.timer));
       oldest.remove();
     }
     refreshIcons();
+    return item.id;
+  }
+  function dismissToast(id) {
+    if (id !== "") {
+      removeToast(id);
+    }
   }
 
   // src/select-control.mjs
@@ -4598,6 +4612,85 @@
     return enter < leave;
   }
 
+  // src/wire-display.mjs
+  var DISPLAY_SPACING = { gap: 4, lanes: 1 };
+  function segmentOffset(first, last, wireIndex, paths) {
+    const horizontal = first.y === last.y;
+    const vertical = first.x === last.x;
+    if (!horizontal && !vertical) {
+      return 0;
+    }
+    let overlaps = 0;
+    for (let otherIndex = 0; otherIndex < wireIndex; otherIndex = otherIndex + 1) {
+      const otherPoints = paths[otherIndex];
+      for (let otherSegment = 1; otherSegment < otherPoints.length; otherSegment = otherSegment + 1) {
+        const otherFirst = otherPoints[otherSegment - 1];
+        const otherLast = otherPoints[otherSegment];
+        if (horizontal && otherFirst.y === otherLast.y && first.y === otherFirst.y) {
+          const shared = sharedLength(first.x, last.x, otherFirst.x, otherLast.x);
+          if (shared > 0) {
+            overlaps = overlaps + 1;
+          }
+        }
+        if (vertical && otherFirst.x === otherLast.x && first.x === otherFirst.x) {
+          const shared = sharedLength(first.y, last.y, otherFirst.y, otherLast.y);
+          if (shared > 0) {
+            overlaps = overlaps + 1;
+          }
+        }
+      }
+    }
+    if (overlaps === 0) {
+      return 0;
+    }
+    const lane = Math.floor((overlaps + 1) / 2) % DISPLAY_SPACING.lanes + 1;
+    let direction = 1;
+    if (overlaps % 2 === 1) {
+      direction = -1;
+    }
+    const distance = lane * DISPLAY_SPACING.gap;
+    if (horizontal) {
+      return direction * distance;
+    }
+    return direction * distance;
+  }
+  function sharedLength(firstStart, firstEnd, secondStart, secondEnd) {
+    const low = Math.max(Math.min(firstStart, firstEnd), Math.min(secondStart, secondEnd));
+    const high = Math.min(Math.max(firstStart, firstEnd), Math.max(secondStart, secondEnd));
+    return Math.max(0, high - low);
+  }
+  function wireDisplayPoints(points, index, paths) {
+    const result = [];
+    for (let segment = 1; segment < points.length; segment = segment + 1) {
+      const first = points[segment - 1];
+      const last2 = points[segment];
+      const offset = segmentOffset(first, last2, index, paths);
+      let displayFirst = { x: first.x, y: first.y };
+      let displayLast2 = { x: last2.x, y: last2.y };
+      if (first.y === last2.y) {
+        displayFirst.y = displayFirst.y + offset;
+        displayLast2.y = displayLast2.y + offset;
+      } else if (first.x === last2.x) {
+        displayFirst.x = displayFirst.x + offset;
+        displayLast2.x = displayLast2.x + offset;
+      }
+      if (result.length === 0) {
+        result.push({ x: first.x, y: first.y });
+      }
+      const previous = result[result.length - 1];
+      if (previous.x !== displayFirst.x || previous.y !== displayFirst.y) {
+        result.push(displayFirst);
+      }
+      result.push(displayLast2);
+    }
+    const last = points[points.length - 1];
+    const displayLast = result[result.length - 1];
+    if (displayLast && (displayLast.x !== last.x || displayLast.y !== last.y)) {
+      result.push({ x: last.x, y: last.y });
+    }
+    return result;
+  }
+
   // src/geometry.mjs
   var PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
   var WIRE_LAYOUT = { laneStart: 12, laneCount: 9, laneStep: 5, sameRowDistance: 12 };
@@ -4631,6 +4724,17 @@
     }
     return points;
   }
+  function wireDisplayPaths(wires) {
+    const basePaths = [];
+    for (let index = 0; index < wires.length; index = index + 1) {
+      basePaths.push(wirePoints(wires[index], index));
+    }
+    const displayPaths = [];
+    for (let index = 0; index < basePaths.length; index = index + 1) {
+      displayPaths.push(wireDisplayPoints(basePaths[index], index, basePaths));
+    }
+    return displayPaths;
+  }
   function segmentDistance(point, first, last) {
     const horizontal = last.x - first.x;
     const vertical = last.y - first.y;
@@ -4644,6 +4748,7 @@
   }
   function hitCandidates(point, state2, endpoints2) {
     const candidates = [];
+    const displayPaths = wireDisplayPaths(state2.project.wires);
     if (point.y >= PORT_LAYOUT.inputY + PICK.buttonTop && point.y <= PORT_LAYOUT.inputY + PICK.buttonBottom) {
       for (let index = 0; index < IO_LIMIT; index = index + 1) {
         const location = endpointPosition("K" + index);
@@ -4660,7 +4765,7 @@
     }
     for (let index = state2.project.wires.length - 1; index >= 0; index = index - 1) {
       const wire = state2.project.wires[index];
-      const points = wirePoints(wire, index);
+      const points = displayPaths[index];
       for (let segment = 1; segment < points.length; segment = segment + 1) {
         if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
           candidates.push({ kind: "wire", id: wire.id });
@@ -4717,12 +4822,13 @@
     if (!selected || selected.kind !== "wire") {
       return null;
     }
+    const displayPaths = wireDisplayPaths(project.wires);
     for (let index = 0; index < project.wires.length; index = index + 1) {
       const wire = project.wires[index];
       if (wire.id !== selected.id) {
         continue;
       }
-      const points = wirePoints(wire, index);
+      const points = displayPaths[index];
       for (let handle = 0; handle < points.length; handle = handle + 1) {
         if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
           return { wire: wire.id, handle, points };
@@ -5600,9 +5706,10 @@
     }
   }
   function drawWires(context, state2, colors) {
+    const displayPaths = wireDisplayPaths(state2.project.wires);
     for (let index = 0; index < state2.project.wires.length; index = index + 1) {
       const wire = state2.project.wires[index];
-      const points = wirePoints(wire, index);
+      const points = displayPaths[index];
       let width = DRAW.wireWidth;
       const selected = objectSelected(state2, "wire", wire.id);
       if (selected) {
@@ -9484,7 +9591,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.6.1";
+  var APP_VERSION = "1.6.3";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs
@@ -9562,6 +9669,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var pulseTimer = 0;
   var recentAction = "";
   var routingBusy = false;
+  var routingToastId = "";
   var expandedSelection = /* @__PURE__ */ new Set();
   function updateClock() {
     element("app-version").textContent = "v" + APP_VERSION;
@@ -9740,6 +9848,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const candidate = copyProject(state.project);
     const angle = state.wireAngle;
     routingBusy = true;
+    routingToastId = showToast("\u6B63\u5728\u6574\u7406\u8D70\u7EBF\uFF0C\u8BF7\u7A0D\u5019", "info", true);
     render();
     try {
       const routes = await routeWires(candidate, angle);
@@ -9767,6 +9876,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     } catch (error) {
       toast("\u539F\u63A5\u7EBF\u5DF2\u4FDD\u7559\uFF0C" + error.message, "warning");
     } finally {
+      dismissToast(routingToastId);
+      routingToastId = "";
       routingBusy = false;
       render();
     }

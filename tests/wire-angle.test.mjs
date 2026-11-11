@@ -9,6 +9,7 @@ import { routeWires } from "../src/routing.mjs";
 import { createRuntime, simulate, readEndpoint } from "../src/engine.mjs";
 import { wiringMetrics } from "./wiring-metrics.mjs";
 import { complementPreset } from "../src/presets.mjs";
+import { wireDisplayPaths } from "../src/geometry.mjs";
 
 // 寻路测试使用的画布范围，不依赖页面缩放或鼠标位置
 const ROUTE_BOUNDARY = { x: 0, y: 0, right: 300, bottom: 300 };
@@ -180,6 +181,23 @@ async function testAngledPreset() {
     assert.equal(validateProject(project).wires.length, original.wires.length);
 }
 
+// 重叠只调整画布显示坐标，导线端点、保存数据和电气拓扑保持不变
+function testWireDisplaySpacing() {
+    const project = emptyProject();
+    project.wires.push({ id: "W1", from: "B0:A:1", to: "B0:A:20", color: "#1976d2", bends: [{ x: 260, y: 261 }] });
+    project.wires.push({ id: "W2", from: "B0:A:2", to: "B0:A:21", color: "#dc3545", bends: [{ x: 260, y: 261 }] });
+    const original = structuredClone(project.wires);
+    const paths = wireDisplayPaths(project.wires);
+    assert.equal(paths.length, 2);
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+        const wire = project.wires[index];
+        assert.deepEqual(paths[index][0], endpointPosition(wire.from));
+        assert.deepEqual(paths[index][paths[index].length - 1], endpointPosition(wire.to));
+    }
+    assert.notDeepEqual(paths[0], paths[1]);
+    assert.deepEqual(project.wires, original);
+}
+
 test("45°路径覆盖四个方向、轴向和折返", testAngleGeometry);
 test("任意方向的路径可检查芯片保护区", testCornerProtection);
 test("减少拐角优先于避免导线重叠", testCornerPriority);
@@ -188,3 +206,4 @@ test("相同拐角数量优先减少重叠并保留精确端点", testOverlapPri
 test("45°导线保存、导入、命中和转折点一致", testAngleStorageAndPicking);
 test("45°自动整理保持电气结果并绕开芯片", testAngledRouting);
 test("61根加法器示例导线支持45°整理", testAngledPreset);
+test("重复线段只在画布中错开并保留真实端点", testWireDisplaySpacing);

@@ -7,8 +7,9 @@ import { complementPreset } from "../src/presets.mjs";
 import { emptyProject, endpointPosition, BOARD } from "../src/board.mjs";
 import { CHIP_MODELS } from "../src/chips.mjs";
 import originalPreset from "./fixtures/complement-original.json" with { type: "json" };
-import { wirePoints } from "../src/geometry.mjs";
+import { wirePoints, wireDisplayPaths } from "../src/geometry.mjs";
 import { routeWires } from "../src/routing.mjs";
+import { wiringMetrics } from "./wiring-metrics.mjs";
 
 const ROOT = process.cwd();
 const URL = pathToFileURL(path.join(ROOT, "index.html")).href;
@@ -206,14 +207,23 @@ async function testPresetRouting(page) {
     assert.deepEqual((await exportedProject(page)).wires, before.wires);
     await page.locator("#arrange-wires").click();
     await page.locator("#confirm-accept").click();
+    const waitingToast = page.locator("#toast-region .toast").filter({ hasText: "正在整理走线" });
+    await waitingToast.waitFor();
     await page.waitForFunction(routingFinished);
+    await waitingToast.waitFor({ state: "detached" });
     const updated = await exportedProject(page);
+    verifyDisplaySpacing(updated);
     const expectedRoutes = await routeWires(before, 45);
+    let sharedBefore = 0;
+    let sharedAfter = 0;
     for (const wire of updated.wires) {
         assert.deepEqual(wire.bends, expectedRoutes[wire.id]);
         assert.equal(wire.angle, 45);
     }
     assert.ok(checkWireAngles(updated) > 0);
+    sharedBefore = wiringMetrics(before).overlap;
+    sharedAfter = wiringMetrics(updated).overlap;
+    assert.ok(sharedAfter <= sharedBefore * 20, "重复走线只允许轻微错开，不能增加大量绕行");
     await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "preset-fewer-corners.png"), fullPage: true });
     assert.equal(updated.notes, before.notes);
     assert.deepEqual(updated.chips, before.chips);
@@ -224,6 +234,60 @@ async function testPresetRouting(page) {
     await page.locator("#read-only-toggle").check();
     assert.equal(await page.locator("#arrange-wires").isDisabled(), true);
     await page.locator("#read-only-toggle").uncheck();
+}
+
+// 页面显示的重叠错开不会写入文件，且显示路径两端仍对应真实插孔
+function verifyDisplaySpacing(project) {
+    const original = structuredClone(project.wires);
+    const paths = wireDisplayPaths(project.wires);
+    assert.deepEqual(project.wires, original);
+    const basePaths = [];
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+        basePaths.push(wirePoints(project.wires[index], index));
+    }
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+        const wire = project.wires[index];
+        assert.deepEqual(paths[index][0], endpointPosition(wire.from));
+        assert.deepEqual(paths[index][paths[index].length - 1], endpointPosition(wire.to));
+        for (let segment = 1; segment < paths[index].length; segment = segment + 1) {
+            const horizontal = Math.abs(paths[index][segment].x - paths[index][segment - 1].x);
+            const vertical = Math.abs(paths[index][segment].y - paths[index][segment - 1].y);
+            if (horizontal > 0 && vertical > 0) {
+                const shortDisplayConnector = horizontal <= 8 && vertical <= 8;
+                const existingPathSegment = hasSegment(basePaths[index], paths[index][segment - 1], paths[index][segment]);
+                assert.ok(shortDisplayConnector || existingPathSegment, "显示偏移不能拉出长斜线");
+            }
+        }
+    }
+}
+
+// 检查这条斜线是否原本就存在于保存路径中
+function hasSegment(points, first, last) {
+    for (let index = 1; index < points.length; index = index + 1) {
+        const previous = points[index - 1];
+        const current = points[index];
+        const matchesForward = previous.x === first.x && previous.y === first.y && current.x === last.x && current.y === last.y;
+        const matchesBackward = previous.x === last.x && previous.y === last.y && current.x === first.x && current.y === first.y;
+        if (matchesForward || matchesBackward) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// 整理成功和失败时等待 Toast 都能消失，成功提示继续保留
+async function testRoutingToast(page) {
+    await page.locator("#new-experiment").click();
+    await page.locator("#from-endpoint").fill("B0:A:1");
+    await page.locator("#to-endpoint").fill("B0:J:20");
+    await page.locator("#connect-endpoints").click();
+    await page.locator("#arrange-wires").click();
+    await page.locator("#confirm-accept").click();
+    const waitingToast = page.locator("#toast-region .toast").filter({ hasText: "正在整理走线" });
+    await waitingToast.waitFor();
+    await page.waitForFunction(routingFinished);
+    await waitingToast.waitFor({ state: "detached" });
+    await page.locator("#toast-region .toast").filter({ hasText: "走线已整理" }).waitFor();
 }
 
 // 导入成功后通过实验标题确认页面已切换，不依赖不存在的提示文字
@@ -534,6 +598,7 @@ async function main() {
         await testPresetRouting(page);
         await testConfirmationHover(page);
         await testGeneralWireRouting(page);
+        await testRoutingToast(page);
         await testPinnedInformation(browser);
         await testChipReferenceWarnings(page);
         assert.deepEqual(errors, []);

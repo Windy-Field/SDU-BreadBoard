@@ -1,4 +1,4 @@
-import { chipBounds, wirePoints, objectSelected } from "./geometry.mjs";
+import { chipBounds, wirePoints, wireDisplayPaths, objectSelected } from "./geometry.mjs";
 import { angleWirePath } from "./wire-path.mjs";
 import { BOARD, PORT_LAYOUT, RAIL_LAYOUT, IO_LIMIT, ROWS, BUS_ROWS, BUS_SEGMENTS, busHasHole, isInputColumn, endpointPosition, portHole, holeId, pinHole, rowY } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
@@ -350,9 +350,10 @@ function drawChip(context, chip, state, colors) {
 
 // 绘制导线，选中的线加粗；端点圆圈与普通交叉区分
 function drawWires(context, state, colors) {
+    const displayPaths = wireDisplayPaths(state.project.wires);
     for (let index = 0; index < state.project.wires.length; index = index + 1) {
         const wire = state.project.wires[index];
-        const points = wirePoints(wire, index);
+        const points = displayPaths[index];
         let width = DRAW.wireWidth;
         const selected = objectSelected(state, "wire", wire.id);
         if (selected) {

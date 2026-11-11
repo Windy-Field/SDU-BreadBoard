@@ -1,6 +1,7 @@
 import { BOARD, PORT_LAYOUT, IO_LIMIT, endpointPosition, rowY } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 import { angleWirePath } from "./wire-path.mjs";
+import { wireDisplayPoints } from "./wire-display.mjs";
 
 // 鼠标命中和拖动吸附范围，单位为画布逻辑像素
 const PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
@@ -41,6 +42,19 @@ export function wirePoints(wire, index) {
     return points;
 }
 
+// 为整组导线计算统一的显示路径，使重叠错开后仍能准确绘制和选中
+export function wireDisplayPaths(wires) {
+    const basePaths = [];
+    for (let index = 0; index < wires.length; index = index + 1) {
+        basePaths.push(wirePoints(wires[index], index));
+    }
+    const displayPaths = [];
+    for (let index = 0; index < basePaths.length; index = index + 1) {
+        displayPaths.push(wireDisplayPoints(basePaths[index], index, basePaths));
+    }
+    return displayPaths;
+}
+
 // 计算点到线段的距离，供导线选择使用
 function segmentDistance(point, first, last) {
     const horizontal = last.x - first.x;
@@ -57,6 +71,7 @@ function segmentDistance(point, first, last) {
 // 判断鼠标位置命中了按键、孔、芯片或导线，返回对象或空值
 export function hitCandidates(point, state, endpoints) {
     const candidates = [];
+    const displayPaths = wireDisplayPaths(state.project.wires);
     if (point.y >= PORT_LAYOUT.inputY + PICK.buttonTop && point.y <= PORT_LAYOUT.inputY + PICK.buttonBottom) {
         for (let index = 0; index < IO_LIMIT; index = index + 1) {
             const location = endpointPosition("K" + index);
@@ -74,7 +89,7 @@ export function hitCandidates(point, state, endpoints) {
     // 导线先参与命中，避免接口或芯片把重叠导线挡住
     for (let index = state.project.wires.length - 1; index >= 0; index = index - 1) {
         const wire = state.project.wires[index];
-        const points = wirePoints(wire, index);
+        const points = displayPaths[index];
         for (let segment = 1; segment < points.length; segment = segment + 1) {
             if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
                 candidates.push({ kind: "wire", id: wire.id });
@@ -139,12 +154,13 @@ export function wireHandleAt(point, project, selected) {
     if (!selected || selected.kind !== "wire") {
         return null;
     }
+    const displayPaths = wireDisplayPaths(project.wires);
     for (let index = 0; index < project.wires.length; index = index + 1) {
         const wire = project.wires[index];
         if (wire.id !== selected.id) {
             continue;
         }
-        const points = wirePoints(wire, index);
+        const points = displayPaths[index];
         for (let handle = 0; handle < points.length; handle = handle + 1) {
             if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
                 return { wire: wire.id, handle: handle, points: points };
