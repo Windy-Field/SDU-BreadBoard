@@ -1,12 +1,12 @@
 {
   "name": "sdu-breadboard",
-  "version": "1.4.2",
+  "version": "1.6.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "lint": "node tests/style.mjs",
-    "test": "node --test tests/engine.test.mjs tests/extra-chips.test.mjs tests/preset-routes.test.mjs tests/chip-audit.test.mjs tests/diagnostics.test.mjs",
+    "test": "node --test tests/engine.test.mjs tests/extra-chips.test.mjs tests/preset-routes.test.mjs tests/chip-audit.test.mjs tests/diagnostics.test.mjs tests/wire-angle.test.mjs",
     "route:preset": "node scripts/route-preset.mjs",
     "test:ui": "node tests/browser.mjs && node tests/interaction.mjs && node tests/select-control.mjs && node tests/board-ui.mjs",
     "package": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1",

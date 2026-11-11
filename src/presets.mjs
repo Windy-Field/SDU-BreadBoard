@@ -181,37 +181,3 @@ export function complementPreset() {
     return project;
 }
 
-// 只在芯片位置和接线端点完全匹配时恢复标准路径，保留输入、线色与备注
-export function restorePresetRoutes(project) {
-    const reference = complementPreset();
-    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
-        return false;
-    }
-    for (const expected of reference.chips) {
-        let matched = false;
-        for (const chip of project.chips) {
-            if (chip.id === expected.id && chip.model === expected.model && chip.section === expected.section && chip.column === expected.column) {
-                matched = true;
-                break;
-            }
-        }
-        if (!matched) {
-            return false;
-        }
-    }
-    const routes = new Map();
-    for (const expected of reference.wires) {
-        routes.set(expected.id, expected);
-    }
-    // 先核对全部端点，再改路径，避免核对失败时只更新了一部分
-    for (const wire of project.wires) {
-        const expected = routes.get(wire.id);
-        if (!expected || wire.from !== expected.from || wire.to !== expected.to) {
-            return false;
-        }
-    }
-    for (const wire of project.wires) {
-        wire.bends = structuredClone(routes.get(wire.id).bends);
-    }
-    return true;
-}

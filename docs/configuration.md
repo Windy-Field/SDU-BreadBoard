@@ -8,8 +8,10 @@
 | `src/board.mjs` | 实物孔距、母线分段、电源轨、端口数量、默认显示位数、备注上限和线色 |
 | `src/storage.mjs` | 导入大小、芯片和导线数量、转折点上限、名称长度及旧文件坐标范围 |
 | `src/geometry.mjs` | 选择范围、吸附距离、默认折线通道和芯片外框 |
+| `src/wire-path.mjs` | 路径坐标的浮点比较容差 |
 | `src/render.mjs` | 画布像素倍率、线宽、灯和按键模块的显示位置 |
-| `src/routing.mjs` | 寻路网格、边界、绕行距离和重叠代价 |
+| `src/routing.mjs` | 芯片避让距离和寻路边界 |
+| `src/routing-graph.mjs` | 拐角优先寻路的重叠、间距、交叉代价和通道坐标精度 |
 | `src/select-control.mjs` | 下拉位置、高度和键盘名称搜索等待时间 |
 | `src/toast.mjs`、`src/motion.mjs` | 提示停留数量与时间、动画时长和淡入透明度 |
 | `src/notes.mjs` | Markdown 解析选项、安全标签、属性和链接协议 |

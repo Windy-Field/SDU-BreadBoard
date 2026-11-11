@@ -17,6 +17,8 @@
     /* 画布内边距和悬浮提示等待时间 */
     --board-padding: 10px;
     --tooltip-delay: 800ms;
+    /* 走线方式选择框宽度，防止切换选项时工具栏跳动 */
+    --wire-angle-width: 112px;
 }
 * { box-sizing: border-box; letter-spacing: 0; }
 /* 禁止拖选界面文字，保留编辑框内正常的选中和复制操作 */
@@ -89,6 +91,8 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
 .custom-color { width: 28px; height: 30px; display: grid; place-items: center; overflow: hidden; cursor: pointer; }
 .custom-color input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; }
 .toolbar-end { margin-left: auto; display: flex; align-items: center; gap: 1px; }
+.wire-angle-control { width: var(--wire-angle-width); flex: 0 0 var(--wire-angle-width); }
+.wire-angle-control .select-trigger { min-height: 34px; padding: 6px 8px; }
 .toolbar-end .icon-button { width: 29px; flex-basis: 29px; }
 .toolbar-divider { width: 1px; height: 21px; background: var(--color-rule); margin: 0 6px; }
 #zoom-label { font-family: var(--font-mono); font-size: 11px; width: 42px; text-align: center; }

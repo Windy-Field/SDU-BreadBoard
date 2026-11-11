@@ -85,9 +85,9 @@
                 return pathTo(currentNode);
               }
               currentNode.closed = true;
-              var neighbors = graph.neighbors(currentNode);
-              for (var i = 0, il = neighbors.length; i < il; ++i) {
-                var neighbor = neighbors[i];
+              var neighbors2 = graph.neighbors(currentNode);
+              for (var i = 0, il = neighbors2.length; i < il; ++i) {
+                var neighbor = neighbors2[i];
                 if (neighbor.closed || neighbor.isWall()) {
                   continue;
                 }
@@ -619,8 +619,8 @@
   }
   function positionPanel(control) {
     const bounds = control.button.getBoundingClientRect();
-    const width2 = Math.min(bounds.width, window.innerWidth - SELECT_LAYOUT.margin * 2);
-    const left = Math.max(SELECT_LAYOUT.margin, Math.min(bounds.left, window.innerWidth - width2 - SELECT_LAYOUT.margin));
+    const width = Math.min(bounds.width, window.innerWidth - SELECT_LAYOUT.margin * 2);
+    const left = Math.max(SELECT_LAYOUT.margin, Math.min(bounds.left, window.innerWidth - width - SELECT_LAYOUT.margin));
     const below = window.innerHeight - bounds.bottom - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
     const above = bounds.top - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
     let available = below;
@@ -628,7 +628,7 @@
     if (upward) {
       available = above;
     }
-    control.panel.style.width = width2 + "px";
+    control.panel.style.width = width + "px";
     control.panel.style.maxHeight = Math.max(SELECT_LAYOUT.minimumHeight, Math.min(SELECT_LAYOUT.maximumHeight, available)) + "px";
     control.panel.style.left = left + "px";
     control.panel.style.top = "0px";
@@ -4473,41 +4473,82 @@
     project.switches[6] = 1;
     return project;
   }
-  function restorePresetRoutes(project) {
-    const reference = complementPreset();
-    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
-      return false;
-    }
-    for (const expected of reference.chips) {
-      let matched = false;
-      for (const chip of project.chips) {
-        if (chip.id === expected.id && chip.model === expected.model && chip.section === expected.section && chip.column === expected.column) {
-          matched = true;
+
+  // src/wire-path.mjs
+  var WIRE_PATH = { tolerance: 1e-6 };
+  function simplifyWirePath(points) {
+    const result = [];
+    for (const point of points) {
+      const previous = result[result.length - 1];
+      if (previous && previous.x === point.x && previous.y === point.y) {
+        continue;
+      }
+      while (result.length >= 2) {
+        const last = result[result.length - 1];
+        const before = result[result.length - 2];
+        const firstHorizontal = last.x - before.x;
+        const firstVertical = last.y - before.y;
+        const nextHorizontal = point.x - last.x;
+        const nextVertical = point.y - last.y;
+        const cross = firstHorizontal * nextVertical - firstVertical * nextHorizontal;
+        const direction = firstHorizontal * nextHorizontal + firstVertical * nextVertical;
+        if (Math.abs(cross) > WIRE_PATH.tolerance || direction <= 0) {
           break;
         }
+        result.pop();
       }
-      if (!matched) {
-        return false;
-      }
+      result.push({ x: point.x, y: point.y });
     }
-    const routes = /* @__PURE__ */ new Map();
-    for (const expected of reference.wires) {
-      routes.set(expected.id, expected);
-    }
-    for (const wire of project.wires) {
-      const expected = routes.get(wire.id);
-      if (!expected || wire.from !== expected.from || wire.to !== expected.to) {
-        return false;
-      }
-    }
-    for (const wire of project.wires) {
-      wire.bends = structuredClone(routes.get(wire.id).bends);
-    }
-    return true;
+    return result;
   }
-
-  // src/routing.mjs
-  var import_javascript_astar = __toESM(require_astar(), 1);
+  function angleWirePath(points) {
+    if (points.length === 0) {
+      return [];
+    }
+    const result = [points[0]];
+    for (let index = 1; index < points.length; index = index + 1) {
+      const first = points[index - 1];
+      const last = points[index];
+      const horizontal = last.x - first.x;
+      const vertical = last.y - first.y;
+      const distance = Math.min(Math.abs(horizontal), Math.abs(vertical));
+      if (distance > 0 && Math.abs(horizontal) !== Math.abs(vertical)) {
+        const diagonalEnd = {
+          x: first.x + Math.sign(horizontal) * distance,
+          y: first.y + Math.sign(vertical) * distance
+        };
+        result.push(diagonalEnd);
+      }
+      result.push(last);
+    }
+    return simplifyWirePath(result);
+  }
+  function segmentCrossesBounds(first, last, bounds) {
+    let enter = 0;
+    let leave = 1;
+    const starts = [first.x, first.y];
+    const changes = [last.x - first.x, last.y - first.y];
+    const minimums = [bounds.x + WIRE_PATH.tolerance, bounds.y + WIRE_PATH.tolerance];
+    const maximums = [bounds.x + bounds.width - WIRE_PATH.tolerance, bounds.y + bounds.height - WIRE_PATH.tolerance];
+    for (let axis = 0; axis < 2; axis = axis + 1) {
+      const start2 = starts[axis];
+      const change = changes[axis];
+      if (Math.abs(change) <= WIRE_PATH.tolerance) {
+        if (start2 < minimums[axis] || start2 > maximums[axis]) {
+          return false;
+        }
+      } else {
+        const firstPortion = (minimums[axis] - start2) / change;
+        const lastPortion = (maximums[axis] - start2) / change;
+        enter = Math.max(enter, Math.min(firstPortion, lastPortion));
+        leave = Math.min(leave, Math.max(firstPortion, lastPortion));
+        if (enter >= leave) {
+          return false;
+        }
+      }
+    }
+    return enter < leave;
+  }
 
   // src/geometry.mjs
   var PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
@@ -4527,7 +4568,7 @@
       for (const bend of wire.bends) {
         points.push(bend);
       }
-    } else {
+    } else if (wire.angle !== 45) {
       const laneOffset = WIRE_LAYOUT.laneStart + index % WIRE_LAYOUT.laneCount * WIRE_LAYOUT.laneStep;
       let lane = (first.y + last.y) / 2 + laneOffset;
       if (Math.abs(first.y - last.y) < WIRE_LAYOUT.sameRowDistance) {
@@ -4537,6 +4578,9 @@
       points.push({ x: last.x, y: lane });
     }
     points.push(last);
+    if (wire.angle === 45) {
+      return angleWirePath(points);
+    }
     return points;
   }
   function segmentDistance(point, first, last) {
@@ -4833,7 +4877,14 @@
       if (from !== entry.from || to !== entry.to) {
         bends.length = 0;
       }
-      project.wires.push({ id: entry.id, from, to, color: entry.color, bends });
+      const wire = { id: entry.id, from, to, color: entry.color, bends };
+      if (entry.angle !== void 0 && entry.angle !== 45) {
+        throw new Error("\u5BFC\u7EBF\u89D2\u5EA6\u8BBE\u7F6E\u4E0D\u6B63\u786E");
+      }
+      if (entry.angle === 45) {
+        wire.angle = 45;
+      }
+      project.wires.push(wire);
       occupied2.add(entry.from);
       occupied2.add(entry.to);
       identifiers.add(entry.id);
@@ -4850,178 +4901,353 @@
     return project;
   }
 
-  // src/routing.mjs
-  var ROUTING = {
-    step: 6,
-    margin: 6,
-    topBoundary: 62,
-    bottomBoundary: 1110,
-    edgeCells: 4,
-    // 左右边缘保留的网格数
-    sharedCost: 70,
-    // 共线重叠代价
-    crossingCost: 10,
-    // 垂直交叉代价
-    neighborCost: 3,
-    // 紧邻已有导线的代价
-    turnCost: 3
-    // 转弯代价
-  };
-  var width = Math.floor(BOARD.width / ROUTING.step) + 1;
-  var height = Math.floor(BOARD.height / ROUTING.step) + 1;
-  function gridPoint(point) {
-    return { x: Math.round(point.x / ROUTING.step), y: Math.round(point.y / ROUTING.step) };
+  // src/routing-graph.mjs
+  var import_javascript_astar = __toESM(require_astar(), 1);
+  var ROUTE_COST = { overlap: 70, nearby: 3, crossing: 10, clearance: 6, coordinateDigits: 6 };
+  var DIRECTIONS = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 1 }, { x: -1, y: 1 }, { x: -1, y: -1 }, { x: 1, y: -1 }];
+  function routeSegments(points) {
+    const result = [];
+    for (let index = 1; index < points.length; index = index + 1) {
+      result.push({ first: points[index - 1], last: points[index] });
+    }
+    return result;
   }
-  function createWalls(project) {
-    const walls = /* @__PURE__ */ new Set();
-    for (const chip of project.chips) {
-      const bounds = chipBounds(chip);
-      for (let column = 0; column < width; column = column + 1) {
-        for (let row = 0; row < height; row = row + 1) {
-          const horizontal = column * ROUTING.step;
-          const vertical = row * ROUTING.step;
-          if (horizontal >= bounds.x - ROUTING.margin && horizontal <= bounds.x + bounds.width + ROUTING.margin && vertical >= bounds.y - ROUTING.margin && vertical <= bounds.y + bounds.height + ROUTING.margin) {
-            walls.add(column + ":" + row);
-          }
+  function sharedInterval(firstStart, firstEnd, lastStart, lastEnd) {
+    const start2 = Math.max(Math.min(firstStart, firstEnd), Math.min(lastStart, lastEnd));
+    const end = Math.min(Math.max(firstStart, firstEnd), Math.max(lastStart, lastEnd));
+    return Math.max(0, end - start2);
+  }
+  function segmentCost(first, last, occupied2) {
+    const horizontal = last.x - first.x;
+    const vertical = last.y - first.y;
+    const length = Math.hypot(horizontal, vertical);
+    if (length === 0) {
+      return 0;
+    }
+    const directionX = horizontal / length;
+    const directionY = vertical / length;
+    let cost = length;
+    for (const segment of occupied2) {
+      const otherX = segment.last.x - segment.first.x;
+      const otherY = segment.last.y - segment.first.y;
+      const offsetX = segment.first.x - first.x;
+      const offsetY = segment.first.y - first.y;
+      const cross = directionX * otherY - directionY * otherX;
+      if (Math.abs(cross) <= WIRE_PATH.tolerance) {
+        const distance = Math.abs(offsetX * directionY - offsetY * directionX);
+        const start2 = offsetX * directionX + offsetY * directionY;
+        const end = start2 + otherX * directionX + otherY * directionY;
+        const overlap = sharedInterval(0, length, start2, end);
+        if (distance <= WIRE_PATH.tolerance) {
+          cost = cost + overlap * ROUTE_COST.overlap;
+        } else if (distance < ROUTE_COST.clearance) {
+          cost = cost + overlap * ROUTE_COST.nearby;
         }
-      }
-    }
-    return walls;
-  }
-  function routeCost(previous) {
-    let cost = this.weight;
-    const horizontal = this.y === previous.y;
-    if (horizontal) {
-      cost = cost + this.horizontalUse * ROUTING.sharedCost + this.verticalUse * ROUTING.crossingCost;
-    } else {
-      cost = cost + this.verticalUse * ROUTING.sharedCost + this.horizontalUse * ROUTING.crossingCost;
-    }
-    if (previous.parent) {
-      const wasHorizontal = previous.y === previous.parent.y;
-      if (wasHorizontal !== horizontal) {
-        cost = cost + ROUTING.turnCost;
+      } else {
+        const distance = (offsetX * otherY - offsetY * otherX) / cross;
+        const portion = (offsetX * directionY - offsetY * directionX) / cross;
+        if (distance > WIRE_PATH.tolerance && distance < length - WIRE_PATH.tolerance && portion > 0 && portion < 1) {
+          cost = cost + ROUTE_COST.crossing;
+        }
       }
     }
     return cost;
   }
-  function createGraph(walls, occupied2, first, last) {
-    const weights = [];
-    for (let column = 0; column < width; column = column + 1) {
-      const cells = [];
-      for (let row = 0; row < height; row = row + 1) {
-        let weight = 1;
-        const key = column + ":" + row;
-        const vertical = row * ROUTING.step;
-        const top = Math.min(ROUTING.topBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
-        const bottom = Math.max(ROUTING.bottomBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
-        if (walls.has(key) || column < ROUTING.edgeCells || column > width - ROUTING.edgeCells || vertical < top || vertical > bottom) {
-          weight = 0;
-        }
-        cells.push(weight);
-      }
-      weights.push(cells);
+  function lineDirection(first, last, angle) {
+    const horizontal = last.x - first.x;
+    const vertical = last.y - first.y;
+    if (horizontal === 0 && vertical === 0) {
+      return -1;
     }
-    weights[first.x][first.y] = 1;
-    weights[last.x][last.y] = 1;
-    const graph = new import_javascript_astar.default.Graph(weights);
-    for (let column = 0; column < width; column = column + 1) {
-      for (let row = 0; row < height; row = row + 1) {
-        const cell = graph.grid[column][row];
-        const key = column + ":" + row;
-        const usage = occupied2.get(key);
-        cell.horizontalUse = 0;
-        cell.verticalUse = 0;
-        if (usage) {
-          cell.horizontalUse = usage.horizontal;
-          cell.verticalUse = usage.vertical;
+    if (horizontal !== 0 && vertical !== 0) {
+      if (angle !== 45 || Math.abs(Math.abs(horizontal) - Math.abs(vertical)) > WIRE_PATH.tolerance) {
+        return -1;
+      }
+    }
+    for (let index = 0; index < DIRECTIONS.length; index = index + 1) {
+      const direction = DIRECTIONS[index];
+      if (Math.sign(horizontal) === direction.x && Math.sign(vertical) === direction.y) {
+        return index;
+      }
+    }
+    return -1;
+  }
+  function allowedPath(points, obstacles, boundary) {
+    for (const point of points) {
+      if (point.x < boundary.x || point.x > boundary.right || point.y < boundary.y || point.y > boundary.bottom) {
+        return false;
+      }
+    }
+    for (const segment of routeSegments(points)) {
+      for (const obstacle of obstacles) {
+        if (segmentCrossesBounds(segment.first, segment.last, obstacle)) {
+          return false;
         }
-        for (const offset of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
-          if (occupied2.has(column + offset[0] + ":" + (row + offset[1])) && cell.weight !== 0) {
-            cell.weight = cell.weight + ROUTING.neighborCost;
+      }
+    }
+    return true;
+  }
+  function simpleRoute(first, last, obstacles, occupied2, boundary, angle) {
+    if (lineDirection(first, last, angle) >= 0 && allowedPath([first, last], obstacles, boundary)) {
+      return [first, last];
+    }
+    let best = [];
+    let bestCost = Infinity;
+    let count = 4;
+    if (angle === 45) {
+      count = DIRECTIONS.length;
+    }
+    for (let incoming = 0; incoming < count; incoming = incoming + 1) {
+      for (let outgoing = 0; outgoing < count; outgoing = outgoing + 1) {
+        const start2 = DIRECTIONS[incoming];
+        const end = DIRECTIONS[outgoing];
+        const determinant = start2.x * end.y - start2.y * end.x;
+        if (determinant === 0) {
+          continue;
+        }
+        const horizontal = last.x - first.x;
+        const vertical = last.y - first.y;
+        const distance = (horizontal * end.y - vertical * end.x) / determinant;
+        const corner = { x: first.x + start2.x * distance, y: first.y + start2.y * distance };
+        const path = simplifyWirePath([first, corner, last]);
+        if (!allowedPath(path, obstacles, boundary)) {
+          continue;
+        }
+        const cost = segmentCost(first, corner, occupied2) + segmentCost(corner, last, occupied2);
+        if (cost < bestCost) {
+          bestCost = cost;
+          best = path;
+        }
+      }
+    }
+    return best;
+  }
+  function compareCoordinates(first, last) {
+    return first - last;
+  }
+  function addPoint(graph, x2, y2) {
+    const point = { x: x2, y: y2, id: graph.points.length, links: [] };
+    if (!allowedPath([point], graph.obstacles, graph.boundary)) {
+      return;
+    }
+    for (const obstacle of graph.obstacles) {
+      if (x2 > obstacle.x && x2 < obstacle.x + obstacle.width && y2 > obstacle.y && y2 < obstacle.y + obstacle.height) {
+        return;
+      }
+    }
+    const key = x2 + ":" + y2;
+    if (!graph.positions.has(key)) {
+      graph.positions.set(key, point);
+      graph.points.push(point);
+    }
+  }
+  function groupPoints(graph, family) {
+    const groups = /* @__PURE__ */ new Map();
+    for (const point of graph.points) {
+      let key = point.y;
+      if (family === 1) {
+        key = point.x;
+      } else if (family === 2) {
+        key = point.x - point.y;
+      } else if (family === 3) {
+        key = point.x + point.y;
+      }
+      const groupKey = key.toFixed(ROUTE_COST.coordinateDigits);
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, []);
+      }
+      groups.get(groupKey).push(point);
+    }
+    for (const points of groups.values()) {
+      points.sort(comparePoints);
+      for (let index = 1; index < points.length; index = index + 1) {
+        const first = points[index - 1];
+        const last = points[index];
+        if (lineDirection(first, last, graph.angle) < 0 || !allowedPath([first, last], graph.obstacles, graph.boundary)) {
+          continue;
+        }
+        const cost = segmentCost(first, last, graph.occupied);
+        graph.maximumCost = Math.max(graph.maximumCost, cost);
+        first.links.push({ point: last, cost });
+        last.links.push({ point: first, cost });
+      }
+    }
+  }
+  function comparePoints(first, last) {
+    if (first.x !== last.x) {
+      return first.x - last.x;
+    }
+    return first.y - last.y;
+  }
+  function createGraph(first, last, obstacles, occupied2, boundary, angle) {
+    const graph = {
+      points: [],
+      positions: /* @__PURE__ */ new Map(),
+      states: /* @__PURE__ */ new Map(),
+      dirtyNodes: [],
+      obstacles,
+      occupied: occupied2,
+      boundary,
+      angle,
+      maximumCost: 0,
+      neighbors,
+      cleanDirty: import_javascript_astar.default.Graph.prototype.cleanDirty,
+      markDirty: import_javascript_astar.default.Graph.prototype.markDirty
+    };
+    const horizontal = /* @__PURE__ */ new Set([first.x, last.x, boundary.x, boundary.right]);
+    const vertical = /* @__PURE__ */ new Set([first.y, last.y, boundary.y, boundary.bottom]);
+    for (const obstacle of obstacles) {
+      for (const offset of [-ROUTE_COST.clearance, 0, ROUTE_COST.clearance]) {
+        horizontal.add(obstacle.x + offset);
+        horizontal.add(obstacle.x + obstacle.width + offset);
+        vertical.add(obstacle.y + offset);
+        vertical.add(obstacle.y + obstacle.height + offset);
+      }
+    }
+    for (const segment of occupied2) {
+      for (const point of [segment.first, segment.last]) {
+        horizontal.add(point.x - ROUTE_COST.clearance);
+        horizontal.add(point.x + ROUTE_COST.clearance);
+        vertical.add(point.y - ROUTE_COST.clearance);
+        vertical.add(point.y + ROUTE_COST.clearance);
+      }
+    }
+    const columns = Array.from(horizontal);
+    const rows = Array.from(vertical);
+    columns.sort(compareCoordinates);
+    rows.sort(compareCoordinates);
+    for (const x2 of columns) {
+      for (const y2 of rows) {
+        addPoint(graph, x2, y2);
+      }
+    }
+    if (angle === 45) {
+      for (const endpoint of [first, last]) {
+        for (const sign of [-1, 1]) {
+          for (const x2 of columns) {
+            addPoint(graph, x2, endpoint.y + sign * (x2 - endpoint.x));
+          }
+          for (const y2 of rows) {
+            addPoint(graph, endpoint.x + sign * (y2 - endpoint.y), y2);
           }
         }
-        cell.getCost = routeCost;
       }
+    }
+    let families = 2;
+    if (angle === 45) {
+      families = 4;
+    }
+    for (let family = 0; family < families; family = family + 1) {
+      groupPoints(graph, family);
+    }
+    graph.secondaryScale = (graph.points.length * DIRECTIONS.length + 2) * (graph.maximumCost + 1);
+    graph.target = graph.positions.get(last.x + ":" + last.y);
+    const start2 = graph.positions.get(first.x + ":" + first.y);
+    if (start2 && graph.target) {
+      graph.goal = routeState(graph, graph.target, -2);
+      graph.start = routeState(graph, start2, -1);
     }
     return graph;
   }
-  function markPath(points, occupied2) {
-    for (let index = 1; index < points.length; index = index + 1) {
-      const first = points[index - 1];
-      const last = points[index];
-      const horizontal = first.y === last.y;
-      for (const point of [first, last]) {
-        const key = point.x + ":" + point.y;
-        let usage = occupied2.get(key);
-        if (!usage) {
-          usage = { horizontal: 0, vertical: 0 };
-          occupied2.set(key, usage);
-        }
-        if (horizontal) {
-          usage.horizontal = usage.horizontal + 1;
-        } else {
-          usage.vertical = usage.vertical + 1;
-        }
+  function routeState(graph, point, direction) {
+    const key = point.id + ":" + direction;
+    if (!graph.states.has(key)) {
+      const state2 = { point, direction, graph, getCost: stateCost, isWall };
+      import_javascript_astar.default.astar.cleanNode(state2);
+      graph.states.set(key, state2);
+    }
+    return graph.states.get(key);
+  }
+  function isWall() {
+    return false;
+  }
+  function neighbors(state2) {
+    if (state2.direction === -2) {
+      return [];
+    }
+    if (state2.point === this.target) {
+      return [this.goal];
+    }
+    const result = [];
+    for (const link of state2.point.links) {
+      const direction = lineDirection(state2.point, link.point, this.angle);
+      result.push(routeState(this, link.point, direction));
+    }
+    return result;
+  }
+  function stateCost(previous) {
+    if (this.direction === -2) {
+      return 0;
+    }
+    let turns = 0;
+    if (previous.direction >= 0 && previous.direction !== this.direction) {
+      turns = 1;
+    }
+    for (const link of previous.point.links) {
+      if (link.point === this.point) {
+        return turns + link.cost / this.graph.secondaryScale;
       }
     }
+    throw new Error("\u8D70\u7EBF\u901A\u9053\u4E0D\u8FDE\u7EED");
   }
-  function simplifyPath(points) {
-    const simplified = [];
-    for (const point of points) {
-      if (simplified.length > 0) {
-        const previous = simplified[simplified.length - 1];
-        if (previous.x === point.x && previous.y === point.y) {
-          continue;
-        }
-      }
-      while (simplified.length >= 2) {
-        const previous = simplified[simplified.length - 1];
-        const before = simplified[simplified.length - 2];
-        const vertical = before.x === previous.x && previous.x === point.x;
-        const horizontal = before.y === previous.y && previous.y === point.y;
-        if (!vertical && !horizontal) {
-          break;
-        }
-        simplified.pop();
-      }
-      simplified.push({ x: point.x, y: point.y });
+  function zeroHeuristic() {
+    return 0;
+  }
+  function findRoute(first, last, obstacles, occupied2, boundary, angle) {
+    const simple = simpleRoute(first, last, obstacles, occupied2, boundary, angle);
+    if (simple.length > 0) {
+      return simple;
     }
-    return simplified;
+    const graph = createGraph(first, last, obstacles, occupied2, boundary, angle);
+    if (!graph.start || !graph.goal) {
+      return [];
+    }
+    const states = import_javascript_astar.default.astar.search(graph, graph.start, graph.goal, { heuristic: zeroHeuristic });
+    if (states.length === 0) {
+      return [];
+    }
+    const points = [first];
+    for (const state2 of states) {
+      points.push(state2.point);
+    }
+    return simplifyWirePath(points);
   }
+
+  // src/routing.mjs
+  var ROUTING = { margin: 6, sideMargin: 24, topBoundary: 62, bottomBoundary: 1110 };
   function compareLength(first, second) {
     return first.length - second.length;
   }
   function yieldRouting(resolve) {
     setTimeout(resolve, 0);
   }
-  async function routeWires(project) {
-    const walls = createWalls(project);
-    const occupied2 = /* @__PURE__ */ new Map();
+  function routingObstacles(project) {
+    const obstacles = [];
+    for (const chip of project.chips) {
+      const bounds = chipBounds(chip);
+      obstacles.push({ x: bounds.x - ROUTING.margin, y: bounds.y - ROUTING.margin, width: bounds.width + ROUTING.margin * 2, height: bounds.height + ROUTING.margin * 2 });
+    }
+    return obstacles;
+  }
+  async function routeWires(project, angle) {
+    const obstacles = routingObstacles(project);
+    const occupied2 = [];
     const ordered = [];
     for (const wire of project.wires) {
       const first = endpointPosition(wire.from);
       const last = endpointPosition(wire.to);
-      ordered.push({ wire, first, last, length: Math.abs(first.x - last.x) + Math.abs(first.y - last.y) });
+      const length = Math.hypot(first.x - last.x, first.y - last.y);
+      ordered.push({ wire, first, last, length });
     }
     ordered.sort(compareLength);
     const routes = {};
     for (const entry of ordered) {
-      const first = gridPoint(entry.first);
-      const last = gridPoint(entry.last);
-      const graph = createGraph(walls, occupied2, first, last);
-      const path = import_javascript_astar.default.astar.search(graph, graph.grid[first.x][first.y], graph.grid[last.x][last.y]);
-      if (path.length === 0 && (first.x !== last.x || first.y !== last.y)) {
+      const boundary = { x: ROUTING.sideMargin, y: Math.min(ROUTING.topBoundary, entry.first.y, entry.last.y), right: BOARD.width - ROUTING.sideMargin, bottom: Math.max(ROUTING.bottomBoundary, entry.first.y, entry.last.y) };
+      const path = findRoute(entry.first, entry.last, obstacles, occupied2, boundary, angle);
+      if (path.length === 0) {
         throw new Error("\u627E\u4E0D\u5230\u5BFC\u7EBF\u8DEF\u5F84\uFF1A" + entry.wire.id);
       }
-      const cells = [first];
-      const points = [entry.first, { x: first.x * ROUTING.step, y: entry.first.y }];
-      points.push({ x: first.x * ROUTING.step, y: first.y * ROUTING.step });
-      for (const cell of path) {
-        cells.push({ x: cell.x, y: cell.y });
-        points.push({ x: cell.x * ROUTING.step, y: cell.y * ROUTING.step });
-      }
-      points.push({ x: last.x * ROUTING.step, y: entry.last.y }, entry.last);
-      const simplified = simplifyPath(points);
+      const simplified = simplifyWirePath(path);
       const bends = simplified.slice(1, -1);
       if (bends.length === 0) {
         bends.push({ x: (entry.first.x + entry.last.x) / 2, y: (entry.first.y + entry.last.y) / 2 });
@@ -5030,7 +5256,9 @@
         throw new Error("\u5BFC\u7EBF\u8DEF\u5F84\u62D0\u89D2\u8FC7\u591A\uFF1A" + entry.wire.id);
       }
       routes[entry.wire.id] = bends;
-      markPath(cells, occupied2);
+      for (const segment of routeSegments(simplified)) {
+        occupied2.push(segment);
+      }
       await new Promise(yieldRouting);
     }
     return routes;
@@ -5080,9 +5308,9 @@
     drawingFont = style.getPropertyValue("--font-body").trim();
     return colors;
   }
-  function rectangle(context, left, top, width2, height2, radius, color) {
+  function rectangle(context, left, top, width, height, radius, color) {
     context.beginPath();
-    context.roundRect(left, top, width2, height2, radius);
+    context.roundRect(left, top, width, height, radius);
     context.fillStyle = color;
     context.fill();
   }
@@ -5093,14 +5321,14 @@
     context.textBaseline = "middle";
     context.fillText(content, horizontal, vertical);
   }
-  function polyline(context, points, color, width2) {
+  function polyline(context, points, color, width) {
     context.beginPath();
     context.moveTo(points[0].x, points[0].y);
     for (let index = 1; index < points.length; index = index + 1) {
       context.lineTo(points[index].x, points[index].y);
     }
     context.strokeStyle = color;
-    context.lineWidth = width2;
+    context.lineWidth = width;
     context.lineJoin = "round";
     context.lineCap = "round";
     context.stroke();
@@ -5350,13 +5578,13 @@
     for (let index = 0; index < state2.project.wires.length; index = index + 1) {
       const wire = state2.project.wires[index];
       const points = wirePoints(wire, index);
-      let width2 = DRAW.wireWidth;
+      let width = DRAW.wireWidth;
       const selected = objectSelected(state2, "wire", wire.id);
       if (selected) {
-        width2 = DRAW.selectedWireWidth;
+        width = DRAW.selectedWireWidth;
       }
-      polyline(context, points, colors.surface, width2 + DRAW.wireOutlineWidth);
-      polyline(context, points, wire.color, width2);
+      polyline(context, points, colors.surface, width + DRAW.wireOutlineWidth);
+      polyline(context, points, wire.color, width);
       const first = points[0];
       const last = points[points.length - 1];
       circle(context, first.x, first.y, DRAW.wireEndpointRadius, wire.color);
@@ -5371,12 +5599,15 @@
       }
     }
     if (state2.pending) {
-      const points = [endpointPosition(state2.pending.from)];
+      let points = [endpointPosition(state2.pending.from)];
       for (const bend of state2.pending.bends) {
         points.push(bend);
       }
       if (state2.pointer) {
         points.push(state2.pointer);
+      }
+      if (state2.wireAngle === 45) {
+        points = angleWirePath(points);
       }
       context.setLineDash([6, 4]);
       polyline(context, points, state2.wireColor, 2.5);
@@ -9228,11 +9459,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.4.2";
+  var APP_VERSION = "1.6.0";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs
   var SETTINGS = {
+    // 新打开页面时采用的走线角度，0 表示自由走线，45 表示斜角走线
+    wireAngle: 45,
     // 撤销最多保留的编辑次数
     historyLimit: 80,
     // 缩放上下限、按钮步长和滚轮灵敏度
@@ -9258,6 +9491,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     result: null,
     tool: "wire",
     wireColor: WIRE_COLORS[1],
+    wireAngle: SETTINGS.wireAngle,
     selected: null,
     selection: [],
     pinnedChip: "",
@@ -9473,19 +9707,24 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       toast("\u5F53\u524D\u5B9E\u9A8C\u8FD8\u6CA1\u6709\u5BFC\u7EBF", "info");
       return;
     }
-    confirmAction("\u6574\u7406\u8D70\u7EBF\uFF1F", "\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u7535\u8DEF\u7684\u5BFC\u7EBF\u8DEF\u5F84\uFF0C\u7ED5\u5F00\u82AF\u7247\u5E76\u51CF\u5C11\u91CD\u53E0\uFF1B\u63A5\u7EBF\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\u4FDD\u6301\u4E0D\u53D8\u3002\u624B\u52A8\u8F6C\u6298\u70B9\u5C06\u88AB\u66FF\u6362\uFF0C\u4F60\u53EF\u4EE5\u64A4\u9500\u8FD9\u6B21\u6574\u7406", applyWireRouting, "\u786E\u8BA4\u6574\u7406", false);
+    confirmAction("\u6574\u7406\u8D70\u7EBF\uFF1F", "\u7A0B\u5E8F\u4F1A\u5148\u51CF\u5C11\u62D0\u89D2\uFF0C\u518D\u5728\u76F8\u540C\u62D0\u89D2\u6570\u4E0B\u51CF\u5C11\u91CD\u53E0\u3001\u6574\u7406\u95F4\u8DDD\uFF0C\u5E76\u7ED5\u5F00\u82AF\u7247\uFF1B\u8D77\u70B9\u3001\u7EC8\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\u4FDD\u6301\u4E0D\u53D8\u3002\u624B\u52A8\u8F6C\u6298\u70B9\u5C06\u88AB\u66FF\u6362\uFF0C\u4F60\u53EF\u4EE5\u64A4\u9500\u8FD9\u6B21\u6574\u7406", applyWireRouting, "\u786E\u8BA4\u6574\u7406", false);
   }
   async function applyWireRouting() {
     const experiment = activeExperiment;
     const signature = JSON.stringify(state.project);
     const candidate = copyProject(state.project);
+    const angle = state.wireAngle;
     routingBusy = true;
     render();
     try {
-      if (!restorePresetRoutes(candidate)) {
-        const routes = await routeWires(candidate);
-        for (const wire of candidate.wires) {
-          wire.bends = routes[wire.id];
+      const routes = await routeWires(candidate, angle);
+      for (const wire of candidate.wires) {
+        wire.bends = routes[wire.id];
+      }
+      for (const wire of candidate.wires) {
+        delete wire.angle;
+        if (angle === 45) {
+          wire.angle = 45;
         }
       }
       if (activeExperiment !== experiment || JSON.stringify(state.project) !== signature || readOnly) {
@@ -9661,10 +9900,21 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       return false;
     }
     remember();
-    state.project.wires.push({ id: nextId(state.project.wires, "W"), from: first, to: second, color: state.wireColor, bends });
+    const wire = { id: nextId(state.project.wires, "W"), from: first, to: second, color: state.wireColor, bends };
+    if (state.wireAngle === 45) {
+      wire.angle = 45;
+    }
+    state.project.wires.push(wire);
     state.pending = null;
     commit();
     return true;
+  }
+  function changeWireAngle(event) {
+    state.wireAngle = 0;
+    if (event.currentTarget.value === "45") {
+      state.wireAngle = 45;
+    }
+    renderBoard(canvas, state, endpoints);
   }
   function renderLibrary() {
     const container = element("chip-library");
@@ -9908,6 +10158,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const point = canvasPoint(event);
     const handle = wireHandleAt(point, state.project, state.selected);
     if (handle) {
+      if (handle.handle > 0 && handle.handle < handle.points.length - 1 && handle.points.length - 2 > LIMITS.bends) {
+        toast("\u8FD9\u6839\u7EBF\u7684\u8F6C\u6298\u70B9\u8F83\u591A\uFF0C\u8BF7\u5148\u6574\u7406\u8D70\u7EBF\u518D\u8C03\u6574\u8282\u70B9", "info");
+        return;
+      }
       drag = { wire: handle.wire, handle: handle.handle, points: handle.points, origin: point, moved: false, original: copyProject(state.project) };
       canvas.setPointerCapture(event.pointerId);
     }
@@ -9932,6 +10186,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         bends.push(location);
       }
       wire.bends = bends;
+      if (state.wireAngle === 45) {
+        wire.angle = 45;
+      }
     }
     renderBoard(canvas, state, endpoints);
   }
@@ -9974,6 +10231,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         wire.from = name;
       } else {
         wire.to = name;
+      }
+      if (state.wireAngle === 45) {
+        wire.angle = 45;
       }
     }
     state.undo.push(current.original);
@@ -10409,8 +10669,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     changeZoom(state.targetZoom * scale, anchor);
   }
   function fitBoard() {
-    const width2 = element("board-viewport").clientWidth - SETTINGS.fitPadding;
-    changeZoom(width2 / BOARD.width, null);
+    const width = element("board-viewport").clientWidth - SETTINGS.fitPadding;
+    changeZoom(width / BOARD.width, null);
   }
   function zoomIn() {
     changeZoom(state.targetZoom + SETTINGS.zoomStep, null);
@@ -11121,6 +11381,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       button.setAttribute("aria-pressed", String(active));
     }
     element("custom-color").value = state.wireColor;
+    element("wire-angle").value = "free";
+    if (state.wireAngle === 45) {
+      element("wire-angle").value = "45";
+    }
+    refreshSelect(element("wire-angle"));
     element("wire-count").textContent = String(state.project.wires.length);
     element("issue-count").textContent = String(circuitDiagnostics.issues.length);
     element("circuit-count").textContent = state.project.chips.length + " \u7247\u82AF\u7247 \xB7 " + state.project.wires.length + " \u6839\u5BFC\u7EBF";
@@ -11225,6 +11490,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("tool-delete").addEventListener("click", chooseTool);
     element("chip-search").addEventListener("input", renderLibrary);
     element("custom-color").addEventListener("input", chooseCustomColor);
+    element("wire-angle").addEventListener("change", changeWireAngle);
     element("cancel-wire").addEventListener("click", cancelWire);
     element("undo").addEventListener("click", undoEdit);
     element("redo").addEventListener("click", redoEdit);

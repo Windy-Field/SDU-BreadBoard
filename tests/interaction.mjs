@@ -7,6 +7,8 @@ import { complementPreset } from "../src/presets.mjs";
 import { emptyProject, endpointPosition, BOARD } from "../src/board.mjs";
 import { CHIP_MODELS } from "../src/chips.mjs";
 import originalPreset from "./fixtures/complement-original.json" with { type: "json" };
+import { wirePoints } from "../src/geometry.mjs";
+import { routeWires } from "../src/routing.mjs";
 
 const ROOT = process.cwd();
 const URL = pathToFileURL(path.join(ROOT, "index.html")).href;
@@ -49,6 +51,95 @@ async function exportedProject(page) {
 // 记录脚本错误，最后一并检查
 function collectError(errors, error) {
     errors.push(error.message);
+}
+
+// 核对显示出来的每段导线方向，返回斜线数量供界面测试使用
+function checkWireAngles(project) {
+    let diagonal = 0;
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+        const points = wirePoints(project.wires[index], index);
+        for (let segment = 1; segment < points.length; segment = segment + 1) {
+            const horizontal = Math.abs(points[segment].x - points[segment - 1].x);
+            const vertical = Math.abs(points[segment].y - points[segment - 1].y);
+            assert.ok(horizontal === 0 || vertical === 0 || Math.abs(horizontal - vertical) < 0.000001);
+            if (horizontal > 0 && vertical > 0) {
+                diagonal = diagonal + 1;
+            }
+        }
+    }
+    return diagonal;
+}
+
+// 用真实点击完成斜线接线、拖拽、整理、撤销和导入，保持原有端点
+async function testAngleWiring(browser) {
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    try {
+        await page.goto(URL);
+        await page.locator("#new-experiment").click();
+        assert.equal(await page.locator("#wire-angle").inputValue(), "45");
+        assert.match(await page.locator("#wire-angle-trigger").textContent(), /45°/);
+        const angleBounds = await page.locator(".wire-angle-control").boundingBox();
+        const paletteBounds = await page.locator("#wire-palette").boundingBox();
+        assert.ok(angleBounds.x + angleBounds.width <= paletteBounds.x, "走线选择框应排在颜色选择区前面");
+        await page.locator("#tool-wire").click();
+        const first = endpointPosition("B0:A:1");
+        const last = endpointPosition("B0:J:15");
+        await clickPoint(page, first);
+        const preview = await screenPoint(page, last);
+        await page.mouse.move(preview.x, preview.y);
+        await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "wire-angle-preview.png"), fullPage: true });
+        await clickPoint(page, last);
+        const connected = await exportedProject(page);
+        assert.equal(connected.wires[0].angle, 45);
+        assert.ok(checkWireAngles(connected) > 0);
+        await page.locator("#tool-select").click();
+        await page.locator("#tab-wires").click();
+        await page.locator("#wires-panel button[data-wire='W1']").first().click();
+        const points = wirePoints(connected.wires[0], 0);
+        const start = await screenPoint(page, points[1]);
+        const target = await screenPoint(page, { x: points[1].x + 24, y: points[1].y - 12 });
+        await page.mouse.move(start.x, start.y);
+        await page.mouse.down();
+        await page.mouse.move(target.x, target.y, { steps: 5 });
+        await page.mouse.up();
+        const dragged = await exportedProject(page);
+        assert.notDeepEqual(dragged.wires[0].bends, connected.wires[0].bends);
+        assert.equal(dragged.wires[0].from, connected.wires[0].from);
+        assert.equal(dragged.wires[0].to, connected.wires[0].to);
+        checkWireAngles(dragged);
+        await page.locator("#undo").click();
+        assert.deepEqual((await exportedProject(page)).wires, connected.wires);
+        await page.locator("#redo").click();
+        assert.deepEqual((await exportedProject(page)).wires, dragged.wires);
+        await page.locator("#arrange-wires").click();
+        await page.locator("#confirm-accept").click();
+        await page.waitForFunction(routingFinished);
+        const arranged = await exportedProject(page);
+        assert.ok(checkWireAngles(arranged) > 0);
+        assert.equal(arranged.wires[0].from, connected.wires[0].from);
+        assert.equal(arranged.wires[0].to, connected.wires[0].to);
+        await page.locator("#wire-angle-trigger").click();
+        await page.locator("#wire-angle-option-0").click();
+        assert.deepEqual((await exportedProject(page)).wires, arranged.wires);
+        const payload = Buffer.from(JSON.stringify(arranged));
+        await page.locator("#import-file").setInputFiles({ name: "angled.json", mimeType: "application/json", buffer: payload });
+        assert.deepEqual((await exportedProject(page)).wires, arranged.wires);
+        await page.locator("#wire-angle-trigger").click();
+        await page.locator("#wire-angle-option-1").click();
+        for (const width of [1600, 375]) {
+            await page.setViewportSize({ width: width, height: 1000 });
+            const size = await page.evaluate(readDocumentWidth);
+            assert.ok(size.document <= size.viewport);
+            await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "wire-angle-" + width + ".png"), fullPage: true });
+        }
+    } finally {
+        await page.close();
+    }
+}
+
+// 返回页面实际宽度和窗口宽度，用于检查工具栏换行后是否横向溢出
+function readDocumentWidth() {
+    return { document: document.documentElement.scrollWidth, viewport: window.innerWidth };
 }
 
 // 在真实插孔上逐个放置所有型号，确认放置优先于接口选择且可撤销
@@ -95,8 +186,10 @@ async function selectTwoWires(page) {
     assert.equal(await page.locator("#inspect-panel .selection-item[data-kind='wire']").count(), 2);
 }
 
-// 导入旧示例后验证路径整理的确认、取消、撤销、只读保护和端点不变
-async function testRestorePresetRoutes(page) {
+// 导入旧示例后验证通用整理的确认、取消、撤销、只读保护和端点不变
+async function testPresetRouting(page) {
+    await page.locator("#wire-angle-trigger").click();
+    await page.locator("#wire-angle-option-1").click();
     const imported = structuredClone(originalPreset);
     imported.name = "旧版走线测试";
     const payload = Buffer.from(JSON.stringify(imported));
@@ -111,8 +204,14 @@ async function testRestorePresetRoutes(page) {
     assert.deepEqual((await exportedProject(page)).wires, before.wires);
     await page.locator("#arrange-wires").click();
     await page.locator("#confirm-accept").click();
+    await page.waitForFunction(routingFinished);
     const updated = await exportedProject(page);
-    assert.deepEqual(updated.wires, complementPreset().wires);
+    const expectedRoutes = await routeWires(before, 45);
+    for (const wire of updated.wires) {
+        assert.deepEqual(wire.bends, expectedRoutes[wire.id]);
+        assert.equal(wire.angle, 45);
+    }
+    await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "preset-fewer-corners.png"), fullPage: true });
     assert.equal(updated.notes, before.notes);
     assert.deepEqual(updated.chips, before.chips);
     await page.locator("#undo").click();
@@ -313,6 +412,7 @@ async function main() {
         await page.goto(URL);
         await page.waitForSelector(".chip-option");
         await page.waitForTimeout(250);
+        await testAngleWiring(browser);
         await testGeneralDiagnostics(page);
         assert.equal(await page.locator("h1").first().textContent(), "SDU 面包板");
         assert.equal(await page.locator("#autosave-toggle").isChecked(), false);
@@ -428,7 +528,7 @@ async function main() {
             assert.equal(await page.locator("#tool-select").getAttribute("aria-pressed"), "true");
         }
         await page.locator("#read-only-toggle").uncheck();
-        await testRestorePresetRoutes(page);
+        await testPresetRouting(page);
         await testConfirmationHover(page);
         await testGeneralWireRouting(page);
         await testPinnedInformation(browser);

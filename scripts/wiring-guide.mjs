@@ -50,6 +50,6 @@ export function writeWiringGuide() {
         }
         lines.push("| " + wire.id + " | " + positions.join(" → ") + " |");
     }
-    lines.push("", "## 文件与验证", "", "你可以导入 [complement-adder.json](../examples/complement-adder.json) 使用标准示例，或通过左侧“整理走线”调整当前电路的路径，确认后生效并支持撤销", "", "开发时运行 `npm run route:preset` 重新生成固定路径，再运行 `npm run build` 同步运行文件、JSON 和本文档。`npm test` 对比优化前的独立端点记录，并穷举 4096 种加减组合", "");
+    lines.push("", "## 文件与验证", "", "你可以导入 [complement-adder.json](../examples/complement-adder.json) 使用标准示例，或通过左侧“整理走线”调整当前电路的路径。整理时先减少拐角，再在相同拐角数下减少重叠、调整间距，起点和终点不变，确认后生效并支持撤销", "", "开发时运行 `npm run route:preset` 重新生成固定路径，再运行 `npm run build` 同步运行文件、JSON 和本文档。`npm test` 对比优化前的独立端点记录，并穷举 4096 种加减组合", "");
     fs.writeFileSync(GUIDE_OUTPUT, lines.join("\n"));
 }

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import original from "./fixtures/complement-original.json" with { type: "json" };
-import { complementPreset, restorePresetRoutes } from "../src/presets.mjs";
+import { complementPreset } from "../src/presets.mjs";
 import { wirePoints } from "../src/geometry.mjs";
 import { validateProject } from "../src/storage.mjs";
 import { wiringMetrics } from "./wiring-metrics.mjs";
@@ -49,32 +49,8 @@ function testRoutingReadability() {
     assert.equal(after.chipCrossings, 0);
 }
 
-// 整理仅替换路径，失败不做部分修改，也不覆盖已编辑的颜色、备注或输入
-function testRestoreRoutes() {
-    const project = validateProject(original);
-    project.notes = "我的实验备注";
-    project.switches[0] = 1;
-    project.wires[0].color = "#123456";
-    project.wires[0].bends = [{ x: 20, y: 20 }];
-    assert.equal(restorePresetRoutes(project), true);
-    assert.equal(project.notes, "我的实验备注");
-    assert.equal(project.switches[0], 1);
-    assert.equal(project.wires[0].color, "#123456");
-    assert.deepEqual(project.wires[0].bends, complementPreset().wires[0].bends);
-    project.wires[0].from = "R:VCC:0";
-    const before = structuredClone(project);
-    assert.equal(restorePresetRoutes(project), false);
-    assert.deepEqual(project, before);
-    const moved = complementPreset();
-    moved.chips[0].column = moved.chips[0].column + 1;
-    const movedBefore = structuredClone(moved);
-    assert.equal(restorePresetRoutes(moved), false);
-    assert.deepEqual(moved, movedBefore);
-}
-
 test("示例61根线只使用真实插孔且保持信号与芯片位置", testConnectionsUnchanged);
 test("固定路径减少覆盖并绕开芯片外框", testRoutingReadability);
-test("整理示例路径保留其他编辑并拒绝不同结构", testRestoreRoutes);
 
 // 普通实验也能整理走线，寻路结果不会改动原电路，重复执行结果一致
 async function testGeneralRouting() {

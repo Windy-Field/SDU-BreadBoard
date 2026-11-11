@@ -1,4 +1,5 @@
 import { chipBounds, wirePoints, objectSelected } from "./geometry.mjs";
+import { angleWirePath } from "./wire-path.mjs";
 import { BOARD, PORT_LAYOUT, RAIL_LAYOUT, IO_LIMIT, ROWS, BUS_ROWS, BUS_SEGMENTS, busHasHole, isInputColumn, endpointPosition, portHole, holeId, pinHole, rowY } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 import { readEndpoint, nodeFor } from "./engine.mjs";
@@ -373,12 +374,15 @@ function drawWires(context, state, colors) {
         }
     }
     if (state.pending) {
-        const points = [endpointPosition(state.pending.from)];
+        let points = [endpointPosition(state.pending.from)];
         for (const bend of state.pending.bends) {
             points.push(bend);
         }
         if (state.pointer) {
             points.push(state.pointer);
+        }
+        if (state.wireAngle === 45) {
+            points = angleWirePath(points);
         }
         context.setLineDash([6, 4]);
         polyline(context, points, state.wireColor, 2.5);

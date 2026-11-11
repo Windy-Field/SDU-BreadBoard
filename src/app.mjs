@@ -5,7 +5,7 @@ import { refreshSelect, cleanSelectPanels } from "./select-control.mjs";
 import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 import { createRuntime, readEndpoint, simulate } from "./engine.mjs";
-import { complementPreset, restorePresetRoutes } from "./presets.mjs";
+import { complementPreset } from "./presets.mjs";
 import { routeWires } from "./routing.mjs";
 import { DRAW, allEndpoints, renderBoard } from "./render.mjs";
 import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint } from "./geometry.mjs";
@@ -19,6 +19,8 @@ import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
 
 // 界面操作参数：时长单位为毫秒，距离单位为画布逻辑像素
 const SETTINGS = {
+    // 新打开页面时采用的走线角度，0 表示自由走线，45 表示斜角走线
+    wireAngle: 45,
     // 撤销最多保留的编辑次数
     historyLimit: 80,
     // 缩放上下限、按钮步长和滚轮灵敏度
@@ -47,6 +49,7 @@ const state = {
     result: null,
     tool: "wire",
     wireColor: WIRE_COLORS[1],
+    wireAngle: SETTINGS.wireAngle,
     selected: null,
     selection: [],
     pinnedChip: "",
@@ -294,7 +297,7 @@ function requestWireRouting() {
         toast("当前实验还没有导线", "info");
         return;
     }
-    confirmAction("整理走线？", "程序会调整当前电路的导线路径，绕开芯片并减少重叠；接线端点、线色和备注保持不变。手动转折点将被替换，你可以撤销这次整理", applyWireRouting, "确认整理", false);
+    confirmAction("整理走线？", "程序会先减少拐角，再在相同拐角数下减少重叠、整理间距，并绕开芯片；起点、终点、线色和备注保持不变。手动转折点将被替换，你可以撤销这次整理", applyWireRouting, "确认整理", false);
 }
 
 // 完成全部寻路后一次替换路径，计算期间切换或编辑实验时放弃本次结果
@@ -302,14 +305,19 @@ async function applyWireRouting() {
     const experiment = activeExperiment;
     const signature = JSON.stringify(state.project);
     const candidate = copyProject(state.project);
+    const angle = state.wireAngle;
     routingBusy = true;
     render();
     try {
-        // 标准示例复用已验证路径，其他电路使用同一套寻路算法
-        if (!restorePresetRoutes(candidate)) {
-            const routes = await routeWires(candidate);
-            for (const wire of candidate.wires) {
-                wire.bends = routes[wire.id];
+        // 所有实验使用同一套拐角优先规则，示例也不绕过整理
+        const routes = await routeWires(candidate, angle);
+        for (const wire of candidate.wires) {
+            wire.bends = routes[wire.id];
+        }
+        for (const wire of candidate.wires) {
+            delete wire.angle;
+            if (angle === 45) {
+                wire.angle = 45;
             }
         }
         if (activeExperiment !== experiment || JSON.stringify(state.project) !== signature || readOnly) {
@@ -507,10 +515,23 @@ function connectWire(first, second, bends) {
         return false;
     }
     remember();
-    state.project.wires.push({ id: nextId(state.project.wires, "W"), from: first, to: second, color: state.wireColor, bends: bends });
+    const wire = { id: nextId(state.project.wires, "W"), from: first, to: second, color: state.wireColor, bends: bends };
+    if (state.wireAngle === 45) {
+        wire.angle = 45;
+    }
+    state.project.wires.push(wire);
     state.pending = null;
     commit();
     return true;
+}
+
+// 切换后续接线与整理使用的角度，已有导线保持当前路径
+function changeWireAngle(event) {
+    state.wireAngle = 0;
+    if (event.currentTarget.value === "45") {
+        state.wireAngle = 45;
+    }
+    renderBoard(canvas, state, endpoints);
 }
 
 // 创建器件库按钮，根据搜索词筛选型号
@@ -772,6 +793,10 @@ function pointerDown(event) {
     const point = canvasPoint(event);
     const handle = wireHandleAt(point, state.project, state.selected);
     if (handle) {
+        if (handle.handle > 0 && handle.handle < handle.points.length - 1 && handle.points.length - 2 > LIMITS.bends) {
+            toast("这根线的转折点较多，请先整理走线再调整节点", "info");
+            return;
+        }
         drag = { wire: handle.wire, handle: handle.handle, points: handle.points, origin: point, moved: false, original: copyProject(state.project) };
         canvas.setPointerCapture(event.pointerId);
     }
@@ -798,6 +823,9 @@ function dragPointer(event) {
             bends.push(location);
         }
         wire.bends = bends;
+        if (state.wireAngle === 45) {
+            wire.angle = 45;
+        }
     }
     renderBoard(canvas, state, endpoints);
 }
@@ -842,6 +870,9 @@ function pointerUp(event) {
             wire.from = name;
         } else {
             wire.to = name;
+        }
+        if (state.wireAngle === 45) {
+            wire.angle = 45;
         }
     }
     state.undo.push(current.original);
@@ -2151,6 +2182,11 @@ function render() {
         button.setAttribute("aria-pressed", String(active));
     }
     element("custom-color").value = state.wireColor;
+    element("wire-angle").value = "free";
+    if (state.wireAngle === 45) {
+        element("wire-angle").value = "45";
+    }
+    refreshSelect(element("wire-angle"));
     element("wire-count").textContent = String(state.project.wires.length);
     element("issue-count").textContent = String(circuitDiagnostics.issues.length);
     element("circuit-count").textContent = state.project.chips.length + " 片芯片 · " + state.project.wires.length + " 根导线";
@@ -2265,6 +2301,7 @@ function bindEvents() {
     element("tool-delete").addEventListener("click", chooseTool);
     element("chip-search").addEventListener("input", renderLibrary);
     element("custom-color").addEventListener("input", chooseCustomColor);
+    element("wire-angle").addEventListener("change", changeWireAngle);
     element("cancel-wire").addEventListener("click", cancelWire);
     element("undo").addEventListener("click", undoEdit);
     element("redo").addEventListener("click", redoEdit);

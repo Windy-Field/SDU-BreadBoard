@@ -1,4 +1,5 @@
 import { chipBounds, wirePoints } from "../src/geometry.mjs";
+import { segmentCrossesBounds } from "../src/wire-path.mjs";
 
 // 将电路折线拆成线段，记录所属导线，便于比较路径是否挤在一起
 function wireSegments(project) {
@@ -25,7 +26,7 @@ function intervalOverlap(firstStart, firstEnd, secondStart, secondEnd) {
     return Math.max(0, end - start);
 }
 
-// 计算两条水平或竖直线段重合的长度，不同方向返回零
+// 计算两条同方向线段重合的长度，支持水平、竖直和斜线
 function sharedLength(first, second) {
     const horizontal = first.first.y === first.last.y && second.first.y === second.last.y;
     if (horizontal && first.first.y === second.first.y) {
@@ -35,20 +36,22 @@ function sharedLength(first, second) {
     if (vertical && first.first.x === second.first.x) {
         return intervalOverlap(first.first.y, first.last.y, second.first.y, second.last.y);
     }
+    const horizontalChange = first.last.x - first.first.x;
+    const verticalChange = first.last.y - first.first.y;
+    const secondHorizontal = second.last.x - second.first.x;
+    const secondVertical = second.last.y - second.first.y;
+    const parallel = horizontalChange * secondVertical === verticalChange * secondHorizontal;
+    const sameLine = horizontalChange * (second.first.y - first.first.y) === verticalChange * (second.first.x - first.first.x);
+    if (horizontalChange !== 0 && verticalChange !== 0 && parallel && sameLine) {
+        const overlap = intervalOverlap(first.first.x, first.last.x, second.first.x, second.last.x);
+        return overlap * Math.hypot(horizontalChange, verticalChange) / Math.abs(horizontalChange);
+    }
     return 0;
 }
 
-// 判断一条正交线段是否穿过芯片文字所在的外框内部，贴边不算穿过
+// 检查任意方向的线段是否穿过芯片外框，贴边不算穿过
 function crossesChip(segment, chip) {
-    const bounds = chipBounds(chip);
-    if (segment.first.y === segment.last.y) {
-        const inside = segment.first.y > bounds.y && segment.first.y < bounds.y + bounds.height;
-        const length = intervalOverlap(segment.first.x, segment.last.x, bounds.x, bounds.x + bounds.width);
-        return inside && length > 0;
-    }
-    const inside = segment.first.x > bounds.x && segment.first.x < bounds.x + bounds.width;
-    const length = intervalOverlap(segment.first.y, segment.last.y, bounds.y, bounds.y + bounds.height);
-    return inside && length > 0;
+    return segmentCrossesBounds(segment.first, segment.last, chipBounds(chip));
 }
 
 // 返回共线重叠总长度和穿过芯片的线段数，只衡量显示路径，不判断电气连接

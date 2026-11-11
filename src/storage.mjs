@@ -204,7 +204,14 @@ export function validateProject(value) {
         if (from !== entry.from || to !== entry.to) {
             bends.length = 0;
         }
-        project.wires.push({ id: entry.id, from: from, to: to, color: entry.color, bends: bends });
+        const wire = { id: entry.id, from: from, to: to, color: entry.color, bends: bends };
+        if (entry.angle !== undefined && entry.angle !== 45) {
+            throw new Error("导线角度设置不正确");
+        }
+        if (entry.angle === 45) {
+            wire.angle = 45;
+        }
+        project.wires.push(wire);
         occupied.add(entry.from);
         occupied.add(entry.to);
         identifiers.add(entry.id);

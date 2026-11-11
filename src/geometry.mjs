@@ -1,5 +1,6 @@
 import { BOARD, PORT_LAYOUT, IO_LIMIT, endpointPosition, rowY } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
+import { angleWirePath } from "./wire-path.mjs";
 
 // 鼠标命中和拖动吸附范围，单位为画布逻辑像素
 const PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
@@ -24,7 +25,7 @@ export function wirePoints(wire, index) {
         for (const bend of wire.bends) {
             points.push(bend);
         }
-    } else {
+    } else if (wire.angle !== 45) {
         const laneOffset = WIRE_LAYOUT.laneStart + (index % WIRE_LAYOUT.laneCount) * WIRE_LAYOUT.laneStep;
         let lane = (first.y + last.y) / 2 + laneOffset;
         if (Math.abs(first.y - last.y) < WIRE_LAYOUT.sameRowDistance) {
@@ -34,6 +35,9 @@ export function wirePoints(wire, index) {
         points.push({ x: last.x, y: lane });
     }
     points.push(last);
+    if (wire.angle === 45) {
+        return angleWirePath(points);
+    }
     return points;
 }
 
