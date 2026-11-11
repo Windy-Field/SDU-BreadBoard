@@ -1,28 +1,43 @@
 import { element, node, icon, refreshIcons } from "./dom.mjs";
 import { appendChipReference } from "./chip-reference-view.mjs";
 import { showToast } from "./toast.mjs";
-import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, validEndpoint } from "./board.mjs";
+import { refreshSelect, cleanSelectPanels } from "./select-control.mjs";
+import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 import { createRuntime, readEndpoint, simulate } from "./engine.mjs";
 import { complementPreset, restorePresetRoutes } from "./presets.mjs";
 import { routeWires } from "./routing.mjs";
-import { allEndpoints, renderBoard } from "./render.mjs";
+import { DRAW, allEndpoints, renderBoard } from "./render.mjs";
 import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint } from "./geometry.mjs";
 import { LIMITS, STORAGE_KEY, validateProject } from "./storage.mjs";
 import { MOTION, tween, fadeContent } from "./motion.mjs";
 import { markdownFragment } from "./notes.mjs";
-import { auditComplement } from "./audit.mjs";
+import { inspectCircuit } from "./diagnostics.mjs";
 import { CHIP_REFERENCES } from "./catalog.mjs";
 import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace } from "./workspace.mjs";
 import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
 
+// 界面操作参数：时长单位为毫秒，距离单位为画布逻辑像素
 const SETTINGS = {
+    // 撤销最多保留的编辑次数
     historyLimit: 80,
+    // 缩放上下限、按钮步长和滚轮灵敏度
     zoomMinimum: 0.15,
     zoomMaximum: 2,
     zoomStep: 0.15,
-    wheelSpeed: 0.0015
+    wheelSpeed: 0.0015,
+    // 连续点击容差与开始拖动的最小距离
+    clickTolerance: 7,
+    dragThreshold: 4,
+    // 适应宽度时画布两侧预留的总空间
+    fitPadding: 36,
+    // 滚轮按行报告位移时，每行对应的像素数
+    wheelLinePixels: 16,
+    // 下载地址释放时间和页脚时钟刷新时间
+    downloadReleaseDelay: 1000,
+    clockInterval: 1000
 };
+// 键盘触发时的按钮高亮时长，真实脉冲不等待动画
 const PULSE_SETTINGS = { feedbackDuration: 160 };
 
 // 电路结构、真实仿真状态和界面预览分别保存，动画不会改变逻辑电平
@@ -35,6 +50,7 @@ const state = {
     selected: null,
     selection: [],
     pinnedChip: "",
+    fixedChip: "",
     placing: "",
     pending: null,
     pointer: null,
@@ -62,7 +78,7 @@ let boardTransitionLast = null;
 let readOnly = false;
 let workspace = { version: 1, activeId: "", projects: {} };
 let activeExperiment = "";
-let wiringAudit = [];
+let circuitDiagnostics = { issues: [], chips: [], power: false, stable: false };
 let dirty = false;
 const dirtyExperiments = new Set();
 let savedExperiments = { version: 1, activeId: "", projects: {} };
@@ -232,6 +248,7 @@ function renderExperiments() {
         picker.append(option);
     }
     picker.value = activeExperiment;
+    refreshSelect(picker);
 }
 
 // 保存并切换到另一份本地实验，寄存器按重新上电处理
@@ -246,20 +263,21 @@ function switchExperiment(event) {
     resetRuntime();
     state.undo = [];
     state.redo = [];
-    wiringAudit = [];
     calculate(false);
     render();
     renderLibrary();
 }
 
-// 核对当前补码电路，保留你的原接线，在诊断中列出差异
-function auditCurrentWiring() {
-    wiringAudit = auditComplement(state.project);
+// 打开当前实验的通用诊断，只读取现有结果，不额外触发时钟
+function diagnoseCurrentCircuit() {
+    circuitDiagnostics = inspectCircuit(state.project, state.result);
     state.activeTab = "diagnostics";
-    if (wiringAudit.length === 0) {
-        toast("当前芯片和电气连接与补码实验标准接法一致", "info");
+    if (circuitDiagnostics.issues.length > 0) {
+        toast("发现 " + circuitDiagnostics.issues.length + " 项诊断，请查看右侧详情", "warning");
+    } else if (!state.project.power) {
+        toast("电源已关闭，可查看芯片供电与接线状态", "info");
     } else {
-        toast("发现接线差异：" + wiringAudit[0] + " 你可以在诊断面板查看详情", "warning");
+        toast("当前未发现供电、冲突、短路或逻辑状态异常", "info");
     }
     render();
 }
@@ -355,9 +373,10 @@ function saveLocal() {
 // 更新仿真并显示新出现的错误，参数决定是否发送 Toast
 function calculate(notify) {
     state.result = simulate(state.project, state.runtime);
+    circuitDiagnostics = inspectCircuit(state.project, state.result);
     const current = new Set();
     const newIssues = [];
-    for (const issue of state.result.issues) {
+    for (const issue of circuitDiagnostics.issues) {
         const identity = issue.code + ":" + issue.message;
         current.add(identity);
         if (!state.previousIssues.has(identity)) {
@@ -433,7 +452,6 @@ function animateBoard() {
 
 // 完成一次编辑后保存、计算并刷新界面
 function commit() {
-    wiringAudit = [];
     calculate(true);
     stageChanges();
     render();
@@ -472,8 +490,8 @@ function connectWire(first, second, bends) {
     if (editingLocked()) {
         return false;
     }
-    if (!validEndpoint(first) || !validEndpoint(second)) {
-        toast("端点名称不正确，请选择插孔或检查端点名称", "error");
+    if (!isPhysicalHole(first) || !isPhysicalHole(second)) {
+        toast("导线只能插在面包板或电源轨的孔中，K、L、P 是板载信号名称", "error");
         return false;
     }
     if (first === second) {
@@ -673,7 +691,7 @@ function cycleTarget(point) {
     for (const target of candidates) {
         signature = signature + target.kind + ":" + target.id + ";";
     }
-    if (Math.hypot(point.x - cycle.x, point.y - cycle.y) < 7 && signature === cycle.signature && candidates.length > 1) {
+    if (Math.hypot(point.x - cycle.x, point.y - cycle.y) < SETTINGS.clickTolerance && signature === cycle.signature && candidates.length > 1) {
         cycle.index = (cycle.index + 1) % candidates.length;
     } else {
         cycle.index = 0;
@@ -765,7 +783,7 @@ function dragPointer(event) {
         return;
     }
     const point = canvasPoint(event);
-    if (!drag.moved && Math.hypot(point.x - drag.origin.x, point.y - drag.origin.y) <= 4) {
+    if (!drag.moved && Math.hypot(point.x - drag.origin.x, point.y - drag.origin.y) <= SETTINGS.dragThreshold) {
         return;
     }
     drag.moved = true;
@@ -1015,6 +1033,9 @@ function removeTargets(targets) {
         } else {
             delete state.runtime.registers[chip.id];
             delete state.runtime.devices[chip.id];
+            if (state.fixedChip === chip.id) {
+                state.fixedChip = "";
+            }
         }
     }
     state.project.wires = wires;
@@ -1167,6 +1188,7 @@ function resetRuntime() {
     state.selection = [];
     state.pinnedChip = "";
     lastPinnedChip = "";
+    state.fixedChip = "";
     state.previousIssues = new Set();
 }
 
@@ -1189,7 +1211,6 @@ function newProject() {
     resetRuntime();
     state.undo = [];
     state.redo = [];
-    wiringAudit = [];
     commit();
     renderLibrary();
 }
@@ -1198,7 +1219,7 @@ function newProject() {
 function loadPreset() {
     keepExperiment(workspace, activeExperiment, state.project);
     for (const id of Object.keys(workspace.projects)) {
-        if (workspace.projects[id].name === "双符号位补码运算器" && auditComplement(workspace.projects[id]).length === 0) {
+        if (workspace.projects[id].name === "双符号位补码运算器" && restorePresetRoutes(copyProject(workspace.projects[id]))) {
             activeExperiment = id;
             state.project = copyProject(workspace.projects[id]);
             resetRuntime();
@@ -1212,7 +1233,6 @@ function loadPreset() {
     resetRuntime();
     state.undo = [];
     state.redo = [];
-    wiringAudit = [];
     commit();
     renderLibrary();
 }
@@ -1235,7 +1255,7 @@ function download(blob, name) {
     anchor.href = url;
     anchor.download = name;
     anchor.click();
-    window.setTimeout(revokeDownload.bind(null, url), 1000);
+    window.setTimeout(revokeDownload.bind(null, url), SETTINGS.downloadReleaseDelay);
 }
 
 // 释放下载用的临时网址
@@ -1293,7 +1313,6 @@ async function importProject(event) {
         resetRuntime();
         state.undo = [];
         state.redo = [];
-        wiringAudit = [];
         commit();
         renderLibrary();
     } catch (error) {
@@ -1352,7 +1371,7 @@ function wheelBoard(event) {
     const anchor = { x: (event.clientX - bounds.left) / state.zoom, y: (event.clientY - bounds.top) / state.zoom, clientX: event.clientX, clientY: event.clientY };
     let delta = event.deltaY;
     if (event.deltaMode === 1) {
-        delta = delta * 16;
+        delta = delta * SETTINGS.wheelLinePixels;
     } else if (event.deltaMode === 2) {
         delta = delta * element("board-viewport").clientHeight;
     }
@@ -1362,7 +1381,7 @@ function wheelBoard(event) {
 
 // 将面包板调整到工作区可用宽度
 function fitBoard() {
-    const width = element("board-viewport").clientWidth - 36;
+    const width = element("board-viewport").clientWidth - SETTINGS.fitPadding;
     changeZoom(width / BOARD.width, null);
 }
 
@@ -1438,11 +1457,11 @@ function renderChipPanel(container, chip) {
     remove.append(icon("trash-2"));
     remove.addEventListener("click", deletePinnedChip);
     heading.append(remove);
-    const unpin = node("button", "", "icon-button");
-    unpin.setAttribute("aria-label", "取消固定引脚信息");
-    unpin.append(icon("pin-off"));
-    unpin.addEventListener("click", unpinChip);
-    heading.append(unpin);
+    const pin = node("button", "", "icon-button");
+    pin.id = "pin-chip-info";
+    pin.addEventListener("click", togglePinnedChip);
+    heading.append(pin);
+    updatePinButton(pin, chip.id);
     container.append(heading, node("p", CHIP_MODELS[chip.model].title + " · 缺口朝左", "inspection-meta"));
     appendChipReference(container, chip);
     const controls = node("div", "", "move-fields");
@@ -1461,7 +1480,7 @@ function renderChipPanel(container, chip) {
     column.id = "move-column";
     column.type = "number";
     column.min = "1";
-    column.max = "59";
+    column.max = String(BOARD.columns);
     column.value = String(chip.column);
     columnLabel.append(column);
     const move = node("button", "移动芯片", "button");
@@ -1472,6 +1491,8 @@ function renderChipPanel(container, chip) {
     section.disabled = readOnly;
     column.disabled = readOnly;
     container.append(controls);
+    section.setAttribute("aria-label", "芯片所在板块");
+    refreshSelect(section);
     appendChipPinTable(container, chip);
 }
 
@@ -1533,7 +1554,11 @@ function renderInspection() {
     if (state.selected && state.selected.kind === "chip") {
         const chip = findChip(state.selected.id);
         if (chip) {
-            container.append(node("h2", chip.id + " · " + chip.model, ""), node("p", "引脚信息已固定在上方", "inspection-meta"));
+            let message = "引脚信息显示在上方";
+            if (state.fixedChip !== "" && state.fixedChip !== chip.id) {
+                message = "上方正在固定显示 " + state.fixedChip + " 的引脚信息";
+            }
+            container.append(node("h2", chip.id + " · " + chip.model, ""), node("p", message, "inspection-meta"));
             return;
         }
     }
@@ -1550,7 +1575,16 @@ function renderInspection() {
     }
     if (state.selected && state.selected.kind === "node") {
         const name = state.selected.id;
-        container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"), node("div", String(readEndpoint(state.result, name)), "node-value"));
+        const value = readEndpoint(state.result, name);
+        let level = "Z · 悬空";
+        if (value === 1) {
+            level = "1 · 高电平";
+        } else if (value === 0) {
+            level = "0 · 低电平";
+        } else if (value === "X") {
+            level = "X · 未知或冲突";
+        }
+        container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"), node("div", level, "node-value"));
         const pullUp = node("button", "为此节点添加上拉", "button");
         if (state.project.pullUps.includes(name)) {
             pullUp.textContent = "移除此节点上拉";
@@ -1624,8 +1658,12 @@ function renderCatalogInfo(container, modelName) {
             kind = "+5V 电源";
         } else if (pin === model.ground) {
             kind = "地";
+        } else if (model.bidirectional && model.bidirectional.includes(pin)) {
+            kind = "输入/输出";
         } else if (model.outputs.includes(pin)) {
             kind = "输出";
+        } else if (!model.inputs.includes(pin)) {
+            kind = "空脚 NC";
         }
         const row = document.createElement("tr");
         row.append(node("td", String(pin), ""), node("td", model.labels[pin], ""), node("td", kind, ""));
@@ -1799,9 +1837,11 @@ function renderWireList() {
 function renderDiagnostics() {
     const container = element("diagnostics-panel");
     container.replaceChildren();
-    if (state.result.issues.length === 0 && wiringAudit.length === 0) {
+    container.append(node("h2", "当前电路诊断", ""));
+    container.append(node("p", "供电、输入、驱动冲突、短路与离散时序状态；不评估纳秒级建立保持时间", "inspection-meta"));
+    if (circuitDiagnostics.issues.length === 0) {
         const item = node("div", "", "diagnostic success");
-        let message = "未发现供电、悬空输入或输出冲突";
+        let message = "当前未发现供电、冲突、短路或逻辑状态异常";
         if (!state.project.power) {
             message = "电源已关闭";
         } else if (state.project.chips.length === 0) {
@@ -1810,14 +1850,18 @@ function renderDiagnostics() {
         item.append(icon("circle-check"), node("span", message, ""));
         container.append(item);
     }
-    for (const issue of state.result.issues) {
+    for (const issue of circuitDiagnostics.issues) {
         const item = node("div", "", "diagnostic " + issue.severity);
+        item.dataset.code = issue.code;
         item.append(icon("triangle-alert"), node("span", issue.message, ""));
         container.append(item);
     }
-    for (const message of wiringAudit.slice(0, 80)) {
-        const item = node("div", "", "diagnostic warning");
-        item.append(icon("route"), node("span", message, ""));
+    for (const chip of circuitDiagnostics.chips) {
+        const item = node("section", "", "diagnostic-chip");
+        item.dataset.chip = chip.id;
+        const heading = node("div", "", "diagnostic-chip-heading");
+        heading.append(node("h3", chip.id + " · " + chip.model, ""), node("span", chip.status, "logic-level " + chip.severity));
+        item.append(heading, node("p", chip.detail, "inspection-meta"));
         container.append(item);
     }
 }
@@ -1844,13 +1888,18 @@ function renderPanels() {
     refreshIcons();
 }
 
-// 固定最近选中的芯片，其信息不会因继续接线或切换标签而消失
+// 显示固定芯片，未固定时跟随最近选择；固定状态优先于多选和资料查看
 function renderPinnedChip() {
-    if (state.selected && state.selected.kind === "chip") {
+    if (state.fixedChip !== "" && !findChip(state.fixedChip)) {
+        state.fixedChip = "";
+    }
+    if (state.fixedChip !== "") {
+        state.pinnedChip = state.fixedChip;
+    } else if (state.selected && state.selected.kind === "chip") {
         state.pinnedChip = state.selected.id;
     }
     const container = element("pinned-chip");
-    if (state.selection.length > 1) {
+    if (state.selection.length > 1 && state.fixedChip === "") {
         container.hidden = true;
         return;
     }
@@ -1867,6 +1916,7 @@ function renderPinnedChip() {
         lastPinnedChip = chip.id;
         fadeContent(container);
     } else {
+        updatePinButton(element("pin-chip-info"), chip.id);
         for (const cell of container.querySelectorAll("[data-pin]")) {
             const value = readEndpoint(state.result, pinHole(chip, Number(cell.dataset.pin)));
             cell.textContent = String(value);
@@ -1876,13 +1926,34 @@ function renderPinnedChip() {
     }
 }
 
-// 用户明确关闭时取消固定芯片，避免下次刷新又自动固定
-function unpinChip() {
-    state.pinnedChip = "";
-    if (state.selected && state.selected.kind === "chip") {
-        state.selected = null;
-        state.selection = [];
+// 同步固定按钮的图标、提示和按下状态，不改变对象选择
+function updatePinButton(button, chipId) {
+    const fixed = state.fixedChip === chipId;
+    let label = "固定引脚信息";
+    let symbol = "pin";
+    if (fixed) {
+        label = "取消固定引脚信息";
+        symbol = "pin-off";
     }
+    button.setAttribute("aria-label", label);
+    button.setAttribute("aria-pressed", String(fixed));
+    button.dataset.tip = label;
+    button.classList.toggle("selected", fixed);
+    button.replaceChildren(icon(symbol));
+}
+
+// 固定时记住当前芯片，取消后恢复跟随选择，不删除芯片或改变接线
+function togglePinnedChip() {
+    if (state.fixedChip === "") {
+        state.fixedChip = state.pinnedChip;
+    } else {
+        state.fixedChip = "";
+        state.pinnedChip = "";
+        if (state.selected && state.selected.kind === "chip") {
+            state.pinnedChip = state.selected.id;
+        }
+    }
+    lastPinnedChip = "";
     render();
 }
 
@@ -1998,7 +2069,7 @@ function changeIoCount(event) {
     }
     const count = Number(event.currentTarget.value);
     if (!Number.isInteger(count) || count < 1 || count > IO_LIMIT) {
-        toast("显示位数必须为 1～24，请输入整数", "warning");
+        toast("显示位数必须为 1～" + IO_LIMIT + "，请输入整数", "warning");
         renderIo();
         return;
     }
@@ -2103,13 +2174,13 @@ function render() {
     }
     element("custom-color").value = state.wireColor;
     element("wire-count").textContent = String(state.project.wires.length);
-    element("issue-count").textContent = String(state.result.issues.length + wiringAudit.length);
+    element("issue-count").textContent = String(circuitDiagnostics.issues.length);
     element("circuit-count").textContent = state.project.chips.length + " 片芯片 · " + state.project.wires.length + " 根导线";
     let status = "电路稳定";
     if (!state.project.power) {
         status = "电源关闭";
-    } else if (state.result.issues.length > 0) {
-        status = state.result.issues.length + " 项诊断";
+    } else if (circuitDiagnostics.issues.length > 0) {
+        status = circuitDiagnostics.issues.length + " 项诊断";
     }
     if (state.pending) {
         status = "接线起点：" + endpointLabel(state.pending.from);
@@ -2120,6 +2191,7 @@ function render() {
     renderIo();
     renderExperiments();
     renderPanels();
+    cleanSelectPanels();
     renderBoard(canvas, state, endpoints);
 }
 
@@ -2204,7 +2276,7 @@ function bindEvents() {
     element("read-only-toggle").addEventListener("change", changeReadOnly);
     element("new-experiment").addEventListener("click", newProject);
     element("experiment-picker").addEventListener("change", switchExperiment);
-    element("audit-preset").addEventListener("click", auditCurrentWiring);
+    element("diagnose-circuit").addEventListener("click", diagnoseCurrentCircuit);
     element("arrange-wires").addEventListener("click", requestWireRouting);
     canvas.addEventListener("click", clickBoard);
     canvas.addEventListener("pointermove", movePointer);
@@ -2257,7 +2329,13 @@ function bindEvents() {
 // 初始化离线工作台，恢复本地结构，寄存器仍从未知状态开始
 function start() {
     canvas = element("board-canvas");
-    canvas.height = BOARD.height * 2;
+    // 输入约束读取共享配置，HTML 中的初值仅作为加载前的回退
+    element("project-name").maxLength = LIMITS.nameLength;
+    element("notes-editor").maxLength = NOTES_LIMIT;
+    element("input-count").max = String(IO_LIMIT);
+    element("output-count").max = String(IO_LIMIT);
+    canvas.width = BOARD.width * DRAW.pixelRatio;
+    canvas.height = BOARD.height * DRAW.pixelRatio;
     canvas.style.height = BOARD.height + "px";
     let loadError = "";
     let removedCount = 0;
@@ -2297,20 +2375,12 @@ function start() {
     render();
     refreshIcons();
     updateClock();
-    window.setInterval(updateClock, 1000);
+    window.setInterval(updateClock, SETTINGS.clockInterval);
     if (loadError !== "") {
         toast(loadError, "warning");
     }
     if (removedCount > 0) {
         toast("已整理 " + removedCount + " 份重复空白或补码实验，整理前的列表已备份", "info");
-    }
-    if (state.project.name === "双符号位补码运算器") {
-        wiringAudit = auditComplement(state.project);
-        if (wiringAudit.length > 0) {
-            state.activeTab = "diagnostics";
-            render();
-            toast("这份实验的接线与标准示例有差异。你可以查看诊断面板，或打开一份新的补码示例对照", "warning");
-        }
     }
 }
 

@@ -236,6 +236,73 @@ async function testBatchColors(page) {
     assert.deepEqual((await exportedProject(page)).wires, before.wires);
 }
 
+// 固定状态独立于选择，查看其他芯片、资料和备注后仍保留原芯片
+async function testPinnedInformation(browser) {
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    try {
+        await page.goto(URL);
+        await page.locator("#inspect-panel [data-chip='U1']").click();
+        await page.locator("#pin-chip-info").click();
+        assert.equal(await page.locator("#pin-chip-info").getAttribute("aria-pressed"), "true");
+        await page.locator(".chip-option[data-model='74LS138']").click();
+        assert.match(await page.locator("#pinned-chip h2").textContent(), /U1/);
+        assert.equal(await page.locator("#inspect-panel h2").textContent(), "74LS138");
+        await page.keyboard.press("Escape");
+        await page.locator("#tab-notes").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), true);
+        await page.locator("#read-only-toggle").check();
+        assert.equal(await page.locator("#pin-chip-info").isEnabled(), true);
+        assert.equal(await page.locator("#pin-chip-info").getAttribute("aria-pressed"), "true");
+        await page.locator("#pin-chip-info").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
+        await page.locator("#read-only-toggle").uncheck();
+        await page.locator("#tab-inspect").click();
+        await page.locator("#inspect-panel [data-chip='U1']").click();
+        await page.locator("#pin-chip-info").click();
+        await page.locator("#tool-select").click();
+        await clickPoint(page, { x: 420, y: 706 });
+        assert.match(await page.locator("#pinned-chip h2").textContent(), /U1/);
+        await page.locator("#pin-chip-info").click();
+        assert.equal(await page.locator("#pin-chip-info").getAttribute("aria-pressed"), "false");
+        await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "pin-toggle.png"), fullPage: true });
+        await page.locator("#new-experiment").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
+    } finally {
+        await page.close();
+    }
+}
+
+// 逐项检查材料差异在介绍前部可见，并核对 NC 和双向引脚的文字
+async function testChipReferenceWarnings(page) {
+    for (const model of ["74LS20", "74LS85", "74LS112", "74LS194"]) {
+        await page.locator(".chip-option[data-model='" + model + "']").click();
+        assert.match(await page.locator("#inspect-panel .pin-warning").textContent(), /材料版脚号/);
+    }
+    await page.locator(".chip-option[data-model='74LS20']").click();
+    assert.match(await page.locator(".catalog-pin-table tr").nth(3).textContent(), /空脚 NC/);
+    await page.locator(".chip-option[data-model='74LS48']").click();
+    assert.match(await page.locator(".catalog-pin-table tr").nth(4).textContent(), /输入\/输出/);
+    await page.keyboard.press("Escape");
+}
+
+// 诊断任意电路并保持原输入、寄存器输出和接线，不按加法器示例判错
+async function testGeneralDiagnostics(page) {
+    const before = await exportedProject(page);
+    const output = await page.locator("#binary-result").textContent();
+    await page.locator("#diagnose-circuit").click();
+    assert.equal(await page.locator("#audit-preset").count(), 0);
+    assert.equal(await page.locator("#diagnostics-panel h2").textContent(), "当前电路诊断");
+    assert.equal(await page.locator("#diagnostics-panel .diagnostic-chip").count(), before.chips.length);
+    assert.equal(await page.locator("#binary-result").textContent(), output);
+    assert.deepEqual(await exportedProject(page), before);
+    await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "general-diagnostics.png"), fullPage: true });
+    await page.locator("#read-only-toggle").check();
+    assert.equal(await page.locator("#diagnose-circuit").isEnabled(), true);
+    await page.locator("#diagnose-circuit").click();
+    await page.locator("#read-only-toggle").uncheck();
+    await page.locator("#tab-inspect").click();
+}
+
 // 核对保存隔离、草稿限制、选择切换、多选删除与导线端点拖动
 async function main() {
     const browser = await chromium.launch({ headless: true, channel: "msedge" });
@@ -246,6 +313,7 @@ async function main() {
         await page.goto(URL);
         await page.waitForSelector(".chip-option");
         await page.waitForTimeout(250);
+        await testGeneralDiagnostics(page);
         assert.equal(await page.locator("h1").first().textContent(), "SDU 面包板");
         assert.equal(await page.locator("#autosave-toggle").isChecked(), false);
         assert.equal(await page.evaluate(readSavedWorkspace), null);
@@ -266,11 +334,11 @@ async function main() {
         const savedBlank = await page.evaluate(readSavedWorkspace);
         assert.equal(savedBlank.projects[presetId].switches[0], 0);
         assert.equal(savedBlank.projects[blankId].name, "空白实验手动保存");
-        await page.locator("#experiment-picker").selectOption(presetId);
+        await page.locator("#experiment-picker").selectOption(presetId, { force: true });
         assert.equal(await page.getByRole("button", { name: "切换 K0", exact: true }).getAttribute("aria-pressed"), "true");
         await page.keyboard.press("Control+s");
         assert.equal((await page.evaluate(readSavedWorkspace)).projects[presetId].switches[0], 1);
-        await page.locator("#experiment-picker").selectOption(blankId);
+        await page.locator("#experiment-picker").selectOption(blankId, { force: true });
         await testDirectPlacement(page);
         await page.locator("#from-endpoint").fill("B0:A:1");
         await page.locator("#to-endpoint").fill("B0:A:5");
@@ -363,6 +431,8 @@ async function main() {
         await testRestorePresetRoutes(page);
         await testConfirmationHover(page);
         await testGeneralWireRouting(page);
+        await testPinnedInformation(browser);
+        await testChipReferenceWarnings(page);
         assert.deepEqual(errors, []);
         console.log("交互验证通过：23种芯片放置、独立保存、多选改色、拖动端点、通用走线整理与撤销、确认按钮悬停对比度、只读保护");
         await page.locator("#save-project").click();

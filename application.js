@@ -347,6 +347,7 @@
       "summary": "\u903B\u8F91\u529F\u80FD\u4E0E74LS00\u76F8\u540C\uFF0CY=(AB)\u2032\uFF0C\u4F46\u8F93\u51FA\u7EA7\u4E3A\u96C6\u7535\u6781\u5F00\u8DEF\uFF08OC\uFF09\u7ED3\u6784\uFF0C\u4F7F\u7528\u65F6\u8F93\u51FA\u7AEF\u5FC5\u987B\u5916\u63A5\u4E0A\u62C9\u7535\u963B\u3002OC\u95E8\u53EF\u4EE5\u628A\u591A\u4E2A\u8F93\u51FA\u76F4\u63A5\u5E76\u8054\u5B9E\u73B0\u201C\u7EBF\u4E0E\u201D\uFF0C\u5E38\u7528\u4E8E\u603B\u7EBF\u9A71\u52A8\u548C\u7535\u5E73\u8F6C\u6362"
     },
     "74LS20": {
+      "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1A\u7B2C 1 \u95E8\u8F93\u5165\u4E3A 1\u30012\u300112\u300113 \u811A\uFF1BTI \u6807\u51C6 DIP \u7B2C 1 \u95E8\u8F93\u5165\u4E3A 1\u30012\u30014\u30015 \u811A\uFF0C\u4E24\u8005\u4E0D\u53EF\u6DF7\u7528",
       "image": "assets/pinouts/document/74ls20-1.png",
       "logicImage": "assets/pinouts/document/74ls20-2.png",
       "summary": "\u7247\u5185\u67092\u4E2A\u72EC\u7ACB\u76844\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(ABCD)\u2032\u3002\u5B9E\u9A8C4\u4E2D\u7528\u5B83\u4E0E74LS138\u914D\u5408\u5B9E\u73B0\u7EC4\u5408\u903B\u8F91\u51FD\u6570\uFF1B\u628A\u591A\u4F59\u8F93\u5165\u7AEF\u63A5\u9AD8\u7535\u5E73\u6216\u5C06\u8F93\u5165\u7AEF\u5E76\u63A5\uFF0C\u4E5F\u53EF\u5F53\u4F5C\u53CD\u76F8\u5668\u4F7F\u7528"
@@ -382,6 +383,7 @@
       "summary": "\u7247\u5185\u4E24\u4E2A4\u90091\u9009\u62E9\u5668\uFF0C\u5171\u7528\u5730\u5740\u7AEFA\uFF08\u4F4E\u4F4D\uFF09\u3001B\uFF08\u9AD8\u4F4D\uFF09\uFF0C\u5404\u6709\u72EC\u7ACB\u7684\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\u548C\u6570\u636E\u8F93\u5165\u7AEF1C0~1C3\u30012C0~2C3\u3002G\u2032=0\u65F6Y=Ci\uFF08i=BA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u7528\u4E24\u7247\uFF08\u6216\u591A\u6B21\u590D\u7528\uFF09\u5B9E\u73B0\u56DB\u53D8\u91CF\u51FD\u6570"
     },
     "74LS85": {
+      "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1AA2 \u4E3A 14 \u811A\uFF0CB2 \u4E3A 13 \u811A\uFF1BTI \u6807\u51C6 DIP \u4E3A A2 13\u3001B2 14\uFF0C\u4E24\u8005\u4E0D\u53EF\u6DF7\u7528",
       "image": "assets/pinouts/document/74ls85-1.png",
       "logicImage": "assets/pinouts/document/74ls85-2.png",
       "summary": "\u6BD4\u8F83A3A2A1A0\u4E0EB3B2B1B0\uFF0C\u8F93\u51FAA>B\u3001A=B\u3001A<B\u4E09\u4E2A\u9AD8\u7535\u5E73\u6709\u6548\u4FE1\u53F7\u30022~4\u811A\u4E3A\u7EA7\u8054\u8F93\u5165\uFF0C\u5355\u7247\u4F7F\u7528\u65F6A>B\u3001A<B\u8F93\u5165\u63A50\u3001A=B\u8F93\u5165\u63A51\uFF1B\u4E24\u7247\u7EA7\u8054\u53EF\u6269\u5C55\u62108\u4F4D\u6BD4\u8F83\u5668"
@@ -397,6 +399,7 @@
       "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0A\u5347\u6CBF\u89E6\u53D1D\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002CP\u4E0A\u5347\u6CBF\u5230\u6765\u65F6Q*=D\u3002\u53EF\u6784\u6210\u79FB\u4F4D\u5BC4\u5B58\u5668\u3001\u8BA1\u6570\u5668\u548C\u5206\u9891\u7535\u8DEF"
     },
     "74LS112": {
+      "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1A\u7B2C\u4E8C\u8DEF Q \u4E3A 7 \u811A\uFF0CQ\u2032 \u4E3A 9 \u811A\uFF1BTI \u6807\u51C6 DIP \u4E3A Q 9\u3001Q\u2032 7\uFF0C\u7B2C\u4E00\u8DEF\u811A\u53F7\u76F8\u540C",
       "image": "assets/pinouts/document/74ls112-1.png",
       "logicImage": "assets/pinouts/document/74ls112-2.png",
       "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0B\u964D\u6CBF\u89E6\u53D1JK\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u5747\u4F4E\u6709\u6548\uFF09\u3002J=K=1\u65F6CP\u4E0B\u964D\u6CBF\u7FFB\u8F6C\uFF08T\u2032\u529F\u80FD\uFF09\uFF0C\u53EF\u6784\u6210\u8BA1\u6570\u5668\uFF1B\u4E0E74LS74\u914D\u5408\u53EF\u505A\u89E6\u53D1\u5668\u76F8\u4E92\u8F6C\u6362\u5B9E\u9A8C"
@@ -417,6 +420,7 @@
       "summary": "\u6A2116\u540C\u6B65\u52A0\u8BA1\u6570\u5668\uFF0C\u5F15\u811A\u4E0E74LS160\u5B8C\u5168\u76F8\u540C\u3002\u5F02\u6B65\u6E05\u96F6CLR\u2032\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\u3001\u4F7F\u80FDENP/ENT\uFF0C\u8FDB\u4F4D\u8F93\u51FARCO\u3002\u53EF\u7528\u4E8E\u6784\u6210\u4EFB\u610F\u8FDB\u5236\u8BA1\u6570\u5668\uFF08\u53CD\u9988\u6E05\u96F6\u6CD5\u6216\u7F6E\u6570\u6CD5\uFF09"
     },
     "74LS194": {
+      "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1ACP \u4E3A 2 \u811A\uFF0CSR \u4E3A 3 \u811A\uFF0CSL \u4E3A 11 \u811A\uFF0CQA\uFF5EQD \u4E3A 12\uFF5E15 \u811A\uFF1BTI \u6807\u51C6 DIP \u4E3A CP 11\u3001SR 2\u3001SL 7\u3001QA\uFF5EQD 15\uFF5E12\uFF0C\u63A5\u5B9E\u7269\u65F6\u4E0D\u80FD\u76F4\u63A5\u5957\u7528\u672C\u6A21\u578B\u811A\u53F7",
       "image": "assets/pinouts/document/74ls194-1.png",
       "logicImage": "assets/pinouts/document/74ls194-2.png",
       "summary": "4\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668\u3002S1S0=00\u4FDD\u6301\u300101\u53F3\u79FB\u300110\u5DE6\u79FB\u300111\u5E76\u884C\u7F6E\u6570\uFF1BSR\u4E3A\u53F3\u79FB\u4E32\u5165\u7AEF\uFF0CSL\u4E3A\u5DE6\u79FB\u4E32\u5165\u7AEF\uFF0CCLR\u2032\u4E3A\u5F02\u6B65\u6E05\u96F6\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u53EF\u6784\u6210\u73AF\u5F62\u3001\u626D\u73AF\u5F62\u8BA1\u6570\u5668\u53CA\u4E32\u5E76\u8F6C\u6362\u7535\u8DEF"
@@ -440,6 +444,9 @@
   // src/chip-reference-view.mjs
   function appendChipReference(container, chip) {
     const reference = CHIP_REFERENCES[chip.model];
+    if (reference.pinWarning) {
+      container.append(node("p", reference.pinWarning, "pin-warning"));
+    }
     const figure = node("figure", "", "chip-reference");
     const imageLink = node("a", "", "");
     let imagePath = "assets/pinouts/" + reference.file + ".png";
@@ -472,6 +479,7 @@
 
   // src/motion.mjs
   var MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
+  var FADE_START_OPACITY = 0.45;
   var transitions = /* @__PURE__ */ new Map();
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   var frame = 0;
@@ -514,7 +522,7 @@
       animation.cancel();
     }
     const style = getComputedStyle(document.documentElement);
-    element2.animate([{ opacity: 0.45 }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
+    element2.animate([{ opacity: FADE_START_OPACITY }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
   }
 
   // src/toast.mjs
@@ -579,6 +587,264 @@
     }
     refreshIcons();
   }
+
+  // src/select-control.mjs
+  var SELECT_LAYOUT = {
+    margin: 10,
+    // 到窗口边缘的最小距离
+    gap: 6,
+    // 到选择框的距离
+    maximumHeight: 320,
+    // 最大高度，超出后内部滚动
+    upwardThreshold: 180,
+    // 下方空间不足时向上展开的判断高度
+    minimumHeight: 40
+    // 至少保留一行
+  };
+  var TYPE_SEARCH_DELAY = 700;
+  var controls = /* @__PURE__ */ new WeakMap();
+  var openedControl = null;
+  function closeSelect(restoreFocus) {
+    if (!openedControl) {
+      return;
+    }
+    const control = openedControl;
+    openedControl = null;
+    control.panel.hidePopover();
+    control.button.setAttribute("aria-expanded", "false");
+    control.button.removeAttribute("aria-activedescendant");
+    if (restoreFocus && control.button.isConnected) {
+      control.button.focus();
+    }
+  }
+  function positionPanel(control) {
+    const bounds = control.button.getBoundingClientRect();
+    const width2 = Math.min(bounds.width, window.innerWidth - SELECT_LAYOUT.margin * 2);
+    const left = Math.max(SELECT_LAYOUT.margin, Math.min(bounds.left, window.innerWidth - width2 - SELECT_LAYOUT.margin));
+    const below = window.innerHeight - bounds.bottom - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
+    const above = bounds.top - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
+    let available = below;
+    const upward = below < Math.min(SELECT_LAYOUT.upwardThreshold, above);
+    if (upward) {
+      available = above;
+    }
+    control.panel.style.width = width2 + "px";
+    control.panel.style.maxHeight = Math.max(SELECT_LAYOUT.minimumHeight, Math.min(SELECT_LAYOUT.maximumHeight, available)) + "px";
+    control.panel.style.left = left + "px";
+    control.panel.style.top = "0px";
+    let top = bounds.bottom + SELECT_LAYOUT.gap;
+    if (upward) {
+      top = bounds.top - SELECT_LAYOUT.gap - control.panel.getBoundingClientRect().height;
+    }
+    control.panel.style.top = Math.max(SELECT_LAYOUT.margin, top) + "px";
+  }
+  function focusOption(control, index) {
+    const options = control.panel.children;
+    if (options.length === 0) {
+      return;
+    }
+    control.activeIndex = Math.max(0, Math.min(index, options.length - 1));
+    for (let position = 0; position < options.length; position = position + 1) {
+      options[position].classList.toggle("focused", position === control.activeIndex);
+    }
+    const active = options[control.activeIndex];
+    control.button.setAttribute("aria-activedescendant", active.id);
+    active.scrollIntoView({ block: "nearest" });
+  }
+  function renderOptions(control) {
+    control.panel.replaceChildren();
+    for (let index = 0; index < control.select.options.length; index = index + 1) {
+      const option = control.select.options[index];
+      const item = node("div", "", "select-option");
+      item.id = control.select.id + "-option-" + index;
+      item.dataset.index = String(index);
+      item.setAttribute("role", "option");
+      item.setAttribute("aria-selected", String(option.selected));
+      item.setAttribute("aria-disabled", String(option.disabled));
+      item.append(node("span", option.textContent, "select-option-label"), icon("check"));
+      control.panel.append(item);
+    }
+    refreshIcons();
+  }
+  function openSelect(control) {
+    if (control.select.disabled) {
+      return;
+    }
+    closeSelect(false);
+    openedControl = control;
+    renderOptions(control);
+    control.panel.showPopover();
+    control.button.setAttribute("aria-expanded", "true");
+    positionPanel(control);
+    focusOption(control, control.select.selectedIndex);
+  }
+  function toggleSelect(control) {
+    if (openedControl === control) {
+      closeSelect(true);
+    } else {
+      openSelect(control);
+    }
+  }
+  function chooseOption(control, index) {
+    const option = control.select.options[index];
+    if (!option || option.disabled) {
+      return;
+    }
+    const changed = control.select.value !== option.value;
+    control.select.value = option.value;
+    closeSelect(true);
+    refreshSelect(control.select);
+    if (changed) {
+      control.select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
+  function clickOption(control, event) {
+    const option = event.target.closest(".select-option");
+    if (option) {
+      chooseOption(control, Number(option.dataset.index));
+    }
+  }
+  function selectKeyDown(control, event) {
+    if (event.key === "Tab") {
+      closeSelect(false);
+      return;
+    }
+    if (!["ArrowDown", "ArrowUp", "Home", "End", "Enter", " ", "Escape"].includes(event.key)) {
+      if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        searchOption(control, event.key);
+        event.stopPropagation();
+      }
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.key === "Escape") {
+      closeSelect(true);
+      return;
+    }
+    if (openedControl !== control) {
+      openSelect(control);
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      chooseOption(control, control.activeIndex);
+    } else if (event.key === "ArrowDown") {
+      focusOption(control, control.activeIndex + 1);
+    } else if (event.key === "ArrowUp") {
+      focusOption(control, control.activeIndex - 1);
+    } else if (event.key === "Home") {
+      focusOption(control, 0);
+    } else if (event.key === "End") {
+      focusOption(control, control.select.options.length - 1);
+    }
+  }
+  function searchOption(control, text2) {
+    const now = Date.now();
+    if (now - control.typedAt > TYPE_SEARCH_DELAY) {
+      control.typed = "";
+    }
+    control.typed = control.typed + text2.toLocaleLowerCase();
+    control.typedAt = now;
+    if (openedControl !== control) {
+      openSelect(control);
+    }
+    for (let index = 0; index < control.select.options.length; index = index + 1) {
+      const option = control.select.options[index];
+      if (!option.disabled && option.textContent.toLocaleLowerCase().startsWith(control.typed)) {
+        focusOption(control, index);
+        return;
+      }
+    }
+  }
+  function outsidePointerDown(event) {
+    if (!openedControl) {
+      return;
+    }
+    if (!openedControl.wrapper.contains(event.target) && !openedControl.panel.contains(event.target)) {
+      closeSelect(false);
+    }
+  }
+  function outsideScroll(event) {
+    if (openedControl && !openedControl.panel.contains(event.target)) {
+      closeSelect(false);
+    }
+  }
+  function resizeWindow() {
+    closeSelect(false);
+  }
+  function selectChanged(select) {
+    refreshSelect(select);
+  }
+  function selectBlur(control) {
+    if (openedControl === control) {
+      closeSelect(false);
+    }
+  }
+  function refreshSelect(select) {
+    let control = controls.get(select);
+    if (!control) {
+      const wrapper = node("div", "", "select-control");
+      const button = node("button", "", "select-trigger");
+      const label2 = node("span", "", "select-value");
+      const panel = node("div", "", "select-panel");
+      panel.id = select.id + "-listbox";
+      panel.setAttribute("popover", "manual");
+      panel.setAttribute("role", "listbox");
+      panel.setAttribute("aria-label", select.getAttribute("aria-label") || "\u9009\u62E9\u9009\u9879");
+      button.type = "button";
+      button.id = select.id + "-trigger";
+      button.setAttribute("role", "combobox");
+      button.setAttribute("aria-label", select.getAttribute("aria-label") || "\u9009\u62E9\u9009\u9879");
+      button.setAttribute("aria-controls", panel.id);
+      button.setAttribute("aria-haspopup", "listbox");
+      button.setAttribute("aria-expanded", "false");
+      button.append(label2, icon("chevron-down"));
+      select.before(wrapper);
+      wrapper.append(select, button);
+      document.body.append(panel);
+      select.classList.add("select-native");
+      select.tabIndex = -1;
+      select.setAttribute("aria-hidden", "true");
+      for (const label3 of document.querySelectorAll("label[for='" + select.id + "']")) {
+        label3.htmlFor = button.id;
+      }
+      control = { select, wrapper, button, label: label2, panel, activeIndex: 0, typed: "", typedAt: 0 };
+      controls.set(select, control);
+      button.addEventListener("click", toggleSelect.bind(null, control));
+      button.addEventListener("keydown", selectKeyDown.bind(null, control));
+      button.addEventListener("blur", selectBlur.bind(null, control));
+      panel.addEventListener("pointerdown", keepTriggerFocus);
+      panel.addEventListener("click", clickOption.bind(null, control));
+      select.addEventListener("change", selectChanged.bind(null, select));
+    }
+    const selected = select.options[select.selectedIndex];
+    control.label.textContent = "\u9009\u62E9\u9009\u9879";
+    if (selected) {
+      control.label.textContent = selected.textContent;
+    }
+    control.button.title = control.label.textContent;
+    control.button.disabled = select.disabled;
+    if (openedControl === control) {
+      closeSelect(false);
+    }
+  }
+  function keepTriggerFocus(event) {
+    event.preventDefault();
+  }
+  function cleanSelectPanels() {
+    for (const panel of document.querySelectorAll(".select-panel")) {
+      const triggerId = panel.id.replace("-listbox", "-trigger");
+      if (!document.getElementById(triggerId)) {
+        if (openedControl && openedControl.panel === panel) {
+          closeSelect(false);
+        }
+        panel.remove();
+      }
+    }
+  }
+  document.addEventListener("pointerdown", outsidePointerDown);
+  document.addEventListener("scroll", outsideScroll, true);
+  window.addEventListener("resize", resizeWindow);
 
   // vendor/logic.mjs
   var _Display3vlWithRegex_regex;
@@ -1868,8 +2134,10 @@
       const different = logicGate("xor", first, second);
       const sum = logicGate("xor", different, carry);
       const firstCarry = logicGate("and", first, second);
-      const secondCarry = logicGate("and", different, carry);
-      carry = logicGate("or", firstCarry, secondCarry);
+      const secondCarry = logicGate("and", first, carry);
+      const thirdCarry = logicGate("and", second, carry);
+      const combinedCarry = logicGate("or", firstCarry, secondCarry);
+      carry = logicGate("or", combinedCarry, thirdCarry);
       outputs[model.outputs[bit]] = sum;
     }
     outputs[9] = carry;
@@ -1877,13 +2145,38 @@
   }
 
   // src/board.mjs
-  var BOARD = { columns: 59, sections: 4, startX: 90, pitch: 18, startY: 116, sectionHeight: 250, width: 1300, height: 1215, panelLeft: 42, panelWidth: 1132 };
+  var BOARD = {
+    columns: 59,
+    sections: 4,
+    startX: 90,
+    pitch: 18,
+    startY: 116,
+    sectionHeight: 250,
+    width: 1300,
+    height: 1215,
+    panelLeft: 42,
+    panelWidth: 1132,
+    rowPitch: 15,
+    trenchGap: 35,
+    busTopOffset: -16,
+    busBottomOffset: 193,
+    busHolePeriod: 6
+  };
   var PORT_LAYOUT = { lowestColumn: 49, columnStep: 2, positiveColumn: 53, negativeColumn: 57, outputY: 68, inputY: 1105 };
+  var RAIL_LAYOUT = {
+    groundX: 1210,
+    powerX: 1242,
+    count: 60,
+    startY: BOARD.startY + BOARD.busTopOffset,
+    endY: BOARD.startY + (BOARD.sections - 1) * BOARD.sectionHeight + BOARD.busBottomOffset
+  };
   var ROWS = "ABCDEFGHIJ";
   var BUS_ROWS = "XY";
   var BUS_SEGMENTS = [[1, 17], [19, 41], [43, 59]];
   var IO_LIMIT = 24;
   var NOTES_LIMIT = 5e4;
+  var PROJECT_DEFAULTS = { inputCount: 8, outputCount: 8, power: true };
+  var WIRING_VERSION = 3;
   var GENERAL_NOTES = "# \u7535\u8DEF\u8BF4\u660E\n\n## \u529F\u80FD\n\n\u586B\u5199\u8FD9\u4E2A\u7535\u8DEF\u7684\u7528\u9014\n\n## \u8F93\u5165\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| K0 | \u5F85\u586B\u5199 |\n\n## \u8F93\u51FA\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| L0 | \u5F85\u586B\u5199 |\n\n## \u64CD\u4F5C\u6B65\u9AA4\n\n1. \u68C0\u67E5\u4F9B\u7535\u548C\u63A5\u7EBF\n2. \u8BBE\u7F6E\u8F93\u5165\uFF0C\u89C2\u5BDF\u8F93\u51FA\n";
   var WIRE_COLORS = ["#dc3545", "#1976d2", "#16845b", "#d68a0b", "#8b55c5", "#0d939d", "#d44f93", "#46515f", "#93a619", "#e26c2b", "#8494a7", "#65483d"];
   function columnX(column) {
@@ -1891,19 +2184,19 @@
   }
   function rowY(section, row) {
     if (row === "X") {
-      return BOARD.startY + section * BOARD.sectionHeight - 16;
+      return BOARD.startY + section * BOARD.sectionHeight + BOARD.busTopOffset;
     }
     if (row === "Y") {
-      return BOARD.startY + section * BOARD.sectionHeight + 193;
+      return BOARD.startY + section * BOARD.sectionHeight + BOARD.busBottomOffset;
     }
-    let offset = ROWS.indexOf(row) * 15;
+    let offset = ROWS.indexOf(row) * BOARD.rowPitch;
     if (ROWS.indexOf(row) >= 5) {
-      offset = offset + 35;
+      offset = offset + BOARD.trenchGap;
     }
     return BOARD.startY + section * BOARD.sectionHeight + offset;
   }
   function busHasHole(column) {
-    return Number.isInteger(column) && column >= 1 && column <= BOARD.columns && column % 6 !== 0;
+    return Number.isInteger(column) && column >= 1 && column <= BOARD.columns && column % BOARD.busHolePeriod !== 0;
   }
   function busSegment(column) {
     for (let index = 0; index < BUS_SEGMENTS.length; index = index + 1) {
@@ -1946,7 +2239,51 @@
     }
     return Number.isInteger(column) && column >= 1 && column <= BOARD.columns;
   }
-  function baseNode(name) {
+  function portHole(name) {
+    if (/^[KL]\d+$/.test(name)) {
+      const bit = Number(name.slice(1));
+      if (bit >= IO_LIMIT) {
+        return "";
+      }
+      const column = PORT_LAYOUT.lowestColumn - bit * PORT_LAYOUT.columnStep;
+      if (name.startsWith("L")) {
+        return holeId(0, "A", column);
+      }
+      return holeId(BOARD.sections - 1, "J", column);
+    }
+    if (name === "P+") {
+      return holeId(BOARD.sections - 1, "J", PORT_LAYOUT.positiveColumn);
+    }
+    if (name === "P-") {
+      return holeId(BOARD.sections - 1, "J", PORT_LAYOUT.negativeColumn);
+    }
+    if (name === "GND" || name === "VCC") {
+      return "R:" + name + ":" + (RAIL_LAYOUT.count - 1);
+    }
+    return "";
+  }
+  function isPhysicalHole(name) {
+    return validEndpoint(name) && (name.startsWith("B") || name.startsWith("R:"));
+  }
+  function isInputColumn(column) {
+    if (column === PORT_LAYOUT.positiveColumn || column === PORT_LAYOUT.negativeColumn) {
+      return true;
+    }
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      const inputColumn = PORT_LAYOUT.lowestColumn - bit * PORT_LAYOUT.columnStep;
+      if (column === inputColumn) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function baseNode(name, wiringVersion = WIRING_VERSION) {
+    if (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-") {
+      const hole = portHole(name);
+      if (hole !== "") {
+        return baseNode(hole, wiringVersion);
+      }
+    }
     if (name === "GND" || name.startsWith("R:GND:")) {
       return "GND";
     }
@@ -1962,6 +2299,10 @@
     }
     let side = "upper";
     if (ROWS.indexOf(parts[1]) >= 5) {
+      side = "lower";
+    }
+    const section = Number(parts[0].slice(1));
+    if (wiringVersion >= 3 && section === BOARD.sections - 1 && isInputColumn(Number(parts[2]))) {
       side = "lower";
     }
     return parts[0] + ":" + side + ":" + parts[2];
@@ -1985,11 +2326,12 @@
     }
     if (name.startsWith("R:")) {
       const parts = name.split(":");
-      let horizontal = 1210;
+      let horizontal = RAIL_LAYOUT.groundX;
       if (parts[1] === "VCC") {
-        horizontal = 1242;
+        horizontal = RAIL_LAYOUT.powerX;
       }
-      return { x: horizontal, y: 102 + Number(parts[2]) * 18 };
+      const pitch = (RAIL_LAYOUT.endY - RAIL_LAYOUT.startY) / (RAIL_LAYOUT.count - 1);
+      return { x: horizontal, y: RAIL_LAYOUT.startY + Number(parts[2]) * pitch };
     }
     if (name.startsWith("K") || name.startsWith("L")) {
       const number = Number(name.slice(1));
@@ -2007,9 +2349,9 @@
       return { x: columnX(PORT_LAYOUT.negativeColumn), y: PORT_LAYOUT.inputY };
     }
     if (name === "GND") {
-      return { x: 1210, y: PORT_LAYOUT.inputY };
+      return { x: RAIL_LAYOUT.groundX, y: PORT_LAYOUT.inputY };
     }
-    return { x: 1242, y: PORT_LAYOUT.inputY };
+    return { x: RAIL_LAYOUT.powerX, y: PORT_LAYOUT.inputY };
   }
   function endpointLabel(name) {
     if (name.startsWith("B")) {
@@ -2048,16 +2390,20 @@
   }
   function emptyProject() {
     const switches = [];
-    for (let index = 0; index < 24; index = index + 1) {
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
       switches.push(0);
     }
-    return { version: 1, inputCount: 8, outputCount: 8, notes: GENERAL_NOTES, name: "\u672A\u547D\u540D\u7535\u8DEF", chips: [], wires: [], pullUps: [], switches, power: true };
+    return { version: 1, wiringVersion: WIRING_VERSION, inputCount: PROJECT_DEFAULTS.inputCount, outputCount: PROJECT_DEFAULTS.outputCount, notes: GENERAL_NOTES, name: "\u672A\u547D\u540D\u7535\u8DEF", chips: [], wires: [], pullUps: [], switches, power: PROJECT_DEFAULTS.power };
   }
   function copyProject(project) {
     return JSON.parse(JSON.stringify(project));
   }
 
   // src/chip-logic.mjs
+  var SEGMENT_PATTERNS = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "0011111", "1110000", "1111111", "1110011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
+  var SEGMENT_PINS = [13, 12, 11, 10, 9, 15, 14];
+  var COMPARE_FIRST = [15, 14, 12, 10];
+  var COMPARE_SECOND = [1, 13, 11, 9];
   function logicValue(value) {
     if (value === 0 || value === 1) {
       return value;
@@ -2130,24 +2476,26 @@
     return logicGate("and", enable, commonValue(candidates));
   }
   function compare(pins, outputs) {
-    const first = readNumber(pins, [10, 12, 14, 15]);
-    const second = readNumber(pins, [9, 11, 13, 1]);
     outputs[5] = "X";
     outputs[6] = "X";
     outputs[7] = "X";
-    if (first === "X" || second === "X") {
-      return;
-    }
-    if (first !== second) {
-      outputs[5] = 0;
-      outputs[6] = 0;
-      outputs[7] = 0;
-      if (first > second) {
-        outputs[5] = 1;
-      } else {
-        outputs[7] = 1;
+    for (let bit = 0; bit < COMPARE_FIRST.length; bit = bit + 1) {
+      const first = logicValue(pins[COMPARE_FIRST[bit]]);
+      const second = logicValue(pins[COMPARE_SECOND[bit]]);
+      if (first === "X" || second === "X") {
+        return;
       }
-      return;
+      if (first !== second) {
+        outputs[5] = 0;
+        outputs[6] = 0;
+        outputs[7] = 0;
+        if (first > second) {
+          outputs[5] = 1;
+        } else {
+          outputs[7] = 1;
+        }
+        return;
+      }
     }
     outputs[6] = logicValue(pins[3]);
     const notEqual = logicGate("not", pins[3], 0);
@@ -2157,15 +2505,13 @@
     outputs[7] = logicGate("and", notEqual, notGreater);
   }
   function sevenSegment(pins, outputs) {
-    const patterns = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "1011111", "1110000", "1111111", "1111011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
-    const segmentPins = [13, 12, 11, 10, 9, 15, 14];
     const number = readNumber(pins, [7, 1, 2, 6]);
     const blankZero = number === 0 && pins[5] === 0 && pins[3] === 1;
     outputs[4] = "Z";
     if (blankZero) {
       outputs[4] = 0;
     }
-    for (let index = 0; index < segmentPins.length; index = index + 1) {
+    for (let index = 0; index < SEGMENT_PINS.length; index = index + 1) {
       let value = "X";
       if (pins[4] === 0 || blankZero) {
         value = 0;
@@ -2173,10 +2519,12 @@
         value = 1;
       } else if (pins[3] === 1 && pins[4] === 1 && number !== "X") {
         if (number !== 0 || pins[5] === 1) {
-          value = Number(patterns[number][index]);
+          value = Number(SEGMENT_PATTERNS[number][index]);
+        } else if (pins[5] === 0) {
+          value = 0;
         }
       }
-      outputs[segmentPins[index]] = value;
+      outputs[SEGMENT_PINS[index]] = value;
     }
   }
   function evaluateExtra(model, pins) {
@@ -2224,6 +2572,7 @@
   }
 
   // src/chip-state.mjs
+  var DECADE_NEXT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 4, 13, 4, 15, 0];
   function unknownBits(count) {
     const bits = [];
     for (let index = 0; index < count; index = index + 1) {
@@ -2257,6 +2606,12 @@
     return first !== 1 && last !== 0;
   }
   function nextJk(first, second, previous) {
+    if (first === 1 && second === 0) {
+      return 1;
+    }
+    if (first === 0 && second === 1) {
+      return 0;
+    }
     const setPart = logicGate("and", first, logicGate("not", previous, 0));
     const keepPart = logicGate("and", logicGate("not", second, 0), previous);
     return logicGate("or", setPart, keepPart);
@@ -2297,7 +2652,13 @@
             value = nextJk(pins[channel.first], pins[channel.second], value);
           }
         } else if (uncertainEdge(state2.clocks[index], pins[channel.clock], model.edge)) {
-          value = "X";
+          let sampled = logicValue(pins[channel.data]);
+          if (!channel.data) {
+            sampled = nextJk(pins[channel.first], pins[channel.second], value);
+          }
+          if (sampled !== value) {
+            value = "X";
+          }
         }
         inverse = logicGate("not", value, 0);
       }
@@ -2345,8 +2706,8 @@
           const current = storedNumber(state2.bits);
           if (current === "X") {
             state2.bits = unknownBits(4);
-          } else if (current === model.modulus - 1) {
-            state2.bits = [0, 0, 0, 0];
+          } else if (model.modulus === 10) {
+            state2.bits = numberBits(DECADE_NEXT[current]);
           } else {
             state2.bits = numberBits(current + 1 & 15);
           }
@@ -2354,7 +2715,7 @@
           state2.bits = unknownBits(4);
         }
       }
-    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising")) {
+    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising") && !(pins[9] === 1 && (pins[7] === 0 || pins[10] === 0))) {
       state2.bits = unknownBits(4);
     }
     state2.clocks[0] = logicValue(pins[2]);
@@ -2376,7 +2737,7 @@
       } else if (mode === "X") {
         state2.bits = unknownBits(4);
       }
-    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising")) {
+    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising") && !(pins[9] === 0 && pins[10] === 0)) {
       state2.bits = unknownBits(4);
     }
     state2.clocks[0] = logicValue(pins[2]);
@@ -2549,7 +2910,7 @@
     if (project.power) {
       addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
       addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
-      for (let index = 0; index < 24; index = index + 1) {
+      for (let index = 0; index < IO_LIMIT; index = index + 1) {
         const name = "K" + index;
         addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
       }
@@ -2561,9 +2922,10 @@
       for (const chip of project.chips) {
         const pins = readPins(chip, topology, values);
         const model = CHIP_MODELS[chip.model];
-        if (model.bidirectional) {
+        if (model.bidirectional && chipPowered(chip, pins)) {
           for (const pin of model.bidirectional) {
             const node2 = nodeFor(topology, pinHole(chip, pin));
+            addDriver(drivers, node2, 1, chip.id + "-" + pin + "-bias", "pull-up");
             const external = [];
             const source = chip.id + "-" + pin;
             const entries2 = previousDrivers[node2] || [];
@@ -2572,6 +2934,7 @@
                 external.push(driver);
               }
             }
+            external.push({ value: 1, kind: "pull-up" });
             pins[pin] = resolveDrivers(external);
           }
         }
@@ -2581,6 +2944,12 @@
           let kind = "push-pull";
           if (model.kind === "open-collector" || model.bidirectional && model.bidirectional.includes(Number(pin))) {
             kind = "open-collector";
+          }
+          if (model.kind === "seven-segment" && Number(pin) !== 4) {
+            kind = "open-collector";
+            if (outputs[pin] === 1) {
+              kind = "pull-up";
+            }
           }
           addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin, kind);
         }
@@ -2695,7 +3064,7 @@
             low = true;
           }
         }
-        let message = "\u591A\u4E2A\u63A8\u633D\u8F93\u51FA\u8FDE\u63A5\u5230\u540C\u4E00\u8282\u70B9\uFF1A" + sources;
+        let message = "\u591A\u4E2A\u9A71\u52A8\u6E90\u8FDE\u63A5\u5230\u540C\u4E00\u8282\u70B9\uFF1A" + sources;
         if (high && low) {
           message = "\u9AD8\u4F4E\u7535\u5E73\u51B2\u7A81\uFF1A" + sources + "\uFF0C\u6B64\u8282\u70B9\u7ED3\u679C\u4E3A X";
         }
@@ -2716,6 +3085,19 @@
       }
       if (missing.length > 0) {
         issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " \u8F93\u5165\u60AC\u7A7A\uFF1A\u7B2C " + missing.join("\u3001") + " \u811A" });
+      }
+      const model = CHIP_MODELS[chip.model];
+      if (model.channels) {
+        let active = 0;
+        if (model.activeHigh) {
+          active = 1;
+        }
+        for (let index = 0; index < model.channels.length; index = index + 1) {
+          const channel = model.channels[index];
+          if (pins[channel.set] === active && pins[channel.reset] === active) {
+            issues.push({ code: "async-conflict:" + chip.id + ":" + index, severity: "warning", message: chip.id + " \u7B2C " + (index + 1) + " \u8DEF\u7F6E\u4F4D\u548C\u590D\u4F4D\u540C\u65F6\u6709\u6548\uFF0C\u4E24\u4E2A\u8F93\u51FA\u5747\u4E3A 1\uFF0C\u540C\u65F6\u91CA\u653E\u540E\u7684\u72B6\u6001\u4E0D\u786E\u5B9A" });
+          }
+        }
       }
     }
     if (!result.stable) {
@@ -3096,6 +3478,20 @@
         y: 726
       }
     ],
+    W55: [
+      {
+        x: 642,
+        y: 396
+      },
+      {
+        x: 642,
+        y: 114
+      },
+      {
+        x: 810,
+        y: 114
+      }
+    ],
     W40: [
       {
         x: 360,
@@ -3112,24 +3508,38 @@
         y: 384
       },
       {
-        x: 636,
+        x: 630,
         y: 384
       },
       {
-        x: 636,
-        y: 372
+        x: 630,
+        y: 414
       },
       {
-        x: 1002,
-        y: 372
+        x: 834,
+        y: 414
       },
       {
-        x: 1002,
-        y: 504
+        x: 834,
+        y: 486
       },
       {
         x: 936,
-        y: 504
+        y: 486
+      }
+    ],
+    W56: [
+      {
+        x: 588,
+        y: 396
+      },
+      {
+        x: 588,
+        y: 102
+      },
+      {
+        x: 774,
+        y: 102
       }
     ],
     W38: [
@@ -3150,20 +3560,6 @@
         y: 732
       }
     ],
-    W55: [
-      {
-        x: 588,
-        y: 396
-      },
-      {
-        x: 588,
-        y: 66
-      },
-      {
-        x: 810,
-        y: 66
-      }
-    ],
     W44: [
       {
         x: 774,
@@ -3175,58 +3571,32 @@
       },
       {
         x: 696,
-        y: 414
+        y: 402
       },
       {
         x: 612,
-        y: 414
-      }
-    ],
-    W56: [
-      {
-        x: 594,
-        y: 372
-      },
-      {
-        x: 624,
-        y: 372
-      },
-      {
-        x: 624,
-        y: 78
-      },
-      {
-        x: 774,
-        y: 78
+        y: 402
       }
     ],
     W11: [
       {
         x: 972,
-        y: 516
+        y: 504
       },
       {
-        x: 912,
-        y: 516
+        x: 1002,
+        y: 504
       },
       {
-        x: 912,
-        y: 486
+        x: 1002,
+        y: 372
       },
       {
-        x: 708,
-        y: 486
+        x: 570,
+        y: 372
       },
       {
-        x: 708,
-        y: 402
-      },
-      {
-        x: 600,
-        y: 402
-      },
-      {
-        x: 600,
+        x: 570,
         y: 414
       },
       {
@@ -3274,24 +3644,24 @@
         y: 744
       },
       {
-        x: 780,
+        x: 798,
         y: 744
       },
       {
-        x: 780,
-        y: 756
+        x: 798,
+        y: 738
       },
       {
-        x: 684,
-        y: 756
+        x: 732,
+        y: 738
       },
       {
-        x: 684,
-        y: 498
+        x: 732,
+        y: 426
       },
       {
         x: 690,
-        y: 498
+        y: 426
       },
       {
         x: 690,
@@ -3305,14 +3675,30 @@
     W49: [
       {
         x: 648,
-        y: 360
+        y: 408
       },
       {
-        x: 1014,
-        y: 360
+        x: 660,
+        y: 408
       },
       {
-        x: 1014,
+        x: 660,
+        y: 396
+      },
+      {
+        x: 780,
+        y: 396
+      },
+      {
+        x: 780,
+        y: 672
+      },
+      {
+        x: 930,
+        y: 672
+      },
+      {
+        x: 930,
         y: 756
       },
       {
@@ -3322,36 +3708,28 @@
       {
         x: 870,
         y: 750
-      },
-      {
-        x: 852,
-        y: 750
-      },
-      {
-        x: 852,
-        y: 744
       },
       {
         x: 846,
-        y: 744
+        y: 750
       }
     ],
     W13: [
       {
         x: 540,
-        y: 348
+        y: 360
       },
       {
-        x: 780,
-        y: 348
+        x: 816,
+        y: 360
       },
       {
-        x: 780,
-        y: 666
+        x: 816,
+        y: 660
       },
       {
         x: 810,
-        y: 666
+        y: 660
       }
     ],
     W22: [
@@ -3375,22 +3753,22 @@
     W50: [
       {
         x: 594,
-        y: 408
+        y: 414
       },
       {
-        x: 576,
-        y: 408
+        x: 600,
+        y: 414
       },
       {
-        x: 576,
-        y: 336
+        x: 600,
+        y: 348
       },
       {
-        x: 1026,
-        y: 336
+        x: 1014,
+        y: 348
       },
       {
-        x: 1026,
+        x: 1014,
         y: 768
       },
       {
@@ -3435,71 +3813,63 @@
     W59: [
       {
         x: 954,
-        y: 474
+        y: 516
       },
       {
-        x: 1038,
-        y: 474
+        x: 1026,
+        y: 516
       },
       {
-        x: 1038,
-        y: 102
+        x: 1026,
+        y: 126
       },
       {
         x: 738,
-        y: 102
-      }
-    ],
-    W35: [
-      {
-        x: 882,
-        y: 666
-      },
-      {
-        x: 930,
-        y: 666
-      },
-      {
-        x: 930,
-        y: 816
-      },
-      {
-        x: 468,
-        y: 816
+        y: 126
       }
     ],
     W29: [
       {
         x: 810,
-        y: 828
+        y: 804
       },
       {
         x: 942,
-        y: 828
+        y: 804
       },
       {
         x: 942,
-        y: 528
+        y: 504
       },
       {
-        x: 888,
-        y: 528
+        x: 876,
+        y: 504
       },
       {
-        x: 888,
-        y: 498
-      },
-      {
-        x: 870,
-        y: 498
-      },
-      {
-        x: 870,
+        x: 876,
         y: 492
       },
       {
         x: 864,
         y: 492
+      }
+    ],
+    W35: [
+      {
+        x: 882,
+        y: 660
+      },
+      {
+        x: 954,
+        y: 660
+      },
+      {
+        x: 954,
+        y: 816
+      },
+      {
+        x: 468,
+        y: 816
       }
     ],
     W53: [
@@ -3508,42 +3878,52 @@
         y: 504
       },
       {
-        x: 624,
+        x: 582,
         y: 504
       },
       {
-        x: 624,
-        y: 516
+        x: 582,
+        y: 486
       },
       {
-        x: 654,
-        y: 516
+        x: 474,
+        y: 486
       },
       {
-        x: 654,
-        y: 504
-      },
-      {
-        x: 834,
-        y: 504
-      },
-      {
-        x: 834,
-        y: 114
+        x: 474,
+        y: 78
       },
       {
         x: 882,
-        y: 114
+        y: 78
+      }
+    ],
+    W52: [
+      {
+        x: 576,
+        y: 504
+      },
+      {
+        x: 456,
+        y: 504
+      },
+      {
+        x: 456,
+        y: 66
+      },
+      {
+        x: 918,
+        y: 66
       }
     ],
     W9: [
       {
         x: 126,
-        y: 324
+        y: 336
       },
       {
         x: 864,
-        y: 324
+        y: 336
       }
     ],
     W10: [
@@ -3557,14 +3937,14 @@
       },
       {
         x: 126,
-        y: 840
+        y: 828
       },
       {
-        x: 978,
-        y: 840
+        x: 966,
+        y: 828
       },
       {
-        x: 978,
+        x: 966,
         y: 498
       },
       {
@@ -3572,38 +3952,56 @@
         y: 498
       }
     ],
-    W52: [
+    W60: [
       {
-        x: 576,
-        y: 504
+        x: 738,
+        y: 1038
       },
       {
-        x: 588,
-        y: 504
+        x: 330,
+        y: 1038
       },
       {
-        x: 588,
+        x: 330,
+        y: 678
+      },
+      {
+        x: 480,
+        y: 678
+      },
+      {
+        x: 480,
         y: 516
       },
       {
-        x: 612,
+        x: 504,
         y: 516
+      }
+    ],
+    W51: [
+      {
+        x: 522,
+        y: 504
       },
       {
-        x: 612,
-        y: 804
+        x: 516,
+        y: 504
       },
       {
-        x: 1050,
-        y: 804
+        x: 516,
+        y: 522
       },
       {
-        x: 1050,
-        y: 66
+        x: 444,
+        y: 522
       },
       {
-        x: 918,
-        y: 66
+        x: 444,
+        y: 138
+      },
+      {
+        x: 954,
+        y: 138
       }
     ],
     W34: [
@@ -3613,79 +4011,35 @@
       },
       {
         x: 132,
-        y: 402
+        y: 426
       },
       {
-        x: 114,
-        y: 402
+        x: 108,
+        y: 426
       },
       {
-        x: 114,
-        y: 312
+        x: 108,
+        y: 840
       },
       {
-        x: 822,
-        y: 312
+        x: 978,
+        y: 840
       },
       {
-        x: 822,
-        y: 480
+        x: 978,
+        y: 528
+      },
+      {
+        x: 948,
+        y: 528
+      },
+      {
+        x: 948,
+        y: 474
       },
       {
         x: 882,
-        y: 480
-      }
-    ],
-    W60: [
-      {
-        x: 738,
-        y: 1104
-      },
-      {
-        x: 330,
-        y: 1104
-      },
-      {
-        x: 330,
-        y: 678
-      },
-      {
-        x: 480,
-        y: 678
-      },
-      {
-        x: 480,
-        y: 504
-      },
-      {
-        x: 504,
-        y: 504
-      }
-    ],
-    W51: [
-      {
-        x: 522,
-        y: 504
-      },
-      {
-        x: 510,
-        y: 504
-      },
-      {
-        x: 510,
-        y: 486
-      },
-      {
-        x: 474,
-        y: 486
-      },
-      {
-        x: 474,
-        y: 126
-      },
-      {
-        x: 954,
-        y: 126
+        y: 474
       }
     ],
     W7: [
@@ -3694,19 +4048,19 @@
         y: 648
       },
       {
-        x: 708,
+        x: 678,
         y: 648
       },
       {
-        x: 708,
-        y: 828
+        x: 678,
+        y: 852
       },
       {
-        x: 108,
-        y: 828
+        x: 96,
+        y: 852
       },
       {
-        x: 108,
+        x: 96,
         y: 414
       },
       {
@@ -3729,14 +4083,14 @@
       },
       {
         x: 768,
-        y: 852
+        y: 864
       },
       {
-        x: 96,
-        y: 852
+        x: 84,
+        y: 864
       },
       {
-        x: 96,
+        x: 84,
         y: 474
       },
       {
@@ -3755,52 +4109,36 @@
     W61: [
       {
         x: 1098,
-        y: 300
+        y: 324
       },
       {
         x: 666,
-        y: 300
+        y: 324
       }
     ],
     W2: [
       {
         x: 1212,
-        y: 1105
+        y: 1059
       },
       {
         x: 1212,
-        y: 1104
+        y: 1062
       },
       {
-        x: 1104,
-        y: 1104
+        x: 780,
+        y: 1062
       },
       {
-        x: 1104,
-        y: 1110
-      },
-      {
-        x: 750,
-        y: 1110
-      },
-      {
-        x: 750,
-        y: 864
+        x: 780,
+        y: 756
       },
       {
         x: 654,
-        y: 864
+        y: 756
       },
       {
         x: 654,
-        y: 522
-      },
-      {
-        x: 660,
-        y: 522
-      },
-      {
-        x: 660,
         y: 498
       },
       {
@@ -3811,14 +4149,22 @@
     W30: [
       {
         x: 774,
-        y: 876
+        y: 1038
       },
       {
-        x: 84,
-        y: 876
+        x: 750,
+        y: 1038
       },
       {
-        x: 84,
+        x: 750,
+        y: 1050
+      },
+      {
+        x: 72,
+        y: 1050
+      },
+      {
+        x: 72,
         y: 486
       },
       {
@@ -3829,24 +4175,56 @@
     W23: [
       {
         x: 918,
-        y: 888
+        y: 1038
+      },
+      {
+        x: 822,
+        y: 1038
+      },
+      {
+        x: 822,
+        y: 1050
+      },
+      {
+        x: 792,
+        y: 1050
+      },
+      {
+        x: 792,
+        y: 876
       },
       {
         x: 180,
-        y: 888
+        y: 876
       }
     ],
     W25: [
       {
         x: 882,
-        y: 900
+        y: 1074
       },
       {
-        x: 72,
-        y: 900
+        x: 60,
+        y: 1074
       },
       {
-        x: 72,
+        x: 60,
+        y: 402
+      },
+      {
+        x: 120,
+        y: 402
+      },
+      {
+        x: 120,
+        y: 408
+      },
+      {
+        x: 138,
+        y: 408
+      },
+      {
+        x: 138,
         y: 426
       },
       {
@@ -3857,58 +4235,40 @@
     W27: [
       {
         x: 846,
-        y: 912
+        y: 1086
       },
       {
-        x: 60,
-        y: 912
+        x: 48,
+        y: 1086
       },
       {
-        x: 60,
-        y: 408
-      },
-      {
-        x: 138,
-        y: 408
-      },
-      {
-        x: 138,
-        y: 414
+        x: 48,
+        y: 384
       },
       {
         x: 162,
-        y: 414
-      }
-    ],
-    W1: [
-      {
-        x: 1242,
-        y: 288
-      },
-      {
-        x: 510,
-        y: 288
-      },
-      {
-        x: 510,
-        y: 414
-      },
-      {
-        x: 504,
-        y: 414
+        y: 384
       }
     ],
     W21: [
       {
         x: 954,
-        y: 924
+        y: 1038
       },
       {
-        x: 48,
-        y: 924
+        x: 930,
+        y: 1038
       },
       {
-        x: 48,
+        x: 930,
+        y: 1098
+      },
+      {
+        x: 36,
+        y: 1098
+      },
+      {
+        x: 36,
         y: 498
       },
       {
@@ -3923,10 +4283,44 @@
         x: 126,
         y: 492
       }
+    ],
+    W1: [
+      {
+        x: 1242,
+        y: 312
+      },
+      {
+        x: 510,
+        y: 312
+      },
+      {
+        x: 510,
+        y: 414
+      },
+      {
+        x: 504,
+        y: 414
+      }
     ]
   };
 
   // src/presets.mjs
+  var PRESET_CHIPS = [
+    { id: "U1", model: "74LS273", section: 1, column: 24 },
+    { id: "U2", model: "74LS283", section: 2, column: 16 },
+    { id: "U3", model: "74LS283", section: 2, column: 39 },
+    { id: "U4", model: "74LS86", section: 1, column: 3 },
+    { id: "U5", model: "74LS86", section: 1, column: 44 }
+  ];
+  var UNUSED_INPUTS = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
+  var INPUT_PINS = [1, 4, 9, 12];
+  var OUTPUT_PINS = [3, 6, 8, 11];
+  var ADDER_PINS = [6, 2, 15, 11];
+  var CONTROL_PINS = ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"];
+  var SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
+  var FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
+  var REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
+  var PRESET_PORT_COUNT = 7;
   var COMPLEMENT_NOTES = `# \u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668
 
 ## \u529F\u80FD
@@ -3973,6 +4367,10 @@
 
 ## \u8D70\u7EBF\u4E0E\u7EBF\u8272
 
+\u8F93\u5165\u8F93\u51FA\u677F\u4E0A\u6CA1\u6709\u63A5\u7EBF\u5B54\uFF0CK\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5217\u3002\u6240\u6709\u5BFC\u7EBF\u53EA\u63D2\u9762\u5305\u677F\u5B54\u6216\u53F3\u4FA7\u7535\u6E90\u8F68\u5B54\uFF0C\u7AEF\u53E3\u4E0E\u5B54\u4F4D\u5BF9\u5E94\u5173\u7CFB\u89C1\u63A5\u7EBF\u8BF4\u660E
+
+\u7B2C\u56DB\u5757\u9762\u5305\u677F\u7684\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\u901A\u8FC7\u7EC6\u7EBF\u6865\u63A5\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u4FDD\u6301\u9694\u79BB
+
 \u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u8F93\u5165\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A LED \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
 
 \u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u82AF\u7247\u5916\u6846\u3002\u4EA4\u53C9\u5904\u6CA1\u6709\u63A5\u70B9\uFF0C\u53EA\u6709\u5BFC\u7EBF\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u53C2\u4E0E\u8FDE\u63A5\u3002\u4F60\u53EF\u4EE5\u70B9\u51FB\u5DE6\u4FA7\u201C\u6574\u7406\u8D70\u7EBF\u201D\uFF0C\u786E\u8BA4\u540E\u8C03\u6574\u5F53\u524D\u7535\u8DEF\u7684\u8DEF\u5F84\uFF1B\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\u4FDD\u6301\u4E0D\u53D8\uFF0C\u968F\u540E\u53EF\u64A4\u9500
@@ -3981,6 +4379,10 @@
 `;
   function allocatePin(project, usage, name) {
     if (!name.startsWith("U")) {
+      const hole2 = portHole(name);
+      if (hole2 !== "") {
+        return hole2;
+      }
       return name;
     }
     const parts = name.split("-");
@@ -4015,17 +4417,11 @@
   }
   function complementPreset() {
     const project = emptyProject();
-    project.inputCount = 7;
-    project.outputCount = 7;
+    project.inputCount = PRESET_PORT_COUNT;
+    project.outputCount = PRESET_PORT_COUNT;
     project.notes = COMPLEMENT_NOTES;
     project.name = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
-    project.chips = [
-      { id: "U1", model: "74LS273", section: 1, column: 24 },
-      { id: "U2", model: "74LS283", section: 2, column: 16 },
-      { id: "U3", model: "74LS283", section: 2, column: 39 },
-      { id: "U4", model: "74LS86", section: 1, column: 3 },
-      { id: "U5", model: "74LS86", section: 1, column: 44 }
-    ];
+    project.chips = structuredClone(PRESET_CHIPS);
     const usage = {};
     let power = "VCC";
     let ground = "GND";
@@ -4038,38 +4434,31 @@
       power = powerPin;
       ground = groundPin;
     }
-    const unusedInputs = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
-    for (const pin of unusedInputs) {
+    for (const pin of UNUSED_INPUTS) {
       connect(project, usage, ground, pin, 7);
       ground = pin;
     }
-    const inputPins = [1, 4, 9, 12];
-    const outputPins = [3, 6, 8, 11];
-    const adderPins = [6, 2, 15, 11];
     for (let bit = 0; bit < 4; bit = bit + 1) {
-      connect(project, usage, "K" + bit, "U4-" + inputPins[bit], 2);
-      connect(project, usage, "U4-" + outputPins[bit], "U2-" + adderPins[bit], 2);
+      connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], 2);
+      connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], 2);
     }
     connect(project, usage, "K4", "U5-1", 2);
     let control = "K5";
-    for (const pin of ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"]) {
+    for (const pin of CONTROL_PINS) {
       connect(project, usage, control, pin, 4);
       control = pin;
     }
     connect(project, usage, "U5-3", "U3-6", 4);
     connect(project, usage, "U3-6", "U3-2", 4);
     connect(project, usage, "U2-9", "U3-7", 4);
-    const sums = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
-    for (const pair of sums) {
+    for (const pair of SUM_CONNECTIONS) {
       connect(project, usage, pair[0], pair[1], 1);
     }
-    const feedback = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
-    for (const pair of feedback) {
+    for (const pair of FEEDBACK_CONNECTIONS) {
       connect(project, usage, pair[0], pair[1], 3);
     }
-    const registerOutputs = [2, 5, 6, 9, 12, 15];
     for (let bit = 0; bit < 6; bit = bit + 1) {
-      connect(project, usage, "U1-" + registerOutputs[bit], "L" + bit, 5);
+      connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, 5);
     }
     connect(project, usage, "U1-12", "U5-4", 5);
     connect(project, usage, "U1-15", "U5-5", 5);
@@ -4121,12 +4510,14 @@
   var import_javascript_astar = __toESM(require_astar(), 1);
 
   // src/geometry.mjs
-  var PICK_RADIUS = 7;
+  var PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
+  var WIRE_LAYOUT = { laneStart: 12, laneCount: 9, laneStep: 5, sameRowDistance: 12 };
+  var CHIP_LAYOUT = { leftOffset: 9, topOffset: 9, height: 32 };
   function chipBounds(chip) {
     const count = CHIP_MODELS[chip.model].count;
-    const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - 9;
-    const top = rowY(chip.section, "E") + 9;
-    return { x: left, y: top, width: count / 2 * BOARD.pitch, height: 32 };
+    const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - CHIP_LAYOUT.leftOffset;
+    const top = rowY(chip.section, "E") + CHIP_LAYOUT.topOffset;
+    return { x: left, y: top, width: count / 2 * BOARD.pitch, height: CHIP_LAYOUT.height };
   }
   function wirePoints(wire, index) {
     const first = endpointPosition(wire.from);
@@ -4137,9 +4528,9 @@
         points.push(bend);
       }
     } else {
-      const laneOffset = 12 + index % 9 * 5;
+      const laneOffset = WIRE_LAYOUT.laneStart + index % WIRE_LAYOUT.laneCount * WIRE_LAYOUT.laneStep;
       let lane = (first.y + last.y) / 2 + laneOffset;
-      if (Math.abs(first.y - last.y) < 12) {
+      if (Math.abs(first.y - last.y) < WIRE_LAYOUT.sameRowDistance) {
         lane = first.y - laneOffset;
       }
       points.push({ x: first.x, y: lane });
@@ -4161,16 +4552,16 @@
   }
   function hitCandidates(point, state2, endpoints2) {
     const candidates = [];
-    if (point.y >= PORT_LAYOUT.inputY + 17 && point.y <= PORT_LAYOUT.inputY + 60) {
+    if (point.y >= PORT_LAYOUT.inputY + PICK.buttonTop && point.y <= PORT_LAYOUT.inputY + PICK.buttonBottom) {
       for (let index = 0; index < IO_LIMIT; index = index + 1) {
         const location = endpointPosition("K" + index);
-        if (Math.abs(point.x - location.x) <= 15) {
+        if (Math.abs(point.x - location.x) <= PICK.switchHalfWidth) {
           return [{ kind: "switch", id: index }];
         }
       }
       for (const name of ["P+", "P-"]) {
         const location = endpointPosition(name);
-        if (Math.abs(point.x - location.x) <= 16) {
+        if (Math.abs(point.x - location.x) <= PICK.pulseHalfWidth) {
           return [{ kind: "pulse", id: name }];
         }
       }
@@ -4179,7 +4570,7 @@
       const wire = state2.project.wires[index];
       const points = wirePoints(wire, index);
       for (let segment = 1; segment < points.length; segment = segment + 1) {
-        if (segmentDistance(point, points[segment - 1], points[segment]) < 5) {
+        if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
           candidates.push({ kind: "wire", id: wire.id });
           break;
         }
@@ -4187,7 +4578,7 @@
     }
     for (const name of endpoints2) {
       const location = endpointPosition(name);
-      if (Math.hypot(point.x - location.x, point.y - location.y) <= PICK_RADIUS) {
+      if (Math.hypot(point.x - location.x, point.y - location.y) <= PICK.nodeRadius) {
         candidates.push({ kind: "node", id: name });
       }
     }
@@ -4219,7 +4610,7 @@
   }
   function nearestEndpoint(point, endpoints2) {
     let nearest = "";
-    let distance = 14;
+    let distance = PICK.endpointRadius;
     for (const name of endpoints2) {
       const location = endpointPosition(name);
       const current = Math.hypot(point.x - location.x, point.y - location.y);
@@ -4241,7 +4632,7 @@
       }
       const points = wirePoints(wire, index);
       for (let handle = 0; handle < points.length; handle = handle + 1) {
-        if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= 9) {
+        if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
           return { wire: wire.id, handle, points };
         }
       }
@@ -4251,10 +4642,107 @@
 
   // src/storage.mjs
   var STORAGE_KEY = "breadboard-lab-v1";
-  var LIMITS = { chips: 40, wires: 800, bends: 24, fileBytes: 2e6 };
+  var LIMITS = {
+    chips: 40,
+    // 单个实验的芯片数量上限
+    wires: 800,
+    // 单个实验的导线及上拉节点数量上限
+    bends: 24,
+    // 每根导线的转折点数量上限
+    fileBytes: 2e6,
+    // 导入文件字节数上限
+    nameLength: 80
+    // 实验名称字符数上限
+  };
+  var FILE_BOUNDS = { width: 1300, height: 1280 };
+  function legacyNode(name, wiringVersion) {
+    if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
+      return name;
+    }
+    return baseNode(name, 2);
+  }
+  function connectionRoot(parents, name) {
+    if (!parents.has(name)) {
+      parents.set(name, name);
+    }
+    let root = name;
+    while (parents.get(root) !== root) {
+      root = parents.get(root);
+    }
+    return root;
+  }
+  function verifyPortMigration(original, migrated) {
+    const before = /* @__PURE__ */ new Map();
+    const after = /* @__PURE__ */ new Map();
+    for (const wire of original.wires) {
+      const first = connectionRoot(before, legacyNode(wire.from, original.wiringVersion));
+      const last = connectionRoot(before, legacyNode(wire.to, original.wiringVersion));
+      before.set(last, first);
+    }
+    for (const wire of migrated.wires) {
+      const first = connectionRoot(after, baseNode(wire.from));
+      const last = connectionRoot(after, baseNode(wire.to));
+      after.set(last, first);
+    }
+    const terminals = ["P+", "P-", "VCC", "GND"];
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      terminals.push("K" + bit, "L" + bit);
+    }
+    for (const chip of migrated.chips) {
+      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
+        terminals.push(pinHole(chip, pin));
+      }
+    }
+    const forward = /* @__PURE__ */ new Map();
+    const reverse = /* @__PURE__ */ new Map();
+    for (const name of terminals) {
+      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
+      const newGroup = connectionRoot(after, baseNode(name));
+      if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
+        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
+      }
+      forward.set(oldGroup, newGroup);
+      reverse.set(newGroup, oldGroup);
+    }
+  }
+  function migrateEndpoint(name, occupied2) {
+    if (isPhysicalHole(name)) {
+      return name;
+    }
+    const preferred = portHole(name);
+    if (preferred === "") {
+      throw new Error("\u65E0\u6CD5\u627E\u5230\u7AEF\u53E3\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5B54\uFF1A" + name);
+    }
+    const parts = preferred.split(":");
+    if (preferred.startsWith("R:")) {
+      for (let index = Number(parts[2]); index >= 0; index = index - 1) {
+        const hole = parts[0] + ":" + parts[1] + ":" + index;
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    } else {
+      let rows = "JIHGF";
+      if (parts[1] === "A") {
+        rows = "ABCDE";
+      }
+      for (const row of rows) {
+        const hole = parts[0] + ":" + row + ":" + parts[2];
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    }
+    throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
+  }
   function validateProject(value) {
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
       throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
+    }
+    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
+      throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
     }
     if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
       throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
@@ -4262,7 +4750,7 @@
     const project = emptyProject();
     if (value.inputCount !== void 0 || value.outputCount !== void 0) {
       if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
-        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E24");
+        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
       }
       project.inputCount = value.inputCount;
       project.outputCount = value.outputCount;
@@ -4275,7 +4763,7 @@
       project.notes = COMPLEMENT_NOTES;
     } else if (value.notes !== void 0) {
       if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
-        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 50000 \u4E2A\u5B57\u7B26");
+        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 " + NOTES_LIMIT + " \u4E2A\u5B57\u7B26");
       }
       project.notes = value.notes;
     }
@@ -4293,7 +4781,7 @@
       }
     }
     if (typeof value.name === "string") {
-      project.name = value.name.slice(0, 80);
+      project.name = value.name.slice(0, LIMITS.nameLength);
     }
     project.power = value.power === true;
     const identifiers = /* @__PURE__ */ new Set();
@@ -4314,6 +4802,15 @@
       }
     }
     identifiers.clear();
+    const reserved = new Set(occupied2);
+    for (const entry of value.wires) {
+      if (entry && isPhysicalHole(entry.from)) {
+        reserved.add(entry.from);
+      }
+      if (entry && isPhysicalHole(entry.to)) {
+        reserved.add(entry.to);
+      }
+    }
     for (const entry of value.wires) {
       if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
         throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
@@ -4326,12 +4823,17 @@
       }
       const bends = [];
       for (const bend of entry.bends) {
-        if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y) || bend.x < 0 || bend.x > 1300 || bend.y < 0 || bend.y > 1280) {
+        if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y) || bend.x < 0 || bend.x > FILE_BOUNDS.width || bend.y < 0 || bend.y > FILE_BOUNDS.height) {
           throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
         }
         bends.push({ x: bend.x, y: bend.y });
       }
-      project.wires.push({ id: entry.id, from: entry.from, to: entry.to, color: entry.color, bends });
+      const from = migrateEndpoint(entry.from, reserved);
+      const to = migrateEndpoint(entry.to, reserved);
+      if (from !== entry.from || to !== entry.to) {
+        bends.length = 0;
+      }
+      project.wires.push({ id: entry.id, from, to, color: entry.color, bends });
       occupied2.add(entry.from);
       occupied2.add(entry.to);
       identifiers.add(entry.id);
@@ -4342,11 +4844,29 @@
       }
       project.switches[index] = value.switches[index];
     }
+    if (value.wiringVersion !== WIRING_VERSION) {
+      verifyPortMigration(value, project);
+    }
     return project;
   }
 
   // src/routing.mjs
-  var ROUTING = { step: 6, margin: 6, topBoundary: 62, bottomBoundary: 1110, sharedCost: 70, crossingCost: 10, neighborCost: 3, turnCost: 3 };
+  var ROUTING = {
+    step: 6,
+    margin: 6,
+    topBoundary: 62,
+    bottomBoundary: 1110,
+    edgeCells: 4,
+    // 左右边缘保留的网格数
+    sharedCost: 70,
+    // 共线重叠代价
+    crossingCost: 10,
+    // 垂直交叉代价
+    neighborCost: 3,
+    // 紧邻已有导线的代价
+    turnCost: 3
+    // 转弯代价
+  };
   var width = Math.floor(BOARD.width / ROUTING.step) + 1;
   var height = Math.floor(BOARD.height / ROUTING.step) + 1;
   function gridPoint(point) {
@@ -4394,7 +4914,7 @@
         const vertical = row * ROUTING.step;
         const top = Math.min(ROUTING.topBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
         const bottom = Math.max(ROUTING.bottomBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
-        if (walls.has(key) || column < 4 || column > width - 4 || vertical < top || vertical > bottom) {
+        if (walls.has(key) || column < ROUTING.edgeCells || column > width - ROUTING.edgeCells || vertical < top || vertical > bottom) {
           weight = 0;
         }
         cells.push(weight);
@@ -4517,13 +5037,44 @@
   }
 
   // src/render.mjs
-  var DRAW = { holeRadius: 3.5, wireWidth: 2.4, chipText: 10 };
+  var DRAW = {
+    pixelRatio: 2,
+    holeRadius: 3.5,
+    wireWidth: 2.4,
+    selectedWireWidth: 5,
+    wireOutlineWidth: 2,
+    wireEndpointRadius: 4,
+    handleSize: 10,
+    chipText: 10,
+    railLabelOffset: 17,
+    railLinePadding: 10,
+    sectionTopOffset: 30,
+    sectionHeight: 234,
+    boardRadius: 8
+  };
+  var INPUT_DRAW = {
+    top: -25,
+    height: 107,
+    label: -14,
+    switchTop: 20,
+    switchSlider: 37,
+    switchTravel: 14,
+    valueLabel: 67,
+    ledTop: 9,
+    pulseCenter: 38,
+    pulseRadius: 14,
+    pulsePressedOffset: 3,
+    railLabel: 25
+  };
+  var OUTPUT_DRAW = { top: 14, height: 65, titleX: 1122, titleY: 35, ledY: 34, valueY: 40, labelY: 24 };
+  var LEVEL_DRAW = { width: 13, height: 14, fontSize: 10, railInterval: 5 };
+  var INTERNAL_DRAW = { lineWidth: 1, restingOpacity: 0.45, activeOpacity: 0.9 };
+  var COLOR_NAMES = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "level-floating", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
   var drawingFont = "";
   function canvasColors() {
     const style = getComputedStyle(document.documentElement);
     const colors = {};
-    const names = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
-    for (const name of names) {
+    for (const name of COLOR_NAMES) {
       colors[name] = style.getPropertyValue("--color-" + name).trim();
     }
     drawingFont = style.getPropertyValue("--font-body").trim();
@@ -4576,21 +5127,16 @@
         }
       }
     }
-    for (let index = 0; index < IO_LIMIT; index = index + 1) {
-      endpoints2.push("K" + index);
-      endpoints2.push("L" + index);
-    }
-    for (let index = 0; index < 60; index = index + 1) {
+    for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
       endpoints2.push("R:GND:" + index);
       endpoints2.push("R:VCC:" + index);
     }
-    endpoints2.push("P+", "P-", "GND", "VCC");
     return endpoints2;
   }
   function drawBreadboards(context, state2, colors) {
     for (let section = 0; section < BOARD.sections; section = section + 1) {
-      const top = BOARD.startY + section * BOARD.sectionHeight - 30;
-      rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, 234, 7, colors.surface);
+      const top = BOARD.startY + section * BOARD.sectionHeight - DRAW.sectionTopOffset;
+      rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, DRAW.sectionHeight, 7, colors.surface);
       context.strokeStyle = colors.rule;
       context.lineWidth = 1;
       context.strokeRect(43, top + 1, 1130, 232);
@@ -4635,11 +5181,14 @@
         }
       }
     }
-    polyline(context, [{ x: 1210, y: 85 }, { x: 1210, y: PORT_LAYOUT.inputY + 10 }], colors.hole, 3);
-    polyline(context, [{ x: 1242, y: 85 }, { x: 1242, y: PORT_LAYOUT.inputY + 10 }], colors.error, 3);
-    label(context, "GND", 1210, 83, 11, colors.ink, "center");
-    label(context, "+5V", 1242, 83, 11, colors.error, "center");
-    for (let index = 0; index < 60; index = index + 1) {
+    const railTop = RAIL_LAYOUT.startY - DRAW.railLinePadding;
+    const railBottom = RAIL_LAYOUT.endY + DRAW.railLinePadding;
+    const railLabel = RAIL_LAYOUT.startY - DRAW.railLabelOffset;
+    polyline(context, [{ x: RAIL_LAYOUT.groundX, y: railTop }, { x: RAIL_LAYOUT.groundX, y: railBottom }], colors.hole, 3);
+    polyline(context, [{ x: RAIL_LAYOUT.powerX, y: railTop }, { x: RAIL_LAYOUT.powerX, y: railBottom }], colors.error, 3);
+    label(context, "GND", RAIL_LAYOUT.groundX, railLabel, 11, colors.ink, "center");
+    label(context, "+5V", RAIL_LAYOUT.powerX, railLabel, 11, colors.error, "center");
+    for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
       for (const name of ["GND", "VCC"]) {
         const location = endpointPosition("R:" + name + ":" + index);
         circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
@@ -4648,60 +5197,125 @@
     }
   }
   function drawModules(context, state2, colors) {
-    const offset = PORT_LAYOUT.inputY - 1170;
-    rectangle(context, BOARD.panelLeft, 14, BOARD.panelWidth, 65, 5, colors.module);
-    rectangle(context, BOARD.panelLeft, 1145 + offset, BOARD.panelWidth, 107, 5, colors.module);
-    label(context, "\u903B\u8F91\u6307\u793A\u706F", 1122, 35, 12, colors["module-text"], "center");
+    const inputY = PORT_LAYOUT.inputY;
+    rectangle(context, BOARD.panelLeft, OUTPUT_DRAW.top, BOARD.panelWidth, OUTPUT_DRAW.height, 5, colors.module);
+    rectangle(context, BOARD.panelLeft, inputY + INPUT_DRAW.top, BOARD.panelWidth, INPUT_DRAW.height, 5, colors.module);
+    label(context, "\u903B\u8F91\u6307\u793A\u706F", OUTPUT_DRAW.titleX, OUTPUT_DRAW.titleY, 12, colors["module-text"], "center");
     for (let index = 0; index < IO_LIMIT; index = index + 1) {
       const led = endpointPosition("L" + index);
       const value = readEndpoint(state2.result, "L" + index);
-      rectangle(context, led.x - 8, 34, 16, 13, 3, colors["led-off"]);
+      rectangle(context, led.x - 8, OUTPUT_DRAW.ledY, 16, 13, 3, colors["led-off"]);
       context.globalAlpha = state2.visual.leds["L" + index];
-      rectangle(context, led.x - 8, 34, 16, 13, 3, colors["led-on"]);
+      rectangle(context, led.x - 8, OUTPUT_DRAW.ledY, 16, 13, 3, colors["led-on"]);
       context.globalAlpha = 1;
       if (value === "X" || value === "Z") {
-        label(context, String(value), led.x, 40, 8, colors["module-text"], "center");
+        label(context, String(value), led.x, OUTPUT_DRAW.valueY, 8, colors["module-text"], "center");
       }
-      label(context, "L" + index, led.x, 24, 8, colors["module-text"], "center");
+      label(context, "L" + index, led.x, OUTPUT_DRAW.labelY, 8, colors["module-text"], "center");
       const location = endpointPosition("K" + index);
-      label(context, "K" + index, location.x, 1156 + offset, 9, colors["module-text"], "center");
-      rectangle(context, location.x - 12, 1190 + offset, 24, 36, 4, colors["chip-text"]);
-      const switchTop = 1207 + offset - state2.visual.switches[index] * 14;
+      label(context, "K" + index, location.x, inputY + INPUT_DRAW.label, 9, colors["module-text"], "center");
+      rectangle(context, location.x - 12, inputY + INPUT_DRAW.switchTop, 24, 36, 4, colors["chip-text"]);
+      const switchTop = inputY + INPUT_DRAW.switchSlider - state2.visual.switches[index] * INPUT_DRAW.switchTravel;
       rectangle(context, location.x - 9, switchTop, 18, 15, 2, colors.metal);
-      label(context, String(state2.project.switches[index]), location.x, 1237 + offset, 10, colors["module-text"], "center");
-      rectangle(context, location.x - 6, 1179 + offset, 12, 6, 2, colors["led-off"]);
+      label(context, String(state2.project.switches[index]), location.x, inputY + INPUT_DRAW.valueLabel, 10, colors["module-text"], "center");
+      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-off"]);
       context.globalAlpha = state2.visual.leds["K" + index];
-      rectangle(context, location.x - 6, 1179 + offset, 12, 6, 2, colors["led-on"]);
+      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-on"]);
       context.globalAlpha = 1;
     }
     for (const name of ["P+", "P-"]) {
       const location = endpointPosition(name);
-      label(context, name, location.x, 1156 + offset, 10, colors["module-text"], "center");
+      label(context, name, location.x, inputY + INPUT_DRAW.label, 10, colors["module-text"], "center");
       let buttonColor = colors["chip-text"];
-      let buttonY = 1208 + offset;
+      let buttonY = inputY + INPUT_DRAW.pulseCenter;
       if (state2.pressedPulse === name) {
         buttonColor = colors["led-on"];
-        buttonY = buttonY + 3;
+        buttonY = buttonY + INPUT_DRAW.pulsePressedOffset;
       }
-      circle(context, location.x, buttonY, 14, buttonColor);
-      label(context, "\u8109\u51B2", location.x, 1237 + offset, 9, colors["module-text"], "center");
+      circle(context, location.x, buttonY, INPUT_DRAW.pulseRadius, buttonColor);
+      label(context, "\u8109\u51B2", location.x, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
     }
-    for (const name of ["GND", "VCC"]) {
-      const location = endpointPosition(name);
-      circle(context, location.x, location.y, 5, colors.metal);
-      label(context, name, location.x, 1195 + offset, 9, colors.ink, "center");
+  }
+  function drawPortConnections(context, state2, colors) {
+    const emphasis = state2.visual.internals;
+    context.globalAlpha = INTERNAL_DRAW.restingOpacity + emphasis * (INTERNAL_DRAW.activeOpacity - INTERNAL_DRAW.restingOpacity);
+    const signals = ["P+", "P-"];
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      signals.push("K" + bit, "L" + bit);
     }
-    for (let index = 0; index < IO_LIMIT; index = index + 1) {
-      for (const prefix of ["K", "L"]) {
-        const location = endpointPosition(prefix + index);
-        circle(context, location.x, location.y, 4.5, colors.metal);
-        circle(context, location.x, location.y, 2.5, colors.hole);
+    for (const signal of signals) {
+      const location = endpointPosition(signal);
+      const first = { x: location.x, y: PORT_LAYOUT.inputY + INPUT_DRAW.top };
+      if (signal.startsWith("L")) {
+        first.y = OUTPUT_DRAW.top + OUTPUT_DRAW.height;
+      }
+      const last = endpointPosition(portHole(signal));
+      polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
+    }
+    const section = BOARD.sections - 1;
+    for (let column = 1; column <= BOARD.columns; column = column + 1) {
+      if (isInputColumn(column)) {
+        const first = endpointPosition(holeId(section, "E", column));
+        const last = endpointPosition(holeId(section, "F", column));
+        polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
       }
     }
-    for (const name of ["P+", "P-"]) {
-      const location = endpointPosition(name);
-      circle(context, location.x, location.y, 4.5, colors.metal);
-      circle(context, location.x, location.y, 2.5, colors.hole);
+    context.globalAlpha = emphasis;
+    for (const rail of ["GND", "VCC"]) {
+      const first = endpointPosition("R:" + rail + ":0");
+      const last = endpointPosition("R:" + rail + ":" + (RAIL_LAYOUT.count - 1));
+      let color = colors.ink;
+      if (rail === "VCC") {
+        color = colors.error;
+      }
+      polyline(context, [first, last], color, 4);
+      for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
+        const point = endpointPosition("R:" + rail + ":" + index);
+        circle(context, point.x, point.y, 2, color);
+      }
+    }
+    context.globalAlpha = 1;
+  }
+  function drawLevel(context, name, point, state2, colors) {
+    const value = readEndpoint(state2.result, name);
+    let background = colors["level-floating"];
+    let foreground = colors.ink;
+    if (value === 1) {
+      background = colors.success;
+      foreground = colors.surface;
+    } else if (value === 0) {
+      background = colors.ink;
+      foreground = colors.surface;
+    } else if (value === "X") {
+      background = colors.unknown;
+    }
+    rectangle(context, point.x - LEVEL_DRAW.width / 2, point.y - LEVEL_DRAW.height / 2, LEVEL_DRAW.width, LEVEL_DRAW.height, 2, colors.surface);
+    rectangle(context, point.x - LEVEL_DRAW.width / 2 + 1, point.y - LEVEL_DRAW.height / 2 + 1, LEVEL_DRAW.width - 2, LEVEL_DRAW.height - 2, 1, background);
+    label(context, String(value), point.x, point.y, LEVEL_DRAW.fontSize, foreground, "center");
+  }
+  function drawNodeLevels(context, state2, colors) {
+    if (!state2.showLevels) {
+      return;
+    }
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+      for (let column = 1; column <= BOARD.columns; column = column + 1) {
+        for (const row of ["C", "H"]) {
+          const name = holeId(section, row, column);
+          drawLevel(context, name, endpointPosition(name), state2, colors);
+        }
+      }
+      for (const row of BUS_ROWS) {
+        for (const segment of BUS_SEGMENTS) {
+          const name = holeId(section, row, segment[0]);
+          drawLevel(context, name, endpointPosition(name), state2, colors);
+        }
+      }
+    }
+    for (const rail of ["GND", "VCC"]) {
+      for (let index = 0; index < RAIL_LAYOUT.count; index = index + LEVEL_DRAW.railInterval) {
+        const name = "R:" + rail + ":" + index;
+        drawLevel(context, name, endpointPosition(name), state2, colors);
+      }
     }
   }
   function drawChip(context, chip, state2, colors) {
@@ -4739,20 +5353,20 @@
       let width2 = DRAW.wireWidth;
       const selected = objectSelected(state2, "wire", wire.id);
       if (selected) {
-        width2 = 5;
+        width2 = DRAW.selectedWireWidth;
       }
-      polyline(context, points, colors.surface, width2 + 2);
+      polyline(context, points, colors.surface, width2 + DRAW.wireOutlineWidth);
       polyline(context, points, wire.color, width2);
       const first = points[0];
       const last = points[points.length - 1];
-      circle(context, first.x, first.y, 4, wire.color);
-      circle(context, last.x, last.y, 4, wire.color);
+      circle(context, first.x, first.y, DRAW.wireEndpointRadius, wire.color);
+      circle(context, last.x, last.y, DRAW.wireEndpointRadius, wire.color);
       if (selected && state2.tool === "select") {
         for (const point of points) {
-          rectangle(context, point.x - 5, point.y - 5, 10, 10, 2, colors.surface);
+          rectangle(context, point.x - DRAW.handleSize / 2, point.y - DRAW.handleSize / 2, DRAW.handleSize, DRAW.handleSize, 2, colors.surface);
           context.strokeStyle = wire.color;
           context.lineWidth = 2;
-          context.strokeRect(point.x - 5, point.y - 5, 10, 10);
+          context.strokeRect(point.x - DRAW.handleSize / 2, point.y - DRAW.handleSize / 2, DRAW.handleSize, DRAW.handleSize);
         }
       }
     }
@@ -4784,18 +5398,6 @@
         context.arc(location.x, location.y, 6.2, 0, Math.PI * 2);
         context.stroke();
       }
-      if (state2.showLevels) {
-        const value = readEndpoint(state2.result, name);
-        if (value !== "Z") {
-          let color = colors.unknown;
-          if (value === 0) {
-            color = colors.ink;
-          } else if (value === 1) {
-            color = colors.success;
-          }
-          circle(context, location.x, location.y, 3.2, color);
-        }
-      }
     }
     if (state2.hovered) {
       const location = endpointPosition(state2.hovered);
@@ -4806,17 +5408,19 @@
   }
   function renderBoard(canvas2, state2, endpoints2) {
     const context = canvas2.getContext("2d");
-    context.setTransform(2, 0, 0, 2, 0, 0);
+    context.setTransform(DRAW.pixelRatio, 0, 0, DRAW.pixelRatio, 0, 0);
     const colors = canvasColors();
     context.clearRect(0, 0, BOARD.width, BOARD.height);
-    rectangle(context, 0, 0, BOARD.width, BOARD.height, 8, colors.board);
+    rectangle(context, 0, 0, BOARD.width, BOARD.height, DRAW.boardRadius, colors.board);
     drawBreadboards(context, state2, colors);
     drawModules(context, state2, colors);
+    drawPortConnections(context, state2, colors);
     for (const chip of state2.project.chips) {
       drawChip(context, chip, state2, colors);
     }
     drawWires(context, state2, colors);
     drawHighlights(context, state2, endpoints2, colors);
+    drawNodeLevels(context, state2, colors);
     if (state2.placing) {
       label(context, "\u653E\u7F6E " + state2.placing, 650, 1105, 17, colors.accent, "center");
     }
@@ -8310,12 +8914,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
 
   // src/notes.mjs
   var MARKDOWN_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "br", "hr", "strong", "em", "del", "blockquote", "pre", "code", "ul", "ol", "li", "a", "table", "thead", "tbody", "tr", "th", "td", "input"];
+  var MARKDOWN_ATTRIBUTES = ["href", "title", "type", "checked", "disabled", "start", "align"];
+  var MARKDOWN_OPTIONS = { gfm: true, breaks: true, async: false };
+  var LINK_PROTOCOLS = /^(https?:|mailto:|#)/i;
   function markdownFragment(source) {
-    const parsed = x.parse(source, { gfm: true, breaks: true, async: false });
-    const fragment = purify_default.sanitize(parsed, { ALLOWED_TAGS: MARKDOWN_TAGS, ALLOWED_ATTR: ["href", "title", "type", "checked", "disabled", "start", "align"], RETURN_DOM_FRAGMENT: true });
+    const parsed = x.parse(source, MARKDOWN_OPTIONS);
+    const fragment = purify_default.sanitize(parsed, { ALLOWED_TAGS: MARKDOWN_TAGS, ALLOWED_ATTR: MARKDOWN_ATTRIBUTES, RETURN_DOM_FRAGMENT: true });
     for (const anchor of fragment.querySelectorAll("a")) {
       const href = anchor.getAttribute("href");
-      if (href && !/^(https?:|mailto:|#)/i.test(href)) {
+      if (href && !LINK_PROTOCOLS.test(href)) {
         anchor.removeAttribute("href");
       }
       anchor.setAttribute("target", "_blank");
@@ -8328,64 +8935,214 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     return fragment;
   }
 
-  // src/audit.mjs
-  function terminalMap(project) {
-    const terminals = {};
-    for (const name of ["VCC", "GND", "P+", "P-"]) {
-      terminals[name] = name;
+  // src/diagnostics.mjs
+  var REGISTER_CONTROLS = { clock: 11, reset: 1 };
+  var COUNTER_CONTROLS = { clock: 2, reset: 1, load: 9, enable: [7, 10] };
+  var SHIFT_CONTROLS = { clock: 2, reset: 1, mode: [9, 10] };
+  function pinDescription(chip, pin) {
+    return "\u7B2C " + pin + " \u811A " + CHIP_MODELS[chip.model].labels[pin] + "\uFF08" + endpointLabel(pinHole(chip, pin)) + "\uFF09";
+  }
+  function addIssue(report, code, severity, message, chipId) {
+    for (const issue of report.issues) {
+      if (issue.code === code) {
+        return;
+      }
     }
-    for (let index = 0; index < 24; index = index + 1) {
-      terminals["K" + index] = "K" + index;
-      terminals["L" + index] = "L" + index;
+    report.issues.push({ code, severity, message, chipId });
+  }
+  function inspectClock(chip, pin, result, report) {
+    const value = readEndpoint(result, pinHole(chip, pin));
+    if (value !== 0 && value !== 1) {
+      addIssue(report, "clock:" + chip.id + ":" + pin, "warning", chip.id + " \u65F6\u949F\u4E0D\u786E\u5B9A\uFF1A" + pinDescription(chip, pin) + " \u4E3A " + value + "\uFF0C\u8BF7\u68C0\u67E5\u65F6\u949F\u63A5\u7EBF\u548C\u9A71\u52A8\u51B2\u7A81", chip.id);
+    }
+  }
+  function inspectStoredState(chip, result, report) {
+    const model = CHIP_MODELS[chip.model];
+    const unknown = [];
+    for (const pin of model.outputs) {
+      if (readEndpoint(result, pinHole(chip, pin)) === "X") {
+        unknown.push(String(pin));
+      }
+    }
+    if (unknown.length > 0) {
+      addIssue(report, "state:" + chip.id, "warning", chip.id + " \u4FDD\u5B58\u503C\u5C1A\u4E0D\u786E\u5B9A\uFF0C\u8F93\u51FA\u811A " + unknown.join("\u3001") + " \u4E3A X\uFF0C\u8BF7\u5148\u6E05\u96F6\u3001\u7F6E\u6570\u6216\u63D0\u4F9B\u6EE1\u8DB3\u63A7\u5236\u6761\u4EF6\u7684\u6709\u6548\u65F6\u949F\u8FB9\u6CBF", chip.id);
+    }
+  }
+  function inspectTiming(chip, result, report) {
+    const model = CHIP_MODELS[chip.model];
+    const details = [];
+    if (model.channels) {
+      let active = 0;
+      if (model.activeHigh) {
+        active = 1;
+      }
+      for (let index = 0; index < model.channels.length; index = index + 1) {
+        const channel = model.channels[index];
+        const reset = readEndpoint(result, pinHole(chip, channel.reset));
+        const set = readEndpoint(result, pinHole(chip, channel.set));
+        const prefix = "\u7B2C " + (index + 1) + " \u8DEF";
+        if (reset === active && set === active) {
+          details.push(prefix + "\u7F6E\u4F4D\u548C\u590D\u4F4D\u540C\u65F6\u6709\u6548");
+        } else if (reset === active) {
+          details.push(prefix + "\u5F02\u6B65\u590D\u4F4D\u6709\u6548");
+        } else if (set === active) {
+          details.push(prefix + "\u5F02\u6B65\u7F6E\u4F4D\u6709\u6548");
+        } else {
+          inspectClock(chip, channel.clock, result, report);
+          let edge = "\u4E0A\u5347\u6CBF";
+          if (model.edge === "falling") {
+            edge = "\u4E0B\u964D\u6CBF";
+          }
+          details.push(prefix + "\u7B49\u5F85" + edge + "\u91C7\u6837");
+        }
+      }
+    } else {
+      let controls2 = REGISTER_CONTROLS;
+      if (model.sequential === "counter") {
+        controls2 = COUNTER_CONTROLS;
+      } else if (model.sequential === "shift") {
+        controls2 = SHIFT_CONTROLS;
+      }
+      const reset = readEndpoint(result, pinHole(chip, controls2.reset));
+      if (reset === 0) {
+        details.push("\u5F02\u6B65\u6E05\u96F6\u6709\u6548\uFF0C\u8F93\u51FA\u4FDD\u6301\u4E3A 0");
+      } else {
+        inspectClock(chip, controls2.clock, result, report);
+        if (model.sequential === "counter") {
+          const load = readEndpoint(result, pinHole(chip, controls2.load));
+          const firstEnable = readEndpoint(result, pinHole(chip, controls2.enable[0]));
+          const secondEnable = readEndpoint(result, pinHole(chip, controls2.enable[1]));
+          if (load === 0) {
+            details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u5E76\u884C\u7F6E\u6570");
+          } else if (load === 1 && (firstEnable === 0 || secondEnable === 0)) {
+            details.push("\u8BA1\u6570\u7981\u6B62\uFF0C\u4FDD\u6301\u539F\u503C");
+          } else {
+            if (load === 1 && firstEnable === 1 && secondEnable === 1) {
+              details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u8BA1\u6570");
+            } else {
+              details.push("\u7F6E\u6570\u6216\u8BA1\u6570\u4F7F\u80FD\u5C1A\u4E0D\u786E\u5B9A");
+            }
+          }
+        } else if (model.sequential === "shift") {
+          const first = readEndpoint(result, pinHole(chip, controls2.mode[0]));
+          const second = readEndpoint(result, pinHole(chip, controls2.mode[1]));
+          if (first === 0 && second === 0) {
+            details.push("\u4FDD\u6301\u6A21\u5F0F\uFF0C\u4E0D\u8FDB\u884C\u79FB\u4F4D");
+          } else if (first !== 0 && first !== 1 || second !== 0 && second !== 1) {
+            details.push("\u79FB\u4F4D\u6A21\u5F0F\u5C1A\u4E0D\u786E\u5B9A");
+          } else {
+            details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u79FB\u4F4D\u6216\u5E76\u884C\u7F6E\u6570");
+          }
+        } else {
+          details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u4FDD\u5B58\u6570\u636E");
+        }
+      }
+    }
+    inspectStoredState(chip, result, report);
+    return details.join("\uFF1B");
+  }
+  function issueAffectsChip(issue, chip, result) {
+    if (issue.chipId === chip.id || issue.code.endsWith(":" + chip.id) || issue.code.startsWith("async-conflict:" + chip.id + ":")) {
+      return true;
+    }
+    if (issue.code === "power-short" || issue.code === "unstable") {
+      return true;
+    }
+    if (issue.code.startsWith("drivers:")) {
+      const node2 = issue.code.slice("drivers:".length);
+      const model = CHIP_MODELS[chip.model];
+      for (let pin = 1; pin <= model.count; pin = pin + 1) {
+        if (nodeFor(result.topology, pinHole(chip, pin)) === node2) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  function inspectOutputRails(chip, result, report) {
+    const model = CHIP_MODELS[chip.model];
+    for (const pin of model.outputs) {
+      if (model.kind === "open-collector" || model.kind === "seven-segment") {
+        continue;
+      }
+      const endpoint = pinHole(chip, pin);
+      const node2 = nodeFor(result.topology, endpoint);
+      for (const rail of ["VCC", "GND"]) {
+        if (node2 === nodeFor(result.topology, rail)) {
+          addIssue(report, "output-rail:" + chip.id + ":" + pin, "error", chip.id + " \u8F93\u51FA\u76F4\u63A5\u63A5\u5230 " + rail + "\uFF1A" + pinDescription(chip, pin) + "\uFF0C\u8BF7\u68C0\u67E5\u662F\u5426\u8BEF\u63A5\u7535\u6E90\u8F68", chip.id);
+        }
+      }
+    }
+  }
+  function inspectCircuit(project, result) {
+    const report = { issues: [], chips: [], power: project.power, stable: result.stable };
+    for (const issue of result.issues) {
+      report.issues.push({ code: issue.code, severity: issue.severity, message: issue.message, chipId: "" });
+    }
+    if (nodeFor(result.topology, "VCC") === nodeFor(result.topology, "GND")) {
+      addIssue(report, "power-short", "error", "+5V \u4E0E GND \u88AB\u5BFC\u7EBF\u77ED\u63A5\uFF0C\u8BF7\u5148\u65AD\u5F00\u77ED\u63A5\u518D\u4E0A\u7535", "");
+    }
+    if (!result.stable) {
+      addIssue(report, "unstable", "error", "\u7535\u8DEF\u672A\u8FBE\u5230\u7A33\u5B9A\u72B6\u6001\uFF0C\u8BF7\u68C0\u67E5\u7EC4\u5408\u903B\u8F91\u53CD\u9988", "");
     }
     for (const chip of project.chips) {
-      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-        terminals[chip.id + "-" + pin] = pinHole(chip, pin);
-      }
-    }
-    return terminals;
-  }
-  function auditComplement(project) {
-    const reference = complementPreset();
-    const issues = [];
-    for (const expected of reference.chips) {
-      let found = false;
-      for (const chip of project.chips) {
-        if (chip.id === expected.id && chip.model === expected.model) {
-          found = true;
-        }
-      }
-      if (!found) {
-        issues.push(expected.id + " \u5E94\u4E3A " + expected.model + "\uFF0C\u8BF7\u68C0\u67E5\u82AF\u7247\u578B\u53F7\u548C\u7F16\u53F7");
-      }
-    }
-    if (project.chips.length !== reference.chips.length) {
-      issues.push("\u6807\u51C6\u5B9E\u9A8C\u4F7F\u7528 5 \u7247\u82AF\u7247\uFF0C\u5F53\u524D\u6709 " + project.chips.length + " \u7247");
-    }
-    if (issues.length > 0) {
-      return issues;
-    }
-    const actualTerminals = terminalMap(project);
-    const expectedTerminals = terminalMap(reference);
-    const actualTopology = buildTopology(project);
-    const expectedTopology = buildTopology(reference);
-    const names = Object.keys(expectedTerminals);
-    for (let first = 0; first < names.length; first = first + 1) {
-      for (let second = first + 1; second < names.length; second = second + 1) {
-        const firstName = names[first];
-        const secondName = names[second];
-        const expectedSame = nodeFor(expectedTopology, expectedTerminals[firstName]) === nodeFor(expectedTopology, expectedTerminals[secondName]);
-        const actualSame = nodeFor(actualTopology, actualTerminals[firstName]) === nodeFor(actualTopology, actualTerminals[secondName]);
-        if (expectedSame !== actualSame) {
-          let message = firstName + " \u4E0E " + secondName + " \u5E94\u5F53\u8FDE\u901A\uFF0C\u8BF7\u68C0\u67E5\u8FD9\u6761\u901A\u8DEF";
-          if (actualSame) {
-            message = firstName + " \u4E0E " + secondName + " \u88AB\u989D\u5916\u63A5\u901A\uFF0C\u8BF7\u68C0\u67E5\u76F8\u5173\u5BFC\u7EBF";
+      const model = CHIP_MODELS[chip.model];
+      const power = readEndpoint(result, pinHole(chip, model.power));
+      const ground = readEndpoint(result, pinHole(chip, model.ground));
+      let detail = "\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u6682\u4E0D\u8FDB\u884C\u5DE5\u4F5C\u72B6\u6001\u5224\u65AD";
+      let status = "\u672A\u4E0A\u7535";
+      let severity = "info";
+      if (project.power) {
+        detail = pinDescription(chip, model.power) + "=" + power + "\uFF1B" + pinDescription(chip, model.ground) + "=" + ground;
+        if (power !== 1 || ground !== 0) {
+          status = "\u4F9B\u7535\u5F02\u5E38";
+          severity = "error";
+          addIssue(report, "power:" + chip.id, "error", chip.id + " \u7535\u6E90\u4E0D\u6B63\u786E\uFF1A" + detail + "\uFF0C\u8BF7\u68C0\u67E5\u7535\u6E90\u811A\u548C\u5730\u811A\u7684\u63A5\u7EBF", chip.id);
+        } else {
+          status = "\u5F53\u524D\u6761\u4EF6\u6B63\u5E38";
+          severity = "success";
+          inspectOutputRails(chip, result, report);
+          const uncertain = [];
+          for (const pin of model.inputs) {
+            if (readEndpoint(result, pinHole(chip, pin)) === "X") {
+              uncertain.push(String(pin));
+            }
           }
-          issues.push(message);
+          if (uncertain.length > 0) {
+            addIssue(report, "input-unknown:" + chip.id, "warning", chip.id + " \u8F93\u5165\u811A " + uncertain.join("\u3001") + " \u4E3A X\uFF0C\u8BF7\u68C0\u67E5\u4E0A\u6E38\u8F93\u51FA\u3001\u521D\u59CB\u5316\u72B6\u6001\u6216\u7535\u5E73\u51B2\u7A81", chip.id);
+          }
+          if (chip.model === "74LS273" || model.sequential) {
+            detail = detail + "\uFF1B" + inspectTiming(chip, result, report);
+          } else {
+            detail = detail + "\uFF1B\u7EC4\u5408\u903B\u8F91\u6309\u5F53\u524D\u8F93\u5165\u8BA1\u7B97";
+          }
+          if (model.kind === "open-collector") {
+            for (const pin of model.outputs) {
+              if (readEndpoint(result, pinHole(chip, pin)) === "Z") {
+                addIssue(report, "oc-floating:" + chip.id + ":" + pin, "warning", chip.id + " OC \u8F93\u51FA\u65E0\u4E0A\u62C9\uFF1A" + pinDescription(chip, pin) + "\uFF0C\u91CA\u653E\u65F6\u4E3A Z\uFF0C\u53EF\u8FDE\u63A5\u4E0A\u62C9\u7535\u963B", chip.id);
+              }
+            }
+          }
+        }
+        for (const issue of report.issues) {
+          if (issueAffectsChip(issue, chip, result)) {
+            if (issue.severity === "error") {
+              severity = "error";
+              status = "\u5B58\u5728\u5DE5\u4F5C\u5F02\u5E38";
+            } else if (severity !== "error") {
+              severity = "warning";
+              status = "\u9700\u8981\u68C0\u67E5";
+            }
+          }
         }
       }
+      const reference = CHIP_REFERENCES[chip.model];
+      if (reference.pinWarning) {
+        detail = detail + "\uFF1B" + reference.pinWarning;
+      }
+      report.chips.push({ id: chip.id, model: chip.model, status, severity, detail });
     }
-    return issues;
+    return report;
   }
 
   // src/workspace.mjs
@@ -8396,7 +9153,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (project.chips.length > 0 || project.wires.length > 0 || project.pullUps.length > 0) {
       return false;
     }
-    if (project.notes !== GENERAL_NOTES || project.inputCount !== 8 || project.outputCount !== 8 || !project.power) {
+    if (project.notes !== GENERAL_NOTES || project.inputCount !== PROJECT_DEFAULTS.inputCount || project.outputCount !== PROJECT_DEFAULTS.outputCount || project.power !== PROJECT_DEFAULTS.power) {
       return false;
     }
     for (const value of project.switches) {
@@ -8471,16 +9228,28 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.2.0";
+  var APP_VERSION = "1.4.0";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs
   var SETTINGS = {
+    // 撤销最多保留的编辑次数
     historyLimit: 80,
+    // 缩放上下限、按钮步长和滚轮灵敏度
     zoomMinimum: 0.15,
     zoomMaximum: 2,
     zoomStep: 0.15,
-    wheelSpeed: 15e-4
+    wheelSpeed: 15e-4,
+    // 连续点击容差与开始拖动的最小距离
+    clickTolerance: 7,
+    dragThreshold: 4,
+    // 适应宽度时画布两侧预留的总空间
+    fitPadding: 36,
+    // 滚轮按行报告位移时，每行对应的像素数
+    wheelLinePixels: 16,
+    // 下载地址释放时间和页脚时钟刷新时间
+    downloadReleaseDelay: 1e3,
+    clockInterval: 1e3
   };
   var PULSE_SETTINGS = { feedbackDuration: 160 };
   var state = {
@@ -8492,6 +9261,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     selected: null,
     selection: [],
     pinnedChip: "",
+    fixedChip: "",
     placing: "",
     pending: null,
     pointer: null,
@@ -8519,7 +9289,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var readOnly = false;
   var workspace = { version: 1, activeId: "", projects: {} };
   var activeExperiment = "";
-  var wiringAudit = [];
+  var circuitDiagnostics = { issues: [], chips: [], power: false, stable: false };
   var dirty = false;
   var dirtyExperiments = /* @__PURE__ */ new Set();
   var savedExperiments = { version: 1, activeId: "", projects: {} };
@@ -8663,6 +9433,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       picker.append(option);
     }
     picker.value = activeExperiment;
+    refreshSelect(picker);
   }
   function switchExperiment(event) {
     keepExperiment(workspace, activeExperiment, state.project);
@@ -8675,18 +9446,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     resetRuntime();
     state.undo = [];
     state.redo = [];
-    wiringAudit = [];
     calculate(false);
     render();
     renderLibrary();
   }
-  function auditCurrentWiring() {
-    wiringAudit = auditComplement(state.project);
+  function diagnoseCurrentCircuit() {
+    circuitDiagnostics = inspectCircuit(state.project, state.result);
     state.activeTab = "diagnostics";
-    if (wiringAudit.length === 0) {
-      toast("\u5F53\u524D\u82AF\u7247\u548C\u7535\u6C14\u8FDE\u63A5\u4E0E\u8865\u7801\u5B9E\u9A8C\u6807\u51C6\u63A5\u6CD5\u4E00\u81F4", "info");
+    if (circuitDiagnostics.issues.length > 0) {
+      toast("\u53D1\u73B0 " + circuitDiagnostics.issues.length + " \u9879\u8BCA\u65AD\uFF0C\u8BF7\u67E5\u770B\u53F3\u4FA7\u8BE6\u60C5", "warning");
+    } else if (!state.project.power) {
+      toast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u53EF\u67E5\u770B\u82AF\u7247\u4F9B\u7535\u4E0E\u63A5\u7EBF\u72B6\u6001", "info");
     } else {
-      toast("\u53D1\u73B0\u63A5\u7EBF\u5DEE\u5F02\uFF1A" + wiringAudit[0] + " \u4F60\u53EF\u4EE5\u5728\u8BCA\u65AD\u9762\u677F\u67E5\u770B\u8BE6\u60C5", "warning");
+      toast("\u5F53\u524D\u672A\u53D1\u73B0\u4F9B\u7535\u3001\u51B2\u7A81\u3001\u77ED\u8DEF\u6216\u903B\u8F91\u72B6\u6001\u5F02\u5E38", "info");
     }
     render();
   }
@@ -8769,9 +9541,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function calculate(notify) {
     state.result = simulate(state.project, state.runtime);
+    circuitDiagnostics = inspectCircuit(state.project, state.result);
     const current = /* @__PURE__ */ new Set();
     const newIssues = [];
-    for (const issue of state.result.issues) {
+    for (const issue of circuitDiagnostics.issues) {
       const identity = issue.code + ":" + issue.message;
       current.add(identity);
       if (!state.previousIssues.has(identity)) {
@@ -8839,7 +9612,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     tween("board", 0, 1, updateBoardTransition, MOTION.duration);
   }
   function commit() {
-    wiringAudit = [];
     calculate(true);
     stageChanges();
     render();
@@ -8872,8 +9644,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (editingLocked()) {
       return false;
     }
-    if (!validEndpoint(first) || !validEndpoint(second)) {
-      toast("\u7AEF\u70B9\u540D\u79F0\u4E0D\u6B63\u786E\uFF0C\u8BF7\u9009\u62E9\u63D2\u5B54\u6216\u68C0\u67E5\u7AEF\u70B9\u540D\u79F0", "error");
+    if (!isPhysicalHole(first) || !isPhysicalHole(second)) {
+      toast("\u5BFC\u7EBF\u53EA\u80FD\u63D2\u5728\u9762\u5305\u677F\u6216\u7535\u6E90\u8F68\u7684\u5B54\u4E2D\uFF0CK\u3001L\u3001P \u662F\u677F\u8F7D\u4FE1\u53F7\u540D\u79F0", "error");
       return false;
     }
     if (first === second) {
@@ -9059,7 +9831,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     for (const target of candidates) {
       signature = signature + target.kind + ":" + target.id + ";";
     }
-    if (Math.hypot(point.x - cycle.x, point.y - cycle.y) < 7 && signature === cycle.signature && candidates.length > 1) {
+    if (Math.hypot(point.x - cycle.x, point.y - cycle.y) < SETTINGS.clickTolerance && signature === cycle.signature && candidates.length > 1) {
       cycle.index = (cycle.index + 1) % candidates.length;
     } else {
       cycle.index = 0;
@@ -9145,7 +9917,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       return;
     }
     const point = canvasPoint(event);
-    if (!drag.moved && Math.hypot(point.x - drag.origin.x, point.y - drag.origin.y) <= 4) {
+    if (!drag.moved && Math.hypot(point.x - drag.origin.x, point.y - drag.origin.y) <= SETTINGS.dragThreshold) {
       return;
     }
     drag.moved = true;
@@ -9367,6 +10139,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       } else {
         delete state.runtime.registers[chip.id];
         delete state.runtime.devices[chip.id];
+        if (state.fixedChip === chip.id) {
+          state.fixedChip = "";
+        }
       }
     }
     state.project.wires = wires;
@@ -9491,6 +10266,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.selection = [];
     state.pinnedChip = "";
     lastPinnedChip = "";
+    state.fixedChip = "";
     state.previousIssues = /* @__PURE__ */ new Set();
   }
   function newProject() {
@@ -9511,14 +10287,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     resetRuntime();
     state.undo = [];
     state.redo = [];
-    wiringAudit = [];
     commit();
     renderLibrary();
   }
   function loadPreset() {
     keepExperiment(workspace, activeExperiment, state.project);
     for (const id of Object.keys(workspace.projects)) {
-      if (workspace.projects[id].name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668" && auditComplement(workspace.projects[id]).length === 0) {
+      if (workspace.projects[id].name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668" && restorePresetRoutes(copyProject(workspace.projects[id]))) {
         activeExperiment = id;
         state.project = copyProject(workspace.projects[id]);
         resetRuntime();
@@ -9532,7 +10307,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     resetRuntime();
     state.undo = [];
     state.redo = [];
-    wiringAudit = [];
     commit();
     renderLibrary();
   }
@@ -9551,7 +10325,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     anchor.href = url;
     anchor.download = name;
     anchor.click();
-    window.setTimeout(revokeDownload.bind(null, url), 1e3);
+    window.setTimeout(revokeDownload.bind(null, url), SETTINGS.downloadReleaseDelay);
   }
   function revokeDownload(url) {
     URL.revokeObjectURL(url);
@@ -9599,7 +10373,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       resetRuntime();
       state.undo = [];
       state.redo = [];
-      wiringAudit = [];
       commit();
       renderLibrary();
     } catch (error) {
@@ -9648,7 +10421,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const anchor = { x: (event.clientX - bounds.left) / state.zoom, y: (event.clientY - bounds.top) / state.zoom, clientX: event.clientX, clientY: event.clientY };
     let delta = event.deltaY;
     if (event.deltaMode === 1) {
-      delta = delta * 16;
+      delta = delta * SETTINGS.wheelLinePixels;
     } else if (event.deltaMode === 2) {
       delta = delta * element("board-viewport").clientHeight;
     }
@@ -9656,7 +10429,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     changeZoom(state.targetZoom * scale, anchor);
   }
   function fitBoard() {
-    const width2 = element("board-viewport").clientWidth - 36;
+    const width2 = element("board-viewport").clientWidth - SETTINGS.fitPadding;
     changeZoom(width2 / BOARD.width, null);
   }
   function zoomIn() {
@@ -9716,14 +10489,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     remove.append(icon("trash-2"));
     remove.addEventListener("click", deletePinnedChip);
     heading.append(remove);
-    const unpin = node("button", "", "icon-button");
-    unpin.setAttribute("aria-label", "\u53D6\u6D88\u56FA\u5B9A\u5F15\u811A\u4FE1\u606F");
-    unpin.append(icon("pin-off"));
-    unpin.addEventListener("click", unpinChip);
-    heading.append(unpin);
+    const pin = node("button", "", "icon-button");
+    pin.id = "pin-chip-info";
+    pin.addEventListener("click", togglePinnedChip);
+    heading.append(pin);
+    updatePinButton(pin, chip.id);
     container.append(heading, node("p", CHIP_MODELS[chip.model].title + " \xB7 \u7F3A\u53E3\u671D\u5DE6", "inspection-meta"));
     appendChipReference(container, chip);
-    const controls = node("div", "", "move-fields");
+    const controls2 = node("div", "", "move-fields");
     const sectionLabel = node("label", "\u677F\u5757", "");
     const section = document.createElement("select");
     section.id = "move-section";
@@ -9739,17 +10512,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     column.id = "move-column";
     column.type = "number";
     column.min = "1";
-    column.max = "59";
+    column.max = String(BOARD.columns);
     column.value = String(chip.column);
     columnLabel.append(column);
     const move = node("button", "\u79FB\u52A8\u82AF\u7247", "button");
     move.addEventListener("click", moveChip);
-    controls.append(sectionLabel, columnLabel, move);
+    controls2.append(sectionLabel, columnLabel, move);
     move.disabled = readOnly;
     remove.disabled = readOnly;
     section.disabled = readOnly;
     column.disabled = readOnly;
-    container.append(controls);
+    container.append(controls2);
+    section.setAttribute("aria-label", "\u82AF\u7247\u6240\u5728\u677F\u5757");
+    refreshSelect(section);
     appendChipPinTable(container, chip);
   }
   function appendChipPinTable(container, chip) {
@@ -9805,7 +10580,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (state.selected && state.selected.kind === "chip") {
       const chip = findChip(state.selected.id);
       if (chip) {
-        container.append(node("h2", chip.id + " \xB7 " + chip.model, ""), node("p", "\u5F15\u811A\u4FE1\u606F\u5DF2\u56FA\u5B9A\u5728\u4E0A\u65B9", "inspection-meta"));
+        let message = "\u5F15\u811A\u4FE1\u606F\u663E\u793A\u5728\u4E0A\u65B9";
+        if (state.fixedChip !== "" && state.fixedChip !== chip.id) {
+          message = "\u4E0A\u65B9\u6B63\u5728\u56FA\u5B9A\u663E\u793A " + state.fixedChip + " \u7684\u5F15\u811A\u4FE1\u606F";
+        }
+        container.append(node("h2", chip.id + " \xB7 " + chip.model, ""), node("p", message, "inspection-meta"));
         return;
       }
     }
@@ -9822,7 +10601,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     if (state.selected && state.selected.kind === "node") {
       const name = state.selected.id;
-      container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"), node("div", String(readEndpoint(state.result, name)), "node-value"));
+      const value = readEndpoint(state.result, name);
+      let level = "Z \xB7 \u60AC\u7A7A";
+      if (value === 1) {
+        level = "1 \xB7 \u9AD8\u7535\u5E73";
+      } else if (value === 0) {
+        level = "0 \xB7 \u4F4E\u7535\u5E73";
+      } else if (value === "X") {
+        level = "X \xB7 \u672A\u77E5\u6216\u51B2\u7A81";
+      }
+      container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"), node("div", level, "node-value"));
       const pullUp = node("button", "\u4E3A\u6B64\u8282\u70B9\u6DFB\u52A0\u4E0A\u62C9", "button");
       if (state.project.pullUps.includes(name)) {
         pullUp.textContent = "\u79FB\u9664\u6B64\u8282\u70B9\u4E0A\u62C9";
@@ -9892,8 +10680,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         kind = "+5V \u7535\u6E90";
       } else if (pin === model.ground) {
         kind = "\u5730";
+      } else if (model.bidirectional && model.bidirectional.includes(pin)) {
+        kind = "\u8F93\u5165/\u8F93\u51FA";
       } else if (model.outputs.includes(pin)) {
         kind = "\u8F93\u51FA";
+      } else if (!model.inputs.includes(pin)) {
+        kind = "\u7A7A\u811A NC";
       }
       const row = document.createElement("tr");
       row.append(node("td", String(pin), ""), node("td", model.labels[pin], ""), node("td", kind, ""));
@@ -10045,9 +10837,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function renderDiagnostics() {
     const container = element("diagnostics-panel");
     container.replaceChildren();
-    if (state.result.issues.length === 0 && wiringAudit.length === 0) {
+    container.append(node("h2", "\u5F53\u524D\u7535\u8DEF\u8BCA\u65AD", ""));
+    container.append(node("p", "\u4F9B\u7535\u3001\u8F93\u5165\u3001\u9A71\u52A8\u51B2\u7A81\u3001\u77ED\u8DEF\u4E0E\u79BB\u6563\u65F6\u5E8F\u72B6\u6001\uFF1B\u4E0D\u8BC4\u4F30\u7EB3\u79D2\u7EA7\u5EFA\u7ACB\u4FDD\u6301\u65F6\u95F4", "inspection-meta"));
+    if (circuitDiagnostics.issues.length === 0) {
       const item = node("div", "", "diagnostic success");
-      let message = "\u672A\u53D1\u73B0\u4F9B\u7535\u3001\u60AC\u7A7A\u8F93\u5165\u6216\u8F93\u51FA\u51B2\u7A81";
+      let message = "\u5F53\u524D\u672A\u53D1\u73B0\u4F9B\u7535\u3001\u51B2\u7A81\u3001\u77ED\u8DEF\u6216\u903B\u8F91\u72B6\u6001\u5F02\u5E38";
       if (!state.project.power) {
         message = "\u7535\u6E90\u5DF2\u5173\u95ED";
       } else if (state.project.chips.length === 0) {
@@ -10056,14 +10850,18 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       item.append(icon("circle-check"), node("span", message, ""));
       container.append(item);
     }
-    for (const issue of state.result.issues) {
+    for (const issue of circuitDiagnostics.issues) {
       const item = node("div", "", "diagnostic " + issue.severity);
+      item.dataset.code = issue.code;
       item.append(icon("triangle-alert"), node("span", issue.message, ""));
       container.append(item);
     }
-    for (const message of wiringAudit.slice(0, 80)) {
-      const item = node("div", "", "diagnostic warning");
-      item.append(icon("route"), node("span", message, ""));
+    for (const chip of circuitDiagnostics.chips) {
+      const item = node("section", "", "diagnostic-chip");
+      item.dataset.chip = chip.id;
+      const heading = node("div", "", "diagnostic-chip-heading");
+      heading.append(node("h3", chip.id + " \xB7 " + chip.model, ""), node("span", chip.status, "logic-level " + chip.severity));
+      item.append(heading, node("p", chip.detail, "inspection-meta"));
       container.append(item);
     }
   }
@@ -10088,11 +10886,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     refreshIcons();
   }
   function renderPinnedChip() {
-    if (state.selected && state.selected.kind === "chip") {
+    if (state.fixedChip !== "" && !findChip(state.fixedChip)) {
+      state.fixedChip = "";
+    }
+    if (state.fixedChip !== "") {
+      state.pinnedChip = state.fixedChip;
+    } else if (state.selected && state.selected.kind === "chip") {
       state.pinnedChip = state.selected.id;
     }
     const container = element("pinned-chip");
-    if (state.selection.length > 1) {
+    if (state.selection.length > 1 && state.fixedChip === "") {
       container.hidden = true;
       return;
     }
@@ -10109,6 +10912,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       lastPinnedChip = chip.id;
       fadeContent(container);
     } else {
+      updatePinButton(element("pin-chip-info"), chip.id);
       for (const cell of container.querySelectorAll("[data-pin]")) {
         const value = readEndpoint(state.result, pinHole(chip, Number(cell.dataset.pin)));
         cell.textContent = String(value);
@@ -10117,12 +10921,31 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
     }
   }
-  function unpinChip() {
-    state.pinnedChip = "";
-    if (state.selected && state.selected.kind === "chip") {
-      state.selected = null;
-      state.selection = [];
+  function updatePinButton(button, chipId) {
+    const fixed = state.fixedChip === chipId;
+    let label2 = "\u56FA\u5B9A\u5F15\u811A\u4FE1\u606F";
+    let symbol = "pin";
+    if (fixed) {
+      label2 = "\u53D6\u6D88\u56FA\u5B9A\u5F15\u811A\u4FE1\u606F";
+      symbol = "pin-off";
     }
+    button.setAttribute("aria-label", label2);
+    button.setAttribute("aria-pressed", String(fixed));
+    button.dataset.tip = label2;
+    button.classList.toggle("selected", fixed);
+    button.replaceChildren(icon(symbol));
+  }
+  function togglePinnedChip() {
+    if (state.fixedChip === "") {
+      state.fixedChip = state.pinnedChip;
+    } else {
+      state.fixedChip = "";
+      state.pinnedChip = "";
+      if (state.selected && state.selected.kind === "chip") {
+        state.pinnedChip = state.selected.id;
+      }
+    }
+    lastPinnedChip = "";
     render();
   }
   function createQuickInput(bit) {
@@ -10226,7 +11049,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     const count = Number(event.currentTarget.value);
     if (!Number.isInteger(count) || count < 1 || count > IO_LIMIT) {
-      toast("\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E24\uFF0C\u8BF7\u8F93\u5165\u6574\u6570", "warning");
+      toast("\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT + "\uFF0C\u8BF7\u8F93\u5165\u6574\u6570", "warning");
       renderIo();
       return;
     }
@@ -10319,13 +11142,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     element("custom-color").value = state.wireColor;
     element("wire-count").textContent = String(state.project.wires.length);
-    element("issue-count").textContent = String(state.result.issues.length + wiringAudit.length);
+    element("issue-count").textContent = String(circuitDiagnostics.issues.length);
     element("circuit-count").textContent = state.project.chips.length + " \u7247\u82AF\u7247 \xB7 " + state.project.wires.length + " \u6839\u5BFC\u7EBF";
     let status = "\u7535\u8DEF\u7A33\u5B9A";
     if (!state.project.power) {
       status = "\u7535\u6E90\u5173\u95ED";
-    } else if (state.result.issues.length > 0) {
-      status = state.result.issues.length + " \u9879\u8BCA\u65AD";
+    } else if (circuitDiagnostics.issues.length > 0) {
+      status = circuitDiagnostics.issues.length + " \u9879\u8BCA\u65AD";
     }
     if (state.pending) {
       status = "\u63A5\u7EBF\u8D77\u70B9\uFF1A" + endpointLabel(state.pending.from);
@@ -10336,6 +11159,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderIo();
     renderExperiments();
     renderPanels();
+    cleanSelectPanels();
     renderBoard(canvas, state, endpoints);
   }
   function updateActionStatus() {
@@ -10410,7 +11234,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("read-only-toggle").addEventListener("change", changeReadOnly);
     element("new-experiment").addEventListener("click", newProject);
     element("experiment-picker").addEventListener("change", switchExperiment);
-    element("audit-preset").addEventListener("click", auditCurrentWiring);
+    element("diagnose-circuit").addEventListener("click", diagnoseCurrentCircuit);
     element("arrange-wires").addEventListener("click", requestWireRouting);
     canvas.addEventListener("click", clickBoard);
     canvas.addEventListener("pointermove", movePointer);
@@ -10461,7 +11285,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function start() {
     canvas = element("board-canvas");
-    canvas.height = BOARD.height * 2;
+    element("project-name").maxLength = LIMITS.nameLength;
+    element("notes-editor").maxLength = NOTES_LIMIT;
+    element("input-count").max = String(IO_LIMIT);
+    element("output-count").max = String(IO_LIMIT);
+    canvas.width = BOARD.width * DRAW.pixelRatio;
+    canvas.height = BOARD.height * DRAW.pixelRatio;
     canvas.style.height = BOARD.height + "px";
     let loadError = "";
     let removedCount = 0;
@@ -10501,20 +11330,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     render();
     refreshIcons();
     updateClock();
-    window.setInterval(updateClock, 1e3);
+    window.setInterval(updateClock, SETTINGS.clockInterval);
     if (loadError !== "") {
       toast(loadError, "warning");
     }
     if (removedCount > 0) {
       toast("\u5DF2\u6574\u7406 " + removedCount + " \u4EFD\u91CD\u590D\u7A7A\u767D\u6216\u8865\u7801\u5B9E\u9A8C\uFF0C\u6574\u7406\u524D\u7684\u5217\u8868\u5DF2\u5907\u4EFD", "info");
-    }
-    if (state.project.name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668") {
-      wiringAudit = auditComplement(state.project);
-      if (wiringAudit.length > 0) {
-        state.activeTab = "diagnostics";
-        render();
-        toast("\u8FD9\u4EFD\u5B9E\u9A8C\u7684\u63A5\u7EBF\u4E0E\u6807\u51C6\u793A\u4F8B\u6709\u5DEE\u5F02\u3002\u4F60\u53EF\u4EE5\u67E5\u770B\u8BCA\u65AD\u9762\u677F\uFF0C\u6216\u6253\u5F00\u4E00\u4EFD\u65B0\u7684\u8865\u7801\u793A\u4F8B\u5BF9\u7167", "warning");
-      }
     }
   }
   start();

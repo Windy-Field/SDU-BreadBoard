@@ -1,5 +1,12 @@
 import { logicGate } from "./chips.mjs";
 
+// 74LS48 固定字形与脚号，字形顺序为 a、b、c、d、e、f、g
+const SEGMENT_PATTERNS = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "0011111", "1110000", "1111111", "1110011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
+const SEGMENT_PINS = [13, 12, 11, 10, 9, 15, 14];
+// 比较器位序从高到低，确定高位大小后不再受低位未知值影响
+const COMPARE_FIRST = [15, 14, 12, 10];
+const COMPARE_SECOND = [1, 13, 11, 9];
+
 // 把输入整理为数字逻辑值，悬空不会被当成确定的 0
 export function logicValue(value) {
     if (value === 0 || value === 1) {
@@ -87,24 +94,26 @@ function multiplex(pins, addressPins, dataPins, enable) {
 
 // 计算比较器级联结果，相等时按级联端的真值规则传播
 function compare(pins, outputs) {
-    const first = readNumber(pins, [10, 12, 14, 15]);
-    const second = readNumber(pins, [9, 11, 13, 1]);
     outputs[5] = "X";
     outputs[6] = "X";
     outputs[7] = "X";
-    if (first === "X" || second === "X") {
-        return;
-    }
-    if (first !== second) {
-        outputs[5] = 0;
-        outputs[6] = 0;
-        outputs[7] = 0;
-        if (first > second) {
-            outputs[5] = 1;
-        } else {
-            outputs[7] = 1;
+    for (let bit = 0; bit < COMPARE_FIRST.length; bit = bit + 1) {
+        const first = logicValue(pins[COMPARE_FIRST[bit]]);
+        const second = logicValue(pins[COMPARE_SECOND[bit]]);
+        if (first === "X" || second === "X") {
+            return;
         }
-        return;
+        if (first !== second) {
+            outputs[5] = 0;
+            outputs[6] = 0;
+            outputs[7] = 0;
+            if (first > second) {
+                outputs[5] = 1;
+            } else {
+                outputs[7] = 1;
+            }
+            return;
+        }
     }
     outputs[6] = logicValue(pins[3]);
     const notEqual = logicGate("not", pins[3], 0);
@@ -116,15 +125,13 @@ function compare(pins, outputs) {
 
 // 译码七段输出，位序为 a、b、c、d、e、f、g；4 脚只下拉或释放
 function sevenSegment(pins, outputs) {
-    const patterns = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "1011111", "1110000", "1111111", "1111011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
-    const segmentPins = [13, 12, 11, 10, 9, 15, 14];
     const number = readNumber(pins, [7, 1, 2, 6]);
     const blankZero = number === 0 && pins[5] === 0 && pins[3] === 1;
     outputs[4] = "Z";
     if (blankZero) {
         outputs[4] = 0;
     }
-    for (let index = 0; index < segmentPins.length; index = index + 1) {
+    for (let index = 0; index < SEGMENT_PINS.length; index = index + 1) {
         let value = "X";
         if (pins[4] === 0 || blankZero) {
             value = 0;
@@ -132,10 +139,12 @@ function sevenSegment(pins, outputs) {
             value = 1;
         } else if (pins[3] === 1 && pins[4] === 1 && number !== "X") {
             if (number !== 0 || pins[5] === 1) {
-                value = Number(patterns[number][index]);
+                value = Number(SEGMENT_PATTERNS[number][index]);
+            } else if (pins[5] === 0) {
+                value = 0;
             }
         }
-        outputs[segmentPins[index]] = value;
+        outputs[SEGMENT_PINS[index]] = value;
     }
 }
 

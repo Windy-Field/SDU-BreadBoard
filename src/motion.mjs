@@ -1,4 +1,7 @@
+// 动效时长单位为毫秒，电路计算不等待动画
 export const MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
+// 面板淡入的起始透明度，结束时恢复为完全可见
+const FADE_START_OPACITY = 0.45;
 const transitions = new Map();
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let frame = 0;
@@ -49,5 +52,5 @@ export function fadeContent(element) {
         animation.cancel();
     }
     const style = getComputedStyle(document.documentElement);
-    element.animate([{ opacity: 0.45 }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
+    element.animate([{ opacity: FADE_START_OPACITY }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
 }

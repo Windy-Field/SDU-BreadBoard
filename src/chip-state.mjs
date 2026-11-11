@@ -1,6 +1,9 @@
 import { logicGate } from "./chips.mjs";
 import { andValues, logicValue, readNumber } from "./chip-logic.mjs";
 
+// 74LS160 的固定状态转移，包含并行装入 10～15 后的自恢复路径
+const DECADE_NEXT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 4, 13, 4, 15, 0];
+
 // 创建指定数量的未知位，寄存器上电后需要按实际接线清零或置数
 function unknownBits(count) {
     const bits = [];
@@ -43,6 +46,12 @@ function uncertainEdge(previous, current, edge) {
 
 // 计算 JK 的次态，保持、复位、置位和翻转均可传播未知输入
 function nextJk(first, second, previous) {
+    if (first === 1 && second === 0) {
+        return 1;
+    }
+    if (first === 0 && second === 1) {
+        return 0;
+    }
     const setPart = logicGate("and", first, logicGate("not", previous, 0));
     const keepPart = logicGate("and", logicGate("not", second, 0), previous);
     return logicGate("or", setPart, keepPart);
@@ -85,7 +94,13 @@ function updateFlipFlops(model, pins, state) {
                     value = nextJk(pins[channel.first], pins[channel.second], value);
                 }
             } else if (uncertainEdge(state.clocks[index], pins[channel.clock], model.edge)) {
-                value = "X";
+                let sampled = logicValue(pins[channel.data]);
+                if (!channel.data) {
+                    sampled = nextJk(pins[channel.first], pins[channel.second], value);
+                }
+                if (sampled !== value) {
+                    value = "X";
+                }
             }
             inverse = logicGate("not", value, 0);
         }
@@ -139,8 +154,8 @@ function updateCounter(model, pins, state) {
                 const current = storedNumber(state.bits);
                 if (current === "X") {
                     state.bits = unknownBits(4);
-                } else if (current === model.modulus - 1) {
-                    state.bits = [0, 0, 0, 0];
+                } else if (model.modulus === 10) {
+                    state.bits = numberBits(DECADE_NEXT[current]);
                 } else {
                     state.bits = numberBits((current + 1) & 15);
                 }
@@ -148,7 +163,7 @@ function updateCounter(model, pins, state) {
                 state.bits = unknownBits(4);
             }
         }
-    } else if (uncertainEdge(state.clocks[0], pins[2], "rising")) {
+    } else if (uncertainEdge(state.clocks[0], pins[2], "rising") && !(pins[9] === 1 && (pins[7] === 0 || pins[10] === 0))) {
         state.bits = unknownBits(4);
     }
     state.clocks[0] = logicValue(pins[2]);
@@ -172,7 +187,7 @@ function updateShift(pins, state) {
         } else if (mode === "X") {
             state.bits = unknownBits(4);
         }
-    } else if (uncertainEdge(state.clocks[0], pins[2], "rising")) {
+    } else if (uncertainEdge(state.clocks[0], pins[2], "rising") && !(pins[9] === 0 && pins[10] === 0)) {
         state.bits = unknownBits(4);
     }
     state.clocks[0] = logicValue(pins[2]);

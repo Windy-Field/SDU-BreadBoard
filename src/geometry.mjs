@@ -1,13 +1,18 @@
 import { BOARD, PORT_LAYOUT, IO_LIMIT, endpointPosition, rowY } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 
-const PICK_RADIUS = 7;
+// 鼠标命中和拖动吸附范围，单位为画布逻辑像素
+const PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
+// 默认折线的通道间隔与同排判断距离，手动转折点不使用这些参数
+const WIRE_LAYOUT = { laneStart: 12, laneCount: 9, laneStep: 5, sameRowDistance: 12 };
+// 芯片外壳相对引脚的位置与高度，绘制和点击共用
+const CHIP_LAYOUT = { leftOffset: 9, topOffset: 9, height: 32 };
 // 返回芯片在画布中的外框，用于绘制和鼠标选择
 export function chipBounds(chip) {
     const count = CHIP_MODELS[chip.model].count;
-    const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - 9;
-    const top = rowY(chip.section, "E") + 9;
-    return { x: left, y: top, width: count / 2 * BOARD.pitch, height: 32 };
+    const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - CHIP_LAYOUT.leftOffset;
+    const top = rowY(chip.section, "E") + CHIP_LAYOUT.topOffset;
+    return { x: left, y: top, width: count / 2 * BOARD.pitch, height: CHIP_LAYOUT.height };
 }
 
 // 返回一根导线的折线点；有手动转折点时保留原路径
@@ -20,9 +25,9 @@ export function wirePoints(wire, index) {
             points.push(bend);
         }
     } else {
-        const laneOffset = 12 + (index % 9) * 5;
+        const laneOffset = WIRE_LAYOUT.laneStart + (index % WIRE_LAYOUT.laneCount) * WIRE_LAYOUT.laneStep;
         let lane = (first.y + last.y) / 2 + laneOffset;
-        if (Math.abs(first.y - last.y) < 12) {
+        if (Math.abs(first.y - last.y) < WIRE_LAYOUT.sameRowDistance) {
             lane = first.y - laneOffset;
         }
         points.push({ x: first.x, y: lane });
@@ -48,16 +53,16 @@ function segmentDistance(point, first, last) {
 // 判断鼠标位置命中了按键、孔、芯片或导线，返回对象或空值
 export function hitCandidates(point, state, endpoints) {
     const candidates = [];
-    if (point.y >= PORT_LAYOUT.inputY + 17 && point.y <= PORT_LAYOUT.inputY + 60) {
+    if (point.y >= PORT_LAYOUT.inputY + PICK.buttonTop && point.y <= PORT_LAYOUT.inputY + PICK.buttonBottom) {
         for (let index = 0; index < IO_LIMIT; index = index + 1) {
             const location = endpointPosition("K" + index);
-            if (Math.abs(point.x - location.x) <= 15) {
+            if (Math.abs(point.x - location.x) <= PICK.switchHalfWidth) {
                 return [{ kind: "switch", id: index }];
             }
         }
         for (const name of ["P+", "P-"]) {
             const location = endpointPosition(name);
-            if (Math.abs(point.x - location.x) <= 16) {
+            if (Math.abs(point.x - location.x) <= PICK.pulseHalfWidth) {
                 return [{ kind: "pulse", id: name }];
             }
         }
@@ -67,7 +72,7 @@ export function hitCandidates(point, state, endpoints) {
         const wire = state.project.wires[index];
         const points = wirePoints(wire, index);
         for (let segment = 1; segment < points.length; segment = segment + 1) {
-            if (segmentDistance(point, points[segment - 1], points[segment]) < 5) {
+            if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
                 candidates.push({ kind: "wire", id: wire.id });
                 break;
             }
@@ -75,7 +80,7 @@ export function hitCandidates(point, state, endpoints) {
     }
     for (const name of endpoints) {
         const location = endpointPosition(name);
-        if (Math.hypot(point.x - location.x, point.y - location.y) <= PICK_RADIUS) {
+        if (Math.hypot(point.x - location.x, point.y - location.y) <= PICK.nodeRadius) {
             candidates.push({ kind: "node", id: name });
         }
     }
@@ -113,7 +118,7 @@ export function objectSelected(state, kind, id) {
 // 找到拖动落点附近的真实插孔，返回孔名或空字符串
 export function nearestEndpoint(point, endpoints) {
     let nearest = "";
-    let distance = 14;
+    let distance = PICK.endpointRadius;
     for (const name of endpoints) {
         const location = endpointPosition(name);
         const current = Math.hypot(point.x - location.x, point.y - location.y);
@@ -137,7 +142,7 @@ export function wireHandleAt(point, project, selected) {
         }
         const points = wirePoints(wire, index);
         for (let handle = 0; handle < points.length; handle = handle + 1) {
-            if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= 9) {
+            if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
                 return { wire: wire.id, handle: handle, points: points };
             }
         }

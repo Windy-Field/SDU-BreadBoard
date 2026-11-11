@@ -6,9 +6,9 @@ import { wirePoints } from "../src/geometry.mjs";
 import { validateProject } from "../src/storage.mjs";
 import { wiringMetrics } from "./wiring-metrics.mjs";
 import { routeWires } from "../src/routing.mjs";
-import { emptyProject } from "../src/board.mjs";
+import { emptyProject, portHole, isPhysicalHole } from "../src/board.mjs";
 
-// 和优化前独立保存的示例比较，每个物理端点、芯片位置和线色都必须不变
+// 和旧示例比较，板载端口改为对应真实孔，其他端点、芯片与线色保持不变
 function testConnectionsUnchanged() {
     const project = validateProject(complementPreset());
     assert.deepEqual(project.chips, original.chips);
@@ -17,8 +17,18 @@ function testConnectionsUnchanged() {
         const actual = project.wires[index];
         const expected = original.wires[index];
         assert.equal(actual.id, expected.id);
-        assert.equal(actual.from, expected.from);
-        assert.equal(actual.to, expected.to);
+        let from = expected.from;
+        let to = expected.to;
+        if (!isPhysicalHole(from)) {
+            from = portHole(from);
+        }
+        if (!isPhysicalHole(to)) {
+            to = portHole(to);
+        }
+        assert.equal(actual.from, from);
+        assert.equal(actual.to, to);
+        assert.equal(isPhysicalHole(actual.from), true);
+        assert.equal(isPhysicalHole(actual.to), true);
         assert.equal(actual.color, expected.color);
         assert.ok(actual.bends.length > 0);
         const points = wirePoints(actual, index);
@@ -41,7 +51,7 @@ function testRoutingReadability() {
 
 // 整理仅替换路径，失败不做部分修改，也不覆盖已编辑的颜色、备注或输入
 function testRestoreRoutes() {
-    const project = structuredClone(original);
+    const project = validateProject(original);
     project.notes = "我的实验备注";
     project.switches[0] = 1;
     project.wires[0].color = "#123456";
@@ -62,7 +72,7 @@ function testRestoreRoutes() {
     assert.deepEqual(moved, movedBefore);
 }
 
-test("示例61根线端点、颜色和芯片位置保持不变", testConnectionsUnchanged);
+test("示例61根线只使用真实插孔且保持信号与芯片位置", testConnectionsUnchanged);
 test("固定路径减少覆盖并绕开芯片外框", testRoutingReadability);
 test("整理示例路径保留其他编辑并拒绝不同结构", testRestoreRoutes);
 
@@ -72,7 +82,7 @@ async function testGeneralRouting() {
     project.chips.push({ id: "U1", model: "74LS00", section: 0, column: 20 });
     project.wires = [
         { id: "W1", from: "B0:A:2", to: "B0:J:40", color: "#123456", bends: [] },
-        { id: "W2", from: "K0", to: "B0:D:20", color: "#654321", bends: [] },
+        { id: "W2", from: "B3:J:49", to: "B0:D:20", color: "#654321", bends: [] },
         { id: "W3", from: "B0:E:1", to: "B0:F:1", color: "#1976d2", bends: [] }
     ];
     const before = structuredClone(project);

@@ -1,5 +1,6 @@
 import { DOCUMENT_REFERENCES } from "./document-references.mjs";
 
+// 原厂资料的本地文件名、页码和功能说明，图片路径由资料面板统一生成
 export const CHIP_REFERENCES = {
     "74LS273": { file: "sn74ls273", page: 1, summary: "它能同时保存八位数据。清零脚拉低时，全部输出变为 0；清零脚保持高电平时，时钟上升沿把 D 输入保存到 Q 输出" },
     "74LS283": { file: "sn74ls283", page: 1, summary: "它把两个四位数与输入进位 C0 相加，输出四位和以及进位 C4。A1、B1、Σ1 对应最低位" },

@@ -1,6 +1,7 @@
 import { Vector3vl } from "../vendor/logic.mjs";
 import { EXTRA_CHIPS } from "./extra-chips.mjs";
 
+// 芯片固定规格与物理脚号，调整这些数据必须同步核对厂家资料和真值测试
 export const CHIP_MODELS = {
     "74LS273": {
         title: "八位寄存器",
@@ -132,8 +133,10 @@ export function evaluateAdder(pins) {
         const different = logicGate("xor", first, second);
         const sum = logicGate("xor", different, carry);
         const firstCarry = logicGate("and", first, second);
-        const secondCarry = logicGate("and", different, carry);
-        carry = logicGate("or", firstCarry, secondCarry);
+        const secondCarry = logicGate("and", first, carry);
+        const thirdCarry = logicGate("and", second, carry);
+        const combinedCarry = logicGate("or", firstCarry, secondCarry);
+        carry = logicGate("or", combinedCarry, thirdCarry);
         outputs[model.outputs[bit]] = sum;
     }
     outputs[9] = carry;

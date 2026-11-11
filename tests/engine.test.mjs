@@ -1,13 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { evaluateAdder, logicGate } from "../src/chips.mjs";
-import { BOARD, PORT_LAYOUT, IO_LIMIT, baseNode, emptyProject, endpointPosition, validEndpoint, NOTES_LIMIT } from "../src/board.mjs";
+import { BOARD, PORT_LAYOUT, RAIL_LAYOUT, IO_LIMIT, WIRING_VERSION, baseNode, emptyProject, endpointPosition, validEndpoint, NOTES_LIMIT, rowY, portHole, isPhysicalHole, isInputColumn } from "../src/board.mjs";
 import { createRuntime, emitPulse, readEndpoint, simulate } from "../src/engine.mjs";
 import { complementPreset } from "../src/presets.mjs";
 import { validateProject } from "../src/storage.mjs";
-import { auditComplement } from "../src/audit.mjs";
+import { auditComplement } from "./preset-audit.mjs";
 import { keepExperiment, validateWorkspace } from "../src/workspace.mjs";
 import { objectSelected } from "../src/geometry.mjs";
+import { allEndpoints } from "../src/render.mjs";
+import original from "./fixtures/complement-original.json" with { type: "json" };
 
 // 从六个 LED 读取结果，返回从高到低的逻辑值字符串
 function readResult(result) {
@@ -178,6 +180,91 @@ function testPortAlignment() {
     assert.equal(endpointPosition("P-").x, endpointPosition("B3:A:57").x);
 }
 
+// 输入对应列跨沟槽接通，输出仍只接最上块上半列，横向母线保持隔离
+function testDirectPorts() {
+    const project = emptyProject();
+    project.switches[0] = 1;
+    const result = simulate(project, createRuntime());
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+        const column = PORT_LAYOUT.lowestColumn - bit * PORT_LAYOUT.columnStep;
+        for (const row of "FGHIJ") {
+            assert.equal(baseNode("K" + bit), baseNode("B3:" + row + ":" + column));
+        }
+        for (const row of "ABCDE") {
+            assert.equal(baseNode("L" + bit), baseNode("B0:" + row + ":" + column));
+        }
+        for (const row of "ABCDE") {
+            assert.equal(baseNode("K" + bit), baseNode("B3:" + row + ":" + column));
+        }
+        assert.notEqual(baseNode("L" + bit), baseNode("B0:F:" + column));
+    }
+    assert.equal(readEndpoint(result, "B3:J:49"), 1);
+    assert.equal(readEndpoint(result, "B3:F:49"), 1);
+    assert.equal(readEndpoint(result, "B3:A:49"), 1);
+    assert.equal(readEndpoint(result, "B3:Y:49"), "Z");
+    assert.equal(baseNode("P-"), baseNode("B3:F:57"));
+    assert.equal(baseNode("P+"), baseNode("B3:J:53"));
+    assert.equal(allEndpoints().every(isPhysicalHole), true);
+    assert.equal(isPhysicalHole("K0"), false);
+    assert.equal(isPhysicalHole("L0"), false);
+    assert.equal(isPhysicalHole("P-"), false);
+    assert.equal(portHole("K24"), "");
+}
+
+// 穷举各块各列，只有第四块输入及脉冲所在列能跨沟槽；不同列互不接通
+function testFourthBoardBridges() {
+    const project = emptyProject();
+    project.switches[0] = 1;
+    const runtime = createRuntime();
+    let result = simulate(project, runtime);
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+            const upper = "B" + section + ":E:" + column;
+            const lower = "B" + section + ":F:" + column;
+            const bridge = section === BOARD.sections - 1 && isInputColumn(column);
+            assert.equal(baseNode(upper) === baseNode(lower), bridge, upper);
+            assert.notEqual(baseNode(upper), baseNode("B" + section + ":X:" + column));
+            assert.notEqual(baseNode(lower), baseNode("B" + section + ":Y:" + column));
+            if (column < BOARD.columns) {
+                assert.notEqual(baseNode(upper), baseNode("B" + section + ":E:" + (column + 1)));
+            }
+        }
+    }
+    assert.equal(readEndpoint(result, "B3:A:49"), 1);
+    assert.equal(readEndpoint(result, "B3:A:47"), 0);
+    assert.equal(readEndpoint(result, "B3:A:48"), "Z");
+    assert.equal(readEndpoint(result, "B2:A:49"), "Z");
+    assert.equal(readEndpoint(result, "B3:A:57"), 1);
+    runtime.pulses.negative = 0;
+    result = simulate(project, runtime);
+    assert.equal(readEndpoint(result, "B3:A:57"), 0);
+    assert.equal(readEndpoint(result, "B3:J:57"), 0);
+}
+
+// 旧文件转换为真实孔位，新旧端口不发生重复占用，迁移冲突会明确拒绝
+function testPortMigration() {
+    const restored = validateProject(original);
+    assert.equal(restored.wires.length, 61);
+    assert.equal(restored.wiringVersion, WIRING_VERSION);
+    for (const wire of restored.wires) {
+        assert.equal(isPhysicalHole(wire.from), true);
+        assert.equal(isPhysicalHole(wire.to), true);
+    }
+    assert.deepEqual(validateProject(restored), restored);
+    assert.equal(auditComplement(restored).length, 0);
+    const conflict = structuredClone(original);
+    conflict.wires.push({ id: "W99", from: "B3:F:49", to: "B3:F:47", color: "#123456", bends: [] });
+    assert.throws(validateProject.bind(null, conflict), /迁移会改变连接/);
+    const previous = complementPreset();
+    previous.wiringVersion = 2;
+    assert.equal(validateProject(previous).wiringVersion, WIRING_VERSION);
+    // 旧版允许在输入上半列放另一条信号，新版桥接后应提示冲突而不是静默短接
+    previous.wires.push({ id: "W99", from: "B3:A:49", to: "B3:A:47", color: "#123456", bends: [] });
+    const snapshot = JSON.stringify(previous);
+    assert.throws(validateProject.bind(null, previous), /迁移会改变连接/);
+    assert.equal(JSON.stringify(previous), snapshot);
+}
+
 // 检查新建通用模式、位数配置、旧文件迁移和 Markdown 备注往返
 function testProjectMetadata() {
     const project = emptyProject();
@@ -258,9 +345,32 @@ test("门电路真值与未知传播", testGates);
 test("74LS283 全部 512 种输入", testAdder);
 test("完整接线两组验收及减负数", testPreset);
 test("寄存器异步清零与上升沿时序", testClock);
+// 首尾孔对齐面包板的上下母线，两列同行对齐且每列保持 60 孔等距
+function testRailAlignment() {
+    const firstRow = rowY(0, "X");
+    const lastRow = rowY(BOARD.sections - 1, "Y");
+    assert.equal(RAIL_LAYOUT.count, 60);
+    const pitch = (lastRow - firstRow) / (RAIL_LAYOUT.count - 1);
+    for (const rail of ["GND", "VCC"]) {
+        assert.equal(endpointPosition("R:" + rail + ":0").y, firstRow);
+        assert.equal(endpointPosition("R:" + rail + ":59").y, lastRow);
+        for (let index = 1; index < RAIL_LAYOUT.count; index = index + 1) {
+            const current = endpointPosition("R:" + rail + ":" + index);
+            const previous = endpointPosition("R:" + rail + ":" + (index - 1));
+            assert.ok(Math.abs(current.y - previous.y - pitch) < 0.000001);
+            assert.equal(current.x, previous.x);
+            assert.equal(current.y, endpointPosition("R:GND:" + index).y);
+        }
+    }
+}
+
 test("面包板内部连通与右侧电源短路", testRails);
+test("右侧两列60孔等距且首尾对齐面包板", testRailAlignment);
 test("X、Y 母线分段和实连传播", testHorizontalBuses);
 test("24组输入输出及脉冲端口网格对齐", testPortAlignment);
+test("输入输出及脉冲直连真实五孔组，无板载假插孔", testDirectPorts);
+test("第四块输入对应列跨沟槽桥接且其余列隔离", testFourthBoardBridges);
+test("旧端口迁移和冲突保护", testPortMigration);
 test("通用模式、备注和旧文件迁移", testProjectMetadata);
 test("断线与导入校验", testBrokenWiring);
 test("完整接线全部 4096 种加减组合", testAllWiredInputs);

@@ -1,6 +1,7 @@
-import { copyProject, GENERAL_NOTES } from "./board.mjs";
+import { copyProject, GENERAL_NOTES, PROJECT_DEFAULTS } from "./board.mjs";
 import { validateProject } from "./storage.mjs";
 
+// 本地列表、只读设置和清理前备份的存储键，修改前需安排旧数据迁移
 export const WORKSPACE_KEY = "breadboard-lab-workspace-v1";
 export const READ_ONLY_KEY = "breadboard-lab-read-only";
 export const CLEANUP_BACKUP_KEY = "sdu-breadboard-before-cleanup-v1";
@@ -10,7 +11,7 @@ export function isBlankExperiment(project) {
     if (project.chips.length > 0 || project.wires.length > 0 || project.pullUps.length > 0) {
         return false;
     }
-    if (project.notes !== GENERAL_NOTES || project.inputCount !== 8 || project.outputCount !== 8 || !project.power) {
+    if (project.notes !== GENERAL_NOTES || project.inputCount !== PROJECT_DEFAULTS.inputCount || project.outputCount !== PROJECT_DEFAULTS.outputCount || project.power !== PROJECT_DEFAULTS.power) {
         return false;
     }
     for (const value of project.switches) {

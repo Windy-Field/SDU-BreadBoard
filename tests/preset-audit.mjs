@@ -1,7 +1,7 @@
-import { CHIP_MODELS } from "./chips.mjs";
-import { pinHole } from "./board.mjs";
-import { buildTopology, nodeFor } from "./engine.mjs";
-import { complementPreset } from "./presets.mjs";
+import { CHIP_MODELS } from "../src/chips.mjs";
+import { pinHole, IO_LIMIT } from "../src/board.mjs";
+import { buildTopology, nodeFor } from "../src/engine.mjs";
+import { complementPreset } from "../src/presets.mjs";
 
 // 收集电路中的电源、输入输出口和每一片芯片引脚，返回实际连接端点
 function terminalMap(project) {
@@ -9,7 +9,7 @@ function terminalMap(project) {
     for (const name of ["VCC", "GND", "P+", "P-"]) {
         terminals[name] = name;
     }
-    for (let index = 0; index < 24; index = index + 1) {
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
         terminals["K" + index] = "K" + index;
         terminals["L" + index] = "L" + index;
     }

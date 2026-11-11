@@ -1,0 +1,33 @@
+/* 原生 select 继续保存值，交互按钮和顶层选项面板使用统一外观 */
+:root {
+    /* 下拉面板和选项的左右内边距，单位为像素 */
+    --select-padding-inline: 2px;
+    /* 上下内边距保留点击高度 */
+    --select-panel-padding-block: 3px;
+    --select-option-padding-block: 10px;
+    /* 滚动条宽度与文字到勾选图标的距离 */
+    --select-scrollbar-width: 2px;
+    --select-option-gap: 6px;
+}
+.select-control { position: relative; min-width: 0; width: 100%; }
+.select-control .select-native { position: absolute; width: 1px !important; height: 1px !important; padding: 0 !important; margin: 0 !important; clip-path: inset(50%); overflow: hidden; opacity: 0; pointer-events: none; }
+.select-trigger { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; min-height: 38px; padding: 8px 10px; text-align: left; border: 1px solid var(--color-rule); background: var(--color-surface); color: var(--color-ink); font-size: 12px; }
+.select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select-trigger > svg { width: 15px; height: 15px; flex: 0 0 15px; color: var(--color-muted); transition: transform var(--dur-micro) var(--ease-out); }
+.select-trigger[aria-expanded="true"] { border-color: var(--color-accent); background: var(--color-accent-soft); }
+.select-trigger[aria-expanded="true"] > svg { transform: rotate(180deg); color: var(--color-accent); }
+/* 两侧仅保留窄滚动条占位，不再叠加宽大的默认空白 */
+.select-panel { position: fixed; inset: auto; margin: 0; padding: var(--select-panel-padding-block) var(--select-padding-inline); border: 1px solid var(--color-rule); border-radius: 6px; background: var(--color-surface); color: var(--color-ink); box-shadow: 0 8px 24px var(--color-shadow); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-gutter: stable both-edges; opacity: 0; transform: translateY(-4px); transition: opacity var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out), display var(--dur-micro) allow-discrete, overlay var(--dur-micro) allow-discrete; }
+.select-panel::-webkit-scrollbar { width: var(--select-scrollbar-width); }
+.select-panel::-webkit-scrollbar-thumb { background: var(--color-muted); border-radius: 2px; }
+.select-panel:popover-open { opacity: 1; transform: translateY(0); }
+@starting-style { .select-panel:popover-open { opacity: 0; transform: translateY(-4px); } }
+.select-option { display: flex; align-items: center; gap: var(--select-option-gap); min-height: 40px; padding: var(--select-option-padding-block) var(--select-padding-inline); border-radius: 4px; font-size: 12px; line-height: 1.5; cursor: pointer; }
+.select-option-label { flex: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.select-option > svg { width: 16px; height: 16px; flex: 0 0 16px; visibility: hidden; color: var(--color-accent); }
+.select-option[aria-selected="true"] { color: var(--color-accent); background: var(--color-accent-soft); font-weight: 600; }
+.select-option[aria-selected="true"] > svg { visibility: visible; }
+.select-option.focused { outline: 1px solid var(--color-accent); outline-offset: -1px; }
+.select-option[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+@media (hover: hover) { .select-trigger:hover:not(:disabled) { border-color: var(--color-accent); background: var(--color-accent-soft); } .select-option:hover:not([aria-disabled="true"]) { background: var(--color-muted-surface); color: var(--color-ink); } }
+@media (prefers-reduced-motion: reduce) { .select-panel, .select-trigger > svg { transition: none; } }

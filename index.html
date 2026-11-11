@@ -37,7 +37,7 @@
                 <label class="experiment-picker-label" for="experiment-picker">切换实验</label><select id="experiment-picker" aria-label="切换实验"></select>
                 <button id="new-experiment" class="preset-button"><i data-lucide="file-plus-2" aria-hidden="true"></i><span>新建空白实验</span></button>
                 <button id="load-preset" class="preset-button"><i data-lucide="workflow" aria-hidden="true"></i><span>双符号位补码运算器</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></button>
-                <button id="audit-preset" class="preset-button"><i data-lucide="list-checks" aria-hidden="true"></i><span>核对当前实验接线</span></button>
+                <button id="diagnose-circuit" class="preset-button"><i data-lucide="stethoscope" aria-hidden="true"></i><span>诊断</span></button>
                 <button id="arrange-wires" class="preset-button"><i data-lucide="route" aria-hidden="true"></i><span>整理走线</span></button>
             </section>
             <div class="library-footer"><a class="sidebar-action" href="assets/reference-board.jpg" target="_blank" rel="noopener"><i data-lucide="image" aria-hidden="true"></i><span>原板对照图</span></a><button id="export-workspace" class="sidebar-action"><i data-lucide="archive" aria-hidden="true"></i><span>备份全部实验</span></button></div>
@@ -83,7 +83,7 @@
             <div id="wires-panel" role="tabpanel" class="inspector-content" hidden></div>
             <div id="diagnostics-panel" role="tabpanel" class="inspector-content" hidden></div>
             <div id="notes-panel" role="tabpanel" class="inspector-content notes-panel" hidden><div class="notes-heading"><h2>电路备注</h2><div class="segmented" role="group" aria-label="备注视图"><button id="notes-preview-button" class="icon-button selected" aria-label="预览备注" aria-pressed="true" data-tip="预览"><i data-lucide="eye"></i></button><button id="notes-edit-button" class="icon-button" aria-label="编辑Markdown备注" aria-pressed="false" data-tip="编辑 Markdown"><i data-lucide="square-pen"></i></button></div></div><label id="notes-editor-label" for="notes-editor" hidden>Markdown 备注</label><textarea id="notes-editor" maxlength="50000" spellcheck="false" hidden></textarea><article id="notes-preview" class="markdown"></article><span id="notes-status" class="notes-status">备注随电路保存</span></div>
-            <section class="terminal-connect"><h2>按端点接线</h2><label>起点<input id="from-endpoint" placeholder="K0 或 B1:G:3"></label><label>终点<input id="to-endpoint" placeholder="B1:G:4"></label><button id="connect-endpoints" class="button"><i data-lucide="link-2" aria-hidden="true"></i>连接</button></section>
+            <section class="terminal-connect"><h2>按孔位接线</h2><label>起点<input id="from-endpoint" placeholder="B3:J:49"></label><label>终点<input id="to-endpoint" placeholder="B1:G:4"></label><button id="connect-endpoints" class="button"><i data-lucide="link-2" aria-hidden="true"></i>连接</button></section>
         </aside>
     </main>
     <footer class="app-footer"><span class="release-info"><span id="app-version">v1.0.0</span><time id="current-time"></time></span><span id="action-status" role="status">就绪</span><span>0 低电平 · 1 高电平 · X 未知 · Z 悬空</span></footer>
@@ -95,10 +95,10 @@
         <div class="dialog-body">
             <p>你可以在“我的实验”中新建独立实验，或切回已保存的实验。输入和输出各可显示 1～24 位，端口作用可以写在 Markdown 备注里</p>
             <p>点击器件库中的芯片后，你可以查看功能和引脚图，同时进入放置模式。接着点击面包板即可放置，芯片缺口朝左，跨 E/F 沟槽。再次点击同一型号或按 Esc 可以取消放置。接线时依次选择起点和终点，点击空白可增加转折点，每个孔只插一根线</p>
-            <p>同列 A～E 相通，F～J 相通，沟槽两边分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通</p>
+            <p>同列 A～E 相通，F～J 相通。第四块的输入与脉冲对应列以固定细线桥接上下五孔组，其余列分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通。输入输出板没有接线孔，输出只接最上块 A～E，输入和脉冲接第四块对应列的 A～J</p>
             <p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。你也可以使用工具栏的缩放和适应宽度按钮</p>
             <p>选中芯片后，引脚图、脚号、电平和位置会固定显示。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p>
-            <p>标题旁的“只读”开关保护接线和备注，你仍可以调整输入、发脉冲、查看资料和导出实验。左侧“核对当前实验接线”会列出电气连接差异；“整理走线”适用于当前电路，会在确认后调整路径，不改端点、线色和备注，也可以撤销</p>
+            <p>标题旁的“只读”开关保护接线和备注，你仍可以调整输入、发脉冲、查看资料和导出实验。左侧“诊断”检查当前电路的供电、短路、驱动冲突、悬空输入与时序状态，不会发出脉冲或改变接线；“整理走线”在确认后调整路径，不改端点、线色和备注，也可以撤销</p>
             <p>补码示例中，K0～K3 是数值位，K4 是符号位，K5 为 0 时加、1 时减。你把 K6 切到 0 再切回 1 即可清零。按住 P− 后松开，寄存器在恢复上升沿保存结果。L5、L4 是两个符号位，L6 指示溢出，所有 LED 均在已知高电平时点亮</p>
             <p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。导入、重新打开或结构撤销后，你需要给寄存器重新清零。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件</p>
             <p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 请求删除选中对象，Ctrl+S 只保存当前实验。你可以按住 Ctrl 多选器件和导线，在选择模式下拖动导线端点或转折点。自动保存默认关闭；有未保存内容时，关闭或刷新页面会显示离开确认，你选择留在页面后可以按 Ctrl+S 保存</p>

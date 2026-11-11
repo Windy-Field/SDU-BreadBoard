@@ -2,8 +2,14 @@
     [string]$OutputDirectory = ''
 )
 
+# 输出目录由脚本参数指定；默认子目录、命名前缀和压缩方式在此配置
+$DefaultOutputFolder = 'releases'
+$PackagePrefix = 'SDU-BreadBoard-v'
+$CompressionLevel = 'Optimal'
+$DuplicateSuffixLength = 8
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
+# 需要放入离线包的运行文件和资料目录
 $PackageFiles = @('index.html', 'application.js', 'styles', 'vendor', 'assets', 'examples', 'docs', 'README.md', 'LICENSE')
 
 # 确保待操作路径位于指定目录内，参数为目标和父目录，没有返回值
@@ -39,19 +45,19 @@ function New-OfflinePackage {
 
     $output = $OutputDirectory
     if ($output -eq '') {
-        $output = Join-Path $ProjectRoot 'releases'
+        $output = Join-Path $ProjectRoot $DefaultOutputFolder
     }
     $output = [System.IO.Path]::GetFullPath($output)
     New-Item -ItemType Directory -Path $output -Force | Out-Null
     $temporaryName = '.package-' + [System.Guid]::NewGuid().ToString('N')
     $temporaryRoot = Join-Path $output $temporaryName
     Confirm-ChildPath -TargetPath $temporaryRoot -ParentPath $output
-    $packageName = 'SDU-BreadBoard-v' + $version
+    $packageName = $PackagePrefix + $version
     $packageRoot = Join-Path $temporaryRoot $packageName
     $archive = Join-Path $output ($packageName + '-offline.zip')
     Confirm-ChildPath -TargetPath $archive -ParentPath $output
     if (Test-Path -LiteralPath $archive) {
-        $suffix = [System.Guid]::NewGuid().ToString('N').Substring(0, 8)
+        $suffix = [System.Guid]::NewGuid().ToString('N').Substring(0, $DuplicateSuffixLength)
         $archive = Join-Path $output ($packageName + '-offline-' + $suffix + '.zip')
         Confirm-ChildPath -TargetPath $archive -ParentPath $output
     }
@@ -67,7 +73,7 @@ function New-OfflinePackage {
         $instructions = @('# SDU 面包板离线包', '', '1. 将整个压缩包解压到一个文件夹', '2. 双击 index.html，用 Chrome 或 Edge 打开', '', '你不需要安装 Node.js，也不需要运行服务器', '请保留 styles、vendor、assets 等文件夹，它们与页面一起工作', '', 'Ctrl+S 只保存当前实验。需要迁移实验时，你可以使用“备份全部实验”')
         $instructionsPath = Join-Path $packageRoot 'START-HERE.md'
         Set-Content -LiteralPath $instructionsPath -Value $instructions -Encoding UTF8
-        Compress-Archive -LiteralPath $packageRoot -DestinationPath $archive -CompressionLevel Optimal
+        Compress-Archive -LiteralPath $packageRoot -DestinationPath $archive -CompressionLevel $CompressionLevel
         Write-Output ('离线包：' + $archive)
         return $archive
     }

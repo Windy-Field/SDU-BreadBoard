@@ -1,6 +1,7 @@
 import { element, node, icon, refreshIcons } from "./dom.mjs";
 import { MOTION } from "./motion.mjs";
 
+// 提示停留时间为毫秒，超出同时显示数量后移除最早的提示
 const TOAST_SETTINGS = { duration: 6000, visibleLimit: 4 };
 let toastCounter = 0;
 

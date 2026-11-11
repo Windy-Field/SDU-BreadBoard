@@ -1,13 +1,24 @@
 import fs from "node:fs";
 import { complementPreset, COMPLEMENT_NOTES } from "../src/presets.mjs";
-import { baseNode, pinHole } from "../src/board.mjs";
+import { baseNode, pinHole, portHole, IO_LIMIT } from "../src/board.mjs";
 import { CHIP_MODELS } from "../src/chips.mjs";
 import { wirePoints } from "../src/geometry.mjs";
 
+// 接线文档的输出位置和颜色名称，只影响说明文本
+const GUIDE_OUTPUT = "docs/complement-wiring.md";
 const COLOR_NAMES = { "#dc3545": "红色", "#46515f": "深灰", "#16845b": "绿色", "#8b55c5": "紫色", "#1976d2": "蓝色", "#d68a0b": "黄色", "#0d939d": "青色", "#d44f93": "粉色" };
 
 // 将物理孔关联到同列芯片引脚，方便读者从端点表核对脚号
 function pinDescription(project, endpoint) {
+    const signals = ["GND", "VCC", "P+", "P-"];
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+        signals.push("K" + bit, "L" + bit);
+    }
+    for (const signal of signals) {
+        if (baseNode(portHole(signal)) === baseNode(endpoint)) {
+            return signal + " 对应列";
+        }
+    }
     for (const chip of project.chips) {
         const model = CHIP_MODELS[chip.model];
         for (let pin = 1; pin <= model.count; pin = pin + 1) {
@@ -40,5 +51,5 @@ export function writeWiringGuide() {
         lines.push("| " + wire.id + " | " + positions.join(" → ") + " |");
     }
     lines.push("", "## 文件与验证", "", "你可以导入 [complement-adder.json](../examples/complement-adder.json) 使用标准示例，或通过左侧“整理走线”调整当前电路的路径，确认后生效并支持撤销", "", "开发时运行 `npm run route:preset` 重新生成固定路径，再运行 `npm run build` 同步运行文件、JSON 和本文档。`npm test` 对比优化前的独立端点记录，并穷举 4096 种加减组合", "");
-    fs.writeFileSync("docs/complement-wiring.md", lines.join("\n"));
+    fs.writeFileSync(GUIDE_OUTPUT, lines.join("\n"));
 }

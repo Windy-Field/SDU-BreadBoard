@@ -184,7 +184,7 @@ function testComparator() {
 // 验证数字字形、灭零、强制灭灯和灯测试的控制优先级
 function testSegments() {
     const model = CHIP_MODELS["74LS48"];
-    const expected = [63, 6, 91, 79, 102, 109, 125, 7, 127, 111];
+    const expected = [63, 6, 91, 79, 102, 109, 124, 7, 127, 103];
     for (let value = 0; value < 10; value = value + 1) {
         const pins = pinsFor(model);
         writeNumber(pins, [7, 1, 2, 6], value);
@@ -375,7 +375,8 @@ function wiredChip(name) {
         const hole = pinHole(chip, pair[0]).replace(":E:", ":D:").replace(":F:", ":G:");
         project.wires.push({ id: "W" + (project.wires.length + 1), from: pair[1], to: hole, color: "#1976d2", bends: [] });
     }
-    validateProject(project);
+    const physical = validateProject(project);
+    project.wires = physical.wires;
     return { project: project, chip: chip, assigned: assigned, runtime: createRuntime() };
 }
 

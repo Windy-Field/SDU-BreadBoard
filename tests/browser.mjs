@@ -163,8 +163,8 @@ async function main() {
         assert.equal(await page.evaluate(sidebarFits), true);
         await expectResult(page, "XX XXXX");
         assert.equal(await page.evaluate(inspectPalette), true);
-        await page.locator("#audit-preset").click();
-        await page.locator("#toast-region").getByText("当前芯片和电气连接与补码实验标准接法一致", { exact: true }).waitFor();
+        await page.locator("#diagnose-circuit").click();
+        assert.equal(await page.locator("#diagnostics-panel .diagnostic-chip").count(), 5);
         await page.locator("#tab-inspect").click();
         await page.locator("#read-only-toggle").check();
         assert.equal(await page.locator("#tool-wire").isDisabled(), true);
@@ -218,8 +218,9 @@ async function main() {
         assert.equal(await page.locator("#wire-count").textContent(), "62");
         await page.locator("#undo").click();
         assert.equal(await page.locator("#wire-count").textContent(), "61");
+        await clearRegisters(page);
         assert.equal(await page.locator("#issue-count").textContent(), "0");
-        await page.locator("#from-endpoint").fill("K0");
+        await page.locator("#from-endpoint").fill("B3:J:49");
         await page.locator("#to-endpoint").fill("B0:A:1");
         await page.locator("#connect-endpoints").click();
         await page.getByText("这个孔已被占用", { exact: false }).first().waitFor();
@@ -271,7 +272,7 @@ async function main() {
         await page.keyboard.up("Control");
         await waitForZoom(page);
         assert.ok(Math.abs(await zoomPercent(page) - initialZoom) <= 1);
-        await page.locator("#from-endpoint").fill("K0");
+        await page.locator("#from-endpoint").fill("B3:J:49");
         await page.locator("#to-endpoint").fill("B0:A:1");
         await page.locator("#connect-endpoints").click();
         assert.equal(await page.locator("#wire-count").textContent(), "1");
@@ -280,7 +281,7 @@ async function main() {
         await page.locator("#new-experiment").click();
         assert.equal(await page.locator("#wire-count").textContent(), "0");
         assert.equal(await page.locator("#project-mode").count(), 0);
-        await page.locator("#experiment-picker").selectOption(presetId);
+        await page.locator("#experiment-picker").selectOption(presetId, { force: true });
         assert.equal(await page.locator("#wire-count").textContent(), "61");
         await page.locator("#tab-notes").click();
         assert.match(await page.locator("#notes-preview").textContent(), /低电平|异步清零/);

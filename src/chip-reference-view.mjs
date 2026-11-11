@@ -4,6 +4,9 @@ import { CHIP_REFERENCES } from "./catalog.mjs";
 // 在单选和多选检查中复用原厂引脚图、资料链接与功能说明
 export function appendChipReference(container, chip) {
     const reference = CHIP_REFERENCES[chip.model];
+    if (reference.pinWarning) {
+        container.append(node("p", reference.pinWarning, "pin-warning"));
+    }
     const figure = node("figure", "", "chip-reference");
     const imageLink = node("a", "", "");
     let imagePath = "assets/pinouts/" + reference.file + ".png";

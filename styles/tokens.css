@@ -1,4 +1,5 @@
 :root {
+    /* 页面基础配色，使用 OKLCH 保持明暗层级 */
     --color-paper: oklch(98% 0.004 240);
     --color-surface: oklch(99.6% 0.002 240);
     --color-muted-surface: oklch(95.5% 0.005 240);
@@ -17,6 +18,7 @@
     --color-warning: oklch(46% 0.10 65);
     --color-warning-soft: oklch(97% 0.03 85);
     --color-shadow: oklch(20% 0.01 240 / 0.12);
+    /* 面包板材质、金属、芯片与指示灯配色 */
     --color-board: #f5f6f3;
     --color-hole: #596066;
     --color-hole-edge: #c2c7c9;
@@ -29,9 +31,12 @@
     --color-led-on: #c4ea4b;
     --color-led-off: #3a4c3c;
     --color-unknown: #d69c3c;
+    --color-level-floating: #e6e9ed;
+    /* 标题、正文与等宽数据字体，优先使用本机字体 */
     --font-display: "Bahnschrift", "Microsoft YaHei", sans-serif;
     --font-body: "Segoe UI", "Microsoft YaHei", sans-serif;
     --font-mono: "Cascadia Code", "Consolas", monospace;
+    /* 通用间距和圆角，单位为像素 */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 12px;
@@ -39,10 +44,12 @@
     --space-xl: 24px;
     --radius-control: 6px;
     --radius-panel: 8px;
+    /* 交互缓动与短动画时长 */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
     --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     --dur-micro: 120ms;
+    /* 页面浮层顺序，数值越大越靠前 */
     --z-tooltip: 60;
     --z-toast: 50;
 }

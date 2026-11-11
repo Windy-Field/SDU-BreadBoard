@@ -3,7 +3,19 @@ import { BOARD, endpointPosition } from "./board.mjs";
 import { chipBounds } from "./geometry.mjs";
 import { LIMITS } from "./storage.mjs";
 
-const ROUTING = { step: 6, margin: 6, topBoundary: 62, bottomBoundary: 1110, sharedCost: 70, crossingCost: 10, neighborCost: 3, turnCost: 3 };
+// 寻路网格与边界单位为像素，代价越高越不倾向选择该通道
+const ROUTING = {
+    step: 6,
+    margin: 6,
+    topBoundary: 62,
+    bottomBoundary: 1110,
+    edgeCells: 4, // 左右边缘保留的网格数
+    sharedCost: 70, // 共线重叠代价
+    crossingCost: 10, // 垂直交叉代价
+    neighborCost: 3, // 紧邻已有导线的代价
+    turnCost: 3 // 转弯代价
+};
+// 从画布尺寸计算网格数量，不单独设置另一组宽高
 const width = Math.floor(BOARD.width / ROUTING.step) + 1;
 const height = Math.floor(BOARD.height / ROUTING.step) + 1;
 
@@ -59,7 +71,7 @@ function createGraph(walls, occupied, first, last) {
             const vertical = row * ROUTING.step;
             const top = Math.min(ROUTING.topBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
             const bottom = Math.max(ROUTING.bottomBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
-            if (walls.has(key) || column < 4 || column > width - 4 || vertical < top || vertical > bottom) {
+            if (walls.has(key) || column < ROUTING.edgeCells || column > width - ROUTING.edgeCells || vertical < top || vertical > bottom) {
                 weight = 0;
             }
             cells.push(weight);

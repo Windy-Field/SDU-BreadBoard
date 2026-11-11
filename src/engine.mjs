@@ -1,9 +1,11 @@
 import { CHIP_MODELS, evaluateAdder, logicGate } from "./chips.mjs";
-import { baseNode, pinHole } from "./board.mjs";
+import { baseNode, pinHole, IO_LIMIT } from "./board.mjs";
 import { evaluateExtra } from "./chip-logic.mjs";
 import { createChipState, updateChipState, stateOutputs } from "./chip-state.mjs";
 
+// 单次组合逻辑传播的最大轮数，防止反馈振荡无限计算
 const MAX_SETTLE_PASSES = 96;
+// 单次时序更新的最大轮数，用于检测无法稳定的时序反馈
 const MAX_SEQUENTIAL_PASSES = 12;
 
 // 建立接线连通图，保存每个内部五孔组的根节点
@@ -152,7 +154,7 @@ function collectDrivers(project, topology, values, registers, pulses, devices, p
     if (project.power) {
         addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
         addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
-        for (let index = 0; index < 24; index = index + 1) {
+        for (let index = 0; index < IO_LIMIT; index = index + 1) {
             const name = "K" + index;
             addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
         }
@@ -165,9 +167,11 @@ function collectDrivers(project, topology, values, registers, pulses, devices, p
             const pins = readPins(chip, topology, values);
             const model = CHIP_MODELS[chip.model];
             // 双向脚的输入只读取外部驱动，避免把自己的 RBO 下拉当成永久灭灯输入
-            if (model.bidirectional) {
+            if (model.bidirectional && chipPowered(chip, pins)) {
                 for (const pin of model.bidirectional) {
                     const node = nodeFor(topology, pinHole(chip, pin));
+                    // BI/RBO 开路时由芯片内部弱上拉保持高电平
+                    addDriver(drivers, node, 1, chip.id + "-" + pin + "-bias", "pull-up");
                     const external = [];
                     const source = chip.id + "-" + pin;
                     const entries = previousDrivers[node] || [];
@@ -176,6 +180,7 @@ function collectDrivers(project, topology, values, registers, pulses, devices, p
                             external.push(driver);
                         }
                     }
+                    external.push({ value: 1, kind: "pull-up" });
                     pins[pin] = resolveDrivers(external);
                 }
             }
@@ -185,6 +190,13 @@ function collectDrivers(project, topology, values, registers, pulses, devices, p
                 let kind = "push-pull";
                 if (model.kind === "open-collector" || (model.bidirectional && model.bidirectional.includes(Number(pin)))) {
                     kind = "open-collector";
+                }
+                // 74LS48 段输出的高电平来自内部约 2kΩ 上拉，不是推挽强驱动
+                if (model.kind === "seven-segment" && Number(pin) !== 4) {
+                    kind = "open-collector";
+                    if (outputs[pin] === 1) {
+                        kind = "pull-up";
+                    }
                 }
                 addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin, kind);
             }
@@ -310,7 +322,7 @@ function diagnose(project, result) {
                     low = true;
                 }
             }
-            let message = "多个推挽输出连接到同一节点：" + sources + "";
+            let message = "多个驱动源连接到同一节点：" + sources;
             if (high && low) {
                 message = "高低电平冲突：" + sources + "，此节点结果为 X";
             }
@@ -331,6 +343,19 @@ function diagnose(project, result) {
         }
         if (missing.length > 0) {
             issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " 输入悬空：第 " + missing.join("、") + " 脚" });
+        }
+        const model = CHIP_MODELS[chip.model];
+        if (model.channels) {
+            let active = 0;
+            if (model.activeHigh) {
+                active = 1;
+            }
+            for (let index = 0; index < model.channels.length; index = index + 1) {
+                const channel = model.channels[index];
+                if (pins[channel.set] === active && pins[channel.reset] === active) {
+                    issues.push({ code: "async-conflict:" + chip.id + ":" + index, severity: "warning", message: chip.id + " 第 " + (index + 1) + " 路置位和复位同时有效，两个输出均为 1，同时释放后的状态不确定" });
+                }
+            }
         }
     }
     if (!result.stable) {

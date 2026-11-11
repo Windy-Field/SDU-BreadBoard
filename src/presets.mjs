@@ -1,7 +1,27 @@
 import { CHIP_MODELS } from "./chips.mjs";
-import { emptyProject, holeId, pinHole, WIRE_COLORS } from "./board.mjs";
+import { emptyProject, holeId, pinHole, portHole, WIRE_COLORS } from "./board.mjs";
 import presetRoutes from "./preset-routes.json" with { type: "json" };
 
+// 标准示例的芯片位置，改变位置后需重新生成路径并运行接线验证
+const PRESET_CHIPS = [
+    { id: "U1", model: "74LS273", section: 1, column: 24 },
+    { id: "U2", model: "74LS283", section: 2, column: 16 },
+    { id: "U3", model: "74LS283", section: 2, column: 39 },
+    { id: "U4", model: "74LS86", section: 1, column: 3 },
+    { id: "U5", model: "74LS86", section: 1, column: 44 }
+];
+// 以下为固定引脚接法，不是可随意改变的显示选项
+const UNUSED_INPUTS = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
+const INPUT_PINS = [1, 4, 9, 12];
+const OUTPUT_PINS = [3, 6, 8, 11];
+const ADDER_PINS = [6, 2, 15, 11];
+const CONTROL_PINS = ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"];
+const SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
+const FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
+const REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
+// 新载入示例的端口显示数量，包含清零控制与溢出指示
+const PRESET_PORT_COUNT = 7;
+// 示例备注模板，与构建生成的接线文档共用
 export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 
 ## 功能
@@ -48,6 +68,10 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 
 ## 走线与线色
 
+输入输出板上没有接线孔，K、L、P 信号直接连到对应的面包板列。所有导线只插面包板孔或右侧电源轨孔，端口与孔位对应关系见接线说明
+
+第四块面包板的输入与脉冲对应列通过细线桥接，上下 A～J 的空孔可读取同一信号，其他列及 X/Y 母线保持隔离
+
 红色为电源，深灰为地，绿色为数值输入，紫色为加减控制和进位，蓝色为计算结果，黄色为寄存器反馈，青色为 LED 输出，粉色为清零和时钟
 
 导线沿分开的通道绕开芯片外框。交叉处没有接点，只有导线两端插入的孔参与连接。你可以点击左侧“整理走线”，确认后调整当前电路的路径；芯片位置、端点、线色和备注保持不变，随后可撤销
@@ -58,6 +82,10 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 // 在同一个芯片脚的五孔组中分配空孔，返回可接线的物理孔名
 function allocatePin(project, usage, name) {
     if (!name.startsWith("U")) {
+        const hole = portHole(name);
+        if (hole !== "") {
+            return hole;
+        }
         return name;
     }
     const parts = name.split("-");
@@ -96,17 +124,11 @@ function connect(project, usage, first, second, color) {
 // 创建已接好的双符号位补码运算器，电气端点与显示路径分别维护
 export function complementPreset() {
     const project = emptyProject();
-    project.inputCount = 7;
-    project.outputCount = 7;
+    project.inputCount = PRESET_PORT_COUNT;
+    project.outputCount = PRESET_PORT_COUNT;
     project.notes = COMPLEMENT_NOTES;
     project.name = "双符号位补码运算器";
-    project.chips = [
-        { id: "U1", model: "74LS273", section: 1, column: 24 },
-        { id: "U2", model: "74LS283", section: 2, column: 16 },
-        { id: "U3", model: "74LS283", section: 2, column: 39 },
-        { id: "U4", model: "74LS86", section: 1, column: 3 },
-        { id: "U5", model: "74LS86", section: 1, column: 44 }
-    ];
+    project.chips = structuredClone(PRESET_CHIPS);
     const usage = {};
     let power = "VCC";
     let ground = "GND";
@@ -119,38 +141,31 @@ export function complementPreset() {
         power = powerPin;
         ground = groundPin;
     }
-    const unusedInputs = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
-    for (const pin of unusedInputs) {
+    for (const pin of UNUSED_INPUTS) {
         connect(project, usage, ground, pin, 7);
         ground = pin;
     }
-    const inputPins = [1, 4, 9, 12];
-    const outputPins = [3, 6, 8, 11];
-    const adderPins = [6, 2, 15, 11];
     for (let bit = 0; bit < 4; bit = bit + 1) {
-        connect(project, usage, "K" + bit, "U4-" + inputPins[bit], 2);
-        connect(project, usage, "U4-" + outputPins[bit], "U2-" + adderPins[bit], 2);
+        connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], 2);
+        connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], 2);
     }
     connect(project, usage, "K4", "U5-1", 2);
     let control = "K5";
-    for (const pin of ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"]) {
+    for (const pin of CONTROL_PINS) {
         connect(project, usage, control, pin, 4);
         control = pin;
     }
     connect(project, usage, "U5-3", "U3-6", 4);
     connect(project, usage, "U3-6", "U3-2", 4);
     connect(project, usage, "U2-9", "U3-7", 4);
-    const sums = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
-    for (const pair of sums) {
+    for (const pair of SUM_CONNECTIONS) {
         connect(project, usage, pair[0], pair[1], 1);
     }
-    const feedback = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
-    for (const pair of feedback) {
+    for (const pair of FEEDBACK_CONNECTIONS) {
         connect(project, usage, pair[0], pair[1], 3);
     }
-    const registerOutputs = [2, 5, 6, 9, 12, 15];
     for (let bit = 0; bit < 6; bit = bit + 1) {
-        connect(project, usage, "U1-" + registerOutputs[bit], "L" + bit, 5);
+        connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, 5);
     }
     connect(project, usage, "U1-12", "U5-4", 5);
     connect(project, usage, "U1-15", "U5-5", 5);

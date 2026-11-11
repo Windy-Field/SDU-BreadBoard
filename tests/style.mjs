@@ -2,7 +2,9 @@ import * as acorn from "acorn";
 import fs from "node:fs";
 import path from "node:path";
 
+// 检查范围是当前项目目录，第三方和生成文件由下方规则跳过
 const ROOT = process.cwd();
+// 禁止出现在自有源码中的语法节点，可按代码规范调整
 const FORBIDDEN = new Set(["ArrowFunctionExpression", "ConditionalExpression", "UpdateExpression", "SpreadElement", "RestElement", "ObjectPattern", "ArrayPattern"]);
 
 // 递归检查语法树，拒绝匿名函数、语法糖和缺少函数说明的实现
