@@ -4,6 +4,8 @@ SDU-BreadBoard 是基于山东大学计算机组成原理实验的面包板设�
 
 作者：Octorange/Windy-Field
 
+作者：Octorange/Windy-Field
+
 你可以从[发布页下载离线包](https://github.com/Windy-Field/SDU-BreadBoard/releases/latest)，也可以使用仓库的 **Code → Download ZIP**。将压缩包完整解压，再双击 `index.html`，即可使用
 
 需要重新打包时，你可以双击 Windows 下的 `package.cmd`。程序会在 `releases` 文件夹生成离线 ZIP，里面只包含运行文件和使用资料。[打包说明](docs/packaging.md)介绍了更新和验证方法
