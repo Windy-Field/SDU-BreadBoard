@@ -1,8 +1,13 @@
+import { element, node, icon, refreshIcons } from "./dom.mjs";
+import { appendChipReference } from "./chip-reference-view.mjs";
+import { showToast } from "./toast.mjs";
 import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, validEndpoint } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 import { createRuntime, readEndpoint, simulate } from "./engine.mjs";
-import { complementPreset } from "./presets.mjs";
-import { allEndpoints, hitTest, hitCandidates, wireHandleAt, nearestEndpoint, renderBoard } from "./render.mjs";
+import { complementPreset, restorePresetRoutes } from "./presets.mjs";
+import { routeWires } from "./routing.mjs";
+import { allEndpoints, renderBoard } from "./render.mjs";
+import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint } from "./geometry.mjs";
 import { LIMITS, STORAGE_KEY, validateProject } from "./storage.mjs";
 import { MOTION, tween, fadeContent } from "./motion.mjs";
 import { markdownFragment } from "./notes.mjs";
@@ -11,10 +16,43 @@ import { CHIP_REFERENCES } from "./catalog.mjs";
 import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace } from "./workspace.mjs";
 import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
 
-const SETTINGS = { historyLimit: 80, toastDuration: 6000, zoomMinimum: 0.15, zoomMaximum: 2, zoomStep: 0.15, wheelSpeed: 0.0015 };
-const state = { project: emptyProject(), runtime: createRuntime(), result: null, tool: "wire", wireColor: WIRE_COLORS[1], selected: null, pinnedChip: "", placing: "", pending: null, pointer: null, hovered: "", showInternals: false, showLevels: false, zoom: 1, targetZoom: 1, undo: [], redo: [], activeTab: "inspect", notesEditing: false, previousIssues: new Set(), saveFailed: false, visual: { switches: [], leds: {}, internals: 0 } };
+const SETTINGS = {
+    historyLimit: 80,
+    zoomMinimum: 0.15,
+    zoomMaximum: 2,
+    zoomStep: 0.15,
+    wheelSpeed: 0.0015
+};
+const PULSE_SETTINGS = { feedbackDuration: 160 };
+
+// 电路结构、真实仿真状态和界面预览分别保存，动画不会改变逻辑电平
+const state = {
+    project: emptyProject(),
+    runtime: createRuntime(),
+    result: null,
+    tool: "wire",
+    wireColor: WIRE_COLORS[1],
+    selected: null,
+    selection: [],
+    pinnedChip: "",
+    placing: "",
+    pending: null,
+    pointer: null,
+    hovered: "",
+    showInternals: false,
+    showLevels: false,
+    zoom: 1,
+    targetZoom: 1,
+    undo: [],
+    redo: [],
+    activeTab: "inspect",
+    notesEditing: false,
+    previousIssues: new Set(),
+    saveFailed: false,
+    pressedPulse: "",
+    visual: { switches: [], leds: {}, internals: 0 }
+};
 const endpoints = allEndpoints();
-let toastCounter = 0;
 let canvas = null;
 let zoomAnchor = null;
 let lastPinnedChip = "";
@@ -37,10 +75,8 @@ let catalogModel = "";
 let heldPulse = "";
 let pulseTimer = 0;
 let recentAction = "";
-const PULSE_SETTINGS = { feedbackDuration: 160 };
-state.pressedPulse = "";
+let routingBusy = false;
 const expandedSelection = new Set();
-state.selection = [];
 
 // 更新时间栏，统一按北京时间显示，版本号来自同一个配置文件
 function updateClock() {
@@ -81,10 +117,14 @@ function beforeLeave(event) {
 }
 
 // 显示原生确认对话框，传入文字和用户确认后才执行的命名函数
-function confirmAction(title, message, action) {
+function confirmAction(title, message, action, acceptLabel = "确认删除", destructive = true) {
     confirmationAction = action;
     element("confirm-title").textContent = title;
     element("confirm-message").textContent = message;
+    const accept = element("confirm-accept");
+    accept.textContent = acceptLabel;
+    accept.classList.toggle("danger", destructive);
+    accept.classList.toggle("primary", !destructive);
     element("confirm-dialog").showModal();
     element("confirm-cancel").focus();
 }
@@ -224,101 +264,61 @@ function auditCurrentWiring() {
     render();
 }
 
-// 按编号取页面元素，统一界面查询入口
-function element(id) {
-    return document.getElementById(id);
-}
-
-// 创建带文字和样式名的元素，返回新的页面节点
-function node(tag, text, className) {
-    const result = document.createElement(tag);
-    result.textContent = text;
-    if (className !== "") {
-        result.className = className;
+// 整理前说明会替换转折点，保留原电路直到全部路径计算成功
+function requestWireRouting() {
+    if (editingLocked()) {
+        return;
     }
-    return result;
+    if (routingBusy) {
+        return;
+    }
+    if (state.project.wires.length === 0) {
+        toast("当前实验还没有导线", "info");
+        return;
+    }
+    confirmAction("整理走线？", "程序会调整当前电路的导线路径，绕开芯片并减少重叠；接线端点、线色和备注保持不变。手动转折点将被替换，你可以撤销这次整理", applyWireRouting, "确认整理", false);
 }
 
-// 创建 Lucide 图标占位节点，由图标库统一绘制
-function icon(name) {
-    const result = document.createElement("i");
-    result.dataset.lucide = name;
-    result.setAttribute("aria-hidden", "true");
-    return result;
-}
-
-// 替换新加入的图标占位节点，没有返回值
-function refreshIcons() {
-    if (window.lucide) {
-        window.lucide.createIcons();
+// 完成全部寻路后一次替换路径，计算期间切换或编辑实验时放弃本次结果
+async function applyWireRouting() {
+    const experiment = activeExperiment;
+    const signature = JSON.stringify(state.project);
+    const candidate = copyProject(state.project);
+    routingBusy = true;
+    render();
+    try {
+        // 标准示例复用已验证路径，其他电路使用同一套寻路算法
+        if (!restorePresetRoutes(candidate)) {
+            const routes = await routeWires(candidate);
+            for (const wire of candidate.wires) {
+                wire.bends = routes[wire.id];
+            }
+        }
+        if (activeExperiment !== experiment || JSON.stringify(state.project) !== signature || readOnly) {
+            toast("实验已切换或修改，本次整理结果未应用", "info");
+            return;
+        }
+        validateProject(candidate);
+        remember();
+        state.project = candidate;
+        state.pending = null;
+        state.placing = "";
+        state.tool = "select";
+        commit();
+        toast("走线已整理，电气连接保持不变", "info");
+    } catch (error) {
+        toast("原接线已保留，" + error.message, "warning");
+    } finally {
+        routingBusy = false;
+        render();
     }
 }
 
-// 删除指定编号的提示，用于关闭按钮和超时回调
-function removeToast(id) {
-    const item = element(id);
-    if (item) {
-        window.clearTimeout(Number(item.dataset.timer));
-        item.classList.add("leaving");
-        window.setTimeout(detachToast.bind(null, id), MOTION.toastDuration);
-    }
-}
-
-// 在提示退出过渡结束后移除节点
-function detachToast(id) {
-    const item = element(id);
-    if (item) {
-        item.remove();
-    }
-}
-
-// 处理提示的关闭按钮，参数为点击事件
-function closeToast(event) {
-    const toast = event.currentTarget.closest(".toast");
-    removeToast(toast.id);
-}
-
-// 鼠标进入提示时暂停超时，便于阅读错误
-function pauseToast(event) {
-    window.clearTimeout(Number(event.currentTarget.dataset.timer));
-}
-
-// 鼠标离开提示后重新开始关闭计时
-function resumeToast(event) {
-    const toast = event.currentTarget;
-    toast.dataset.timer = String(window.setTimeout(removeToast.bind(null, toast.id), SETTINGS.toastDuration));
-}
-
-// 显示操作错误或重要反馈，参数为中文内容和提示类别
+// 显示提示并更新状态栏，提示的节点与计时交给独立组件处理
 function toast(message, kind) {
-    toastCounter = toastCounter + 1;
-    const item = node("div", "", "toast " + kind);
-    item.id = "toast-" + toastCounter;
-    item.setAttribute("role", "status");
-    let symbol = "circle-alert";
-    if (kind === "info") {
-        symbol = "info";
-    } else if (kind === "warning") {
-        symbol = "triangle-alert";
-    }
-    item.append(icon(symbol), node("span", message, ""));
-    const close = node("button", "", "icon-button");
-    close.setAttribute("aria-label", "关闭提示");
-    close.append(icon("x"));
-    close.addEventListener("click", closeToast);
-    item.append(close);
-    item.addEventListener("mouseenter", pauseToast);
-    item.addEventListener("mouseleave", resumeToast);
-    item.addEventListener("focusin", pauseToast);
-    item.addEventListener("focusout", resumeToast);
-    element("toast-region").append(item);
-    item.dataset.timer = String(window.setTimeout(removeToast.bind(null, item.id), SETTINGS.toastDuration));
-    while (element("toast-region").children.length > 4) {
-        element("toast-region").firstElementChild.remove();
-    }
+    showToast(message, kind);
     recentAction = message;
     updateActionStatus();
-    refreshIcons();
 }
 
 // 保存编辑前的电路供撤销使用，清空已经失效的重做记录
@@ -514,7 +514,9 @@ function renderLibrary() {
         button.setAttribute("aria-label", "查看 " + model + " " + specification.title);
         button.setAttribute("aria-pressed", String(catalogModel === model));
         const description = node("span", "", "");
-        description.append(node("strong", model, ""), node("small", specification.title + " · DIP-" + specification.count, ""));
+        const subtitle = node("small", "", "");
+        subtitle.append(document.createTextNode(specification.title + " · "), node("span", "DIP-" + specification.count, "chip-package"));
+        description.append(node("strong", model, ""), subtitle);
         button.append(icon("microchip"), description);
         button.addEventListener("click", chooseChip);
         container.append(button);
@@ -527,35 +529,47 @@ function renderLibrary() {
     refreshIcons();
 }
 
-// 点击器件库查看芯片资料，只读模式下也可以查看
+// 选择芯片后同时展示资料并准备放置，只读时仅展示资料
 function chooseChip(event) {
     const model = event.currentTarget.dataset.model;
     if (catalogModel === model) {
         catalogModel = "";
         state.placing = "";
+        if (state.tool === "place") {
+            state.tool = "select";
+        }
         renderLibrary();
         render();
         return;
     }
     catalogModel = model;
     state.placing = "";
+    if (!readOnly) {
+        state.placing = model;
+    }
+    ignoreClick = false;
+    drag = null;
     state.selected = null;
     state.selection = [];
     state.pinnedChip = "";
     state.pending = null;
-    state.tool = "select";
+    state.tool = "place";
+    if (readOnly) {
+        state.tool = "select";
+    }
     state.activeTab = "inspect";
     renderLibrary();
     render();
 }
 
-// 在资料面板明确选择放置，避免查看芯片时误把芯片放到画布上
+// 从资料面板或工具栏重新进入当前型号的放置状态
 function placeCatalogChip() {
     if (editingLocked() || catalogModel === "") {
         return;
     }
     state.placing = catalogModel;
-    state.tool = "select";
+    state.tool = "place";
+    ignoreClick = false;
     state.pending = null;
     render();
 }
@@ -588,6 +602,7 @@ function placeChip(point) {
     catalogModel = "";
     selectTarget({ kind: "chip", id: chip.id }, false);
     state.placing = "";
+    state.tool = "select";
     renderLibrary();
     commit();
 }
@@ -724,6 +739,9 @@ function selectTarget(target, multiple) {
 
 // 只在选择模式下记录拖线起点，实际移动超过阈值后才建立撤销记录
 function pointerDown(event) {
+    if (state.placing !== "" || state.tool === "place") {
+        return;
+    }
     const target = hitTest(canvasPoint(event), state, endpoints);
     if (target && target.kind === "pulse" && event.button === 0) {
         startPulse(target.id);
@@ -860,12 +878,23 @@ function cancelWire() {
     state.pending = null;
     state.placing = "";
     catalogModel = "";
+    if (state.tool === "place") {
+        state.tool = "select";
+    }
     renderLibrary();
     render();
 }
 
 // 切换编辑工具，参数来自按钮事件中的工具名称
 function chooseTool(event) {
+    if (event.currentTarget.id === "tool-place") {
+        if (catalogModel === "") {
+            toast("请先从左侧器件库选择芯片", "info");
+            return;
+        }
+        placeCatalogChip();
+        return;
+    }
     state.tool = event.currentTarget.id.slice(5);
     state.pending = null;
     state.placing = "";
@@ -949,8 +978,7 @@ function findChip(id) {
     return null;
 }
 
-// 删除选中的芯片或导线，保留其他结构并提供撤销
-// 删除检查面板中的当前对象
+// 确认删除当前所选对象，实际删除时只建立一次撤销记录
 function deleteSelected() {
     if (editingLocked()) {
         return;
@@ -986,6 +1014,7 @@ function removeTargets(targets) {
             chips.push(chip);
         } else {
             delete state.runtime.registers[chip.id];
+            delete state.runtime.devices[chip.id];
         }
     }
     state.project.wires = wires;
@@ -1130,6 +1159,9 @@ function resetRuntime() {
     state.runtime = createRuntime();
     state.pending = null;
     state.placing = "";
+    if (state.tool === "place") {
+        state.tool = "select";
+    }
     state.selected = null;
     catalogModel = "";
     state.selection = [];
@@ -1393,6 +1425,7 @@ function appendPinRow(table, chip, pin) {
 // 在引脚表中选中物理孔，画布会显示同节点连通孔
 function inspectPin(event) {
     state.selected = { kind: "node", id: event.currentTarget.dataset.endpoint };
+    state.selection = [];
     render();
 }
 
@@ -1442,39 +1475,6 @@ function renderChipPanel(container, chip) {
     appendChipPinTable(container, chip);
 }
 
-// 在单选和多选检查中复用原厂引脚图、资料链接与功能说明
-function appendChipReference(container, chip) {
-    const reference = CHIP_REFERENCES[chip.model];
-    const figure = node("figure", "", "chip-reference");
-    const imageLink = node("a", "", "");
-    let imagePath = "assets/pinouts/" + reference.file + ".png";
-    if (reference.image) {
-        imagePath = reference.image;
-    }
-    imageLink.href = imagePath;
-    imageLink.target = "_blank";
-    imageLink.rel = "noopener";
-    const image = document.createElement("img");
-    image.src = imageLink.href;
-    image.alt = chip.model + " DIP 引脚图";
-    imageLink.append(image);
-    let caption = "原厂顶视图：缺口朝上；画布中的芯片缺口朝左";
-    let sourceLabel = "TI 数据手册 · 第 " + reference.page + " 页";
-    if (reference.image) {
-        caption = "用户材料中的引脚图；安装时请按物理脚号核对";
-        sourceLabel = "查看材料中的逻辑符号";
-    }
-    figure.append(imageLink, node("figcaption", caption, ""));
-    const source = node("a", sourceLabel, "datasheet-link");
-    source.href = "assets/datasheets/" + reference.file + ".pdf#page=" + reference.page;
-    if (reference.logicImage) {
-        source.href = reference.logicImage;
-    }
-    source.target = "_blank";
-    source.rel = "noopener";
-    container.append(figure, source, node("p", reference.summary, "chip-summary"));
-}
-
 // 显示指定芯片全部引脚的名称、当前电平和物理孔位
 function appendChipPinTable(container, chip) {
     const table = node("table", "", "pin-table");
@@ -1512,6 +1512,7 @@ function moveChip() {
     chip.column = candidate.column;
     lastPinnedChip = "";
     delete state.runtime.registers[chip.id];
+    delete state.runtime.devices[chip.id];
     commit();
 }
 
@@ -1880,6 +1881,7 @@ function unpinChip() {
     state.pinnedChip = "";
     if (state.selected && state.selected.kind === "chip") {
         state.selected = null;
+        state.selection = [];
     }
     render();
 }
@@ -2079,15 +2081,17 @@ function render() {
     }
     element("read-only-toggle").checked = readOnly;
     element("project-name").readOnly = readOnly;
-    for (const id of ["tool-wire", "tool-delete", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
+    for (const id of ["tool-place", "tool-wire", "tool-delete", "arrange-wires", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
         element(id).disabled = readOnly;
     }
+    element("arrange-wires").disabled = readOnly || routingBusy;
+    element("arrange-wires").setAttribute("aria-busy", String(routingBusy));
     element("project-name").value = state.project.name;
     element("power-toggle").checked = state.project.power;
     element("undo").disabled = readOnly || state.undo.length === 0;
     element("redo").disabled = readOnly || state.redo.length === 0;
     element("cancel-wire").disabled = !state.pending && state.placing === "";
-    for (const name of ["wire", "select", "delete"]) {
+    for (const name of ["place", "wire", "select", "delete"]) {
         const active = state.tool === name;
         element("tool-" + name).classList.toggle("selected", active);
         element("tool-" + name).setAttribute("aria-pressed", String(active));
@@ -2143,11 +2147,6 @@ function updateActionStatus() {
 
 // 打开实验说明对话框
 function showHelp() {
-    const paragraphs = element("help-dialog").querySelectorAll(".dialog-body p");
-    paragraphs[0].textContent = "你可以在“我的实验”中新建独立实验，或切回已保存的实验。输入和输出各可显示 1～24 位，端口作用可以写在 Markdown 备注里";
-    paragraphs[1].textContent = "点击器件库中的芯片先查看功能和引脚图，再点击“放置芯片”选择安装位置。芯片缺口朝左，跨 E/F 沟槽。接线时依次选择起点和终点，点击空白可增加转折点，按 Esc 取消";
-    paragraphs[6].textContent = "补码示例中，K0～K3 是数值位，K4 是符号位，K5 为 0 时加、1 时减。你把 K6 切到 0 再切回 1 即可清零。按住 P− 后松开，寄存器在恢复上升沿保存结果。L5、L4 是两个符号位，L6 指示溢出";
-    paragraphs[paragraphs.length - 1].textContent = "快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 请求删除选中对象，Ctrl+S 只保存当前实验。你可以按住 Ctrl 多选器件和导线，在选择模式下拖动导线端点或转折点。自动保存默认关闭；有未保存内容时，关闭或刷新页面会显示浏览器离开确认。你选择留在页面后，可以按 Ctrl+S 保存";
     element("help-dialog").showModal();
     fadeContent(element("help-dialog"));
 }
@@ -2191,6 +2190,7 @@ function keyDown(event) {
 
 // 将命名事件处理函数绑定到界面控件
 function bindEvents() {
+    element("tool-place").addEventListener("click", chooseTool);
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
     canvas.addEventListener("pointercancel", cancelPointer);
@@ -2205,6 +2205,7 @@ function bindEvents() {
     element("new-experiment").addEventListener("click", newProject);
     element("experiment-picker").addEventListener("change", switchExperiment);
     element("audit-preset").addEventListener("click", auditCurrentWiring);
+    element("arrange-wires").addEventListener("click", requestWireRouting);
     canvas.addEventListener("click", clickBoard);
     canvas.addEventListener("pointermove", movePointer);
     canvas.addEventListener("pointerleave", leaveBoard);

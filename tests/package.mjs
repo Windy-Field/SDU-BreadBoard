@@ -67,6 +67,7 @@ async function testOfflinePackage() {
         await page.locator(".chip-option[data-model='74LS273']").click();
         const image = page.locator("#inspect-panel .chip-reference img");
         await image.waitFor();
+        await page.waitForFunction(pinoutReady);
         assert.ok(await image.evaluate(imageWidth) > 100);
         const downloadEvent = page.waitForEvent("download");
         await page.locator("#export-project").click();
@@ -85,6 +86,12 @@ async function testOfflinePackage() {
 // 读取已加载图片的原始宽度，确认离线包引用到真实图片
 function imageWidth(image) {
     return image.naturalWidth;
+}
+
+// 等待图片解码结束，再检查实际宽度，避免把加载中误判为资源缺失
+function pinoutReady() {
+    const image = document.querySelector("#inspect-panel .chip-reference img");
+    return image && image.complete && image.naturalWidth > 100;
 }
 
 await testOfflinePackage();

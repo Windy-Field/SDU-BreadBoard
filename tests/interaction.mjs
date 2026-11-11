@@ -5,6 +5,8 @@ import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import { complementPreset } from "../src/presets.mjs";
 import { emptyProject, endpointPosition, BOARD } from "../src/board.mjs";
+import { CHIP_MODELS } from "../src/chips.mjs";
+import originalPreset from "./fixtures/complement-original.json" with { type: "json" };
 
 const ROOT = process.cwd();
 const URL = pathToFileURL(path.join(ROOT, "index.html")).href;
@@ -49,6 +51,39 @@ function collectError(errors, error) {
     errors.push(error.message);
 }
 
+// 在真实插孔上逐个放置所有型号，确认放置优先于接口选择且可撤销
+async function testDirectPlacement(page) {
+    const hole = endpointPosition("B0:A:20");
+    for (const model of Object.keys(CHIP_MODELS)) {
+        await page.locator(".chip-option[data-model='" + model + "']").click();
+        assert.equal(await page.locator("#tool-place").getAttribute("aria-pressed"), "true");
+        assert.equal(await page.locator("#tool-select").getAttribute("aria-pressed"), "false");
+        assert.equal(await page.locator("#simulation-status").textContent(), "待放置 " + model);
+        await clickPoint(page, hole);
+        const project = await exportedProject(page);
+        assert.equal(project.chips.length, 1);
+        assert.equal(project.chips[0].model, model);
+        assert.equal(project.chips[0].column, 20);
+        assert.equal(await page.locator("#pinned-chip").isVisible(), true);
+        assert.equal(await page.locator("#tool-select").getAttribute("aria-pressed"), "true");
+        await page.locator("#undo").click();
+        assert.equal((await exportedProject(page)).chips.length, 0);
+    }
+    const option = page.locator(".chip-option[data-model='74LS86']");
+    await option.click();
+    await option.click();
+    assert.equal(await page.locator("#tool-place").getAttribute("aria-pressed"), "false");
+    assert.equal(await page.locator("#tool-select").getAttribute("aria-pressed"), "true");
+    await option.click();
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("#tool-place").getAttribute("aria-pressed"), "false");
+    await option.click();
+    await page.locator("#tool-select").click();
+    await page.locator("#tool-place").click();
+    assert.equal(await page.locator("#tool-place").getAttribute("aria-pressed"), "true");
+    await page.keyboard.press("Escape");
+}
+
 // 从导线列表选择两根导线，使用真实的 Ctrl 点击保留多选
 async function selectTwoWires(page) {
     await page.locator("#tab-wires").click();
@@ -58,6 +93,122 @@ async function selectTwoWires(page) {
     await page.locator("#wires-panel button[data-wire='W2']").first().click();
     await page.keyboard.up("Control");
     assert.equal(await page.locator("#inspect-panel .selection-item[data-kind='wire']").count(), 2);
+}
+
+// 导入旧示例后验证路径整理的确认、取消、撤销、只读保护和端点不变
+async function testRestorePresetRoutes(page) {
+    const imported = structuredClone(originalPreset);
+    imported.name = "旧版走线测试";
+    const payload = Buffer.from(JSON.stringify(imported));
+    await page.locator("#import-file").setInputFiles({ name: "original.json", mimeType: "application/json", buffer: payload });
+    await page.waitForFunction(importedPresetReady);
+    const before = await exportedProject(page);
+    await page.locator("#arrange-wires").click();
+    assert.equal(await page.locator("#confirm-dialog").isVisible(), true);
+    assert.equal(await page.locator("#confirm-accept").textContent(), "确认整理");
+    assert.equal(await page.locator("#confirm-accept").getAttribute("class"), "button primary");
+    await page.locator("#confirm-cancel").click();
+    assert.deepEqual((await exportedProject(page)).wires, before.wires);
+    await page.locator("#arrange-wires").click();
+    await page.locator("#confirm-accept").click();
+    const updated = await exportedProject(page);
+    assert.deepEqual(updated.wires, complementPreset().wires);
+    assert.equal(updated.notes, before.notes);
+    assert.deepEqual(updated.chips, before.chips);
+    await page.locator("#undo").click();
+    assert.deepEqual((await exportedProject(page)).wires, before.wires);
+    await page.locator("#redo").click();
+    assert.deepEqual((await exportedProject(page)).wires, updated.wires);
+    await page.locator("#read-only-toggle").check();
+    assert.equal(await page.locator("#arrange-wires").isDisabled(), true);
+    await page.locator("#read-only-toggle").uncheck();
+}
+
+// 导入成功后通过实验标题确认页面已切换，不依赖不存在的提示文字
+function importedPresetReady() {
+    return document.getElementById("project-name").value === "旧版走线测试";
+}
+
+// 用普通电路在页面中整理路径，核对两端与颜色保留，并可撤销
+async function testGeneralWireRouting(page) {
+    await page.locator("#new-experiment").click();
+    await page.locator("#from-endpoint").fill("B0:A:1");
+    await page.locator("#to-endpoint").fill("B0:J:20");
+    await page.locator("#connect-endpoints").click();
+    const before = await exportedProject(page);
+    await page.locator("#arrange-wires").click();
+    await page.locator("#confirm-accept").click();
+    await page.waitForFunction(routingFinished);
+    const after = await exportedProject(page);
+    assert.equal(after.wires.length, before.wires.length);
+    assert.equal(after.wires[0].from, before.wires[0].from);
+    assert.equal(after.wires[0].to, before.wires[0].to);
+    assert.equal(after.wires[0].color, before.wires[0].color);
+    assert.ok(after.wires[0].bends.length > 0);
+    await page.locator("#undo").click();
+    assert.deepEqual((await exportedProject(page)).wires, before.wires);
+}
+
+// 等待异步整理结束后再读取导线，避免断言执行在计算中途
+function routingFinished() {
+    return document.getElementById("arrange-wires").getAttribute("aria-busy") === "false";
+}
+
+// 读取按钮当前显示颜色，在悬停后的真实绘制状态下核对对比度
+function buttonColors(button) {
+    const style = getComputedStyle(button);
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const context = canvas.getContext("2d");
+    context.fillStyle = style.color;
+    context.fillRect(0, 0, 1, 1);
+    const foreground = context.getImageData(0, 0, 1, 1).data;
+    context.fillStyle = style.backgroundColor;
+    context.fillRect(0, 0, 1, 1);
+    const background = context.getImageData(0, 0, 1, 1).data;
+    return { foreground: Array.from(foreground), background: Array.from(background) };
+}
+
+// 从浏览器读到的前景和背景颜色计算对比度
+function colorContrast(colors) {
+    const first = relativeLuminance(colors.foreground);
+    const second = relativeLuminance(colors.background);
+    return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+}
+
+// 按 WCAG 的 sRGB 公式计算亮度，参数为画布读出的 RGB 分量
+function relativeLuminance(channels) {
+    const weights = [0.2126, 0.7152, 0.0722];
+    let luminance = 0;
+    for (let index = 0; index < 3; index = index + 1) {
+        const channel = channels[index] / 255;
+        let linear = channel / 12.92;
+        if (channel > 0.04045) {
+            linear = ((channel + 0.055) / 1.055) ** 2.4;
+        }
+        luminance = luminance + linear * weights[index];
+    }
+    return luminance;
+}
+
+// 核对整理和删除确认按钮的文字、语义颜色及悬停对比度
+async function testConfirmationHover(page) {
+    await page.locator("#arrange-wires").click();
+    const accept = page.locator("#confirm-accept");
+    assert.equal(await accept.textContent(), "确认整理");
+    await accept.hover();
+    await page.waitForTimeout(180);
+    assert.ok(colorContrast(await accept.evaluate(buttonColors)) >= 4.5);
+    await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "routing-hover.png"), fullPage: true });
+    await page.locator("#confirm-cancel").click();
+    await page.locator("#quick-delete").click();
+    assert.equal(await accept.textContent(), "确认删除");
+    await accept.hover();
+    await page.waitForTimeout(180);
+    assert.ok(colorContrast(await accept.evaluate(buttonColors)) >= 4.5);
+    await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "delete-hover.png"), fullPage: true });
+    await page.locator("#confirm-cancel").click();
 }
 
 // 验证预设色、自选色、只读保护及一次撤销恢复整批导线
@@ -120,6 +271,7 @@ async function main() {
         await page.keyboard.press("Control+s");
         assert.equal((await page.evaluate(readSavedWorkspace)).projects[presetId].switches[0], 1);
         await page.locator("#experiment-picker").selectOption(blankId);
+        await testDirectPlacement(page);
         await page.locator("#from-endpoint").fill("B0:A:1");
         await page.locator("#to-endpoint").fill("B0:A:5");
         await page.locator("#connect-endpoints").click();
@@ -144,7 +296,7 @@ async function main() {
         assert.match(await page.locator("#inspect-panel .chip-summary").textContent(), /异或门/);
         assert.equal(await page.locator("#inspect-panel .catalog-pin-table tr").count(), 15);
         assert.equal((await exportedProject(page)).chips.length, 0);
-        await page.locator("#place-catalog-chip").click();
+        assert.equal(await page.locator("#tool-place").getAttribute("aria-pressed"), "true");
         await clickPoint(page, { x: 250, y: 207 });
         assert.equal(await page.locator("#pinned-chip").isVisible(), true);
         assert.match(await page.locator("#pinned-chip .chip-summary").textContent(), /异或门/);
@@ -204,10 +356,15 @@ async function main() {
             assert.equal(await page.locator("#inspect-panel h2").textContent(), model);
             assert.equal(await page.locator("#inspect-panel .chip-reference img").count(), 1);
             assert.equal(await page.locator("#place-catalog-chip").isDisabled(), true);
+            assert.equal(await page.locator("#tool-place").isDisabled(), true);
+            assert.equal(await page.locator("#tool-select").getAttribute("aria-pressed"), "true");
         }
         await page.locator("#read-only-toggle").uncheck();
+        await testRestorePresetRoutes(page);
+        await testConfirmationHover(page);
+        await testGeneralWireRouting(page);
         assert.deepEqual(errors, []);
-        console.log("交互验证通过：当前实验独立保存、空白去重、重复点击、Ctrl多选、批量改色、删除确认、拖动端点与旧列表整理");
+        console.log("交互验证通过：23种芯片放置、独立保存、多选改色、拖动端点、通用走线整理与撤销、确认按钮悬停对比度、只读保护");
         await page.locator("#save-project").click();
     } finally {
         await browser.close();

@@ -1,5 +1,6 @@
 import { CHIP_MODELS } from "./chips.mjs";
 import { emptyProject, holeId, pinHole, WIRE_COLORS } from "./board.mjs";
+import presetRoutes from "./preset-routes.json" with { type: "json" };
 
 export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 
@@ -45,6 +46,12 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 | 7＋5−6＋12 | 00 0111 → 00 1100 → 00 0110 → **01 0010**（正溢出） |
 | （−12）＋（−2）−6 | 11 0100 → 11 0010 → **10 1100**（负溢出） |
 
+## 走线与线色
+
+红色为电源，深灰为地，绿色为数值输入，紫色为加减控制和进位，蓝色为计算结果，黄色为寄存器反馈，青色为 LED 输出，粉色为清零和时钟
+
+导线沿分开的通道绕开芯片外框。交叉处没有接点，只有导线两端插入的孔参与连接。你可以点击左侧“整理走线”，确认后调整当前电路的路径；芯片位置、端点、线色和备注保持不变，随后可撤销
+
 重新加载文件、断电或撤销后，寄存器易失状态不保留，需要再次清零。这是理想数字逻辑模型，不模拟电流、按键抖动和实际传播时延
 `;
 
@@ -86,7 +93,7 @@ function connect(project, usage, first, second, color) {
     project.wires.push({ id: "W" + number, from: from, to: to, color: WIRE_COLORS[color], bends: [] });
 }
 
-// 创建已接好的双符号位补码运算器，芯片位置与前面的接线图一致
+// 创建已接好的双符号位补码运算器，电气端点与显示路径分别维护
 export function complementPreset() {
     const project = emptyProject();
     project.inputCount = 7;
@@ -150,6 +157,46 @@ export function complementPreset() {
     connect(project, usage, "U5-6", "L6", 5);
     connect(project, usage, "K6", "U1-1", 6);
     connect(project, usage, "P-", "U1-11", 6);
+    for (const wire of project.wires) {
+        if (Object.hasOwn(presetRoutes, wire.id)) {
+            wire.bends = structuredClone(presetRoutes[wire.id]);
+        }
+    }
     project.switches[6] = 1;
     return project;
+}
+
+// 只在芯片位置和接线端点完全匹配时恢复标准路径，保留输入、线色与备注
+export function restorePresetRoutes(project) {
+    const reference = complementPreset();
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
+        return false;
+    }
+    for (const expected of reference.chips) {
+        let matched = false;
+        for (const chip of project.chips) {
+            if (chip.id === expected.id && chip.model === expected.model && chip.section === expected.section && chip.column === expected.column) {
+                matched = true;
+                break;
+            }
+        }
+        if (!matched) {
+            return false;
+        }
+    }
+    const routes = new Map();
+    for (const expected of reference.wires) {
+        routes.set(expected.id, expected);
+    }
+    // 先核对全部端点，再改路径，避免核对失败时只更新了一部分
+    for (const wire of project.wires) {
+        const expected = routes.get(wire.id);
+        if (!expected || wire.from !== expected.from || wire.to !== expected.to) {
+            return false;
+        }
+    }
+    for (const wire of project.wires) {
+        wire.bends = structuredClone(routes.get(wire.id).bends);
+    }
+    return true;
 }

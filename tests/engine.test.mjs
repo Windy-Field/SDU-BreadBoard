@@ -7,7 +7,7 @@ import { complementPreset } from "../src/presets.mjs";
 import { validateProject } from "../src/storage.mjs";
 import { auditComplement } from "../src/audit.mjs";
 import { keepExperiment, validateWorkspace } from "../src/workspace.mjs";
-import { objectSelected } from "../src/render.mjs";
+import { objectSelected } from "../src/geometry.mjs";
 
 // 从六个 LED 读取结果，返回从高到低的逻辑值字符串
 function readResult(result) {
@@ -245,6 +245,10 @@ function testAllWiredInputs() {
                 expected = expected & 63;
                 const binary = readResult(result);
                 assert.equal(parseInt(binary, 2), expected, "完整接线结果不一致");
+                const highSign = (expected >> 5) & 1;
+                const lowSign = (expected >> 4) & 1;
+                assert.equal(readEndpoint(result, "L6"), highSign ^ lowSign, "双符号位溢出灯不一致");
+                assert.equal(result.issues.length, 0);
             }
         }
     }

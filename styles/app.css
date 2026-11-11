@@ -1,4 +1,4 @@
-/* Hallmark：工作台结构，浅色技术界面；自评：理念4、层级4、实现4、针对性5、克制5、变化4。 */
+/* 页面布局与交互样式集中在这里，电路计算不参与样式处理 */
 @import url("tokens.css");
 * { box-sizing: border-box; letter-spacing: 0; }
 html, body { margin: 0; overflow-x: clip; }
@@ -88,7 +88,6 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
 .bit-button[aria-pressed="true"] { background: var(--color-success-soft); color: var(--color-success); border-color: var(--color-success); }
 .input-decimal { color: var(--color-muted); font-family: var(--font-mono); align-self: center; font-size: 12px; min-width: 22px; }
 .operation-block { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
-.operation-toggle { display: flex; gap: 5px; align-items: center; font-size: 12px; white-space: nowrap; padding: 6px 2px; }
 .button { height: 35px; display: inline-flex; justify-content: center; align-items: center; gap: 6px; padding: 0 11px; font-size: 12px; }
 .button.primary { background: var(--color-accent); color: var(--color-accent-ink); border-color: var(--color-accent); }
 .inspector { background: var(--color-surface); border-left: 1px solid var(--color-rule); min-height: 0; display: flex; flex-direction: column; }
@@ -152,13 +151,8 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .pinned-chip .inspection-heading h2 { font-size: 13px; flex: 1; }
 .pinned-chip .inspection-meta { font-size: 11px; margin-bottom: 10px; }
 .pinned-chip .move-fields { gap: 6px; }
-.pinned-chip .move-fields .button { grid-column: auto; }
 .pinned-chip .move-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .pinned-chip .move-fields .button { grid-column: 1 / 3; }
-.mode-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; flex-basis: 100%; border-bottom: 1px solid var(--color-rule); padding-bottom: 9px; }
-.mode-controls label { display: flex; align-items: center; gap: 6px; color: var(--color-muted); font-size: 11px; }
-.mode-controls select { width: 112px; height: 28px; font-size: 11px; }
-.mode-controls input:not([type="checkbox"]) { width: 54px; height: 28px; font-size: 11px; }
 .io-strip { gap: 10px 20px; }
 .quick-switches { flex-wrap: wrap; max-width: 560px; gap: 6px; }
 .quick-input { display: grid; justify-items: center; gap: 3px; }
@@ -195,7 +189,7 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .markdown th { background: var(--color-muted-surface); }
 .markdown blockquote { padding-left: 10px; border-left: 2px solid var(--color-rule); color: var(--color-muted); }
 @media (max-width: 960px) { .pinned-chip { max-height: 360px; } }
-@media (max-width: 700px) { .inspector { max-height: 1000px; } .pinned-chip { max-height: 320px; flex-shrink: 0; } .mode-controls { gap: 7px; } .mode-controls label { gap: 4px; } .mode-controls select { width: 98px; } .mode-controls input:not([type="checkbox"]) { width: 43px; padding-inline: 5px; } .quick-switches { max-width: 100%; } .io-strip .input-block { flex-basis: 100%; } .general-binary { font-size: 16px !important; } .notes-panel { min-height: 340px; } }
+@media (max-width: 700px) { .inspector { max-height: 1000px; } .pinned-chip { max-height: 320px; flex-shrink: 0; } .quick-switches { max-width: 100%; } .io-strip .input-block { flex-basis: 100%; } .general-binary { font-size: 16px !important; } .notes-panel { min-height: 340px; } }
 @media (hover: hover) { button:hover:not(:disabled) { background: var(--color-muted-surface); } .button.primary:hover { background: var(--color-focus); color: var(--color-accent-ink); } .chip-option:hover { border-color: var(--color-rule); } a:hover { color: var(--color-accent); } }
 @media (max-width: 1200px) { .workspace { grid-template-columns: 174px minmax(0, 1fr) 250px; } .version, #save-status { display: none; } .app-header { gap: 12px; } .palette { max-width: 142px; } .toolbar { gap: 6px; } }
 @media (max-width: 960px) { .workspace { grid-template-columns: minmax(0, 1fr) 250px; height: auto; min-height: calc(100dvh - 100px); } .library { grid-column: 1 / 3; flex-direction: row; align-items: center; gap: 10px; border-right: 0; border-bottom: 1px solid var(--color-rule); padding: 8px 12px; overflow-x: auto; } .library .panel-heading, .library .search-field, .library-footer { display: none; } .chip-library { display: flex; gap: 4px; } .chip-option { width: 122px; min-height: 45px; grid-template-columns: minmax(0, 1fr) 18px; padding: 7px 8px; } .chip-option > svg:first-child { display: none; } .chip-option small { font-size: 10px; } .library-section { border: 0; margin: 0; padding: 0; } .library-section h2 { display: none; } .preset-button { width: 170px; } .workbench { min-height: 730px; height: calc(100dvh - 170px); } .inspector { max-height: calc(100dvh - 170px); min-height: 730px; } .toolbar-end { flex-wrap: wrap; } .document-name { max-width: 240px; } .brand h1 { font-size: 17px; } }
@@ -226,15 +220,11 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .board-viewport { padding: 10px; }
 .toolbar { min-height: 50px; padding-block: 6px; }
 .io-strip { padding: 8px 12px; gap: 6px 14px; }
-.mode-controls { flex-basis: auto; border: 0; padding: 0; align-self: center; }
-.mode-controls label { font-size: 10px; }
-.mode-controls select { width: 100px; }
-.mode-controls input:not([type="checkbox"]) { width: 42px; padding-inline: 4px; }
 .quick-port-label { font-size: 9px; }
 .pinned-chip { scroll-behavior: smooth; }
 @media (max-width: 1200px) { .version { display: none; } .workspace { grid-template-columns: 162px minmax(0, 1fr) 246px; } .document-name { gap: 5px; } .autosave-control { font-size: 10px; } .header-actions { gap: 2px; } }
 @media (max-width: 960px) { .workspace { grid-template-columns: minmax(0, 1fr) 250px; height: auto; } .workbench { min-height: 700px; } }
-@media (max-width: 700px) { .workspace { display: flex; } .header-actions { flex-wrap: wrap; justify-content: flex-end; } .brand { flex: 1; } .autosave-control { order: 2; } .document-name { flex-basis: 100%; } .workbench { height: 860px; } .mode-controls { flex-basis: 100%; padding-bottom: 6px; border-bottom: 1px solid var(--color-rule); } .release-info { gap: 8px; } }
+@media (max-width: 700px) { .workspace { display: flex; } .header-actions { flex-wrap: wrap; justify-content: flex-end; } .brand { flex: 1; } .autosave-control { order: 2; } .document-name { flex-basis: 100%; } .workbench { height: 860px; } .release-info { gap: 8px; } }
 .chip-option { grid-template-columns: 26px minmax(0, 1fr); gap: 7px; padding: 10px 6px; }
 .chip-option > span { min-width: 0; }
 .chip-option small { white-space: normal; overflow-wrap: anywhere; line-height: 1.5; }
@@ -293,3 +283,18 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .library-footer { margin-top: 12px; }
 @media (max-width: 960px) { .library { width: 100%; min-width: 0; max-width: none; max-height: 280px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; } .library-chips { height: 235px; max-height: none; } .chip-library { display: grid; grid-template-columns: minmax(0, 1fr); } .library-section { display: grid; grid-template-columns: minmax(0, 1fr); max-height: 235px; margin: 0; min-height: 0; padding: 0 4px 0 0; border: 0; gap: 6px; } .library-section h2 { display: block; } .library-footer { grid-column: 1 / 3; margin: 0; padding: 6px 0 0; } }
 @media (max-width: 700px) { .pulse-button { min-width: 100px; } .library { max-height: 260px; } .library-chips { height: 205px; } .library-section { max-height: 205px; } .library .chip-option { grid-template-columns: minmax(0, 1fr); } .library .preset-button { font-size: 10px; padding-inline: 2px; gap: 4px; } }
+.chip-library { grid-auto-rows: max-content; align-content: start; gap: 6px; flex: 1; }
+.library .chip-option { height: auto; min-height: 68px; grid-template-columns: 26px minmax(0, 1fr); align-items: center; padding: 10px 6px; }
+.chip-option > span { display: grid; gap: 4px; }
+.chip-option strong { line-height: 1.4; }
+.chip-option small { margin: 0; line-height: 1.6; }
+.chip-package { display: inline-block; white-space: nowrap; }
+/* 实色按钮悬停后保留语义颜色，避免通用浅灰背景盖住白色文字 */
+@media (hover: hover) {
+    .button.primary:hover:not(:disabled) { background: var(--color-focus); border-color: var(--color-focus); color: var(--color-accent-ink); }
+    .button.danger:hover:not(:disabled) { background: var(--color-error-hover); border-color: var(--color-error-hover); color: var(--color-accent-ink); }
+    .icon-button.selected:hover:not(:disabled) { background: var(--color-accent-soft); color: var(--color-accent); }
+    .bit-button[aria-pressed="true"]:hover:not(:disabled) { background: var(--color-success-soft); color: var(--color-success); border-color: var(--color-success); }
+    .chip-option.active:hover:not(:disabled) { background: var(--color-accent-soft); border-color: var(--color-accent); }
+}
+@media (max-width: 700px) { .library .chip-option { grid-template-columns: minmax(0, 1fr); padding: 8px 4px; } }

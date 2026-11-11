@@ -243,7 +243,6 @@ async function main() {
         assert.equal(await page.evaluate(inspectMarkdownSafety), true);
         await page.locator("#tab-inspect").click();
         await page.getByRole("button", { name: "查看 74LS86 四路异或门", exact: true }).click();
-        await page.locator("#place-catalog-chip").click();
         const bounds = await page.locator("#board-canvas").boundingBox();
         await page.mouse.click(bounds.x + bounds.width * 0.25, bounds.y + bounds.height * 0.18);
         assert.match(await page.locator("#circuit-count").textContent(), /1 片芯片/);

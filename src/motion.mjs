@@ -3,11 +3,6 @@ const transitions = new Map();
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let frame = 0;
 
-// 根据页面设置判断是否应减少空间运动
-export function prefersReducedMotion() {
-    return reducedMotion.matches;
-}
-
 // 对进行中的数值过渡计算当前值，参数为进度，返回平滑进度
 function easing(progress) {
     const remaining = 1 - progress;

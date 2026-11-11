@@ -1,13 +1,584 @@
 (() => {
+  var __create = Object.create;
   var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __typeError = (msg) => {
     throw TypeError(msg);
   };
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    // If the importer is in node compatibility mode or this is not an ESM
+    // file that has been converted to a CommonJS file using a Babel-
+    // compatible transform (i.e. "__esModule" has not been set), then set
+    // "default" to the CommonJS "module.exports" for node compatibility.
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
   var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
   var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
+
+  // node_modules/javascript-astar/astar.js
+  var require_astar = __commonJS({
+    "node_modules/javascript-astar/astar.js"(exports, module) {
+      (function(definition) {
+        if (typeof module === "object" && typeof module.exports === "object") {
+          module.exports = definition();
+        } else if (typeof define === "function" && define.amd) {
+          define([], definition);
+        } else {
+          var exports2 = definition();
+          window.astar = exports2.astar;
+          window.Graph = exports2.Graph;
+        }
+      })(function() {
+        function pathTo(node2) {
+          var curr = node2, path = [];
+          while (curr.parent) {
+            path.unshift(curr);
+            curr = curr.parent;
+          }
+          return path;
+        }
+        function getHeap() {
+          return new BinaryHeap(function(node2) {
+            return node2.f;
+          });
+        }
+        var astar = {
+          /**
+          * Perform an A* Search on a graph given a start and end node.
+          * @param {Graph} graph
+          * @param {GridNode} start
+          * @param {GridNode} end
+          * @param {Object} [options]
+          * @param {bool} [options.closest] Specifies whether to return the
+                     path to the closest node if the target is unreachable.
+          * @param {Function} [options.heuristic] Heuristic function (see
+          *          astar.heuristics).
+          */
+          search: function(graph, start2, end, options) {
+            graph.cleanDirty();
+            options = options || {};
+            var heuristic = options.heuristic || astar.heuristics.manhattan, closest = options.closest || false;
+            var openHeap = getHeap(), closestNode = start2;
+            start2.h = heuristic(start2, end);
+            openHeap.push(start2);
+            while (openHeap.size() > 0) {
+              var currentNode = openHeap.pop();
+              if (currentNode === end) {
+                return pathTo(currentNode);
+              }
+              currentNode.closed = true;
+              var neighbors = graph.neighbors(currentNode);
+              for (var i = 0, il = neighbors.length; i < il; ++i) {
+                var neighbor = neighbors[i];
+                if (neighbor.closed || neighbor.isWall()) {
+                  continue;
+                }
+                var gScore = currentNode.g + neighbor.getCost(currentNode), beenVisited = neighbor.visited;
+                if (!beenVisited || gScore < neighbor.g) {
+                  neighbor.visited = true;
+                  neighbor.parent = currentNode;
+                  neighbor.h = neighbor.h || heuristic(neighbor, end);
+                  neighbor.g = gScore;
+                  neighbor.f = neighbor.g + neighbor.h;
+                  graph.markDirty(neighbor);
+                  if (closest) {
+                    if (neighbor.h < closestNode.h || neighbor.h === closestNode.h && neighbor.g < closestNode.g) {
+                      closestNode = neighbor;
+                    }
+                  }
+                  if (!beenVisited) {
+                    openHeap.push(neighbor);
+                  } else {
+                    openHeap.rescoreElement(neighbor);
+                  }
+                }
+              }
+            }
+            if (closest) {
+              return pathTo(closestNode);
+            }
+            return [];
+          },
+          // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
+          heuristics: {
+            manhattan: function(pos0, pos1) {
+              var d1 = Math.abs(pos1.x - pos0.x);
+              var d2 = Math.abs(pos1.y - pos0.y);
+              return d1 + d2;
+            },
+            diagonal: function(pos0, pos1) {
+              var D2 = 1;
+              var D22 = Math.sqrt(2);
+              var d1 = Math.abs(pos1.x - pos0.x);
+              var d2 = Math.abs(pos1.y - pos0.y);
+              return D2 * (d1 + d2) + (D22 - 2 * D2) * Math.min(d1, d2);
+            }
+          },
+          cleanNode: function(node2) {
+            node2.f = 0;
+            node2.g = 0;
+            node2.h = 0;
+            node2.visited = false;
+            node2.closed = false;
+            node2.parent = null;
+          }
+        };
+        function Graph(gridIn, options) {
+          options = options || {};
+          this.nodes = [];
+          this.diagonal = !!options.diagonal;
+          this.grid = [];
+          for (var x2 = 0; x2 < gridIn.length; x2++) {
+            this.grid[x2] = [];
+            for (var y2 = 0, row = gridIn[x2]; y2 < row.length; y2++) {
+              var node2 = new GridNode(x2, y2, row[y2]);
+              this.grid[x2][y2] = node2;
+              this.nodes.push(node2);
+            }
+          }
+          this.init();
+        }
+        Graph.prototype.init = function() {
+          this.dirtyNodes = [];
+          for (var i = 0; i < this.nodes.length; i++) {
+            astar.cleanNode(this.nodes[i]);
+          }
+        };
+        Graph.prototype.cleanDirty = function() {
+          for (var i = 0; i < this.dirtyNodes.length; i++) {
+            astar.cleanNode(this.dirtyNodes[i]);
+          }
+          this.dirtyNodes = [];
+        };
+        Graph.prototype.markDirty = function(node2) {
+          this.dirtyNodes.push(node2);
+        };
+        Graph.prototype.neighbors = function(node2) {
+          var ret = [], x2 = node2.x, y2 = node2.y, grid = this.grid;
+          if (grid[x2 - 1] && grid[x2 - 1][y2]) {
+            ret.push(grid[x2 - 1][y2]);
+          }
+          if (grid[x2 + 1] && grid[x2 + 1][y2]) {
+            ret.push(grid[x2 + 1][y2]);
+          }
+          if (grid[x2] && grid[x2][y2 - 1]) {
+            ret.push(grid[x2][y2 - 1]);
+          }
+          if (grid[x2] && grid[x2][y2 + 1]) {
+            ret.push(grid[x2][y2 + 1]);
+          }
+          if (this.diagonal) {
+            if (grid[x2 - 1] && grid[x2 - 1][y2 - 1]) {
+              ret.push(grid[x2 - 1][y2 - 1]);
+            }
+            if (grid[x2 + 1] && grid[x2 + 1][y2 - 1]) {
+              ret.push(grid[x2 + 1][y2 - 1]);
+            }
+            if (grid[x2 - 1] && grid[x2 - 1][y2 + 1]) {
+              ret.push(grid[x2 - 1][y2 + 1]);
+            }
+            if (grid[x2 + 1] && grid[x2 + 1][y2 + 1]) {
+              ret.push(grid[x2 + 1][y2 + 1]);
+            }
+          }
+          return ret;
+        };
+        Graph.prototype.toString = function() {
+          var graphString = [], nodes = this.grid, rowDebug, row, y2, l2;
+          for (var x2 = 0, len = nodes.length; x2 < len; x2++) {
+            rowDebug = [];
+            row = nodes[x2];
+            for (y2 = 0, l2 = row.length; y2 < l2; y2++) {
+              rowDebug.push(row[y2].weight);
+            }
+            graphString.push(rowDebug.join(" "));
+          }
+          return graphString.join("\n");
+        };
+        function GridNode(x2, y2, weight) {
+          this.x = x2;
+          this.y = y2;
+          this.weight = weight;
+        }
+        GridNode.prototype.toString = function() {
+          return "[" + this.x + " " + this.y + "]";
+        };
+        GridNode.prototype.getCost = function(fromNeighbor) {
+          if (fromNeighbor && fromNeighbor.x != this.x && fromNeighbor.y != this.y) {
+            return this.weight * 1.41421;
+          }
+          return this.weight;
+        };
+        GridNode.prototype.isWall = function() {
+          return this.weight === 0;
+        };
+        function BinaryHeap(scoreFunction) {
+          this.content = [];
+          this.scoreFunction = scoreFunction;
+        }
+        BinaryHeap.prototype = {
+          push: function(element2) {
+            this.content.push(element2);
+            this.sinkDown(this.content.length - 1);
+          },
+          pop: function() {
+            var result = this.content[0];
+            var end = this.content.pop();
+            if (this.content.length > 0) {
+              this.content[0] = end;
+              this.bubbleUp(0);
+            }
+            return result;
+          },
+          remove: function(node2) {
+            var i = this.content.indexOf(node2);
+            var end = this.content.pop();
+            if (i !== this.content.length - 1) {
+              this.content[i] = end;
+              if (this.scoreFunction(end) < this.scoreFunction(node2)) {
+                this.sinkDown(i);
+              } else {
+                this.bubbleUp(i);
+              }
+            }
+          },
+          size: function() {
+            return this.content.length;
+          },
+          rescoreElement: function(node2) {
+            this.sinkDown(this.content.indexOf(node2));
+          },
+          sinkDown: function(n) {
+            var element2 = this.content[n];
+            while (n > 0) {
+              var parentN = (n + 1 >> 1) - 1, parent = this.content[parentN];
+              if (this.scoreFunction(element2) < this.scoreFunction(parent)) {
+                this.content[parentN] = element2;
+                this.content[n] = parent;
+                n = parentN;
+              } else {
+                break;
+              }
+            }
+          },
+          bubbleUp: function(n) {
+            var length = this.content.length, element2 = this.content[n], elemScore = this.scoreFunction(element2);
+            while (true) {
+              var child2N = n + 1 << 1, child1N = child2N - 1;
+              var swap = null, child1Score;
+              if (child1N < length) {
+                var child1 = this.content[child1N];
+                child1Score = this.scoreFunction(child1);
+                if (child1Score < elemScore) {
+                  swap = child1N;
+                }
+              }
+              if (child2N < length) {
+                var child2 = this.content[child2N], child2Score = this.scoreFunction(child2);
+                if (child2Score < (swap === null ? elemScore : child1Score)) {
+                  swap = child2N;
+                }
+              }
+              if (swap !== null) {
+                this.content[n] = this.content[swap];
+                this.content[swap] = element2;
+                n = swap;
+              } else {
+                break;
+              }
+            }
+          }
+        };
+        return {
+          astar,
+          Graph
+        };
+      });
+    }
+  });
+
+  // src/dom.mjs
+  function element(id) {
+    return document.getElementById(id);
+  }
+  function node(tag, text2, className) {
+    const result = document.createElement(tag);
+    result.textContent = text2;
+    if (className !== "") {
+      result.className = className;
+    }
+    return result;
+  }
+  function icon(name) {
+    const result = document.createElement("i");
+    result.dataset.lucide = name;
+    result.setAttribute("aria-hidden", "true");
+    return result;
+  }
+  function refreshIcons() {
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+
+  // src/document-references.mjs
+  var DOCUMENT_REFERENCES = {
+    "74LS03": {
+      "image": "assets/pinouts/document/74ls03-1.png",
+      "logicImage": "assets/pinouts/document/74ls03-2.png",
+      "summary": "\u903B\u8F91\u529F\u80FD\u4E0E74LS00\u76F8\u540C\uFF0CY=(AB)\u2032\uFF0C\u4F46\u8F93\u51FA\u7EA7\u4E3A\u96C6\u7535\u6781\u5F00\u8DEF\uFF08OC\uFF09\u7ED3\u6784\uFF0C\u4F7F\u7528\u65F6\u8F93\u51FA\u7AEF\u5FC5\u987B\u5916\u63A5\u4E0A\u62C9\u7535\u963B\u3002OC\u95E8\u53EF\u4EE5\u628A\u591A\u4E2A\u8F93\u51FA\u76F4\u63A5\u5E76\u8054\u5B9E\u73B0\u201C\u7EBF\u4E0E\u201D\uFF0C\u5E38\u7528\u4E8E\u603B\u7EBF\u9A71\u52A8\u548C\u7535\u5E73\u8F6C\u6362"
+    },
+    "74LS20": {
+      "image": "assets/pinouts/document/74ls20-1.png",
+      "logicImage": "assets/pinouts/document/74ls20-2.png",
+      "summary": "\u7247\u5185\u67092\u4E2A\u72EC\u7ACB\u76844\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(ABCD)\u2032\u3002\u5B9E\u9A8C4\u4E2D\u7528\u5B83\u4E0E74LS138\u914D\u5408\u5B9E\u73B0\u7EC4\u5408\u903B\u8F91\u51FD\u6570\uFF1B\u628A\u591A\u4F59\u8F93\u5165\u7AEF\u63A5\u9AD8\u7535\u5E73\u6216\u5C06\u8F93\u5165\u7AEF\u5E76\u63A5\uFF0C\u4E5F\u53EF\u5F53\u4F5C\u53CD\u76F8\u5668\u4F7F\u7528"
+    },
+    "CD4011": {
+      "image": "assets/pinouts/document/cd4011-1.png",
+      "logicImage": "assets/pinouts/document/cd4011-2.png",
+      "summary": "CMOS\u5DE5\u827A\u7684\u56DB2\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(AB)\u2032\u3002\u7535\u6E90\u7535\u538B\u8303\u56F4\u5BBD\uFF083~15V\uFF09\uFF0C\u8F93\u5165\u963B\u6297\u6781\u9AD8\u3001\u9759\u6001\u529F\u8017\u6781\u5C0F\uFF0C\u4F46\u591A\u4F59\u8F93\u5165\u7AEF\u4E0D\u5141\u8BB8\u60AC\u7A7A\uFF0C\u5FC5\u987B\u63A5VDD\u6216VSS\u3002\u5B9E\u9A8C2\u4E2D\u7528\u4E8E\u6D4B\u91CFCMOS\u95E8\u7684\u7535\u538B\u4F20\u8F93\u7279\u6027\u548C\u4F20\u8F93\u5EF6\u8FDF\u65F6\u95F4"
+    },
+    "74LS125": {
+      "image": "assets/pinouts/document/74ls125-1.png",
+      "logicImage": "assets/pinouts/document/74ls125-2.png",
+      "summary": "\u7247\u5185\u67094\u4E2A\u72EC\u7ACB\u7684\u4E09\u6001\u7F13\u51B2\u95E8\uFF0C\u4F7F\u80FD\u7AEFG\u2032\u4F4E\u7535\u5E73\u6709\u6548\uFF1AG\u2032=0\u65F6Y=A\uFF08\u540C\u76F8\u8F93\u51FA\uFF09\uFF0CG\u2032=1\u65F6\u8F93\u51FA\u4E3A\u9AD8\u963B\u6001\u3002\u5E38\u7528\u4E8E\u603B\u7EBF\u7ED3\u6784\u3001\u6570\u636E\u9009\u62E9\u4E0E\u4FE1\u53F7\u9694\u79BB"
+    },
+    "74LS138": {
+      "image": "assets/pinouts/document/74ls138-1.png",
+      "logicImage": "assets/pinouts/document/74ls138-2.png",
+      "summary": "3\u4E2A\u5730\u5740\u8F93\u5165\u7AEFA2A1A0\uFF0C8\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u7684\u8F93\u51FA\u7AEFY0\u2032~Y7\u2032\uFF0C3\u4E2A\u4F7F\u80FD\u7AEFS1\uFF08\u9AD8\u6709\u6548\uFF09\u3001S2\u2032\u3001S3\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u5F53S1=1\u4E14S2\u2032+S3\u2032=0\u65F6\u8BD1\u7801\uFF0CYi\u2032=(mi\xB7S)\u2032\uFF0C\u88AB\u9009\u4E2D\u7AEF\u8F93\u51FA\u4F4E\u7535\u5E73\uFF1B\u7981\u6B62\u65F6\u8F93\u51FA\u5168\u4E3A\u9AD8\u3002\u53EF\u4F5C\u5730\u5740\u8BD1\u7801\u5668\u3001\u8109\u51B2\u5206\u914D\u5668\uFF0C\u914D\u4E0E\u975E\u95E8\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u7EC4\u5408\u903B\u8F91\u51FD\u6570"
+    },
+    "74LS139": {
+      "image": "assets/pinouts/document/74ls139-1.png",
+      "logicImage": "assets/pinouts/document/74ls139-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A\u5B8C\u5168\u72EC\u7ACB\u76842\u7EBF-4\u7EBF\u8BD1\u7801\u5668\uFF0C\u5404\u6709\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u5730\u5740\u7AEF1A/1B\uFF082A/2B\uFF0CA\u4E3A\u4F4E\u4F4D\u3001B\u4E3A\u9AD8\u4F4D\uFF09\u548C4\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u8F93\u51FA\u7AEF\u3002\u5F53G\u2032=0\u65F6\u6309\u5730\u5740\u9009\u4E2D\u4E00\u4E2A\u8F93\u51FA\u4E3A\u4F4E\u7535\u5E73\u3002\u7528\u4E24\u7247\u534A\u7247\u5E76\u63A5\u5730\u5740\u3001A2\u4F5C\u7247\u9009\uFF08\u7ECF\u53CD\u76F8\uFF09\u53EF\u6269\u5C55\u62103\u7EBF-8\u7EBF\u8BD1\u7801\u5668"
+    },
+    "74LS151": {
+      "image": "assets/pinouts/document/74ls151-1.png",
+      "logicImage": "assets/pinouts/document/74ls151-2.png",
+      "summary": "8\u4E2A\u6570\u636E\u7AEFD0~D7\u30013\u4E2A\u5730\u5740\u7AEFC\uFF08\u6700\u9AD8\u4F4D\uFF09\u3001B\u3001A\uFF08\u6700\u4F4E\u4F4D\uFF09\u3001\u4F4E\u7535\u5E73\u6709\u6548\u7684\u4F7F\u80FD\u7AEFG\u2032\uFF0C\u4EE5\u53CA\u4E92\u8865\u8F93\u51FAY\u3001W\u2032\u3002G\u2032=0\u65F6Y=Di\uFF08i=CBA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u51FD\u6570\uFF1A\u6309F(mi)\u7684\u53D6\u503C\u628ADi\u63A51\u62160\u5373\u53EF"
+    },
+    "74LS153": {
+      "image": "assets/pinouts/document/74ls153-1.png",
+      "logicImage": "assets/pinouts/document/74ls153-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A4\u90091\u9009\u62E9\u5668\uFF0C\u5171\u7528\u5730\u5740\u7AEFA\uFF08\u4F4E\u4F4D\uFF09\u3001B\uFF08\u9AD8\u4F4D\uFF09\uFF0C\u5404\u6709\u72EC\u7ACB\u7684\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\u548C\u6570\u636E\u8F93\u5165\u7AEF1C0~1C3\u30012C0~2C3\u3002G\u2032=0\u65F6Y=Ci\uFF08i=BA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u7528\u4E24\u7247\uFF08\u6216\u591A\u6B21\u590D\u7528\uFF09\u5B9E\u73B0\u56DB\u53D8\u91CF\u51FD\u6570"
+    },
+    "74LS85": {
+      "image": "assets/pinouts/document/74ls85-1.png",
+      "logicImage": "assets/pinouts/document/74ls85-2.png",
+      "summary": "\u6BD4\u8F83A3A2A1A0\u4E0EB3B2B1B0\uFF0C\u8F93\u51FAA>B\u3001A=B\u3001A<B\u4E09\u4E2A\u9AD8\u7535\u5E73\u6709\u6548\u4FE1\u53F7\u30022~4\u811A\u4E3A\u7EA7\u8054\u8F93\u5165\uFF0C\u5355\u7247\u4F7F\u7528\u65F6A>B\u3001A<B\u8F93\u5165\u63A50\u3001A=B\u8F93\u5165\u63A51\uFF1B\u4E24\u7247\u7EA7\u8054\u53EF\u6269\u5C55\u62108\u4F4D\u6BD4\u8F83\u5668"
+    },
+    "74LS48": {
+      "image": "assets/pinouts/document/74ls48-1.png",
+      "logicImage": "assets/pinouts/document/74ls48-2.png",
+      "summary": "\u628A8421BCD\u7801\uFF08D\u4E3A\u6700\u9AD8\u4F4D\u3001A\u4E3A\u6700\u4F4E\u4F4D\uFF09\u8BD1\u6210\u4E03\u6BB5\u5B57\u5F62\uFF0C\u8F93\u51FAa~g\u9AD8\u7535\u5E73\u6709\u6548\uFF0C\u53EF\u76F4\u63A5\u9A71\u52A8\u5171\u9634\u6781\u6570\u7801\u7BA1\uFF0C\u5185\u90E8\u67092k\u03A9\u4E0A\u62C9\u7535\u963B\u3002\u5177\u6709LT\u2032\u706F\u6D4B\u8BD5\u3001RBI\u2032\u706D\u96F6\u8F93\u5165\u3001BI\u2032/RBO\u2032\u706D\u706F\u8F93\u5165/\u52A8\u6001\u706D\u706F\u8F93\u51FA\u529F\u80FD"
+    },
+    "74LS74": {
+      "image": "assets/pinouts/document/74ls74-1.png",
+      "logicImage": "assets/pinouts/document/74ls74-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0A\u5347\u6CBF\u89E6\u53D1D\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002CP\u4E0A\u5347\u6CBF\u5230\u6765\u65F6Q*=D\u3002\u53EF\u6784\u6210\u79FB\u4F4D\u5BC4\u5B58\u5668\u3001\u8BA1\u6570\u5668\u548C\u5206\u9891\u7535\u8DEF"
+    },
+    "74LS112": {
+      "image": "assets/pinouts/document/74ls112-1.png",
+      "logicImage": "assets/pinouts/document/74ls112-2.png",
+      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0B\u964D\u6CBF\u89E6\u53D1JK\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u5747\u4F4E\u6709\u6548\uFF09\u3002J=K=1\u65F6CP\u4E0B\u964D\u6CBF\u7FFB\u8F6C\uFF08T\u2032\u529F\u80FD\uFF09\uFF0C\u53EF\u6784\u6210\u8BA1\u6570\u5668\uFF1B\u4E0E74LS74\u914D\u5408\u53EF\u505A\u89E6\u53D1\u5668\u76F8\u4E92\u8F6C\u6362\u5B9E\u9A8C"
+    },
+    "CD4027": {
+      "image": "assets/pinouts/document/cd4027-1.png",
+      "logicImage": "assets/pinouts/document/cd4027-2.png",
+      "summary": "CMOS\u53CCJK\u4E3B\u4ECE\u89E6\u53D1\u5668\uFF0C\u4E0A\u5347\u6CBF\u89E6\u53D1\uFF0C\u7F6E\u4F4D\u7AEFSET\u548C\u590D\u4F4D\u7AEFRESET\u4E3A\u9AD8\u7535\u5E73\u6709\u6548\uFF08\u4E0E\u65F6\u949F\u65E0\u5173\uFF09\u3002\u7535\u6E903~15V\uFF0C\u8F93\u5165\u963B\u6297\u9AD8\u3001\u529F\u8017\u4F4E\u3002\u6CE8\u610F\u5176\u7F6E\u4F4D/\u590D\u4F4D\u6781\u6027\u548C\u5F15\u811A\u6392\u5217\u4E0E74LS112\u4E0D\u540C"
+    },
+    "74LS160": {
+      "image": "assets/pinouts/document/74ls160-1.png",
+      "logicImage": "assets/pinouts/document/74ls160-2.png",
+      "summary": "\u6A2110\u540C\u6B65\u52A0\u8BA1\u6570\u5668\u3002\u5177\u6709\u5F02\u6B65\u6E05\u96F6CLR\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u8BA1\u6570\u4F7F\u80FDENP/ENT\u548C\u8FDB\u4F4D\u8F93\u51FARCO\u3002ENP\u3001ENT\u5747\u4E3A\u9AD8\u7535\u5E73\u65F6\u5728CP\u4E0A\u5347\u6CBF\u8BA1\u6570\uFF1BRCO\u5728\u8BA1\u6570\u503C\u4E3A9\u4E14ENT=1\u65F6\u8F93\u51FA\u9AD8\u7535\u5E73"
+    },
+    "74LS161": {
+      "image": "assets/pinouts/document/74ls161-1.png",
+      "logicImage": "assets/pinouts/document/74ls161-2.png",
+      "summary": "\u6A2116\u540C\u6B65\u52A0\u8BA1\u6570\u5668\uFF0C\u5F15\u811A\u4E0E74LS160\u5B8C\u5168\u76F8\u540C\u3002\u5F02\u6B65\u6E05\u96F6CLR\u2032\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\u3001\u4F7F\u80FDENP/ENT\uFF0C\u8FDB\u4F4D\u8F93\u51FARCO\u3002\u53EF\u7528\u4E8E\u6784\u6210\u4EFB\u610F\u8FDB\u5236\u8BA1\u6570\u5668\uFF08\u53CD\u9988\u6E05\u96F6\u6CD5\u6216\u7F6E\u6570\u6CD5\uFF09"
+    },
+    "74LS194": {
+      "image": "assets/pinouts/document/74ls194-1.png",
+      "logicImage": "assets/pinouts/document/74ls194-2.png",
+      "summary": "4\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668\u3002S1S0=00\u4FDD\u6301\u300101\u53F3\u79FB\u300110\u5DE6\u79FB\u300111\u5E76\u884C\u7F6E\u6570\uFF1BSR\u4E3A\u53F3\u79FB\u4E32\u5165\u7AEF\uFF0CSL\u4E3A\u5DE6\u79FB\u4E32\u5165\u7AEF\uFF0CCLR\u2032\u4E3A\u5F02\u6B65\u6E05\u96F6\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u53EF\u6784\u6210\u73AF\u5F62\u3001\u626D\u73AF\u5F62\u8BA1\u6570\u5668\u53CA\u4E32\u5E76\u8F6C\u6362\u7535\u8DEF"
+    }
+  };
+
+  // src/catalog.mjs
+  var CHIP_REFERENCES = {
+    "74LS273": { file: "sn74ls273", page: 1, summary: "\u5B83\u80FD\u540C\u65F6\u4FDD\u5B58\u516B\u4F4D\u6570\u636E\u3002\u6E05\u96F6\u811A\u62C9\u4F4E\u65F6\uFF0C\u5168\u90E8\u8F93\u51FA\u53D8\u4E3A 0\uFF1B\u6E05\u96F6\u811A\u4FDD\u6301\u9AD8\u7535\u5E73\u65F6\uFF0C\u65F6\u949F\u4E0A\u5347\u6CBF\u628A D \u8F93\u5165\u4FDD\u5B58\u5230 Q \u8F93\u51FA" },
+    "74LS283": { file: "sn74ls283", page: 1, summary: "\u5B83\u628A\u4E24\u4E2A\u56DB\u4F4D\u6570\u4E0E\u8F93\u5165\u8FDB\u4F4D C0 \u76F8\u52A0\uFF0C\u8F93\u51FA\u56DB\u4F4D\u548C\u4EE5\u53CA\u8FDB\u4F4D C4\u3002A1\u3001B1\u3001\u03A31 \u5BF9\u5E94\u6700\u4F4E\u4F4D" },
+    "74LS86": { file: "sn74ls86a", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u5F02\u6216\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u4E0D\u540C\u65F6\u8F93\u51FA 1\uFF0C\u76F8\u540C\u65F6\u8F93\u51FA 0\u3002\u539F\u5382 LS86A \u8D44\u6599\u4E2D\u7684\u8FD9\u7EC4 DIP \u5F15\u811A\u4E0E\u5B9E\u9A8C\u6750\u6599\u4E00\u81F4" },
+    "74LS00": { file: "sn74ls00", page: 3, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u975E\u95E8\u3002\u53EA\u6709\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\uFF0C\u8F93\u51FA\u624D\u662F 0\u3002\u8BF7\u6309\u672C\u578B\u53F7\u7684\u811A\u540D\u63A5\u7EBF" },
+    "74LS08": { file: "sn74ls08", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\u8F93\u51FA 1\uFF0C\u5176\u4F59\u60C5\u51B5\u8F93\u51FA 0" },
+    "74LS32": { file: "sn74ls32", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u6216\u95E8\u3002\u81F3\u5C11\u4E00\u4E2A\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 1" },
+    "74LS04": { file: "sn74ls04", page: 1, summary: "\u5B83\u5305\u542B\u516D\u4E2A\u72EC\u7ACB\u7684\u975E\u95E8\u3002\u8F93\u5165\u4E3A 0 \u65F6\u8F93\u51FA 1\uFF0C\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 0" }
+  };
+  for (const model of Object.keys(DOCUMENT_REFERENCES)) {
+    CHIP_REFERENCES[model] = DOCUMENT_REFERENCES[model];
+  }
+
+  // src/chip-reference-view.mjs
+  function appendChipReference(container, chip) {
+    const reference = CHIP_REFERENCES[chip.model];
+    const figure = node("figure", "", "chip-reference");
+    const imageLink = node("a", "", "");
+    let imagePath = "assets/pinouts/" + reference.file + ".png";
+    if (reference.image) {
+      imagePath = reference.image;
+    }
+    imageLink.href = imagePath;
+    imageLink.target = "_blank";
+    imageLink.rel = "noopener";
+    const image = document.createElement("img");
+    image.src = imageLink.href;
+    image.alt = chip.model + " DIP \u5F15\u811A\u56FE";
+    imageLink.append(image);
+    let caption = "\u539F\u5382\u9876\u89C6\u56FE\uFF1A\u7F3A\u53E3\u671D\u4E0A\uFF1B\u753B\u5E03\u4E2D\u7684\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6";
+    let sourceLabel = "TI \u6570\u636E\u624B\u518C \xB7 \u7B2C " + reference.page + " \u9875";
+    if (reference.image) {
+      caption = "\u7528\u6237\u6750\u6599\u4E2D\u7684\u5F15\u811A\u56FE\uFF1B\u5B89\u88C5\u65F6\u8BF7\u6309\u7269\u7406\u811A\u53F7\u6838\u5BF9";
+      sourceLabel = "\u67E5\u770B\u6750\u6599\u4E2D\u7684\u903B\u8F91\u7B26\u53F7";
+    }
+    figure.append(imageLink, node("figcaption", caption, ""));
+    const source = node("a", sourceLabel, "datasheet-link");
+    source.href = "assets/datasheets/" + reference.file + ".pdf#page=" + reference.page;
+    if (reference.logicImage) {
+      source.href = reference.logicImage;
+    }
+    source.target = "_blank";
+    source.rel = "noopener";
+    container.append(figure, source, node("p", reference.summary, "chip-summary"));
+  }
+
+  // src/motion.mjs
+  var MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
+  var transitions = /* @__PURE__ */ new Map();
+  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var frame = 0;
+  function easing(progress) {
+    const remaining = 1 - progress;
+    return 1 - remaining * remaining * remaining;
+  }
+  function stepTransitions(time) {
+    frame = 0;
+    for (const entry of transitions) {
+      const key = entry[0];
+      const transition = entry[1];
+      const progress = Math.min(1, (time - transition.started) / transition.duration);
+      const value = transition.first + (transition.last - transition.first) * easing(progress);
+      transition.update(value);
+      if (progress === 1) {
+        transitions.delete(key);
+      }
+    }
+    if (transitions.size > 0) {
+      frame = window.requestAnimationFrame(stepTransitions);
+    }
+  }
+  function tween(key, first, last, update, duration) {
+    transitions.delete(key);
+    if (reducedMotion.matches || first === last) {
+      update(last);
+      return;
+    }
+    transitions.set(key, { first, last, update, duration, started: performance.now() });
+    if (frame === 0) {
+      frame = window.requestAnimationFrame(stepTransitions);
+    }
+  }
+  function fadeContent(element2) {
+    if (reducedMotion.matches) {
+      return;
+    }
+    for (const animation of element2.getAnimations()) {
+      animation.cancel();
+    }
+    const style = getComputedStyle(document.documentElement);
+    element2.animate([{ opacity: 0.45 }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
+  }
+
+  // src/toast.mjs
+  var TOAST_SETTINGS = { duration: 6e3, visibleLimit: 4 };
+  var toastCounter = 0;
+  function removeToast(id) {
+    const item = element(id);
+    if (!item) {
+      return;
+    }
+    window.clearTimeout(Number(item.dataset.timer));
+    item.classList.add("leaving");
+    window.setTimeout(detachToast.bind(null, id), MOTION.toastDuration);
+  }
+  function detachToast(id) {
+    const item = element(id);
+    if (item) {
+      item.remove();
+    }
+  }
+  function closeToast(event) {
+    const item = event.currentTarget.closest(".toast");
+    removeToast(item.id);
+  }
+  function pauseToast(event) {
+    window.clearTimeout(Number(event.currentTarget.dataset.timer));
+  }
+  function resumeToast(event) {
+    const item = event.currentTarget;
+    const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
+    item.dataset.timer = String(timer);
+  }
+  function showToast(message, kind) {
+    toastCounter = toastCounter + 1;
+    const item = node("div", "", "toast " + kind);
+    item.id = "toast-" + toastCounter;
+    item.setAttribute("role", "status");
+    let symbol = "circle-alert";
+    if (kind === "info") {
+      symbol = "info";
+    } else if (kind === "warning") {
+      symbol = "triangle-alert";
+    }
+    item.append(icon(symbol), node("span", message, ""));
+    const close = node("button", "", "icon-button");
+    close.setAttribute("aria-label", "\u5173\u95ED\u63D0\u793A");
+    close.append(icon("x"));
+    close.addEventListener("click", closeToast);
+    item.append(close);
+    item.addEventListener("mouseenter", pauseToast);
+    item.addEventListener("mouseleave", resumeToast);
+    item.addEventListener("focusin", pauseToast);
+    item.addEventListener("focusout", resumeToast);
+    const region = element("toast-region");
+    region.append(item);
+    const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
+    item.dataset.timer = String(timer);
+    while (region.children.length > TOAST_SETTINGS.visibleLimit) {
+      const oldest = region.firstElementChild;
+      window.clearTimeout(Number(oldest.dataset.timer));
+      oldest.remove();
+    }
+    refreshIcons();
+  }
 
   // vendor/logic.mjs
   var _Display3vlWithRegex_regex;
@@ -988,22 +1559,189 @@
 
   // src/extra-chips.mjs
   var EXTRA_CHIPS = {
-    "74LS03": { title: "\u56DB\u8DEFOC\u4E0E\u975E\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "1Y", "2A", "2B", "2Y", "GND", "3Y", "3A", "3B", "4Y", "4A", "4B", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [3, 6, 8, 11], kind: "open-collector", gates: [[1, 2, 3], [4, 5, 6], [9, 10, 8], [12, 13, 11]] },
-    "74LS20": { title: "\u53CC\u56DB\u8F93\u5165\u4E0E\u975E\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "NC", "2A", "2B", "1Y", "GND", "2Y", "2C", "2D", "NC", "1C", "1D", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [6, 8], kind: "nand4", gates: [[1, 2, 12, 13, 6], [4, 5, 9, 10, 8]] },
-    "CD4011": { title: "\u56DB\u8DEFCMOS\u4E0E\u975E\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "1Y", "2Y", "2A", "2B", "VSS", "3A", "3B", "3Y", "4Y", "4A", "4B", "VDD"], inputs: [1, 2, 5, 6, 8, 9, 12, 13], outputs: [3, 4, 10, 11], kind: "cmos-nand", gates: [[1, 2, 3], [5, 6, 4], [8, 9, 10], [12, 13, 11]] },
-    "74LS125": { title: "\u56DB\u8DEF\u4E09\u6001\u7F13\u51B2\u95E8", count: 14, power: 14, ground: 7, labels: ["", "1G\u2032", "1A", "1Y", "2G\u2032", "2A", "2Y", "GND", "3Y", "3A", "3G\u2032", "4Y", "4A", "4G\u2032", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [3, 6, 8, 11], kind: "tristate", gates: [[1, 2, 3], [4, 5, 6], [10, 9, 8], [13, 12, 11]] },
-    "74LS138": { title: "\u4E09\u7EBF\u516B\u7EBF\u8BD1\u7801\u5668", count: 16, power: 16, ground: 8, labels: ["", "A0", "A1", "A2", "S3\u2032(G2A\u2032)", "S2\u2032(G2B\u2032)", "S1(G1)", "Y7\u2032", "GND", "Y6\u2032", "Y5\u2032", "Y4\u2032", "Y3\u2032", "Y2\u2032", "Y1\u2032", "Y0\u2032", "VCC"], inputs: [1, 2, 3, 4, 5, 6], outputs: [15, 14, 13, 12, 11, 10, 9, 7], kind: "decoder8" },
-    "74LS139": { title: "\u53CC\u4E8C\u7EBF\u56DB\u7EBF\u8BD1\u7801\u5668", count: 16, power: 16, ground: 8, labels: ["", "1G\u2032", "1A", "1B", "1Y0\u2032", "1Y1\u2032", "1Y2\u2032", "1Y3\u2032", "GND", "2Y3\u2032", "2Y2\u2032", "2Y1\u2032", "2Y0\u2032", "2B", "2A", "2G\u2032", "VCC"], inputs: [1, 2, 3, 13, 14, 15], outputs: [4, 5, 6, 7, 12, 11, 10, 9], kind: "dual-decoder" },
-    "74LS151": { title: "\u516B\u9009\u4E00\u6570\u636E\u9009\u62E9\u5668", count: 16, power: 16, ground: 8, labels: ["", "D3", "D2", "D1", "D0", "Y", "W\u2032(Y\u2032)", "G\u2032", "GND", "C", "B", "A", "D7", "D6", "D5", "D4", "VCC"], inputs: [1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15], outputs: [5, 6], kind: "mux8" },
-    "74LS153": { title: "\u53CC\u56DB\u9009\u4E00\u6570\u636E\u9009\u62E9\u5668", count: 16, power: 16, ground: 8, labels: ["", "1G\u2032", "B", "1C3", "1C2", "1C1", "1C0", "1Y", "GND", "2Y", "2C0", "2C1", "2C2", "2C3", "A", "2G\u2032", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15], outputs: [7, 9], kind: "dual-mux" },
-    "74LS85": { title: "\u56DB\u4F4D\u6570\u503C\u6BD4\u8F83\u5668", count: 16, power: 16, ground: 8, labels: ["", "B3", "A<B\u8F93\u5165", "A=B\u8F93\u5165", "A>B\u8F93\u5165", "A>B", "A=B", "A<B", "GND", "B0", "A0", "B1", "A1", "B2", "A2", "A3", "VCC"], inputs: [1, 2, 3, 4, 9, 10, 11, 12, 13, 14, 15], outputs: [5, 6, 7], kind: "comparator" },
-    "74LS48": { title: "BCD\u4E03\u6BB5\u8BD1\u7801\u5668", count: 16, power: 16, ground: 8, labels: ["", "B", "C", "LT\u2032", "BI\u2032/RBO\u2032", "RBI\u2032", "D", "A", "GND", "e", "d", "c", "b", "a", "g", "f", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7], outputs: [13, 12, 11, 10, 9, 15, 14, 4], bidirectional: [4], kind: "seven-segment" },
-    "74LS74": { title: "\u53CCD\u89E6\u53D1\u5668", count: 14, power: 14, ground: 7, labels: ["", "1RD\u2032", "1D", "1CP", "1SD\u2032", "1Q", "1Q\u2032", "GND", "2Q\u2032", "2Q", "2SD\u2032", "2CP", "2D", "2RD\u2032", "VCC"], inputs: [1, 2, 3, 4, 10, 11, 12, 13], outputs: [5, 6, 9, 8], sequential: "flipflop", edge: "rising", channels: [{ reset: 1, set: 4, clock: 3, data: 2, output: 5, inverted: 6 }, { reset: 13, set: 10, clock: 11, data: 12, output: 9, inverted: 8 }] },
-    "74LS112": { title: "\u53CCJK\u4E0B\u964D\u6CBF\u89E6\u53D1\u5668", count: 16, power: 16, ground: 8, labels: ["", "1CP", "1K", "1J", "1SD\u2032", "1Q", "1Q\u2032", "2Q", "GND", "2Q\u2032", "2SD\u2032", "2J", "2K", "2CP", "2RD\u2032", "1RD\u2032", "VCC"], inputs: [1, 2, 3, 4, 10, 11, 12, 13, 14, 15], outputs: [5, 6, 7, 9], sequential: "flipflop", edge: "falling", channels: [{ reset: 15, set: 4, clock: 1, first: 3, second: 2, output: 5, inverted: 6 }, { reset: 14, set: 10, clock: 13, first: 11, second: 12, output: 7, inverted: 9 }] },
-    "CD4027": { title: "\u53CCJK\u4E0A\u5347\u6CBF\u89E6\u53D1\u5668", count: 16, power: 16, ground: 8, labels: ["", "Q2", "Q2\u2032", "CLK2", "RESET2", "K2", "J2", "SET2", "VSS", "SET1", "J1", "K1", "RESET1", "CLK1", "Q1\u2032", "Q1", "VDD"], inputs: [3, 4, 5, 6, 7, 9, 10, 11, 12, 13], outputs: [15, 14, 1, 2], sequential: "flipflop", edge: "rising", activeHigh: true, channels: [{ reset: 12, set: 9, clock: 13, first: 10, second: 11, output: 15, inverted: 14 }, { reset: 4, set: 7, clock: 3, first: 6, second: 5, output: 1, inverted: 2 }] },
-    "74LS160": { title: "\u540C\u6B65\u5341\u8FDB\u5236\u8BA1\u6570\u5668", count: 16, power: 16, ground: 8, labels: ["", "CLR\u2032", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD\u2032", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10], outputs: [14, 13, 12, 11, 15], sequential: "counter", modulus: 10 },
-    "74LS161": { title: "\u540C\u6B65\u4E8C\u8FDB\u5236\u8BA1\u6570\u5668", count: 16, power: 16, ground: 8, labels: ["", "CLR\u2032", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD\u2032", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10], outputs: [14, 13, 12, 11, 15], sequential: "counter", modulus: 16 },
-    "74LS194": { title: "\u56DB\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668", count: 16, power: 16, ground: 8, labels: ["", "CLR\u2032", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11], outputs: [12, 13, 14, 15], sequential: "shift" }
+    "74LS03": {
+      title: "\u56DB\u8DEFOC\u4E0E\u975E\u95E8",
+      count: 14,
+      power: 14,
+      ground: 7,
+      labels: ["", "1A", "1B", "1Y", "2A", "2B", "2Y", "GND", "3Y", "3A", "3B", "4Y", "4A", "4B", "VCC"],
+      inputs: [1, 2, 4, 5, 9, 10, 12, 13],
+      outputs: [3, 6, 8, 11],
+      kind: "open-collector",
+      gates: [[1, 2, 3], [4, 5, 6], [9, 10, 8], [12, 13, 11]]
+    },
+    "74LS20": {
+      title: "\u53CC\u56DB\u8F93\u5165\u4E0E\u975E\u95E8",
+      count: 14,
+      power: 14,
+      ground: 7,
+      labels: ["", "1A", "1B", "NC", "2A", "2B", "1Y", "GND", "2Y", "2C", "2D", "NC", "1C", "1D", "VCC"],
+      inputs: [1, 2, 4, 5, 9, 10, 12, 13],
+      outputs: [6, 8],
+      kind: "nand4",
+      gates: [[1, 2, 12, 13, 6], [4, 5, 9, 10, 8]]
+    },
+    "CD4011": {
+      title: "\u56DB\u8DEFCMOS\u4E0E\u975E\u95E8",
+      count: 14,
+      power: 14,
+      ground: 7,
+      labels: ["", "1A", "1B", "1Y", "2Y", "2A", "2B", "VSS", "3A", "3B", "3Y", "4Y", "4A", "4B", "VDD"],
+      inputs: [1, 2, 5, 6, 8, 9, 12, 13],
+      outputs: [3, 4, 10, 11],
+      kind: "cmos-nand",
+      gates: [[1, 2, 3], [5, 6, 4], [8, 9, 10], [12, 13, 11]]
+    },
+    "74LS125": {
+      title: "\u56DB\u8DEF\u4E09\u6001\u7F13\u51B2\u95E8",
+      count: 14,
+      power: 14,
+      ground: 7,
+      labels: ["", "1G\u2032", "1A", "1Y", "2G\u2032", "2A", "2Y", "GND", "3Y", "3A", "3G\u2032", "4Y", "4A", "4G\u2032", "VCC"],
+      inputs: [1, 2, 4, 5, 9, 10, 12, 13],
+      outputs: [3, 6, 8, 11],
+      kind: "tristate",
+      gates: [[1, 2, 3], [4, 5, 6], [10, 9, 8], [13, 12, 11]]
+    },
+    "74LS138": {
+      title: "\u4E09\u7EBF\u516B\u7EBF\u8BD1\u7801\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "A0", "A1", "A2", "S3\u2032(G2A\u2032)", "S2\u2032(G2B\u2032)", "S1(G1)", "Y7\u2032", "GND", "Y6\u2032", "Y5\u2032", "Y4\u2032", "Y3\u2032", "Y2\u2032", "Y1\u2032", "Y0\u2032", "VCC"],
+      inputs: [1, 2, 3, 4, 5, 6],
+      outputs: [15, 14, 13, 12, 11, 10, 9, 7],
+      kind: "decoder8"
+    },
+    "74LS139": {
+      title: "\u53CC\u4E8C\u7EBF\u56DB\u7EBF\u8BD1\u7801\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "1G\u2032", "1A", "1B", "1Y0\u2032", "1Y1\u2032", "1Y2\u2032", "1Y3\u2032", "GND", "2Y3\u2032", "2Y2\u2032", "2Y1\u2032", "2Y0\u2032", "2B", "2A", "2G\u2032", "VCC"],
+      inputs: [1, 2, 3, 13, 14, 15],
+      outputs: [4, 5, 6, 7, 12, 11, 10, 9],
+      kind: "dual-decoder"
+    },
+    "74LS151": {
+      title: "\u516B\u9009\u4E00\u6570\u636E\u9009\u62E9\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "D3", "D2", "D1", "D0", "Y", "W\u2032(Y\u2032)", "G\u2032", "GND", "C", "B", "A", "D7", "D6", "D5", "D4", "VCC"],
+      inputs: [1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15],
+      outputs: [5, 6],
+      kind: "mux8"
+    },
+    "74LS153": {
+      title: "\u53CC\u56DB\u9009\u4E00\u6570\u636E\u9009\u62E9\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "1G\u2032", "B", "1C3", "1C2", "1C1", "1C0", "1Y", "GND", "2Y", "2C0", "2C1", "2C2", "2C3", "A", "2G\u2032", "VCC"],
+      inputs: [1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15],
+      outputs: [7, 9],
+      kind: "dual-mux"
+    },
+    "74LS85": {
+      title: "\u56DB\u4F4D\u6570\u503C\u6BD4\u8F83\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "B3", "A<B\u8F93\u5165", "A=B\u8F93\u5165", "A>B\u8F93\u5165", "A>B", "A=B", "A<B", "GND", "B0", "A0", "B1", "A1", "B2", "A2", "A3", "VCC"],
+      inputs: [1, 2, 3, 4, 9, 10, 11, 12, 13, 14, 15],
+      outputs: [5, 6, 7],
+      kind: "comparator"
+    },
+    "74LS48": {
+      title: "BCD\u4E03\u6BB5\u8BD1\u7801\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "B", "C", "LT\u2032", "BI\u2032/RBO\u2032", "RBI\u2032", "D", "A", "GND", "e", "d", "c", "b", "a", "g", "f", "VCC"],
+      inputs: [1, 2, 3, 4, 5, 6, 7],
+      outputs: [13, 12, 11, 10, 9, 15, 14, 4],
+      bidirectional: [4],
+      kind: "seven-segment"
+    },
+    "74LS74": {
+      title: "\u53CCD\u89E6\u53D1\u5668",
+      count: 14,
+      power: 14,
+      ground: 7,
+      labels: ["", "1RD\u2032", "1D", "1CP", "1SD\u2032", "1Q", "1Q\u2032", "GND", "2Q\u2032", "2Q", "2SD\u2032", "2CP", "2D", "2RD\u2032", "VCC"],
+      inputs: [1, 2, 3, 4, 10, 11, 12, 13],
+      outputs: [5, 6, 9, 8],
+      sequential: "flipflop",
+      edge: "rising",
+      channels: [
+        { reset: 1, set: 4, clock: 3, data: 2, output: 5, inverted: 6 },
+        { reset: 13, set: 10, clock: 11, data: 12, output: 9, inverted: 8 }
+      ]
+    },
+    "74LS112": {
+      title: "\u53CCJK\u4E0B\u964D\u6CBF\u89E6\u53D1\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "1CP", "1K", "1J", "1SD\u2032", "1Q", "1Q\u2032", "2Q", "GND", "2Q\u2032", "2SD\u2032", "2J", "2K", "2CP", "2RD\u2032", "1RD\u2032", "VCC"],
+      inputs: [1, 2, 3, 4, 10, 11, 12, 13, 14, 15],
+      outputs: [5, 6, 7, 9],
+      sequential: "flipflop",
+      edge: "falling",
+      channels: [
+        { reset: 15, set: 4, clock: 1, first: 3, second: 2, output: 5, inverted: 6 },
+        { reset: 14, set: 10, clock: 13, first: 11, second: 12, output: 7, inverted: 9 }
+      ]
+    },
+    "CD4027": {
+      title: "\u53CCJK\u4E0A\u5347\u6CBF\u89E6\u53D1\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "Q2", "Q2\u2032", "CLK2", "RESET2", "K2", "J2", "SET2", "VSS", "SET1", "J1", "K1", "RESET1", "CLK1", "Q1\u2032", "Q1", "VDD"],
+      inputs: [3, 4, 5, 6, 7, 9, 10, 11, 12, 13],
+      outputs: [15, 14, 1, 2],
+      sequential: "flipflop",
+      edge: "rising",
+      activeHigh: true,
+      channels: [
+        { reset: 12, set: 9, clock: 13, first: 10, second: 11, output: 15, inverted: 14 },
+        { reset: 4, set: 7, clock: 3, first: 6, second: 5, output: 1, inverted: 2 }
+      ]
+    },
+    "74LS160": {
+      title: "\u540C\u6B65\u5341\u8FDB\u5236\u8BA1\u6570\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "CLR\u2032", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD\u2032", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"],
+      inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
+      outputs: [14, 13, 12, 11, 15],
+      sequential: "counter",
+      modulus: 10
+    },
+    "74LS161": {
+      title: "\u540C\u6B65\u4E8C\u8FDB\u5236\u8BA1\u6570\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "CLR\u2032", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD\u2032", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"],
+      inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
+      outputs: [14, 13, 12, 11, 15],
+      sequential: "counter",
+      modulus: 16
+    },
+    "74LS194": {
+      title: "\u56DB\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668",
+      count: 16,
+      power: 16,
+      ground: 8,
+      labels: ["", "CLR\u2032", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"],
+      inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11],
+      outputs: [12, 13, 14, 15],
+      sequential: "shift"
+    }
   };
 
   // src/chips.mjs
@@ -2022,6 +2760,1172 @@
     return result;
   }
 
+  // src/preset-routes.json
+  var preset_routes_default = {
+    W12: [
+      {
+        x: 540,
+        y: 396
+      }
+    ],
+    W14: [
+      {
+        x: 810,
+        y: 648
+      },
+      {
+        x: 792,
+        y: 648
+      }
+    ],
+    W16: [
+      {
+        x: 846,
+        y: 648
+      },
+      {
+        x: 864,
+        y: 648
+      }
+    ],
+    W18: [
+      {
+        x: 936,
+        y: 396
+      }
+    ],
+    W20: [
+      {
+        x: 882,
+        y: 396
+      }
+    ],
+    W19: [
+      {
+        x: 912,
+        y: 396
+      },
+      {
+        x: 912,
+        y: 414
+      },
+      {
+        x: 900,
+        y: 414
+      }
+    ],
+    W15: [
+      {
+        x: 792,
+        y: 636
+      },
+      {
+        x: 834,
+        y: 636
+      },
+      {
+        x: 834,
+        y: 660
+      },
+      {
+        x: 846,
+        y: 660
+      }
+    ],
+    W31: [
+      {
+        x: 144,
+        y: 504
+      },
+      {
+        x: 198,
+        y: 504
+      }
+    ],
+    W33: [
+      {
+        x: 144,
+        y: 396
+      }
+    ],
+    W37: [
+      {
+        x: 792,
+        y: 756
+      }
+    ],
+    W32: [
+      {
+        x: 198,
+        y: 504
+      },
+      {
+        x: 252,
+        y: 504
+      },
+      {
+        x: 252,
+        y: 414
+      },
+      {
+        x: 198,
+        y: 414
+      }
+    ],
+    W36: [
+      {
+        x: 900,
+        y: 678
+      },
+      {
+        x: 918,
+        y: 678
+      },
+      {
+        x: 918,
+        y: 744
+      },
+      {
+        x: 864,
+        y: 744
+      }
+    ],
+    W17: [
+      {
+        x: 864,
+        y: 474
+      },
+      {
+        x: 846,
+        y: 474
+      },
+      {
+        x: 846,
+        y: 426
+      },
+      {
+        x: 954,
+        y: 426
+      }
+    ],
+    W42: [
+      {
+        x: 468,
+        y: 492
+      },
+      {
+        x: 630,
+        y: 492
+      }
+    ],
+    W45: [
+      {
+        x: 522,
+        y: 744
+      },
+      {
+        x: 432,
+        y: 744
+      }
+    ],
+    W41: [
+      {
+        x: 414,
+        y: 480
+      },
+      {
+        x: 612,
+        y: 480
+      }
+    ],
+    W47: [
+      {
+        x: 594,
+        y: 672
+      },
+      {
+        x: 396,
+        y: 672
+      }
+    ],
+    W39: [
+      {
+        x: 414,
+        y: 756
+      },
+      {
+        x: 540,
+        y: 756
+      }
+    ],
+    W57: [
+      {
+        x: 648,
+        y: 384
+      },
+      {
+        x: 990,
+        y: 384
+      },
+      {
+        x: 990,
+        y: 492
+      },
+      {
+        x: 918,
+        y: 492
+      }
+    ],
+    W48: [
+      {
+        x: 648,
+        y: 492
+      },
+      {
+        x: 684,
+        y: 492
+      },
+      {
+        x: 684,
+        y: 426
+      },
+      {
+        x: 432,
+        y: 426
+      }
+    ],
+    W26: [
+      {
+        x: 234,
+        y: 402
+      },
+      {
+        x: 378,
+        y: 402
+      }
+    ],
+    W3: [
+      {
+        x: 390,
+        y: 396
+      },
+      {
+        x: 390,
+        y: 666
+      },
+      {
+        x: 360,
+        y: 666
+      }
+    ],
+    W24: [
+      {
+        x: 216,
+        y: 744
+      },
+      {
+        x: 378,
+        y: 744
+      }
+    ],
+    W4: [
+      {
+        x: 666,
+        y: 768
+      },
+      {
+        x: 486,
+        y: 768
+      }
+    ],
+    W5: [
+      {
+        x: 360,
+        y: 648
+      },
+      {
+        x: 342,
+        y: 648
+      },
+      {
+        x: 342,
+        y: 732
+      },
+      {
+        x: 402,
+        y: 732
+      },
+      {
+        x: 402,
+        y: 780
+      },
+      {
+        x: 756,
+        y: 780
+      },
+      {
+        x: 756,
+        y: 660
+      },
+      {
+        x: 774,
+        y: 660
+      }
+    ],
+    W6: [
+      {
+        x: 480,
+        y: 756
+      },
+      {
+        x: 480,
+        y: 792
+      },
+      {
+        x: 900,
+        y: 792
+      }
+    ],
+    W46: [
+      {
+        x: 576,
+        y: 726
+      },
+      {
+        x: 396,
+        y: 726
+      }
+    ],
+    W40: [
+      {
+        x: 360,
+        y: 804
+      },
+      {
+        x: 558,
+        y: 804
+      }
+    ],
+    W58: [
+      {
+        x: 594,
+        y: 384
+      },
+      {
+        x: 636,
+        y: 384
+      },
+      {
+        x: 636,
+        y: 372
+      },
+      {
+        x: 1002,
+        y: 372
+      },
+      {
+        x: 1002,
+        y: 504
+      },
+      {
+        x: 936,
+        y: 504
+      }
+    ],
+    W38: [
+      {
+        x: 486,
+        y: 660
+      },
+      {
+        x: 744,
+        y: 660
+      },
+      {
+        x: 744,
+        y: 732
+      },
+      {
+        x: 882,
+        y: 732
+      }
+    ],
+    W55: [
+      {
+        x: 588,
+        y: 396
+      },
+      {
+        x: 588,
+        y: 66
+      },
+      {
+        x: 810,
+        y: 66
+      }
+    ],
+    W44: [
+      {
+        x: 774,
+        y: 744
+      },
+      {
+        x: 696,
+        y: 744
+      },
+      {
+        x: 696,
+        y: 414
+      },
+      {
+        x: 612,
+        y: 414
+      }
+    ],
+    W56: [
+      {
+        x: 594,
+        y: 372
+      },
+      {
+        x: 624,
+        y: 372
+      },
+      {
+        x: 624,
+        y: 78
+      },
+      {
+        x: 774,
+        y: 78
+      }
+    ],
+    W11: [
+      {
+        x: 972,
+        y: 516
+      },
+      {
+        x: 912,
+        y: 516
+      },
+      {
+        x: 912,
+        y: 486
+      },
+      {
+        x: 708,
+        y: 486
+      },
+      {
+        x: 708,
+        y: 402
+      },
+      {
+        x: 600,
+        y: 402
+      },
+      {
+        x: 600,
+        y: 414
+      },
+      {
+        x: 558,
+        y: 414
+      }
+    ],
+    W28: [
+      {
+        x: 180,
+        y: 414
+      },
+      {
+        x: 192,
+        y: 414
+      },
+      {
+        x: 192,
+        y: 402
+      },
+      {
+        x: 222,
+        y: 402
+      },
+      {
+        x: 222,
+        y: 384
+      },
+      {
+        x: 402,
+        y: 384
+      },
+      {
+        x: 402,
+        y: 660
+      },
+      {
+        x: 450,
+        y: 660
+      }
+    ],
+    W43: [
+      {
+        x: 828,
+        y: 744
+      },
+      {
+        x: 780,
+        y: 744
+      },
+      {
+        x: 780,
+        y: 756
+      },
+      {
+        x: 684,
+        y: 756
+      },
+      {
+        x: 684,
+        y: 498
+      },
+      {
+        x: 690,
+        y: 498
+      },
+      {
+        x: 690,
+        y: 420
+      },
+      {
+        x: 630,
+        y: 420
+      }
+    ],
+    W49: [
+      {
+        x: 648,
+        y: 360
+      },
+      {
+        x: 1014,
+        y: 360
+      },
+      {
+        x: 1014,
+        y: 756
+      },
+      {
+        x: 870,
+        y: 756
+      },
+      {
+        x: 870,
+        y: 750
+      },
+      {
+        x: 852,
+        y: 750
+      },
+      {
+        x: 852,
+        y: 744
+      },
+      {
+        x: 846,
+        y: 744
+      }
+    ],
+    W13: [
+      {
+        x: 540,
+        y: 348
+      },
+      {
+        x: 780,
+        y: 348
+      },
+      {
+        x: 780,
+        y: 666
+      },
+      {
+        x: 810,
+        y: 666
+      }
+    ],
+    W22: [
+      {
+        x: 162,
+        y: 492
+      },
+      {
+        x: 138,
+        y: 492
+      },
+      {
+        x: 138,
+        y: 768
+      },
+      {
+        x: 450,
+        y: 768
+      }
+    ],
+    W50: [
+      {
+        x: 594,
+        y: 408
+      },
+      {
+        x: 576,
+        y: 408
+      },
+      {
+        x: 576,
+        y: 336
+      },
+      {
+        x: 1026,
+        y: 336
+      },
+      {
+        x: 1026,
+        y: 768
+      },
+      {
+        x: 810,
+        y: 768
+      }
+    ],
+    W54: [
+      {
+        x: 648,
+        y: 504
+      },
+      {
+        x: 636,
+        y: 504
+      },
+      {
+        x: 636,
+        y: 474
+      },
+      {
+        x: 486,
+        y: 474
+      },
+      {
+        x: 486,
+        y: 408
+      },
+      {
+        x: 528,
+        y: 408
+      },
+      {
+        x: 528,
+        y: 90
+      },
+      {
+        x: 846,
+        y: 90
+      }
+    ],
+    W59: [
+      {
+        x: 954,
+        y: 474
+      },
+      {
+        x: 1038,
+        y: 474
+      },
+      {
+        x: 1038,
+        y: 102
+      },
+      {
+        x: 738,
+        y: 102
+      }
+    ],
+    W35: [
+      {
+        x: 882,
+        y: 666
+      },
+      {
+        x: 930,
+        y: 666
+      },
+      {
+        x: 930,
+        y: 816
+      },
+      {
+        x: 468,
+        y: 816
+      }
+    ],
+    W29: [
+      {
+        x: 810,
+        y: 828
+      },
+      {
+        x: 942,
+        y: 828
+      },
+      {
+        x: 942,
+        y: 528
+      },
+      {
+        x: 888,
+        y: 528
+      },
+      {
+        x: 888,
+        y: 498
+      },
+      {
+        x: 870,
+        y: 498
+      },
+      {
+        x: 870,
+        y: 492
+      },
+      {
+        x: 864,
+        y: 492
+      }
+    ],
+    W53: [
+      {
+        x: 594,
+        y: 504
+      },
+      {
+        x: 624,
+        y: 504
+      },
+      {
+        x: 624,
+        y: 516
+      },
+      {
+        x: 654,
+        y: 516
+      },
+      {
+        x: 654,
+        y: 504
+      },
+      {
+        x: 834,
+        y: 504
+      },
+      {
+        x: 834,
+        y: 114
+      },
+      {
+        x: 882,
+        y: 114
+      }
+    ],
+    W9: [
+      {
+        x: 126,
+        y: 324
+      },
+      {
+        x: 864,
+        y: 324
+      }
+    ],
+    W10: [
+      {
+        x: 234,
+        y: 480
+      },
+      {
+        x: 126,
+        y: 480
+      },
+      {
+        x: 126,
+        y: 840
+      },
+      {
+        x: 978,
+        y: 840
+      },
+      {
+        x: 978,
+        y: 498
+      },
+      {
+        x: 972,
+        y: 498
+      }
+    ],
+    W52: [
+      {
+        x: 576,
+        y: 504
+      },
+      {
+        x: 588,
+        y: 504
+      },
+      {
+        x: 588,
+        y: 516
+      },
+      {
+        x: 612,
+        y: 516
+      },
+      {
+        x: 612,
+        y: 804
+      },
+      {
+        x: 1050,
+        y: 804
+      },
+      {
+        x: 1050,
+        y: 66
+      },
+      {
+        x: 918,
+        y: 66
+      }
+    ],
+    W34: [
+      {
+        x: 132,
+        y: 396
+      },
+      {
+        x: 132,
+        y: 402
+      },
+      {
+        x: 114,
+        y: 402
+      },
+      {
+        x: 114,
+        y: 312
+      },
+      {
+        x: 822,
+        y: 312
+      },
+      {
+        x: 822,
+        y: 480
+      },
+      {
+        x: 882,
+        y: 480
+      }
+    ],
+    W60: [
+      {
+        x: 738,
+        y: 1104
+      },
+      {
+        x: 330,
+        y: 1104
+      },
+      {
+        x: 330,
+        y: 678
+      },
+      {
+        x: 480,
+        y: 678
+      },
+      {
+        x: 480,
+        y: 504
+      },
+      {
+        x: 504,
+        y: 504
+      }
+    ],
+    W51: [
+      {
+        x: 522,
+        y: 504
+      },
+      {
+        x: 510,
+        y: 504
+      },
+      {
+        x: 510,
+        y: 486
+      },
+      {
+        x: 474,
+        y: 486
+      },
+      {
+        x: 474,
+        y: 126
+      },
+      {
+        x: 954,
+        y: 126
+      }
+    ],
+    W7: [
+      {
+        x: 774,
+        y: 648
+      },
+      {
+        x: 708,
+        y: 648
+      },
+      {
+        x: 708,
+        y: 828
+      },
+      {
+        x: 108,
+        y: 828
+      },
+      {
+        x: 108,
+        y: 414
+      },
+      {
+        x: 126,
+        y: 414
+      }
+    ],
+    W8: [
+      {
+        x: 894,
+        y: 756
+      },
+      {
+        x: 894,
+        y: 780
+      },
+      {
+        x: 768,
+        y: 780
+      },
+      {
+        x: 768,
+        y: 852
+      },
+      {
+        x: 96,
+        y: 852
+      },
+      {
+        x: 96,
+        y: 474
+      },
+      {
+        x: 240,
+        y: 474
+      },
+      {
+        x: 240,
+        y: 492
+      },
+      {
+        x: 234,
+        y: 492
+      }
+    ],
+    W61: [
+      {
+        x: 1098,
+        y: 300
+      },
+      {
+        x: 666,
+        y: 300
+      }
+    ],
+    W2: [
+      {
+        x: 1212,
+        y: 1105
+      },
+      {
+        x: 1212,
+        y: 1104
+      },
+      {
+        x: 1104,
+        y: 1104
+      },
+      {
+        x: 1104,
+        y: 1110
+      },
+      {
+        x: 750,
+        y: 1110
+      },
+      {
+        x: 750,
+        y: 864
+      },
+      {
+        x: 654,
+        y: 864
+      },
+      {
+        x: 654,
+        y: 522
+      },
+      {
+        x: 660,
+        y: 522
+      },
+      {
+        x: 660,
+        y: 498
+      },
+      {
+        x: 666,
+        y: 498
+      }
+    ],
+    W30: [
+      {
+        x: 774,
+        y: 876
+      },
+      {
+        x: 84,
+        y: 876
+      },
+      {
+        x: 84,
+        y: 486
+      },
+      {
+        x: 144,
+        y: 486
+      }
+    ],
+    W23: [
+      {
+        x: 918,
+        y: 888
+      },
+      {
+        x: 180,
+        y: 888
+      }
+    ],
+    W25: [
+      {
+        x: 882,
+        y: 900
+      },
+      {
+        x: 72,
+        y: 900
+      },
+      {
+        x: 72,
+        y: 426
+      },
+      {
+        x: 216,
+        y: 426
+      }
+    ],
+    W27: [
+      {
+        x: 846,
+        y: 912
+      },
+      {
+        x: 60,
+        y: 912
+      },
+      {
+        x: 60,
+        y: 408
+      },
+      {
+        x: 138,
+        y: 408
+      },
+      {
+        x: 138,
+        y: 414
+      },
+      {
+        x: 162,
+        y: 414
+      }
+    ],
+    W1: [
+      {
+        x: 1242,
+        y: 288
+      },
+      {
+        x: 510,
+        y: 288
+      },
+      {
+        x: 510,
+        y: 414
+      },
+      {
+        x: 504,
+        y: 414
+      }
+    ],
+    W21: [
+      {
+        x: 954,
+        y: 924
+      },
+      {
+        x: 48,
+        y: 924
+      },
+      {
+        x: 48,
+        y: 498
+      },
+      {
+        x: 120,
+        y: 498
+      },
+      {
+        x: 120,
+        y: 492
+      },
+      {
+        x: 126,
+        y: 492
+      }
+    ]
+  };
+
   // src/presets.mjs
   var COMPLEMENT_NOTES = `# \u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668
 
@@ -2066,6 +3970,12 @@
 | --- | --- |
 | 7\uFF0B5\u22126\uFF0B12 | 00 0111 \u2192 00 1100 \u2192 00 0110 \u2192 **01 0010**\uFF08\u6B63\u6EA2\u51FA\uFF09 |
 | \uFF08\u221212\uFF09\uFF0B\uFF08\u22122\uFF09\u22126 | 11 0100 \u2192 11 0010 \u2192 **10 1100**\uFF08\u8D1F\u6EA2\u51FA\uFF09 |
+
+## \u8D70\u7EBF\u4E0E\u7EBF\u8272
+
+\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u8F93\u5165\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A LED \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
+
+\u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u82AF\u7247\u5916\u6846\u3002\u4EA4\u53C9\u5904\u6CA1\u6709\u63A5\u70B9\uFF0C\u53EA\u6709\u5BFC\u7EBF\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u53C2\u4E0E\u8FDE\u63A5\u3002\u4F60\u53EF\u4EE5\u70B9\u51FB\u5DE6\u4FA7\u201C\u6574\u7406\u8D70\u7EBF\u201D\uFF0C\u786E\u8BA4\u540E\u8C03\u6574\u5F53\u524D\u7535\u8DEF\u7684\u8DEF\u5F84\uFF1B\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\u4FDD\u6301\u4E0D\u53D8\uFF0C\u968F\u540E\u53EF\u64A4\u9500
 
 \u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u6613\u5931\u72B6\u6001\u4E0D\u4FDD\u7559\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u8FD9\u662F\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u4E0D\u6A21\u62DF\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6
 `;
@@ -2166,81 +4076,52 @@
     connect(project, usage, "U5-6", "L6", 5);
     connect(project, usage, "K6", "U1-1", 6);
     connect(project, usage, "P-", "U1-11", 6);
+    for (const wire of project.wires) {
+      if (Object.hasOwn(preset_routes_default, wire.id)) {
+        wire.bends = structuredClone(preset_routes_default[wire.id]);
+      }
+    }
     project.switches[6] = 1;
     return project;
   }
+  function restorePresetRoutes(project) {
+    const reference = complementPreset();
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
+      return false;
+    }
+    for (const expected of reference.chips) {
+      let matched = false;
+      for (const chip of project.chips) {
+        if (chip.id === expected.id && chip.model === expected.model && chip.section === expected.section && chip.column === expected.column) {
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        return false;
+      }
+    }
+    const routes = /* @__PURE__ */ new Map();
+    for (const expected of reference.wires) {
+      routes.set(expected.id, expected);
+    }
+    for (const wire of project.wires) {
+      const expected = routes.get(wire.id);
+      if (!expected || wire.from !== expected.from || wire.to !== expected.to) {
+        return false;
+      }
+    }
+    for (const wire of project.wires) {
+      wire.bends = structuredClone(routes.get(wire.id).bends);
+    }
+    return true;
+  }
 
-  // src/render.mjs
-  var DRAW = { holeRadius: 3.5, wireWidth: 2.4, pickRadius: 7, chipText: 10 };
-  var drawingFont = "";
-  function canvasColors() {
-    const style = getComputedStyle(document.documentElement);
-    const colors = {};
-    const names = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
-    for (const name of names) {
-      colors[name] = style.getPropertyValue("--color-" + name).trim();
-    }
-    drawingFont = style.getPropertyValue("--font-body").trim();
-    return colors;
-  }
-  function rectangle(context, left, top, width, height, radius, color) {
-    context.beginPath();
-    context.roundRect(left, top, width, height, radius);
-    context.fillStyle = color;
-    context.fill();
-  }
-  function label(context, content, horizontal, vertical, size, color, align) {
-    context.font = size + "px " + drawingFont;
-    context.fillStyle = color;
-    context.textAlign = align;
-    context.textBaseline = "middle";
-    context.fillText(content, horizontal, vertical);
-  }
-  function polyline(context, points, color, width) {
-    context.beginPath();
-    context.moveTo(points[0].x, points[0].y);
-    for (let index = 1; index < points.length; index = index + 1) {
-      context.lineTo(points[index].x, points[index].y);
-    }
-    context.strokeStyle = color;
-    context.lineWidth = width;
-    context.lineJoin = "round";
-    context.lineCap = "round";
-    context.stroke();
-  }
-  function circle(context, horizontal, vertical, radius, color) {
-    context.beginPath();
-    context.arc(horizontal, vertical, radius, 0, Math.PI * 2);
-    context.fillStyle = color;
-    context.fill();
-  }
-  function allEndpoints() {
-    const endpoints2 = [];
-    for (let section = 0; section < BOARD.sections; section = section + 1) {
-      for (const row of ROWS) {
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          endpoints2.push(holeId(section, row, column));
-        }
-      }
-      for (const row of BUS_ROWS) {
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          if (busHasHole(column)) {
-            endpoints2.push(holeId(section, row, column));
-          }
-        }
-      }
-    }
-    for (let index = 0; index < 24; index = index + 1) {
-      endpoints2.push("K" + index);
-      endpoints2.push("L" + index);
-    }
-    for (let index = 0; index < 60; index = index + 1) {
-      endpoints2.push("R:GND:" + index);
-      endpoints2.push("R:VCC:" + index);
-    }
-    endpoints2.push("P+", "P-", "GND", "VCC");
-    return endpoints2;
-  }
+  // src/routing.mjs
+  var import_javascript_astar = __toESM(require_astar(), 1);
+
+  // src/geometry.mjs
+  var PICK_RADIUS = 7;
   function chipBounds(chip) {
     const count = CHIP_MODELS[chip.model].count;
     const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - 9;
@@ -2267,240 +4148,6 @@
     points.push(last);
     return points;
   }
-  function drawBreadboards(context, state2, colors) {
-    for (let section = 0; section < BOARD.sections; section = section + 1) {
-      const top = BOARD.startY + section * BOARD.sectionHeight - 30;
-      rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, 234, 7, colors.surface);
-      context.strokeStyle = colors.rule;
-      context.lineWidth = 1;
-      context.strokeRect(43, top + 1, 1130, 232);
-      rectangle(context, 64, rowY(section, "E") + 15, 1086, 30, 3, colors.board);
-      label(context, String(section + 1), 55, top + 116, 12, colors.muted, "center");
-      for (let column = 1; column <= BOARD.columns; column = column + 1) {
-        const horizontal = BOARD.startX + (column - 1) * BOARD.pitch;
-        if (column === 1 || column % 5 === 0) {
-          label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
-        }
-        if (state2.visual.internals > 0) {
-          context.globalAlpha = state2.visual.internals;
-          polyline(context, [{ x: horizontal, y: rowY(section, "A") }, { x: horizontal, y: rowY(section, "E") }], colors.trace, 2);
-          polyline(context, [{ x: horizontal, y: rowY(section, "F") }, { x: horizontal, y: rowY(section, "J") }], colors.trace, 2);
-          context.globalAlpha = 1;
-        }
-      }
-      for (const row of BUS_ROWS) {
-        const vertical = rowY(section, row);
-        label(context, row, 74, vertical, 9, colors.muted, "center");
-        for (const segment of BUS_SEGMENTS) {
-          const first = endpointPosition(holeId(section, row, segment[0]));
-          const last = endpointPosition(holeId(section, row, segment[1]));
-          context.globalAlpha = 0.25 + state2.visual.internals * 0.75;
-          polyline(context, [first, last], colors.accent, 2);
-          context.globalAlpha = 1;
-        }
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          if (busHasHole(column)) {
-            const location = endpointPosition(holeId(section, row, column));
-            circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
-            circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
-          }
-        }
-      }
-      for (const row of ROWS) {
-        label(context, row, 74, rowY(section, row), 9, colors.muted, "center");
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          const location = endpointPosition(holeId(section, row, column));
-          circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
-          circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
-        }
-      }
-    }
-    polyline(context, [{ x: 1210, y: 85 }, { x: 1210, y: PORT_LAYOUT.inputY + 10 }], colors.hole, 3);
-    polyline(context, [{ x: 1242, y: 85 }, { x: 1242, y: PORT_LAYOUT.inputY + 10 }], colors.error, 3);
-    label(context, "GND", 1210, 83, 11, colors.ink, "center");
-    label(context, "+5V", 1242, 83, 11, colors.error, "center");
-    for (let index = 0; index < 60; index = index + 1) {
-      for (const name of ["GND", "VCC"]) {
-        const location = endpointPosition("R:" + name + ":" + index);
-        circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
-        circle(context, location.x, location.y, 3.2, colors.hole);
-      }
-    }
-  }
-  function drawModules(context, state2, colors) {
-    const offset = PORT_LAYOUT.inputY - 1170;
-    rectangle(context, BOARD.panelLeft, 14, BOARD.panelWidth, 65, 5, colors.module);
-    rectangle(context, BOARD.panelLeft, 1145 + offset, BOARD.panelWidth, 107, 5, colors.module);
-    label(context, "\u903B\u8F91\u6307\u793A\u706F", 1122, 35, 12, colors["module-text"], "center");
-    for (let index = 0; index < 24; index = index + 1) {
-      const led = endpointPosition("L" + index);
-      const value = readEndpoint(state2.result, "L" + index);
-      rectangle(context, led.x - 8, 34, 16, 13, 3, colors["led-off"]);
-      context.globalAlpha = state2.visual.leds["L" + index];
-      rectangle(context, led.x - 8, 34, 16, 13, 3, colors["led-on"]);
-      context.globalAlpha = 1;
-      if (value === "X" || value === "Z") {
-        label(context, String(value), led.x, 40, 8, colors["module-text"], "center");
-      }
-      label(context, "L" + index, led.x, 24, 8, colors["module-text"], "center");
-      const location = endpointPosition("K" + index);
-      label(context, "K" + index, location.x, 1156 + offset, 9, colors["module-text"], "center");
-      rectangle(context, location.x - 12, 1190 + offset, 24, 36, 4, colors["chip-text"]);
-      const switchTop = 1207 + offset - state2.visual.switches[index] * 14;
-      rectangle(context, location.x - 9, switchTop, 18, 15, 2, colors.metal);
-      label(context, String(state2.project.switches[index]), location.x, 1237 + offset, 10, colors["module-text"], "center");
-      rectangle(context, location.x - 6, 1179 + offset, 12, 6, 2, colors["led-off"]);
-      context.globalAlpha = state2.visual.leds["K" + index];
-      rectangle(context, location.x - 6, 1179 + offset, 12, 6, 2, colors["led-on"]);
-      context.globalAlpha = 1;
-    }
-    for (const name of ["P+", "P-"]) {
-      const location = endpointPosition(name);
-      label(context, name, location.x, 1156 + offset, 10, colors["module-text"], "center");
-      let buttonColor = colors["chip-text"];
-      let buttonY = 1208 + offset;
-      if (state2.pressedPulse === name) {
-        buttonColor = colors["led-on"];
-        buttonY = buttonY + 3;
-      }
-      circle(context, location.x, buttonY, 14, buttonColor);
-      label(context, "\u8109\u51B2", location.x, 1237 + offset, 9, colors["module-text"], "center");
-    }
-    for (const name of ["GND", "VCC"]) {
-      const location = endpointPosition(name);
-      circle(context, location.x, location.y, 5, colors.metal);
-      label(context, name, location.x, 1195 + offset, 9, colors.ink, "center");
-    }
-    for (let index = 0; index < 24; index = index + 1) {
-      for (const prefix of ["K", "L"]) {
-        const location = endpointPosition(prefix + index);
-        circle(context, location.x, location.y, 4.5, colors.metal);
-        circle(context, location.x, location.y, 2.5, colors.hole);
-      }
-    }
-    for (const name of ["P+", "P-"]) {
-      const location = endpointPosition(name);
-      circle(context, location.x, location.y, 4.5, colors.metal);
-      circle(context, location.x, location.y, 2.5, colors.hole);
-    }
-  }
-  function drawChip(context, chip, state2, colors) {
-    const bounds = chipBounds(chip);
-    const model = CHIP_MODELS[chip.model];
-    for (let pin = 1; pin <= model.count; pin = pin + 1) {
-      const location = endpointPosition(pinHole(chip, pin));
-      let edge = bounds.y + bounds.height;
-      if (pin > model.count / 2) {
-        edge = bounds.y;
-      }
-      polyline(context, [location, { x: location.x, y: edge }], colors.metal, 5);
-    }
-    rectangle(context, bounds.x, bounds.y, bounds.width, bounds.height, 3, colors.chip);
-    circle(context, bounds.x, bounds.y + 16, 6, colors.board);
-    label(context, chip.id + "  " + chip.model, bounds.x + bounds.width / 2 + 3, bounds.y + 16, DRAW.chipText, colors["chip-text"], "center");
-    for (let pin = 1; pin <= model.count; pin = pin + 1) {
-      const location = endpointPosition(pinHole(chip, pin));
-      let vertical = bounds.y + bounds.height - 3;
-      if (pin > model.count / 2) {
-        vertical = bounds.y + 4;
-      }
-      label(context, String(pin), location.x, vertical, 6, colors["chip-text"], "center");
-    }
-    if (objectSelected(state2, "chip", chip.id)) {
-      context.strokeStyle = colors.accent;
-      context.lineWidth = 2;
-      context.strokeRect(bounds.x - 3, bounds.y - 3, bounds.width + 6, bounds.height + 6);
-    }
-  }
-  function drawWires(context, state2, colors) {
-    for (let index = 0; index < state2.project.wires.length; index = index + 1) {
-      const wire = state2.project.wires[index];
-      const points = wirePoints(wire, index);
-      let width = DRAW.wireWidth;
-      const selected = objectSelected(state2, "wire", wire.id);
-      if (selected) {
-        width = 5;
-      }
-      polyline(context, points, colors.surface, width + 2);
-      polyline(context, points, wire.color, width);
-      const first = points[0];
-      const last = points[points.length - 1];
-      circle(context, first.x, first.y, 4, wire.color);
-      circle(context, last.x, last.y, 4, wire.color);
-      if (selected && state2.tool === "select") {
-        for (const point of points) {
-          rectangle(context, point.x - 5, point.y - 5, 10, 10, 2, colors.surface);
-          context.strokeStyle = wire.color;
-          context.lineWidth = 2;
-          context.strokeRect(point.x - 5, point.y - 5, 10, 10);
-        }
-      }
-    }
-    if (state2.pending) {
-      const points = [endpointPosition(state2.pending.from)];
-      for (const bend of state2.pending.bends) {
-        points.push(bend);
-      }
-      if (state2.pointer) {
-        points.push(state2.pointer);
-      }
-      context.setLineDash([6, 4]);
-      polyline(context, points, state2.wireColor, 2.5);
-      context.setLineDash([]);
-    }
-  }
-  function drawHighlights(context, state2, endpoints2, colors) {
-    let selectedNode = "";
-    if (state2.selected && state2.selected.kind === "node") {
-      selectedNode = nodeFor(state2.result.topology, state2.selected.id);
-    }
-    for (const name of endpoints2) {
-      const node2 = nodeFor(state2.result.topology, name);
-      const location = endpointPosition(name);
-      if (selectedNode !== "" && node2 === selectedNode) {
-        context.strokeStyle = colors.accent;
-        context.lineWidth = 2;
-        context.beginPath();
-        context.arc(location.x, location.y, 6.2, 0, Math.PI * 2);
-        context.stroke();
-      }
-      if (state2.showLevels) {
-        const value = readEndpoint(state2.result, name);
-        if (value !== "Z") {
-          let color = colors.unknown;
-          if (value === 0) {
-            color = colors.ink;
-          } else if (value === 1) {
-            color = colors.success;
-          }
-          circle(context, location.x, location.y, 3.2, color);
-        }
-      }
-    }
-    if (state2.hovered) {
-      const location = endpointPosition(state2.hovered);
-      context.strokeStyle = colors.accent;
-      context.lineWidth = 2;
-      context.strokeRect(location.x - 8, location.y - 8, 16, 16);
-    }
-  }
-  function renderBoard(canvas2, state2, endpoints2) {
-    const context = canvas2.getContext("2d");
-    context.setTransform(2, 0, 0, 2, 0, 0);
-    const colors = canvasColors();
-    context.clearRect(0, 0, BOARD.width, BOARD.height);
-    rectangle(context, 0, 0, BOARD.width, BOARD.height, 8, colors.board);
-    drawBreadboards(context, state2, colors);
-    drawModules(context, state2, colors);
-    for (const chip of state2.project.chips) {
-      drawChip(context, chip, state2, colors);
-    }
-    drawWires(context, state2, colors);
-    drawHighlights(context, state2, endpoints2, colors);
-    if (state2.placing) {
-      label(context, "\u653E\u7F6E " + state2.placing, 650, 1105, 17, colors.accent, "center");
-    }
-  }
   function segmentDistance(point, first, last) {
     const horizontal = last.x - first.x;
     const vertical = last.y - first.y;
@@ -2515,7 +4162,7 @@
   function hitCandidates(point, state2, endpoints2) {
     const candidates = [];
     if (point.y >= PORT_LAYOUT.inputY + 17 && point.y <= PORT_LAYOUT.inputY + 60) {
-      for (let index = 0; index < 24; index = index + 1) {
+      for (let index = 0; index < IO_LIMIT; index = index + 1) {
         const location = endpointPosition("K" + index);
         if (Math.abs(point.x - location.x) <= 15) {
           return [{ kind: "switch", id: index }];
@@ -2540,7 +4187,7 @@
     }
     for (const name of endpoints2) {
       const location = endpointPosition(name);
-      if (Math.hypot(point.x - location.x, point.y - location.y) <= DRAW.pickRadius) {
+      if (Math.hypot(point.x - location.x, point.y - location.y) <= PICK_RADIUS) {
         candidates.push({ kind: "node", id: name });
       }
     }
@@ -2609,7 +4256,7 @@
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
       throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
     }
-    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== 24) {
+    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
       throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
     }
     const project = emptyProject();
@@ -2689,7 +4336,7 @@
       occupied2.add(entry.to);
       identifiers.add(entry.id);
     }
-    for (let index = 0; index < 24; index = index + 1) {
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
       if (value.switches[index] !== 0 && value.switches[index] !== 1) {
         throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
       }
@@ -2698,51 +4345,481 @@
     return project;
   }
 
-  // src/motion.mjs
-  var MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
-  var transitions = /* @__PURE__ */ new Map();
-  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var frame = 0;
-  function easing(progress) {
-    const remaining = 1 - progress;
-    return 1 - remaining * remaining * remaining;
+  // src/routing.mjs
+  var ROUTING = { step: 6, margin: 6, topBoundary: 62, bottomBoundary: 1110, sharedCost: 70, crossingCost: 10, neighborCost: 3, turnCost: 3 };
+  var width = Math.floor(BOARD.width / ROUTING.step) + 1;
+  var height = Math.floor(BOARD.height / ROUTING.step) + 1;
+  function gridPoint(point) {
+    return { x: Math.round(point.x / ROUTING.step), y: Math.round(point.y / ROUTING.step) };
   }
-  function stepTransitions(time) {
-    frame = 0;
-    for (const entry of transitions) {
-      const key = entry[0];
-      const transition = entry[1];
-      const progress = Math.min(1, (time - transition.started) / transition.duration);
-      const value = transition.first + (transition.last - transition.first) * easing(progress);
-      transition.update(value);
-      if (progress === 1) {
-        transitions.delete(key);
+  function createWalls(project) {
+    const walls = /* @__PURE__ */ new Set();
+    for (const chip of project.chips) {
+      const bounds = chipBounds(chip);
+      for (let column = 0; column < width; column = column + 1) {
+        for (let row = 0; row < height; row = row + 1) {
+          const horizontal = column * ROUTING.step;
+          const vertical = row * ROUTING.step;
+          if (horizontal >= bounds.x - ROUTING.margin && horizontal <= bounds.x + bounds.width + ROUTING.margin && vertical >= bounds.y - ROUTING.margin && vertical <= bounds.y + bounds.height + ROUTING.margin) {
+            walls.add(column + ":" + row);
+          }
+        }
       }
     }
-    if (transitions.size > 0) {
-      frame = window.requestAnimationFrame(stepTransitions);
+    return walls;
+  }
+  function routeCost(previous) {
+    let cost = this.weight;
+    const horizontal = this.y === previous.y;
+    if (horizontal) {
+      cost = cost + this.horizontalUse * ROUTING.sharedCost + this.verticalUse * ROUTING.crossingCost;
+    } else {
+      cost = cost + this.verticalUse * ROUTING.sharedCost + this.horizontalUse * ROUTING.crossingCost;
+    }
+    if (previous.parent) {
+      const wasHorizontal = previous.y === previous.parent.y;
+      if (wasHorizontal !== horizontal) {
+        cost = cost + ROUTING.turnCost;
+      }
+    }
+    return cost;
+  }
+  function createGraph(walls, occupied2, first, last) {
+    const weights = [];
+    for (let column = 0; column < width; column = column + 1) {
+      const cells = [];
+      for (let row = 0; row < height; row = row + 1) {
+        let weight = 1;
+        const key = column + ":" + row;
+        const vertical = row * ROUTING.step;
+        const top = Math.min(ROUTING.topBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
+        const bottom = Math.max(ROUTING.bottomBoundary, first.y * ROUTING.step, last.y * ROUTING.step);
+        if (walls.has(key) || column < 4 || column > width - 4 || vertical < top || vertical > bottom) {
+          weight = 0;
+        }
+        cells.push(weight);
+      }
+      weights.push(cells);
+    }
+    weights[first.x][first.y] = 1;
+    weights[last.x][last.y] = 1;
+    const graph = new import_javascript_astar.default.Graph(weights);
+    for (let column = 0; column < width; column = column + 1) {
+      for (let row = 0; row < height; row = row + 1) {
+        const cell = graph.grid[column][row];
+        const key = column + ":" + row;
+        const usage = occupied2.get(key);
+        cell.horizontalUse = 0;
+        cell.verticalUse = 0;
+        if (usage) {
+          cell.horizontalUse = usage.horizontal;
+          cell.verticalUse = usage.vertical;
+        }
+        for (const offset of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+          if (occupied2.has(column + offset[0] + ":" + (row + offset[1])) && cell.weight !== 0) {
+            cell.weight = cell.weight + ROUTING.neighborCost;
+          }
+        }
+        cell.getCost = routeCost;
+      }
+    }
+    return graph;
+  }
+  function markPath(points, occupied2) {
+    for (let index = 1; index < points.length; index = index + 1) {
+      const first = points[index - 1];
+      const last = points[index];
+      const horizontal = first.y === last.y;
+      for (const point of [first, last]) {
+        const key = point.x + ":" + point.y;
+        let usage = occupied2.get(key);
+        if (!usage) {
+          usage = { horizontal: 0, vertical: 0 };
+          occupied2.set(key, usage);
+        }
+        if (horizontal) {
+          usage.horizontal = usage.horizontal + 1;
+        } else {
+          usage.vertical = usage.vertical + 1;
+        }
+      }
     }
   }
-  function tween(key, first, last, update, duration) {
-    transitions.delete(key);
-    if (reducedMotion.matches || first === last) {
-      update(last);
-      return;
+  function simplifyPath(points) {
+    const simplified = [];
+    for (const point of points) {
+      if (simplified.length > 0) {
+        const previous = simplified[simplified.length - 1];
+        if (previous.x === point.x && previous.y === point.y) {
+          continue;
+        }
+      }
+      while (simplified.length >= 2) {
+        const previous = simplified[simplified.length - 1];
+        const before = simplified[simplified.length - 2];
+        const vertical = before.x === previous.x && previous.x === point.x;
+        const horizontal = before.y === previous.y && previous.y === point.y;
+        if (!vertical && !horizontal) {
+          break;
+        }
+        simplified.pop();
+      }
+      simplified.push({ x: point.x, y: point.y });
     }
-    transitions.set(key, { first, last, update, duration, started: performance.now() });
-    if (frame === 0) {
-      frame = window.requestAnimationFrame(stepTransitions);
-    }
+    return simplified;
   }
-  function fadeContent(element2) {
-    if (reducedMotion.matches) {
-      return;
+  function compareLength(first, second) {
+    return first.length - second.length;
+  }
+  function yieldRouting(resolve) {
+    setTimeout(resolve, 0);
+  }
+  async function routeWires(project) {
+    const walls = createWalls(project);
+    const occupied2 = /* @__PURE__ */ new Map();
+    const ordered = [];
+    for (const wire of project.wires) {
+      const first = endpointPosition(wire.from);
+      const last = endpointPosition(wire.to);
+      ordered.push({ wire, first, last, length: Math.abs(first.x - last.x) + Math.abs(first.y - last.y) });
     }
-    for (const animation of element2.getAnimations()) {
-      animation.cancel();
+    ordered.sort(compareLength);
+    const routes = {};
+    for (const entry of ordered) {
+      const first = gridPoint(entry.first);
+      const last = gridPoint(entry.last);
+      const graph = createGraph(walls, occupied2, first, last);
+      const path = import_javascript_astar.default.astar.search(graph, graph.grid[first.x][first.y], graph.grid[last.x][last.y]);
+      if (path.length === 0 && (first.x !== last.x || first.y !== last.y)) {
+        throw new Error("\u627E\u4E0D\u5230\u5BFC\u7EBF\u8DEF\u5F84\uFF1A" + entry.wire.id);
+      }
+      const cells = [first];
+      const points = [entry.first, { x: first.x * ROUTING.step, y: entry.first.y }];
+      points.push({ x: first.x * ROUTING.step, y: first.y * ROUTING.step });
+      for (const cell of path) {
+        cells.push({ x: cell.x, y: cell.y });
+        points.push({ x: cell.x * ROUTING.step, y: cell.y * ROUTING.step });
+      }
+      points.push({ x: last.x * ROUTING.step, y: entry.last.y }, entry.last);
+      const simplified = simplifyPath(points);
+      const bends = simplified.slice(1, -1);
+      if (bends.length === 0) {
+        bends.push({ x: (entry.first.x + entry.last.x) / 2, y: (entry.first.y + entry.last.y) / 2 });
+      }
+      if (bends.length > LIMITS.bends) {
+        throw new Error("\u5BFC\u7EBF\u8DEF\u5F84\u62D0\u89D2\u8FC7\u591A\uFF1A" + entry.wire.id);
+      }
+      routes[entry.wire.id] = bends;
+      markPath(cells, occupied2);
+      await new Promise(yieldRouting);
     }
+    return routes;
+  }
+
+  // src/render.mjs
+  var DRAW = { holeRadius: 3.5, wireWidth: 2.4, chipText: 10 };
+  var drawingFont = "";
+  function canvasColors() {
     const style = getComputedStyle(document.documentElement);
-    element2.animate([{ opacity: 0.45 }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
+    const colors = {};
+    const names = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
+    for (const name of names) {
+      colors[name] = style.getPropertyValue("--color-" + name).trim();
+    }
+    drawingFont = style.getPropertyValue("--font-body").trim();
+    return colors;
+  }
+  function rectangle(context, left, top, width2, height2, radius, color) {
+    context.beginPath();
+    context.roundRect(left, top, width2, height2, radius);
+    context.fillStyle = color;
+    context.fill();
+  }
+  function label(context, content, horizontal, vertical, size, color, align) {
+    context.font = size + "px " + drawingFont;
+    context.fillStyle = color;
+    context.textAlign = align;
+    context.textBaseline = "middle";
+    context.fillText(content, horizontal, vertical);
+  }
+  function polyline(context, points, color, width2) {
+    context.beginPath();
+    context.moveTo(points[0].x, points[0].y);
+    for (let index = 1; index < points.length; index = index + 1) {
+      context.lineTo(points[index].x, points[index].y);
+    }
+    context.strokeStyle = color;
+    context.lineWidth = width2;
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.stroke();
+  }
+  function circle(context, horizontal, vertical, radius, color) {
+    context.beginPath();
+    context.arc(horizontal, vertical, radius, 0, Math.PI * 2);
+    context.fillStyle = color;
+    context.fill();
+  }
+  function allEndpoints() {
+    const endpoints2 = [];
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+      for (const row of ROWS) {
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          endpoints2.push(holeId(section, row, column));
+        }
+      }
+      for (const row of BUS_ROWS) {
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          if (busHasHole(column)) {
+            endpoints2.push(holeId(section, row, column));
+          }
+        }
+      }
+    }
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      endpoints2.push("K" + index);
+      endpoints2.push("L" + index);
+    }
+    for (let index = 0; index < 60; index = index + 1) {
+      endpoints2.push("R:GND:" + index);
+      endpoints2.push("R:VCC:" + index);
+    }
+    endpoints2.push("P+", "P-", "GND", "VCC");
+    return endpoints2;
+  }
+  function drawBreadboards(context, state2, colors) {
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+      const top = BOARD.startY + section * BOARD.sectionHeight - 30;
+      rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, 234, 7, colors.surface);
+      context.strokeStyle = colors.rule;
+      context.lineWidth = 1;
+      context.strokeRect(43, top + 1, 1130, 232);
+      rectangle(context, 64, rowY(section, "E") + 15, 1086, 30, 3, colors.board);
+      label(context, String(section + 1), 55, top + 116, 12, colors.muted, "center");
+      for (let column = 1; column <= BOARD.columns; column = column + 1) {
+        const horizontal = BOARD.startX + (column - 1) * BOARD.pitch;
+        if (column === 1 || column % 5 === 0) {
+          label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
+        }
+        if (state2.visual.internals > 0) {
+          context.globalAlpha = state2.visual.internals;
+          polyline(context, [{ x: horizontal, y: rowY(section, "A") }, { x: horizontal, y: rowY(section, "E") }], colors.trace, 2);
+          polyline(context, [{ x: horizontal, y: rowY(section, "F") }, { x: horizontal, y: rowY(section, "J") }], colors.trace, 2);
+          context.globalAlpha = 1;
+        }
+      }
+      for (const row of BUS_ROWS) {
+        const vertical = rowY(section, row);
+        label(context, row, 74, vertical, 9, colors.muted, "center");
+        for (const segment of BUS_SEGMENTS) {
+          const first = endpointPosition(holeId(section, row, segment[0]));
+          const last = endpointPosition(holeId(section, row, segment[1]));
+          context.globalAlpha = 0.25 + state2.visual.internals * 0.75;
+          polyline(context, [first, last], colors.accent, 2);
+          context.globalAlpha = 1;
+        }
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          if (busHasHole(column)) {
+            const location = endpointPosition(holeId(section, row, column));
+            circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
+            circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
+          }
+        }
+      }
+      for (const row of ROWS) {
+        label(context, row, 74, rowY(section, row), 9, colors.muted, "center");
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          const location = endpointPosition(holeId(section, row, column));
+          circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
+          circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
+        }
+      }
+    }
+    polyline(context, [{ x: 1210, y: 85 }, { x: 1210, y: PORT_LAYOUT.inputY + 10 }], colors.hole, 3);
+    polyline(context, [{ x: 1242, y: 85 }, { x: 1242, y: PORT_LAYOUT.inputY + 10 }], colors.error, 3);
+    label(context, "GND", 1210, 83, 11, colors.ink, "center");
+    label(context, "+5V", 1242, 83, 11, colors.error, "center");
+    for (let index = 0; index < 60; index = index + 1) {
+      for (const name of ["GND", "VCC"]) {
+        const location = endpointPosition("R:" + name + ":" + index);
+        circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
+        circle(context, location.x, location.y, 3.2, colors.hole);
+      }
+    }
+  }
+  function drawModules(context, state2, colors) {
+    const offset = PORT_LAYOUT.inputY - 1170;
+    rectangle(context, BOARD.panelLeft, 14, BOARD.panelWidth, 65, 5, colors.module);
+    rectangle(context, BOARD.panelLeft, 1145 + offset, BOARD.panelWidth, 107, 5, colors.module);
+    label(context, "\u903B\u8F91\u6307\u793A\u706F", 1122, 35, 12, colors["module-text"], "center");
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      const led = endpointPosition("L" + index);
+      const value = readEndpoint(state2.result, "L" + index);
+      rectangle(context, led.x - 8, 34, 16, 13, 3, colors["led-off"]);
+      context.globalAlpha = state2.visual.leds["L" + index];
+      rectangle(context, led.x - 8, 34, 16, 13, 3, colors["led-on"]);
+      context.globalAlpha = 1;
+      if (value === "X" || value === "Z") {
+        label(context, String(value), led.x, 40, 8, colors["module-text"], "center");
+      }
+      label(context, "L" + index, led.x, 24, 8, colors["module-text"], "center");
+      const location = endpointPosition("K" + index);
+      label(context, "K" + index, location.x, 1156 + offset, 9, colors["module-text"], "center");
+      rectangle(context, location.x - 12, 1190 + offset, 24, 36, 4, colors["chip-text"]);
+      const switchTop = 1207 + offset - state2.visual.switches[index] * 14;
+      rectangle(context, location.x - 9, switchTop, 18, 15, 2, colors.metal);
+      label(context, String(state2.project.switches[index]), location.x, 1237 + offset, 10, colors["module-text"], "center");
+      rectangle(context, location.x - 6, 1179 + offset, 12, 6, 2, colors["led-off"]);
+      context.globalAlpha = state2.visual.leds["K" + index];
+      rectangle(context, location.x - 6, 1179 + offset, 12, 6, 2, colors["led-on"]);
+      context.globalAlpha = 1;
+    }
+    for (const name of ["P+", "P-"]) {
+      const location = endpointPosition(name);
+      label(context, name, location.x, 1156 + offset, 10, colors["module-text"], "center");
+      let buttonColor = colors["chip-text"];
+      let buttonY = 1208 + offset;
+      if (state2.pressedPulse === name) {
+        buttonColor = colors["led-on"];
+        buttonY = buttonY + 3;
+      }
+      circle(context, location.x, buttonY, 14, buttonColor);
+      label(context, "\u8109\u51B2", location.x, 1237 + offset, 9, colors["module-text"], "center");
+    }
+    for (const name of ["GND", "VCC"]) {
+      const location = endpointPosition(name);
+      circle(context, location.x, location.y, 5, colors.metal);
+      label(context, name, location.x, 1195 + offset, 9, colors.ink, "center");
+    }
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      for (const prefix of ["K", "L"]) {
+        const location = endpointPosition(prefix + index);
+        circle(context, location.x, location.y, 4.5, colors.metal);
+        circle(context, location.x, location.y, 2.5, colors.hole);
+      }
+    }
+    for (const name of ["P+", "P-"]) {
+      const location = endpointPosition(name);
+      circle(context, location.x, location.y, 4.5, colors.metal);
+      circle(context, location.x, location.y, 2.5, colors.hole);
+    }
+  }
+  function drawChip(context, chip, state2, colors) {
+    const bounds = chipBounds(chip);
+    const model = CHIP_MODELS[chip.model];
+    for (let pin = 1; pin <= model.count; pin = pin + 1) {
+      const location = endpointPosition(pinHole(chip, pin));
+      let edge = bounds.y + bounds.height;
+      if (pin > model.count / 2) {
+        edge = bounds.y;
+      }
+      polyline(context, [location, { x: location.x, y: edge }], colors.metal, 5);
+    }
+    rectangle(context, bounds.x, bounds.y, bounds.width, bounds.height, 3, colors.chip);
+    circle(context, bounds.x, bounds.y + 16, 6, colors.board);
+    label(context, chip.id + "  " + chip.model, bounds.x + bounds.width / 2 + 3, bounds.y + 16, DRAW.chipText, colors["chip-text"], "center");
+    for (let pin = 1; pin <= model.count; pin = pin + 1) {
+      const location = endpointPosition(pinHole(chip, pin));
+      let vertical = bounds.y + bounds.height - 3;
+      if (pin > model.count / 2) {
+        vertical = bounds.y + 4;
+      }
+      label(context, String(pin), location.x, vertical, 6, colors["chip-text"], "center");
+    }
+    if (objectSelected(state2, "chip", chip.id)) {
+      context.strokeStyle = colors.accent;
+      context.lineWidth = 2;
+      context.strokeRect(bounds.x - 3, bounds.y - 3, bounds.width + 6, bounds.height + 6);
+    }
+  }
+  function drawWires(context, state2, colors) {
+    for (let index = 0; index < state2.project.wires.length; index = index + 1) {
+      const wire = state2.project.wires[index];
+      const points = wirePoints(wire, index);
+      let width2 = DRAW.wireWidth;
+      const selected = objectSelected(state2, "wire", wire.id);
+      if (selected) {
+        width2 = 5;
+      }
+      polyline(context, points, colors.surface, width2 + 2);
+      polyline(context, points, wire.color, width2);
+      const first = points[0];
+      const last = points[points.length - 1];
+      circle(context, first.x, first.y, 4, wire.color);
+      circle(context, last.x, last.y, 4, wire.color);
+      if (selected && state2.tool === "select") {
+        for (const point of points) {
+          rectangle(context, point.x - 5, point.y - 5, 10, 10, 2, colors.surface);
+          context.strokeStyle = wire.color;
+          context.lineWidth = 2;
+          context.strokeRect(point.x - 5, point.y - 5, 10, 10);
+        }
+      }
+    }
+    if (state2.pending) {
+      const points = [endpointPosition(state2.pending.from)];
+      for (const bend of state2.pending.bends) {
+        points.push(bend);
+      }
+      if (state2.pointer) {
+        points.push(state2.pointer);
+      }
+      context.setLineDash([6, 4]);
+      polyline(context, points, state2.wireColor, 2.5);
+      context.setLineDash([]);
+    }
+  }
+  function drawHighlights(context, state2, endpoints2, colors) {
+    let selectedNode = "";
+    if (state2.selected && state2.selected.kind === "node") {
+      selectedNode = nodeFor(state2.result.topology, state2.selected.id);
+    }
+    for (const name of endpoints2) {
+      const node2 = nodeFor(state2.result.topology, name);
+      const location = endpointPosition(name);
+      if (selectedNode !== "" && node2 === selectedNode) {
+        context.strokeStyle = colors.accent;
+        context.lineWidth = 2;
+        context.beginPath();
+        context.arc(location.x, location.y, 6.2, 0, Math.PI * 2);
+        context.stroke();
+      }
+      if (state2.showLevels) {
+        const value = readEndpoint(state2.result, name);
+        if (value !== "Z") {
+          let color = colors.unknown;
+          if (value === 0) {
+            color = colors.ink;
+          } else if (value === 1) {
+            color = colors.success;
+          }
+          circle(context, location.x, location.y, 3.2, color);
+        }
+      }
+    }
+    if (state2.hovered) {
+      const location = endpointPosition(state2.hovered);
+      context.strokeStyle = colors.accent;
+      context.lineWidth = 2;
+      context.strokeRect(location.x - 8, location.y - 8, 16, 16);
+    }
+  }
+  function renderBoard(canvas2, state2, endpoints2) {
+    const context = canvas2.getContext("2d");
+    context.setTransform(2, 0, 0, 2, 0, 0);
+    const colors = canvasColors();
+    context.clearRect(0, 0, BOARD.width, BOARD.height);
+    rectangle(context, 0, 0, BOARD.width, BOARD.height, 8, colors.board);
+    drawBreadboards(context, state2, colors);
+    drawModules(context, state2, colors);
+    for (const chip of state2.project.chips) {
+      drawChip(context, chip, state2, colors);
+    }
+    drawWires(context, state2, colors);
+    drawHighlights(context, state2, endpoints2, colors);
+    if (state2.placing) {
+      label(context, "\u653E\u7F6E " + state2.placing, 650, 1105, 17, colors.accent, "center");
+    }
   }
 
   // node_modules/marked/lib/marked.esm.js
@@ -6311,104 +8388,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     return issues;
   }
 
-  // src/document-references.mjs
-  var DOCUMENT_REFERENCES = {
-    "74LS03": {
-      "image": "assets/pinouts/document/74ls03-1.png",
-      "logicImage": "assets/pinouts/document/74ls03-2.png",
-      "summary": "\u903B\u8F91\u529F\u80FD\u4E0E74LS00\u76F8\u540C\uFF0CY=(AB)\u2032\uFF0C\u4F46\u8F93\u51FA\u7EA7\u4E3A\u96C6\u7535\u6781\u5F00\u8DEF\uFF08OC\uFF09\u7ED3\u6784\uFF0C\u4F7F\u7528\u65F6\u8F93\u51FA\u7AEF\u5FC5\u987B\u5916\u63A5\u4E0A\u62C9\u7535\u963B\u3002OC\u95E8\u53EF\u4EE5\u628A\u591A\u4E2A\u8F93\u51FA\u76F4\u63A5\u5E76\u8054\u5B9E\u73B0\u201C\u7EBF\u4E0E\u201D\uFF0C\u5E38\u7528\u4E8E\u603B\u7EBF\u9A71\u52A8\u548C\u7535\u5E73\u8F6C\u6362"
-    },
-    "74LS20": {
-      "image": "assets/pinouts/document/74ls20-1.png",
-      "logicImage": "assets/pinouts/document/74ls20-2.png",
-      "summary": "\u7247\u5185\u67092\u4E2A\u72EC\u7ACB\u76844\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(ABCD)\u2032\u3002\u5B9E\u9A8C4\u4E2D\u7528\u5B83\u4E0E74LS138\u914D\u5408\u5B9E\u73B0\u7EC4\u5408\u903B\u8F91\u51FD\u6570\uFF1B\u628A\u591A\u4F59\u8F93\u5165\u7AEF\u63A5\u9AD8\u7535\u5E73\u6216\u5C06\u8F93\u5165\u7AEF\u5E76\u63A5\uFF0C\u4E5F\u53EF\u5F53\u4F5C\u53CD\u76F8\u5668\u4F7F\u7528"
-    },
-    "CD4011": {
-      "image": "assets/pinouts/document/cd4011-1.png",
-      "logicImage": "assets/pinouts/document/cd4011-2.png",
-      "summary": "CMOS\u5DE5\u827A\u7684\u56DB2\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(AB)\u2032\u3002\u7535\u6E90\u7535\u538B\u8303\u56F4\u5BBD\uFF083~15V\uFF09\uFF0C\u8F93\u5165\u963B\u6297\u6781\u9AD8\u3001\u9759\u6001\u529F\u8017\u6781\u5C0F\uFF0C\u4F46\u591A\u4F59\u8F93\u5165\u7AEF\u4E0D\u5141\u8BB8\u60AC\u7A7A\uFF0C\u5FC5\u987B\u63A5VDD\u6216VSS\u3002\u5B9E\u9A8C2\u4E2D\u7528\u4E8E\u6D4B\u91CFCMOS\u95E8\u7684\u7535\u538B\u4F20\u8F93\u7279\u6027\u548C\u4F20\u8F93\u5EF6\u8FDF\u65F6\u95F4"
-    },
-    "74LS125": {
-      "image": "assets/pinouts/document/74ls125-1.png",
-      "logicImage": "assets/pinouts/document/74ls125-2.png",
-      "summary": "\u7247\u5185\u67094\u4E2A\u72EC\u7ACB\u7684\u4E09\u6001\u7F13\u51B2\u95E8\uFF0C\u4F7F\u80FD\u7AEFG\u2032\u4F4E\u7535\u5E73\u6709\u6548\uFF1AG\u2032=0\u65F6Y=A\uFF08\u540C\u76F8\u8F93\u51FA\uFF09\uFF0CG\u2032=1\u65F6\u8F93\u51FA\u4E3A\u9AD8\u963B\u6001\u3002\u5E38\u7528\u4E8E\u603B\u7EBF\u7ED3\u6784\u3001\u6570\u636E\u9009\u62E9\u4E0E\u4FE1\u53F7\u9694\u79BB"
-    },
-    "74LS138": {
-      "image": "assets/pinouts/document/74ls138-1.png",
-      "logicImage": "assets/pinouts/document/74ls138-2.png",
-      "summary": "3\u4E2A\u5730\u5740\u8F93\u5165\u7AEFA2A1A0\uFF0C8\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u7684\u8F93\u51FA\u7AEFY0\u2032~Y7\u2032\uFF0C3\u4E2A\u4F7F\u80FD\u7AEFS1\uFF08\u9AD8\u6709\u6548\uFF09\u3001S2\u2032\u3001S3\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u5F53S1=1\u4E14S2\u2032+S3\u2032=0\u65F6\u8BD1\u7801\uFF0CYi\u2032=(mi\xB7S)\u2032\uFF0C\u88AB\u9009\u4E2D\u7AEF\u8F93\u51FA\u4F4E\u7535\u5E73\uFF1B\u7981\u6B62\u65F6\u8F93\u51FA\u5168\u4E3A\u9AD8\u3002\u53EF\u4F5C\u5730\u5740\u8BD1\u7801\u5668\u3001\u8109\u51B2\u5206\u914D\u5668\uFF0C\u914D\u4E0E\u975E\u95E8\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u7EC4\u5408\u903B\u8F91\u51FD\u6570"
-    },
-    "74LS139": {
-      "image": "assets/pinouts/document/74ls139-1.png",
-      "logicImage": "assets/pinouts/document/74ls139-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A\u5B8C\u5168\u72EC\u7ACB\u76842\u7EBF-4\u7EBF\u8BD1\u7801\u5668\uFF0C\u5404\u6709\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u5730\u5740\u7AEF1A/1B\uFF082A/2B\uFF0CA\u4E3A\u4F4E\u4F4D\u3001B\u4E3A\u9AD8\u4F4D\uFF09\u548C4\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u8F93\u51FA\u7AEF\u3002\u5F53G\u2032=0\u65F6\u6309\u5730\u5740\u9009\u4E2D\u4E00\u4E2A\u8F93\u51FA\u4E3A\u4F4E\u7535\u5E73\u3002\u7528\u4E24\u7247\u534A\u7247\u5E76\u63A5\u5730\u5740\u3001A2\u4F5C\u7247\u9009\uFF08\u7ECF\u53CD\u76F8\uFF09\u53EF\u6269\u5C55\u62103\u7EBF-8\u7EBF\u8BD1\u7801\u5668"
-    },
-    "74LS151": {
-      "image": "assets/pinouts/document/74ls151-1.png",
-      "logicImage": "assets/pinouts/document/74ls151-2.png",
-      "summary": "8\u4E2A\u6570\u636E\u7AEFD0~D7\u30013\u4E2A\u5730\u5740\u7AEFC\uFF08\u6700\u9AD8\u4F4D\uFF09\u3001B\u3001A\uFF08\u6700\u4F4E\u4F4D\uFF09\u3001\u4F4E\u7535\u5E73\u6709\u6548\u7684\u4F7F\u80FD\u7AEFG\u2032\uFF0C\u4EE5\u53CA\u4E92\u8865\u8F93\u51FAY\u3001W\u2032\u3002G\u2032=0\u65F6Y=Di\uFF08i=CBA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u51FD\u6570\uFF1A\u6309F(mi)\u7684\u53D6\u503C\u628ADi\u63A51\u62160\u5373\u53EF"
-    },
-    "74LS153": {
-      "image": "assets/pinouts/document/74ls153-1.png",
-      "logicImage": "assets/pinouts/document/74ls153-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A4\u90091\u9009\u62E9\u5668\uFF0C\u5171\u7528\u5730\u5740\u7AEFA\uFF08\u4F4E\u4F4D\uFF09\u3001B\uFF08\u9AD8\u4F4D\uFF09\uFF0C\u5404\u6709\u72EC\u7ACB\u7684\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\u548C\u6570\u636E\u8F93\u5165\u7AEF1C0~1C3\u30012C0~2C3\u3002G\u2032=0\u65F6Y=Ci\uFF08i=BA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u7528\u4E24\u7247\uFF08\u6216\u591A\u6B21\u590D\u7528\uFF09\u5B9E\u73B0\u56DB\u53D8\u91CF\u51FD\u6570"
-    },
-    "74LS85": {
-      "image": "assets/pinouts/document/74ls85-1.png",
-      "logicImage": "assets/pinouts/document/74ls85-2.png",
-      "summary": "\u6BD4\u8F83A3A2A1A0\u4E0EB3B2B1B0\uFF0C\u8F93\u51FAA>B\u3001A=B\u3001A<B\u4E09\u4E2A\u9AD8\u7535\u5E73\u6709\u6548\u4FE1\u53F7\u30022~4\u811A\u4E3A\u7EA7\u8054\u8F93\u5165\uFF0C\u5355\u7247\u4F7F\u7528\u65F6A>B\u3001A<B\u8F93\u5165\u63A50\u3001A=B\u8F93\u5165\u63A51\uFF1B\u4E24\u7247\u7EA7\u8054\u53EF\u6269\u5C55\u62108\u4F4D\u6BD4\u8F83\u5668"
-    },
-    "74LS48": {
-      "image": "assets/pinouts/document/74ls48-1.png",
-      "logicImage": "assets/pinouts/document/74ls48-2.png",
-      "summary": "\u628A8421BCD\u7801\uFF08D\u4E3A\u6700\u9AD8\u4F4D\u3001A\u4E3A\u6700\u4F4E\u4F4D\uFF09\u8BD1\u6210\u4E03\u6BB5\u5B57\u5F62\uFF0C\u8F93\u51FAa~g\u9AD8\u7535\u5E73\u6709\u6548\uFF0C\u53EF\u76F4\u63A5\u9A71\u52A8\u5171\u9634\u6781\u6570\u7801\u7BA1\uFF0C\u5185\u90E8\u67092k\u03A9\u4E0A\u62C9\u7535\u963B\u3002\u5177\u6709LT\u2032\u706F\u6D4B\u8BD5\u3001RBI\u2032\u706D\u96F6\u8F93\u5165\u3001BI\u2032/RBO\u2032\u706D\u706F\u8F93\u5165/\u52A8\u6001\u706D\u706F\u8F93\u51FA\u529F\u80FD"
-    },
-    "74LS74": {
-      "image": "assets/pinouts/document/74ls74-1.png",
-      "logicImage": "assets/pinouts/document/74ls74-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0A\u5347\u6CBF\u89E6\u53D1D\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002CP\u4E0A\u5347\u6CBF\u5230\u6765\u65F6Q*=D\u3002\u53EF\u6784\u6210\u79FB\u4F4D\u5BC4\u5B58\u5668\u3001\u8BA1\u6570\u5668\u548C\u5206\u9891\u7535\u8DEF"
-    },
-    "74LS112": {
-      "image": "assets/pinouts/document/74ls112-1.png",
-      "logicImage": "assets/pinouts/document/74ls112-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0B\u964D\u6CBF\u89E6\u53D1JK\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u5747\u4F4E\u6709\u6548\uFF09\u3002J=K=1\u65F6CP\u4E0B\u964D\u6CBF\u7FFB\u8F6C\uFF08T\u2032\u529F\u80FD\uFF09\uFF0C\u53EF\u6784\u6210\u8BA1\u6570\u5668\uFF1B\u4E0E74LS74\u914D\u5408\u53EF\u505A\u89E6\u53D1\u5668\u76F8\u4E92\u8F6C\u6362\u5B9E\u9A8C"
-    },
-    "CD4027": {
-      "image": "assets/pinouts/document/cd4027-1.png",
-      "logicImage": "assets/pinouts/document/cd4027-2.png",
-      "summary": "CMOS\u53CCJK\u4E3B\u4ECE\u89E6\u53D1\u5668\uFF0C\u4E0A\u5347\u6CBF\u89E6\u53D1\uFF0C\u7F6E\u4F4D\u7AEFSET\u548C\u590D\u4F4D\u7AEFRESET\u4E3A\u9AD8\u7535\u5E73\u6709\u6548\uFF08\u4E0E\u65F6\u949F\u65E0\u5173\uFF09\u3002\u7535\u6E903~15V\uFF0C\u8F93\u5165\u963B\u6297\u9AD8\u3001\u529F\u8017\u4F4E\u3002\u6CE8\u610F\u5176\u7F6E\u4F4D/\u590D\u4F4D\u6781\u6027\u548C\u5F15\u811A\u6392\u5217\u4E0E74LS112\u4E0D\u540C"
-    },
-    "74LS160": {
-      "image": "assets/pinouts/document/74ls160-1.png",
-      "logicImage": "assets/pinouts/document/74ls160-2.png",
-      "summary": "\u6A2110\u540C\u6B65\u52A0\u8BA1\u6570\u5668\u3002\u5177\u6709\u5F02\u6B65\u6E05\u96F6CLR\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u8BA1\u6570\u4F7F\u80FDENP/ENT\u548C\u8FDB\u4F4D\u8F93\u51FARCO\u3002ENP\u3001ENT\u5747\u4E3A\u9AD8\u7535\u5E73\u65F6\u5728CP\u4E0A\u5347\u6CBF\u8BA1\u6570\uFF1BRCO\u5728\u8BA1\u6570\u503C\u4E3A9\u4E14ENT=1\u65F6\u8F93\u51FA\u9AD8\u7535\u5E73"
-    },
-    "74LS161": {
-      "image": "assets/pinouts/document/74ls161-1.png",
-      "logicImage": "assets/pinouts/document/74ls161-2.png",
-      "summary": "\u6A2116\u540C\u6B65\u52A0\u8BA1\u6570\u5668\uFF0C\u5F15\u811A\u4E0E74LS160\u5B8C\u5168\u76F8\u540C\u3002\u5F02\u6B65\u6E05\u96F6CLR\u2032\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\u3001\u4F7F\u80FDENP/ENT\uFF0C\u8FDB\u4F4D\u8F93\u51FARCO\u3002\u53EF\u7528\u4E8E\u6784\u6210\u4EFB\u610F\u8FDB\u5236\u8BA1\u6570\u5668\uFF08\u53CD\u9988\u6E05\u96F6\u6CD5\u6216\u7F6E\u6570\u6CD5\uFF09"
-    },
-    "74LS194": {
-      "image": "assets/pinouts/document/74ls194-1.png",
-      "logicImage": "assets/pinouts/document/74ls194-2.png",
-      "summary": "4\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668\u3002S1S0=00\u4FDD\u6301\u300101\u53F3\u79FB\u300110\u5DE6\u79FB\u300111\u5E76\u884C\u7F6E\u6570\uFF1BSR\u4E3A\u53F3\u79FB\u4E32\u5165\u7AEF\uFF0CSL\u4E3A\u5DE6\u79FB\u4E32\u5165\u7AEF\uFF0CCLR\u2032\u4E3A\u5F02\u6B65\u6E05\u96F6\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u53EF\u6784\u6210\u73AF\u5F62\u3001\u626D\u73AF\u5F62\u8BA1\u6570\u5668\u53CA\u4E32\u5E76\u8F6C\u6362\u7535\u8DEF"
-    }
-  };
-
-  // src/catalog.mjs
-  var CHIP_REFERENCES = {
-    "74LS273": { file: "sn74ls273", page: 1, summary: "\u5B83\u80FD\u540C\u65F6\u4FDD\u5B58\u516B\u4F4D\u6570\u636E\u3002\u6E05\u96F6\u811A\u62C9\u4F4E\u65F6\uFF0C\u5168\u90E8\u8F93\u51FA\u53D8\u4E3A 0\uFF1B\u6E05\u96F6\u811A\u4FDD\u6301\u9AD8\u7535\u5E73\u65F6\uFF0C\u65F6\u949F\u4E0A\u5347\u6CBF\u628A D \u8F93\u5165\u4FDD\u5B58\u5230 Q \u8F93\u51FA" },
-    "74LS283": { file: "sn74ls283", page: 1, summary: "\u5B83\u628A\u4E24\u4E2A\u56DB\u4F4D\u6570\u4E0E\u8F93\u5165\u8FDB\u4F4D C0 \u76F8\u52A0\uFF0C\u8F93\u51FA\u56DB\u4F4D\u548C\u4EE5\u53CA\u8FDB\u4F4D C4\u3002A1\u3001B1\u3001\u03A31 \u5BF9\u5E94\u6700\u4F4E\u4F4D" },
-    "74LS86": { file: "sn74ls86a", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u5F02\u6216\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u4E0D\u540C\u65F6\u8F93\u51FA 1\uFF0C\u76F8\u540C\u65F6\u8F93\u51FA 0\u3002\u539F\u5382 LS86A \u8D44\u6599\u4E2D\u7684\u8FD9\u7EC4 DIP \u5F15\u811A\u4E0E\u5B9E\u9A8C\u6750\u6599\u4E00\u81F4" },
-    "74LS00": { file: "sn74ls00", page: 3, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u975E\u95E8\u3002\u53EA\u6709\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\uFF0C\u8F93\u51FA\u624D\u662F 0\u3002\u8BF7\u6309\u672C\u578B\u53F7\u7684\u811A\u540D\u63A5\u7EBF" },
-    "74LS08": { file: "sn74ls08", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\u8F93\u51FA 1\uFF0C\u5176\u4F59\u60C5\u51B5\u8F93\u51FA 0" },
-    "74LS32": { file: "sn74ls32", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u6216\u95E8\u3002\u81F3\u5C11\u4E00\u4E2A\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 1" },
-    "74LS04": { file: "sn74ls04", page: 1, summary: "\u5B83\u5305\u542B\u516D\u4E2A\u72EC\u7ACB\u7684\u975E\u95E8\u3002\u8F93\u5165\u4E3A 0 \u65F6\u8F93\u51FA 1\uFF0C\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 0" }
-  };
-  for (const model of Object.keys(DOCUMENT_REFERENCES)) {
-    CHIP_REFERENCES[model] = DOCUMENT_REFERENCES[model];
-  }
-
   // src/workspace.mjs
   var WORKSPACE_KEY = "breadboard-lab-workspace-v1";
   var READ_ONLY_KEY = "breadboard-lab-read-only";
@@ -6492,14 +8471,45 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.1.0";
+  var APP_VERSION = "1.2.0";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs
-  var SETTINGS = { historyLimit: 80, toastDuration: 6e3, zoomMinimum: 0.15, zoomMaximum: 2, zoomStep: 0.15, wheelSpeed: 15e-4 };
-  var state = { project: emptyProject(), runtime: createRuntime(), result: null, tool: "wire", wireColor: WIRE_COLORS[1], selected: null, pinnedChip: "", placing: "", pending: null, pointer: null, hovered: "", showInternals: false, showLevels: false, zoom: 1, targetZoom: 1, undo: [], redo: [], activeTab: "inspect", notesEditing: false, previousIssues: /* @__PURE__ */ new Set(), saveFailed: false, visual: { switches: [], leds: {}, internals: 0 } };
+  var SETTINGS = {
+    historyLimit: 80,
+    zoomMinimum: 0.15,
+    zoomMaximum: 2,
+    zoomStep: 0.15,
+    wheelSpeed: 15e-4
+  };
+  var PULSE_SETTINGS = { feedbackDuration: 160 };
+  var state = {
+    project: emptyProject(),
+    runtime: createRuntime(),
+    result: null,
+    tool: "wire",
+    wireColor: WIRE_COLORS[1],
+    selected: null,
+    selection: [],
+    pinnedChip: "",
+    placing: "",
+    pending: null,
+    pointer: null,
+    hovered: "",
+    showInternals: false,
+    showLevels: false,
+    zoom: 1,
+    targetZoom: 1,
+    undo: [],
+    redo: [],
+    activeTab: "inspect",
+    notesEditing: false,
+    previousIssues: /* @__PURE__ */ new Set(),
+    saveFailed: false,
+    pressedPulse: "",
+    visual: { switches: [], leds: {}, internals: 0 }
+  };
   var endpoints = allEndpoints();
-  var toastCounter = 0;
   var canvas = null;
   var zoomAnchor = null;
   var lastPinnedChip = "";
@@ -6522,10 +8532,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var heldPulse = "";
   var pulseTimer = 0;
   var recentAction = "";
-  var PULSE_SETTINGS = { feedbackDuration: 160 };
-  state.pressedPulse = "";
+  var routingBusy = false;
   var expandedSelection = /* @__PURE__ */ new Set();
-  state.selection = [];
   function updateClock() {
     element("app-version").textContent = "v" + APP_VERSION;
     element("current-time").textContent = new Intl.DateTimeFormat("zh-CN", CLOCK_SETTINGS).format(/* @__PURE__ */ new Date());
@@ -6554,10 +8562,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       event.returnValue = "";
     }
   }
-  function confirmAction(title, message, action) {
+  function confirmAction(title, message, action, acceptLabel = "\u786E\u8BA4\u5220\u9664", destructive = true) {
     confirmationAction = action;
     element("confirm-title").textContent = title;
     element("confirm-message").textContent = message;
+    const accept = element("confirm-accept");
+    accept.textContent = acceptLabel;
+    accept.classList.toggle("danger", destructive);
+    accept.classList.toggle("primary", !destructive);
     element("confirm-dialog").showModal();
     element("confirm-cancel").focus();
   }
@@ -6678,82 +8690,55 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     render();
   }
-  function element(id) {
-    return document.getElementById(id);
-  }
-  function node(tag, text2, className) {
-    const result = document.createElement(tag);
-    result.textContent = text2;
-    if (className !== "") {
-      result.className = className;
+  function requestWireRouting() {
+    if (editingLocked()) {
+      return;
     }
-    return result;
-  }
-  function icon(name) {
-    const result = document.createElement("i");
-    result.dataset.lucide = name;
-    result.setAttribute("aria-hidden", "true");
-    return result;
-  }
-  function refreshIcons() {
-    if (window.lucide) {
-      window.lucide.createIcons();
+    if (routingBusy) {
+      return;
     }
-  }
-  function removeToast(id) {
-    const item = element(id);
-    if (item) {
-      window.clearTimeout(Number(item.dataset.timer));
-      item.classList.add("leaving");
-      window.setTimeout(detachToast.bind(null, id), MOTION.toastDuration);
+    if (state.project.wires.length === 0) {
+      toast("\u5F53\u524D\u5B9E\u9A8C\u8FD8\u6CA1\u6709\u5BFC\u7EBF", "info");
+      return;
     }
+    confirmAction("\u6574\u7406\u8D70\u7EBF\uFF1F", "\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u7535\u8DEF\u7684\u5BFC\u7EBF\u8DEF\u5F84\uFF0C\u7ED5\u5F00\u82AF\u7247\u5E76\u51CF\u5C11\u91CD\u53E0\uFF1B\u63A5\u7EBF\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\u4FDD\u6301\u4E0D\u53D8\u3002\u624B\u52A8\u8F6C\u6298\u70B9\u5C06\u88AB\u66FF\u6362\uFF0C\u4F60\u53EF\u4EE5\u64A4\u9500\u8FD9\u6B21\u6574\u7406", applyWireRouting, "\u786E\u8BA4\u6574\u7406", false);
   }
-  function detachToast(id) {
-    const item = element(id);
-    if (item) {
-      item.remove();
+  async function applyWireRouting() {
+    const experiment = activeExperiment;
+    const signature = JSON.stringify(state.project);
+    const candidate = copyProject(state.project);
+    routingBusy = true;
+    render();
+    try {
+      if (!restorePresetRoutes(candidate)) {
+        const routes = await routeWires(candidate);
+        for (const wire of candidate.wires) {
+          wire.bends = routes[wire.id];
+        }
+      }
+      if (activeExperiment !== experiment || JSON.stringify(state.project) !== signature || readOnly) {
+        toast("\u5B9E\u9A8C\u5DF2\u5207\u6362\u6216\u4FEE\u6539\uFF0C\u672C\u6B21\u6574\u7406\u7ED3\u679C\u672A\u5E94\u7528", "info");
+        return;
+      }
+      validateProject(candidate);
+      remember();
+      state.project = candidate;
+      state.pending = null;
+      state.placing = "";
+      state.tool = "select";
+      commit();
+      toast("\u8D70\u7EBF\u5DF2\u6574\u7406\uFF0C\u7535\u6C14\u8FDE\u63A5\u4FDD\u6301\u4E0D\u53D8", "info");
+    } catch (error) {
+      toast("\u539F\u63A5\u7EBF\u5DF2\u4FDD\u7559\uFF0C" + error.message, "warning");
+    } finally {
+      routingBusy = false;
+      render();
     }
-  }
-  function closeToast(event) {
-    const toast2 = event.currentTarget.closest(".toast");
-    removeToast(toast2.id);
-  }
-  function pauseToast(event) {
-    window.clearTimeout(Number(event.currentTarget.dataset.timer));
-  }
-  function resumeToast(event) {
-    const toast2 = event.currentTarget;
-    toast2.dataset.timer = String(window.setTimeout(removeToast.bind(null, toast2.id), SETTINGS.toastDuration));
   }
   function toast(message, kind) {
-    toastCounter = toastCounter + 1;
-    const item = node("div", "", "toast " + kind);
-    item.id = "toast-" + toastCounter;
-    item.setAttribute("role", "status");
-    let symbol = "circle-alert";
-    if (kind === "info") {
-      symbol = "info";
-    } else if (kind === "warning") {
-      symbol = "triangle-alert";
-    }
-    item.append(icon(symbol), node("span", message, ""));
-    const close = node("button", "", "icon-button");
-    close.setAttribute("aria-label", "\u5173\u95ED\u63D0\u793A");
-    close.append(icon("x"));
-    close.addEventListener("click", closeToast);
-    item.append(close);
-    item.addEventListener("mouseenter", pauseToast);
-    item.addEventListener("mouseleave", resumeToast);
-    item.addEventListener("focusin", pauseToast);
-    item.addEventListener("focusout", resumeToast);
-    element("toast-region").append(item);
-    item.dataset.timer = String(window.setTimeout(removeToast.bind(null, item.id), SETTINGS.toastDuration));
-    while (element("toast-region").children.length > 4) {
-      element("toast-region").firstElementChild.remove();
-    }
+    showToast(message, kind);
     recentAction = message;
     updateActionStatus();
-    refreshIcons();
   }
   function remember() {
     state.undo.push(copyProject(state.project));
@@ -6927,7 +8912,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       button.setAttribute("aria-label", "\u67E5\u770B " + model + " " + specification.title);
       button.setAttribute("aria-pressed", String(catalogModel === model));
       const description = node("span", "", "");
-      description.append(node("strong", model, ""), node("small", specification.title + " \xB7 DIP-" + specification.count, ""));
+      const subtitle = node("small", "", "");
+      subtitle.append(document.createTextNode(specification.title + " \xB7 "), node("span", "DIP-" + specification.count, "chip-package"));
+      description.append(node("strong", model, ""), subtitle);
       button.append(icon("microchip"), description);
       button.addEventListener("click", chooseChip);
       container.append(button);
@@ -6944,17 +8931,28 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (catalogModel === model) {
       catalogModel = "";
       state.placing = "";
+      if (state.tool === "place") {
+        state.tool = "select";
+      }
       renderLibrary();
       render();
       return;
     }
     catalogModel = model;
     state.placing = "";
+    if (!readOnly) {
+      state.placing = model;
+    }
+    ignoreClick = false;
+    drag = null;
     state.selected = null;
     state.selection = [];
     state.pinnedChip = "";
     state.pending = null;
-    state.tool = "select";
+    state.tool = "place";
+    if (readOnly) {
+      state.tool = "select";
+    }
     state.activeTab = "inspect";
     renderLibrary();
     render();
@@ -6964,7 +8962,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       return;
     }
     state.placing = catalogModel;
-    state.tool = "select";
+    state.tool = "place";
+    ignoreClick = false;
     state.pending = null;
     render();
   }
@@ -6995,6 +8994,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     catalogModel = "";
     selectTarget({ kind: "chip", id: chip.id }, false);
     state.placing = "";
+    state.tool = "select";
     renderLibrary();
     commit();
   }
@@ -7121,6 +9121,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function pointerDown(event) {
+    if (state.placing !== "" || state.tool === "place") {
+      return;
+    }
     const target = hitTest(canvasPoint(event), state, endpoints);
     if (target && target.kind === "pulse" && event.button === 0) {
       startPulse(target.id);
@@ -7245,10 +9248,21 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.pending = null;
     state.placing = "";
     catalogModel = "";
+    if (state.tool === "place") {
+      state.tool = "select";
+    }
     renderLibrary();
     render();
   }
   function chooseTool(event) {
+    if (event.currentTarget.id === "tool-place") {
+      if (catalogModel === "") {
+        toast("\u8BF7\u5148\u4ECE\u5DE6\u4FA7\u5668\u4EF6\u5E93\u9009\u62E9\u82AF\u7247", "info");
+        return;
+      }
+      placeCatalogChip();
+      return;
+    }
     state.tool = event.currentTarget.id.slice(5);
     state.pending = null;
     state.placing = "";
@@ -7352,6 +9366,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         chips.push(chip);
       } else {
         delete state.runtime.registers[chip.id];
+        delete state.runtime.devices[chip.id];
       }
     }
     state.project.wires = wires;
@@ -7468,6 +9483,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.runtime = createRuntime();
     state.pending = null;
     state.placing = "";
+    if (state.tool === "place") {
+      state.tool = "select";
+    }
     state.selected = null;
     catalogModel = "";
     state.selection = [];
@@ -7638,8 +9656,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     changeZoom(state.targetZoom * scale, anchor);
   }
   function fitBoard() {
-    const width = element("board-viewport").clientWidth - 36;
-    changeZoom(width / BOARD.width, null);
+    const width2 = element("board-viewport").clientWidth - 36;
+    changeZoom(width2 / BOARD.width, null);
   }
   function zoomIn() {
     changeZoom(state.targetZoom + SETTINGS.zoomStep, null);
@@ -7687,6 +9705,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function inspectPin(event) {
     state.selected = { kind: "node", id: event.currentTarget.dataset.endpoint };
+    state.selection = [];
     render();
   }
   function renderChipPanel(container, chip) {
@@ -7733,37 +9752,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     container.append(controls);
     appendChipPinTable(container, chip);
   }
-  function appendChipReference(container, chip) {
-    const reference = CHIP_REFERENCES[chip.model];
-    const figure = node("figure", "", "chip-reference");
-    const imageLink = node("a", "", "");
-    let imagePath = "assets/pinouts/" + reference.file + ".png";
-    if (reference.image) {
-      imagePath = reference.image;
-    }
-    imageLink.href = imagePath;
-    imageLink.target = "_blank";
-    imageLink.rel = "noopener";
-    const image = document.createElement("img");
-    image.src = imageLink.href;
-    image.alt = chip.model + " DIP \u5F15\u811A\u56FE";
-    imageLink.append(image);
-    let caption = "\u539F\u5382\u9876\u89C6\u56FE\uFF1A\u7F3A\u53E3\u671D\u4E0A\uFF1B\u753B\u5E03\u4E2D\u7684\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6";
-    let sourceLabel = "TI \u6570\u636E\u624B\u518C \xB7 \u7B2C " + reference.page + " \u9875";
-    if (reference.image) {
-      caption = "\u7528\u6237\u6750\u6599\u4E2D\u7684\u5F15\u811A\u56FE\uFF1B\u5B89\u88C5\u65F6\u8BF7\u6309\u7269\u7406\u811A\u53F7\u6838\u5BF9";
-      sourceLabel = "\u67E5\u770B\u6750\u6599\u4E2D\u7684\u903B\u8F91\u7B26\u53F7";
-    }
-    figure.append(imageLink, node("figcaption", caption, ""));
-    const source = node("a", sourceLabel, "datasheet-link");
-    source.href = "assets/datasheets/" + reference.file + ".pdf#page=" + reference.page;
-    if (reference.logicImage) {
-      source.href = reference.logicImage;
-    }
-    source.target = "_blank";
-    source.rel = "noopener";
-    container.append(figure, source, node("p", reference.summary, "chip-summary"));
-  }
   function appendChipPinTable(container, chip) {
     const table = node("table", "", "pin-table");
     const head = document.createElement("tr");
@@ -7798,6 +9786,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     chip.column = candidate.column;
     lastPinnedChip = "";
     delete state.runtime.registers[chip.id];
+    delete state.runtime.devices[chip.id];
     commit();
   }
   function renderInspection() {
@@ -8132,6 +10121,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.pinnedChip = "";
     if (state.selected && state.selected.kind === "chip") {
       state.selected = null;
+      state.selection = [];
     }
     render();
   }
@@ -8307,15 +10297,17 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     element("read-only-toggle").checked = readOnly;
     element("project-name").readOnly = readOnly;
-    for (const id of ["tool-wire", "tool-delete", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
+    for (const id of ["tool-place", "tool-wire", "tool-delete", "arrange-wires", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
       element(id).disabled = readOnly;
     }
+    element("arrange-wires").disabled = readOnly || routingBusy;
+    element("arrange-wires").setAttribute("aria-busy", String(routingBusy));
     element("project-name").value = state.project.name;
     element("power-toggle").checked = state.project.power;
     element("undo").disabled = readOnly || state.undo.length === 0;
     element("redo").disabled = readOnly || state.redo.length === 0;
     element("cancel-wire").disabled = !state.pending && state.placing === "";
-    for (const name of ["wire", "select", "delete"]) {
+    for (const name of ["place", "wire", "select", "delete"]) {
       const active = state.tool === name;
       element("tool-" + name).classList.toggle("selected", active);
       element("tool-" + name).setAttribute("aria-pressed", String(active));
@@ -8367,11 +10359,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("action-status").textContent = message;
   }
   function showHelp() {
-    const paragraphs = element("help-dialog").querySelectorAll(".dialog-body p");
-    paragraphs[0].textContent = "\u4F60\u53EF\u4EE5\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u65B0\u5EFA\u72EC\u7ACB\u5B9E\u9A8C\uFF0C\u6216\u5207\u56DE\u5DF2\u4FDD\u5B58\u7684\u5B9E\u9A8C\u3002\u8F93\u5165\u548C\u8F93\u51FA\u5404\u53EF\u663E\u793A 1\uFF5E24 \u4F4D\uFF0C\u7AEF\u53E3\u4F5C\u7528\u53EF\u4EE5\u5199\u5728 Markdown \u5907\u6CE8\u91CC";
-    paragraphs[1].textContent = "\u70B9\u51FB\u5668\u4EF6\u5E93\u4E2D\u7684\u82AF\u7247\u5148\u67E5\u770B\u529F\u80FD\u548C\u5F15\u811A\u56FE\uFF0C\u518D\u70B9\u51FB\u201C\u653E\u7F6E\u82AF\u7247\u201D\u9009\u62E9\u5B89\u88C5\u4F4D\u7F6E\u3002\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6\uFF0C\u8DE8 E/F \u6C9F\u69FD\u3002\u63A5\u7EBF\u65F6\u4F9D\u6B21\u9009\u62E9\u8D77\u70B9\u548C\u7EC8\u70B9\uFF0C\u70B9\u51FB\u7A7A\u767D\u53EF\u589E\u52A0\u8F6C\u6298\u70B9\uFF0C\u6309 Esc \u53D6\u6D88";
-    paragraphs[6].textContent = "\u8865\u7801\u793A\u4F8B\u4E2D\uFF0CK0\uFF5EK3 \u662F\u6570\u503C\u4F4D\uFF0CK4 \u662F\u7B26\u53F7\u4F4D\uFF0CK5 \u4E3A 0 \u65F6\u52A0\u30011 \u65F6\u51CF\u3002\u4F60\u628A K6 \u5207\u5230 0 \u518D\u5207\u56DE 1 \u5373\u53EF\u6E05\u96F6\u3002\u6309\u4F4F P\u2212 \u540E\u677E\u5F00\uFF0C\u5BC4\u5B58\u5668\u5728\u6062\u590D\u4E0A\u5347\u6CBF\u4FDD\u5B58\u7ED3\u679C\u3002L5\u3001L4 \u662F\u4E24\u4E2A\u7B26\u53F7\u4F4D\uFF0CL6 \u6307\u793A\u6EA2\u51FA";
-    paragraphs[paragraphs.length - 1].textContent = "\u5FEB\u6377\u952E\uFF1ACtrl+Z \u64A4\u9500\uFF0CCtrl+Shift+Z \u91CD\u505A\uFF0CDelete \u8BF7\u6C42\u5220\u9664\u9009\u4E2D\u5BF9\u8C61\uFF0CCtrl+S \u53EA\u4FDD\u5B58\u5F53\u524D\u5B9E\u9A8C\u3002\u4F60\u53EF\u4EE5\u6309\u4F4F Ctrl \u591A\u9009\u5668\u4EF6\u548C\u5BFC\u7EBF\uFF0C\u5728\u9009\u62E9\u6A21\u5F0F\u4E0B\u62D6\u52A8\u5BFC\u7EBF\u7AEF\u70B9\u6216\u8F6C\u6298\u70B9\u3002\u81EA\u52A8\u4FDD\u5B58\u9ED8\u8BA4\u5173\u95ED\uFF1B\u6709\u672A\u4FDD\u5B58\u5185\u5BB9\u65F6\uFF0C\u5173\u95ED\u6216\u5237\u65B0\u9875\u9762\u4F1A\u663E\u793A\u6D4F\u89C8\u5668\u79BB\u5F00\u786E\u8BA4\u3002\u4F60\u9009\u62E9\u7559\u5728\u9875\u9762\u540E\uFF0C\u53EF\u4EE5\u6309 Ctrl+S \u4FDD\u5B58";
     element("help-dialog").showModal();
     fadeContent(element("help-dialog"));
   }
@@ -8409,6 +10396,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function bindEvents() {
+    element("tool-place").addEventListener("click", chooseTool);
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
     canvas.addEventListener("pointercancel", cancelPointer);
@@ -8423,6 +10411,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("new-experiment").addEventListener("click", newProject);
     element("experiment-picker").addEventListener("change", switchExperiment);
     element("audit-preset").addEventListener("click", auditCurrentWiring);
+    element("arrange-wires").addEventListener("click", requestWireRouting);
     canvas.addEventListener("click", clickBoard);
     canvas.addEventListener("pointermove", movePointer);
     canvas.addEventListener("pointerleave", leaveBoard);

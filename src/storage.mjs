@@ -10,7 +10,7 @@ export function validateProject(value) {
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
         throw new Error("文件不是受支持的电路格式");
     }
-    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== 24) {
+    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
         throw new Error("电路规模超过限制，或按键数量不正确");
     }
     const project = emptyProject();
@@ -91,7 +91,7 @@ export function validateProject(value) {
         occupied.add(entry.to);
         identifiers.add(entry.id);
     }
-    for (let index = 0; index < 24; index = index + 1) {
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
         if (value.switches[index] !== 0 && value.switches[index] !== 1) {
             throw new Error("按键状态必须是 0 或 1");
         }

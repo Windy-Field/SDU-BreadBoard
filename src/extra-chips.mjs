@@ -1,19 +1,186 @@
 // 新增型号严格使用用户材料中的物理脚号；已有型号由 chips.mjs 原样保留
 export const EXTRA_CHIPS = {
-    "74LS03": { title: "四路OC与非门", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "1Y", "2A", "2B", "2Y", "GND", "3Y", "3A", "3B", "4Y", "4A", "4B", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [3, 6, 8, 11], kind: "open-collector", gates: [[1, 2, 3], [4, 5, 6], [9, 10, 8], [12, 13, 11]] },
-    "74LS20": { title: "双四输入与非门", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "NC", "2A", "2B", "1Y", "GND", "2Y", "2C", "2D", "NC", "1C", "1D", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [6, 8], kind: "nand4", gates: [[1, 2, 12, 13, 6], [4, 5, 9, 10, 8]] },
-    "CD4011": { title: "四路CMOS与非门", count: 14, power: 14, ground: 7, labels: ["", "1A", "1B", "1Y", "2Y", "2A", "2B", "VSS", "3A", "3B", "3Y", "4Y", "4A", "4B", "VDD"], inputs: [1, 2, 5, 6, 8, 9, 12, 13], outputs: [3, 4, 10, 11], kind: "cmos-nand", gates: [[1, 2, 3], [5, 6, 4], [8, 9, 10], [12, 13, 11]] },
-    "74LS125": { title: "四路三态缓冲门", count: 14, power: 14, ground: 7, labels: ["", "1G′", "1A", "1Y", "2G′", "2A", "2Y", "GND", "3Y", "3A", "3G′", "4Y", "4A", "4G′", "VCC"], inputs: [1, 2, 4, 5, 9, 10, 12, 13], outputs: [3, 6, 8, 11], kind: "tristate", gates: [[1, 2, 3], [4, 5, 6], [10, 9, 8], [13, 12, 11]] },
-    "74LS138": { title: "三线八线译码器", count: 16, power: 16, ground: 8, labels: ["", "A0", "A1", "A2", "S3′(G2A′)", "S2′(G2B′)", "S1(G1)", "Y7′", "GND", "Y6′", "Y5′", "Y4′", "Y3′", "Y2′", "Y1′", "Y0′", "VCC"], inputs: [1, 2, 3, 4, 5, 6], outputs: [15, 14, 13, 12, 11, 10, 9, 7], kind: "decoder8" },
-    "74LS139": { title: "双二线四线译码器", count: 16, power: 16, ground: 8, labels: ["", "1G′", "1A", "1B", "1Y0′", "1Y1′", "1Y2′", "1Y3′", "GND", "2Y3′", "2Y2′", "2Y1′", "2Y0′", "2B", "2A", "2G′", "VCC"], inputs: [1, 2, 3, 13, 14, 15], outputs: [4, 5, 6, 7, 12, 11, 10, 9], kind: "dual-decoder" },
-    "74LS151": { title: "八选一数据选择器", count: 16, power: 16, ground: 8, labels: ["", "D3", "D2", "D1", "D0", "Y", "W′(Y′)", "G′", "GND", "C", "B", "A", "D7", "D6", "D5", "D4", "VCC"], inputs: [1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15], outputs: [5, 6], kind: "mux8" },
-    "74LS153": { title: "双四选一数据选择器", count: 16, power: 16, ground: 8, labels: ["", "1G′", "B", "1C3", "1C2", "1C1", "1C0", "1Y", "GND", "2Y", "2C0", "2C1", "2C2", "2C3", "A", "2G′", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15], outputs: [7, 9], kind: "dual-mux" },
-    "74LS85": { title: "四位数值比较器", count: 16, power: 16, ground: 8, labels: ["", "B3", "A<B输入", "A=B输入", "A>B输入", "A>B", "A=B", "A<B", "GND", "B0", "A0", "B1", "A1", "B2", "A2", "A3", "VCC"], inputs: [1, 2, 3, 4, 9, 10, 11, 12, 13, 14, 15], outputs: [5, 6, 7], kind: "comparator" },
-    "74LS48": { title: "BCD七段译码器", count: 16, power: 16, ground: 8, labels: ["", "B", "C", "LT′", "BI′/RBO′", "RBI′", "D", "A", "GND", "e", "d", "c", "b", "a", "g", "f", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7], outputs: [13, 12, 11, 10, 9, 15, 14, 4], bidirectional: [4], kind: "seven-segment" },
-    "74LS74": { title: "双D触发器", count: 14, power: 14, ground: 7, labels: ["", "1RD′", "1D", "1CP", "1SD′", "1Q", "1Q′", "GND", "2Q′", "2Q", "2SD′", "2CP", "2D", "2RD′", "VCC"], inputs: [1, 2, 3, 4, 10, 11, 12, 13], outputs: [5, 6, 9, 8], sequential: "flipflop", edge: "rising", channels: [{ reset: 1, set: 4, clock: 3, data: 2, output: 5, inverted: 6 }, { reset: 13, set: 10, clock: 11, data: 12, output: 9, inverted: 8 }] },
-    "74LS112": { title: "双JK下降沿触发器", count: 16, power: 16, ground: 8, labels: ["", "1CP", "1K", "1J", "1SD′", "1Q", "1Q′", "2Q", "GND", "2Q′", "2SD′", "2J", "2K", "2CP", "2RD′", "1RD′", "VCC"], inputs: [1, 2, 3, 4, 10, 11, 12, 13, 14, 15], outputs: [5, 6, 7, 9], sequential: "flipflop", edge: "falling", channels: [{ reset: 15, set: 4, clock: 1, first: 3, second: 2, output: 5, inverted: 6 }, { reset: 14, set: 10, clock: 13, first: 11, second: 12, output: 7, inverted: 9 }] },
-    "CD4027": { title: "双JK上升沿触发器", count: 16, power: 16, ground: 8, labels: ["", "Q2", "Q2′", "CLK2", "RESET2", "K2", "J2", "SET2", "VSS", "SET1", "J1", "K1", "RESET1", "CLK1", "Q1′", "Q1", "VDD"], inputs: [3, 4, 5, 6, 7, 9, 10, 11, 12, 13], outputs: [15, 14, 1, 2], sequential: "flipflop", edge: "rising", activeHigh: true, channels: [{ reset: 12, set: 9, clock: 13, first: 10, second: 11, output: 15, inverted: 14 }, { reset: 4, set: 7, clock: 3, first: 6, second: 5, output: 1, inverted: 2 }] },
-    "74LS160": { title: "同步十进制计数器", count: 16, power: 16, ground: 8, labels: ["", "CLR′", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD′", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10], outputs: [14, 13, 12, 11, 15], sequential: "counter", modulus: 10 },
-    "74LS161": { title: "同步二进制计数器", count: 16, power: 16, ground: 8, labels: ["", "CLR′", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD′", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10], outputs: [14, 13, 12, 11, 15], sequential: "counter", modulus: 16 },
-    "74LS194": { title: "四位双向移位寄存器", count: 16, power: 16, ground: 8, labels: ["", "CLR′", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"], inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11], outputs: [12, 13, 14, 15], sequential: "shift" }
+    "74LS03": {
+        title: "四路OC与非门",
+        count: 14,
+        power: 14,
+        ground: 7,
+        labels: ["", "1A", "1B", "1Y", "2A", "2B", "2Y", "GND", "3Y", "3A", "3B", "4Y", "4A", "4B", "VCC"],
+        inputs: [1, 2, 4, 5, 9, 10, 12, 13],
+        outputs: [3, 6, 8, 11],
+        kind: "open-collector",
+        gates: [[1, 2, 3], [4, 5, 6], [9, 10, 8], [12, 13, 11]]
+    },
+    "74LS20": {
+        title: "双四输入与非门",
+        count: 14,
+        power: 14,
+        ground: 7,
+        labels: ["", "1A", "1B", "NC", "2A", "2B", "1Y", "GND", "2Y", "2C", "2D", "NC", "1C", "1D", "VCC"],
+        inputs: [1, 2, 4, 5, 9, 10, 12, 13],
+        outputs: [6, 8],
+        kind: "nand4",
+        gates: [[1, 2, 12, 13, 6], [4, 5, 9, 10, 8]]
+    },
+    "CD4011": {
+        title: "四路CMOS与非门",
+        count: 14,
+        power: 14,
+        ground: 7,
+        labels: ["", "1A", "1B", "1Y", "2Y", "2A", "2B", "VSS", "3A", "3B", "3Y", "4Y", "4A", "4B", "VDD"],
+        inputs: [1, 2, 5, 6, 8, 9, 12, 13],
+        outputs: [3, 4, 10, 11],
+        kind: "cmos-nand",
+        gates: [[1, 2, 3], [5, 6, 4], [8, 9, 10], [12, 13, 11]]
+    },
+    "74LS125": {
+        title: "四路三态缓冲门",
+        count: 14,
+        power: 14,
+        ground: 7,
+        labels: ["", "1G′", "1A", "1Y", "2G′", "2A", "2Y", "GND", "3Y", "3A", "3G′", "4Y", "4A", "4G′", "VCC"],
+        inputs: [1, 2, 4, 5, 9, 10, 12, 13],
+        outputs: [3, 6, 8, 11],
+        kind: "tristate",
+        gates: [[1, 2, 3], [4, 5, 6], [10, 9, 8], [13, 12, 11]]
+    },
+    "74LS138": {
+        title: "三线八线译码器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "A0", "A1", "A2", "S3′(G2A′)", "S2′(G2B′)", "S1(G1)", "Y7′", "GND", "Y6′", "Y5′", "Y4′", "Y3′", "Y2′", "Y1′", "Y0′", "VCC"],
+        inputs: [1, 2, 3, 4, 5, 6],
+        outputs: [15, 14, 13, 12, 11, 10, 9, 7],
+        kind: "decoder8"
+    },
+    "74LS139": {
+        title: "双二线四线译码器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "1G′", "1A", "1B", "1Y0′", "1Y1′", "1Y2′", "1Y3′", "GND", "2Y3′", "2Y2′", "2Y1′", "2Y0′", "2B", "2A", "2G′", "VCC"],
+        inputs: [1, 2, 3, 13, 14, 15],
+        outputs: [4, 5, 6, 7, 12, 11, 10, 9],
+        kind: "dual-decoder"
+    },
+    "74LS151": {
+        title: "八选一数据选择器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "D3", "D2", "D1", "D0", "Y", "W′(Y′)", "G′", "GND", "C", "B", "A", "D7", "D6", "D5", "D4", "VCC"],
+        inputs: [1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15],
+        outputs: [5, 6],
+        kind: "mux8"
+    },
+    "74LS153": {
+        title: "双四选一数据选择器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "1G′", "B", "1C3", "1C2", "1C1", "1C0", "1Y", "GND", "2Y", "2C0", "2C1", "2C2", "2C3", "A", "2G′", "VCC"],
+        inputs: [1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15],
+        outputs: [7, 9],
+        kind: "dual-mux"
+    },
+    "74LS85": {
+        title: "四位数值比较器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "B3", "A<B输入", "A=B输入", "A>B输入", "A>B", "A=B", "A<B", "GND", "B0", "A0", "B1", "A1", "B2", "A2", "A3", "VCC"],
+        inputs: [1, 2, 3, 4, 9, 10, 11, 12, 13, 14, 15],
+        outputs: [5, 6, 7],
+        kind: "comparator"
+    },
+    "74LS48": {
+        title: "BCD七段译码器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "B", "C", "LT′", "BI′/RBO′", "RBI′", "D", "A", "GND", "e", "d", "c", "b", "a", "g", "f", "VCC"],
+        inputs: [1, 2, 3, 4, 5, 6, 7],
+        outputs: [13, 12, 11, 10, 9, 15, 14, 4],
+        bidirectional: [4],
+        kind: "seven-segment"
+    },
+    "74LS74": {
+        title: "双D触发器",
+        count: 14,
+        power: 14,
+        ground: 7,
+        labels: ["", "1RD′", "1D", "1CP", "1SD′", "1Q", "1Q′", "GND", "2Q′", "2Q", "2SD′", "2CP", "2D", "2RD′", "VCC"],
+        inputs: [1, 2, 3, 4, 10, 11, 12, 13],
+        outputs: [5, 6, 9, 8],
+        sequential: "flipflop",
+        edge: "rising",
+        channels: [
+            { reset: 1, set: 4, clock: 3, data: 2, output: 5, inverted: 6 },
+            { reset: 13, set: 10, clock: 11, data: 12, output: 9, inverted: 8 }
+        ]
+    },
+    "74LS112": {
+        title: "双JK下降沿触发器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "1CP", "1K", "1J", "1SD′", "1Q", "1Q′", "2Q", "GND", "2Q′", "2SD′", "2J", "2K", "2CP", "2RD′", "1RD′", "VCC"],
+        inputs: [1, 2, 3, 4, 10, 11, 12, 13, 14, 15],
+        outputs: [5, 6, 7, 9],
+        sequential: "flipflop",
+        edge: "falling",
+        channels: [
+            { reset: 15, set: 4, clock: 1, first: 3, second: 2, output: 5, inverted: 6 },
+            { reset: 14, set: 10, clock: 13, first: 11, second: 12, output: 7, inverted: 9 }
+        ]
+    },
+    "CD4027": {
+        title: "双JK上升沿触发器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "Q2", "Q2′", "CLK2", "RESET2", "K2", "J2", "SET2", "VSS", "SET1", "J1", "K1", "RESET1", "CLK1", "Q1′", "Q1", "VDD"],
+        inputs: [3, 4, 5, 6, 7, 9, 10, 11, 12, 13],
+        outputs: [15, 14, 1, 2],
+        sequential: "flipflop",
+        edge: "rising",
+        activeHigh: true,
+        channels: [
+            { reset: 12, set: 9, clock: 13, first: 10, second: 11, output: 15, inverted: 14 },
+            { reset: 4, set: 7, clock: 3, first: 6, second: 5, output: 1, inverted: 2 }
+        ]
+    },
+    "74LS160": {
+        title: "同步十进制计数器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "CLR′", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD′", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"],
+        inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
+        outputs: [14, 13, 12, 11, 15],
+        sequential: "counter",
+        modulus: 10
+    },
+    "74LS161": {
+        title: "同步二进制计数器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "CLR′", "CP", "D0", "D1", "D2", "D3", "ENP", "GND", "LOAD′", "ENT", "Q3", "Q2", "Q1", "Q0", "RCO", "VCC"],
+        inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
+        outputs: [14, 13, 12, 11, 15],
+        sequential: "counter",
+        modulus: 16
+    },
+    "74LS194": {
+        title: "四位双向移位寄存器",
+        count: 16,
+        power: 16,
+        ground: 8,
+        labels: ["", "CLR′", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"],
+        inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11],
+        outputs: [12, 13, 14, 15],
+        sequential: "shift"
+    }
 };
