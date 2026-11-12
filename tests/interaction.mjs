@@ -42,6 +42,7 @@ async function clickPoint(page, point) {
 
 // 导出当前实验供断言，不依赖编译产物中的私有变量
 async function exportedProject(page) {
+    await page.waitForFunction(routingFinished);
     const waiting = page.waitForEvent("download");
     await page.locator("#export-project").click();
     const download = await waiting;
@@ -214,16 +215,12 @@ async function testPresetRouting(page) {
     const updated = await exportedProject(page);
     verifyDisplaySpacing(updated);
     const expectedRoutes = await routeWires(before, 45);
-    let sharedBefore = 0;
-    let sharedAfter = 0;
     for (const wire of updated.wires) {
         assert.deepEqual(wire.bends, expectedRoutes[wire.id]);
         assert.equal(wire.angle, 45);
     }
     assert.ok(checkWireAngles(updated) > 0);
-    sharedBefore = wiringMetrics(before).overlap;
-    sharedAfter = wiringMetrics(updated).overlap;
-    assert.ok(sharedAfter <= sharedBefore * 20, "重复走线只允许轻微错开，不能增加大量绕行");
+    assert.equal(wiringMetrics(updated).chipCrossings, 0);
     await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "preset-fewer-corners.png"), fullPage: true });
     assert.equal(updated.notes, before.notes);
     assert.deepEqual(updated.chips, before.chips);
@@ -236,43 +233,17 @@ async function testPresetRouting(page) {
     await page.locator("#read-only-toggle").uncheck();
 }
 
-// 页面显示的重叠错开不会写入文件，且显示路径两端仍对应真实插孔
+// 页面显示与保存路径保持一致，两端仍对应真实插孔
 function verifyDisplaySpacing(project) {
     const original = structuredClone(project.wires);
     const paths = wireDisplayPaths(project.wires);
     assert.deepEqual(project.wires, original);
-    const basePaths = [];
-    for (let index = 0; index < project.wires.length; index = index + 1) {
-        basePaths.push(wirePoints(project.wires[index], index));
-    }
     for (let index = 0; index < project.wires.length; index = index + 1) {
         const wire = project.wires[index];
         assert.deepEqual(paths[index][0], endpointPosition(wire.from));
         assert.deepEqual(paths[index][paths[index].length - 1], endpointPosition(wire.to));
-        for (let segment = 1; segment < paths[index].length; segment = segment + 1) {
-            const horizontal = Math.abs(paths[index][segment].x - paths[index][segment - 1].x);
-            const vertical = Math.abs(paths[index][segment].y - paths[index][segment - 1].y);
-            if (horizontal > 0 && vertical > 0) {
-                const shortDisplayConnector = horizontal <= 8 && vertical <= 8;
-                const existingPathSegment = hasSegment(basePaths[index], paths[index][segment - 1], paths[index][segment]);
-                assert.ok(shortDisplayConnector || existingPathSegment, "显示偏移不能拉出长斜线");
-            }
-        }
+        assert.deepEqual(paths[index], wirePoints(wire, index));
     }
-}
-
-// 检查这条斜线是否原本就存在于保存路径中
-function hasSegment(points, first, last) {
-    for (let index = 1; index < points.length; index = index + 1) {
-        const previous = points[index - 1];
-        const current = points[index];
-        const matchesForward = previous.x === first.x && previous.y === first.y && current.x === last.x && current.y === last.y;
-        const matchesBackward = previous.x === last.x && previous.y === last.y && current.x === first.x && current.y === first.y;
-        if (matchesForward || matchesBackward) {
-            return true;
-        }
-    }
-    return false;
 }
 
 // 整理成功和失败时等待 Toast 都能消失，成功提示继续保留

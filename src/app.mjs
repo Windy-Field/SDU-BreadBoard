@@ -6,7 +6,8 @@ import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, e
 import { CHIP_MODELS } from "./chips.mjs";
 import { createRuntime, readEndpoint, simulate } from "./engine.mjs";
 import { complementPreset } from "./presets.mjs";
-import { routeWires } from "./routing.mjs";
+import { routeWires, routeNewWire } from "./routing.mjs";
+import { initializeRouting } from "./routing-runtime.mjs";
 import { DRAW, allEndpoints, renderBoard } from "./render.mjs";
 import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint } from "./geometry.mjs";
 import { LIMITS, STORAGE_KEY, validateProject } from "./storage.mjs";
@@ -298,7 +299,7 @@ function requestWireRouting() {
         toast("当前实验还没有导线", "info");
         return;
     }
-    confirmAction("整理走线？", "程序会先减少拐角，再在相同拐角数下减少重叠、整理间距，并绕开芯片；起点、终点、线色和备注保持不变。手动转折点将被替换，你可以撤销这次整理", applyWireRouting, "确认整理", false);
+    confirmAction("整理走线？", "libavoid 会避开芯片，综合调整拐角、交叉和线间距；起点、终点、线色和备注保持不变。手动转折点将被替换，你可以撤销这次整理", applyWireRouting, "确认整理", false);
 }
 
 // 完成全部寻路后一次替换路径，计算期间切换或编辑实验时放弃本次结果
@@ -311,7 +312,7 @@ async function applyWireRouting() {
     routingToastId = showToast("正在整理走线，请稍候", "info", true);
     render();
     try {
-        // 所有实验使用同一套拐角优先规则，示例也不绕过整理
+        // 所有实验与逐根接线共用 libavoid 引擎
         const routes = await routeWires(candidate, angle);
         for (const wire of candidate.wires) {
             wire.bends = routes[wire.id];
@@ -497,9 +498,13 @@ function occupied(name) {
     return false;
 }
 
-// 在两个合法空孔之间增加导线，返回是否连接成功
-function connectWire(first, second, bends) {
+// 在两个合法空孔之间自动避障接线，计算成功后一次提交并保留撤销记录
+async function connectWire(first, second, bends) {
     if (editingLocked()) {
+        return false;
+    }
+    if (routingBusy) {
+        toast("正在计算走线，请稍候", "info");
         return false;
     }
     if (!isPhysicalHole(first) || !isPhysicalHole(second)) {
@@ -518,15 +523,39 @@ function connectWire(first, second, bends) {
         toast("导线数量已达到此版本的上限", "error");
         return false;
     }
-    remember();
     const wire = { id: nextId(state.project.wires, "W"), from: first, to: second, color: state.wireColor, bends: bends };
-    if (state.wireAngle === 45) {
+    const angle = state.wireAngle;
+    if (angle === 45) {
         wire.angle = 45;
     }
-    state.project.wires.push(wire);
-    state.pending = null;
-    commit();
-    return true;
+    const experiment = activeExperiment;
+    const signature = JSON.stringify(state.project);
+    const candidate = copyProject(state.project);
+    routingBusy = true;
+    const waiting = showToast("正在计算新导线，请稍候", "info", true);
+    render();
+    try {
+        wire.bends = await routeNewWire(candidate, wire, angle);
+        if (activeExperiment !== experiment || JSON.stringify(state.project) !== signature || readOnly) {
+            toast("实验已切换或修改，本次接线未应用", "info");
+            return false;
+        }
+        const completed = copyProject(candidate);
+        completed.wires.push(wire);
+        validateProject(completed);
+        remember();
+        state.project = completed;
+        state.pending = null;
+        commit();
+        return true;
+    } catch (error) {
+        toast("接线未完成，" + error.message, "warning");
+        return false;
+    } finally {
+        dismissToast(waiting);
+        routingBusy = false;
+        render();
+    }
 }
 
 // 切换后续接线与整理使用的角度，已有导线保持当前路径
@@ -2169,6 +2198,7 @@ function render() {
         element(id).disabled = readOnly;
     }
     element("arrange-wires").disabled = readOnly || routingBusy;
+    element("connect-endpoints").disabled = readOnly || routingBusy;
     element("arrange-wires").setAttribute("aria-busy", String(routingBusy));
     element("project-name").value = state.project.name;
     element("power-toggle").checked = state.project.power;
@@ -2394,12 +2424,18 @@ function start() {
     refreshIcons();
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);
+    initializeRouting().catch(reportRoutingLoadError);
     if (loadError !== "") {
         toast(loadError, "warning");
     }
     if (removedCount > 0) {
         toast("已整理 " + removedCount + " 份重复空白或补码实验，整理前的列表已备份", "info");
     }
+}
+
+// 引擎初始化失败时保留原实验，用户仍可以查看、保存和导出
+function reportRoutingLoadError() {
+    toast("布线引擎加载失败，请检查离线包是否完整并刷新页面", "warning");
 }
 
 start();

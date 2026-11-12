@@ -1,7 +1,6 @@
 import { BOARD, PORT_LAYOUT, IO_LIMIT, endpointPosition, rowY } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 import { angleWirePath } from "./wire-path.mjs";
-import { wireDisplayPoints } from "./wire-display.mjs";
 
 // 鼠标命中和拖动吸附范围，单位为画布逻辑像素
 const PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
@@ -42,17 +41,13 @@ export function wirePoints(wire, index) {
     return points;
 }
 
-// 为整组导线计算统一的显示路径，使重叠错开后仍能准确绘制和选中
+// 绘制、命中和拖动共用保存路径，不再额外偏移画布上的导线
 export function wireDisplayPaths(wires) {
     const basePaths = [];
     for (let index = 0; index < wires.length; index = index + 1) {
         basePaths.push(wirePoints(wires[index], index));
     }
-    const displayPaths = [];
-    for (let index = 0; index < basePaths.length; index = index + 1) {
-        displayPaths.push(wireDisplayPoints(basePaths[index], index, basePaths));
-    }
-    return displayPaths;
+    return basePaths;
 }
 
 // 计算点到线段的距离，供导线选择使用

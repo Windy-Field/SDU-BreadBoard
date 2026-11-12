@@ -1,4 +1,4 @@
-import { chipBounds, wirePoints, wireDisplayPaths, objectSelected } from "./geometry.mjs";
+import { chipBounds, wireDisplayPaths, objectSelected } from "./geometry.mjs";
 import { angleWirePath } from "./wire-path.mjs";
 import { BOARD, PORT_LAYOUT, RAIL_LAYOUT, IO_LIMIT, ROWS, BUS_ROWS, BUS_SEGMENTS, busHasHole, isInputColumn, endpointPosition, portHole, holeId, pinHole, rowY } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";

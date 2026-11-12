@@ -85,6 +85,7 @@ async function testOfflinePackage() {
         }
         browser = await chromium.launch({ headless: true, channel: "msedge" });
         const page = await browser.newPage();
+        await page.context().setOffline(true);
         const errors = [];
         page.on("pageerror", collectError.bind(null, errors));
         await page.goto(pathToFileURL(path.join(packageRoot, "index.html")).href);
@@ -106,14 +107,23 @@ async function testOfflinePackage() {
         await page.locator("#export-project").click();
         const download = await downloadEvent;
         assert.equal(download.suggestedFilename(), "breadboard-circuit.json");
+        await page.locator("#from-endpoint").fill("B0:A:1");
+        await page.locator("#to-endpoint").fill("B0:A:2");
+        await page.locator("#connect-endpoints").click();
+        await page.waitForFunction(offlineWireReady);
         assert.deepEqual(errors, []);
-        console.log("离线包验证通过：解压后直接打开、favicon、芯片引脚图、清零、脉冲运算和电路导出");
+        console.log("离线包验证通过：断网直接打开、芯片引脚图、脉冲运算、导出及 libavoid 新增接线");
     } finally {
         if (browser) {
             await browser.close();
         }
         cleanTemporaryDirectory(temporaryRoot);
     }
+}
+
+// 断网新增导线也能完成，表明内嵌 WebAssembly 无需外部网络
+function offlineWireReady() {
+    return document.getElementById("wire-count").textContent === "62";
 }
 
 // 读取已加载图片的原始宽度，确认离线包引用到真实图片

@@ -1,18 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { angleWirePath, shortCornerPath, simplifyWirePath, segmentCrossesBounds, WIRE_PATH } from "../src/wire-path.mjs";
-import { findRoute } from "../src/routing-graph.mjs";
 import { wirePoints, hitTest, wireHandleAt } from "../src/geometry.mjs";
 import { emptyProject, endpointPosition } from "../src/board.mjs";
 import { validateProject, LIMITS } from "../src/storage.mjs";
-import { routeWires } from "../src/routing.mjs";
+import { routeWires, routeNewWire } from "../src/routing.mjs";
 import { createRuntime, simulate, readEndpoint } from "../src/engine.mjs";
 import { wiringMetrics } from "./wiring-metrics.mjs";
 import { complementPreset } from "../src/presets.mjs";
 import { wireDisplayPaths } from "../src/geometry.mjs";
-
-// 寻路测试使用的画布范围，不依赖页面缩放或鼠标位置
-const ROUTE_BOUNDARY = { x: 0, y: 0, right: 300, bottom: 300 };
 
 // 检查路径只包含横、竖和 45° 方向，返回斜线段数量
 function assertAngles(points) {
@@ -54,17 +50,6 @@ function testCornerProtection() {
     assert.equal(segmentCrossesBounds({ x: 0, y: 12 }, { x: 30, y: 12 }, obstacle), false);
 }
 
-// 直线即使重叠也保持零拐角，不能为避让导线绕出额外转弯
-function testCornerPriority() {
-    const first = { x: 20, y: 50 };
-    const last = { x: 180, y: 50 };
-    const occupied = [{ first: first, last: last }];
-    assert.deepEqual(findRoute(first, last, [], occupied, ROUTE_BOUNDARY), [first, last]);
-    const path = findRoute({ x: 20, y: 20 }, { x: 180, y: 120 }, [], [], ROUTE_BOUNDARY);
-    assert.equal(path.length, 3);
-    assert.equal(assertAngles(path), 0);
-}
-
 // 转角只削去一个孔距，相邻转角、障碍和点数限制不会生成长斜线
 function testShortCorners() {
     const points = [{ x: 20, y: 20 }, { x: 180, y: 20 }, { x: 180, y: 160 }, { x: 200, y: 160 }];
@@ -82,24 +67,6 @@ function testShortCorners() {
     const longDiagonal = angleWirePath([{ x: 20, y: 20 }, { x: 240, y: 240 }]);
     assert.ok(longDiagonal.length > 2);
     assertAngles(longDiagonal);
-}
-
-// 绕障碍需要两个拐角时，优先选重叠少的一侧，并检查小数端点精确保留
-function testOverlapPriority() {
-    const first = { x: 20, y: 50.25 };
-    const last = { x: 180, y: 50.25 };
-    const obstacle = { x: 80, y: 30, width: 40, height: 40 };
-    const occupied = [{ first: { x: 0, y: 30 }, last: { x: 300, y: 30 } }];
-    const path = findRoute(first, last, [obstacle], occupied, ROUTE_BOUNDARY);
-    assert.equal(path.length, 4);
-    assert.deepEqual(path[0], first);
-    assert.deepEqual(path[path.length - 1], last);
-    assert.ok(path[1].y >= 70);
-    assert.ok(path[2].y >= 70);
-    assertAngles(path);
-    assert.deepEqual(findRoute(first, last, [obstacle], occupied, ROUTE_BOUNDARY), path);
-    const blocked = { x: 0, y: 0, width: 300, height: 300 };
-    assert.deepEqual(findRoute(first, last, [blocked], [], ROUTE_BOUNDARY), []);
 }
 
 // 保存与导入保留角度，斜线中段可选中，自动补出的转折点也能用于拖动
@@ -160,8 +127,6 @@ async function testAngledPreset() {
     const original = structuredClone(project);
     const routes = await routeWires(project, 45);
     let diagonal = 0;
-    let previousCorners = 0;
-    let arrangedCorners = 0;
     for (let index = 0; index < project.wires.length; index = index + 1) {
         const wire = project.wires[index];
         wire.bends = routes[wire.id];
@@ -171,17 +136,15 @@ async function testAngledPreset() {
         assert.equal(wire.to, original.wires[index].to);
         assert.equal(wire.color, original.wires[index].color);
         diagonal = diagonal + assertAngles(wirePoints(wire, index));
-        previousCorners = previousCorners + simplifyWirePath(wirePoints(original.wires[index], index)).length - 2;
-        arrangedCorners = arrangedCorners + simplifyWirePath(wirePoints(wire, index)).length - 2;
     }
     assert.ok(diagonal > 0);
-    assert.ok(arrangedCorners < previousCorners, "整理后的实际拐角应少于旧示例");
+    assert.ok(wiringMetrics(project).overlap < 200, "整板走线应由引擎分开主要共线路径");
     assert.deepEqual(project.chips, original.chips);
     assert.equal(wiringMetrics(project).chipCrossings, 0);
     assert.equal(validateProject(project).wires.length, original.wires.length);
 }
 
-// 重叠只调整画布显示坐标，导线端点、保存数据和电气拓扑保持不变
+// 屏幕与保存路径完全一致，不再依赖额外显示偏移
 function testWireDisplaySpacing() {
     const project = emptyProject();
     project.wires.push({ id: "W1", from: "B0:A:1", to: "B0:A:20", color: "#1976d2", bends: [{ x: 260, y: 261 }] });
@@ -196,14 +159,48 @@ function testWireDisplaySpacing() {
     }
     assert.notDeepEqual(paths[0], paths[1]);
     assert.deepEqual(project.wires, original);
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+        assert.deepEqual(paths[index], wirePoints(project.wires[index], index));
+    }
+}
+
+// 新线使用同一个引擎避障，已有导线不移动，手动转折点仍位于生成路径上
+async function testNewWireRouting() {
+    const project = emptyProject();
+    project.chips.push({ id: "U1", model: "74LS00", section: 0, column: 10 });
+    const first = { id: "W1", from: "B0:A:1", to: "B0:J:30", color: "#1976d2", bends: [], angle: 45 };
+    first.bends = await routeNewWire(project, first, 45);
+    project.wires.push(first);
+    const before = structuredClone(project);
+    const second = { id: "W2", from: "B0:A:2", to: "B0:J:31", color: "#dc3545", bends: [{ x: 750, y: 80 }], angle: 45 };
+    second.bends = await routeNewWire(project, second, 0);
+    assert.deepEqual(project, before);
+    delete second.angle;
+    project.wires.push(second);
+    assert.equal(wiringMetrics(project).chipCrossings, 0);
+    const points = wirePoints(second, 1);
+    let checkpointFound = false;
+    const checkpoint = { x: 750, y: 80 };
+    for (let index = 1; index < points.length; index = index + 1) {
+        const previous = points[index - 1];
+        const current = points[index];
+        const horizontal = previous.y === current.y && previous.y === checkpoint.y;
+        const vertical = previous.x === current.x && previous.x === checkpoint.x;
+        const insideX = checkpoint.x >= Math.min(previous.x, current.x) && checkpoint.x <= Math.max(previous.x, current.x);
+        const insideY = checkpoint.y >= Math.min(previous.y, current.y) && checkpoint.y <= Math.max(previous.y, current.y);
+        if ((horizontal || vertical) && insideX && insideY) {
+            checkpointFound = true;
+        }
+    }
+    assert.equal(checkpointFound, true);
+    validateProject(project);
 }
 
 test("45°路径覆盖四个方向、轴向和折返", testAngleGeometry);
 test("任意方向的路径可检查芯片保护区", testCornerProtection);
-test("减少拐角优先于避免导线重叠", testCornerPriority);
 test("单个斜角最长根号二个孔距并保护相邻转弯", testShortCorners);
-test("相同拐角数量优先减少重叠并保留精确端点", testOverlapPriority);
 test("45°导线保存、导入、命中和转折点一致", testAngleStorageAndPicking);
 test("45°自动整理保持电气结果并绕开芯片", testAngledRouting);
 test("61根加法器示例导线支持45°整理", testAngledPreset);
-test("重复线段只在画布中错开并保留真实端点", testWireDisplaySpacing);
+test("显示路径与实际保存路径完全一致", testWireDisplaySpacing);
+test("逐根接线自动避障并保留旧线和手动转折点", testNewWireRouting);
