@@ -2,6 +2,19 @@ import { CHIP_MODELS } from "./chips.mjs";
 import { emptyProject, holeId, pinHole, portHole, WIRE_COLORS } from "./board.mjs";
 import presetRoutes from "./preset-routes.json" with { type: "json" };
 
+// 示例按信号用途配色，与用户自选线色分开维护，避免调色板编号掩盖含义
+const PRESET_WIRE_COLORS = {
+    power: WIRE_COLORS[0],
+    ground: WIRE_COLORS[7],
+    input: WIRE_COLORS[2],
+    control: WIRE_COLORS[4],
+    result: WIRE_COLORS[1],
+    feedback: WIRE_COLORS[3],
+    output: WIRE_COLORS[5],
+    timing: WIRE_COLORS[6],
+    overflow: WIRE_COLORS[9]
+};
+
 // 标准示例的芯片位置，改变位置后需重新生成路径并运行接线验证
 const PRESET_CHIPS = [
     { id: "U1", model: "74LS273", section: 1, column: 24 },
@@ -26,7 +39,7 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 
 ## 功能
 
-连续进行补码加、减运算。U1（74LS273）保存 **两个符号位和四个数值位**，共六位，并把结果反馈到下一轮运算。U2、U3（74LS283）计算数值位和符号位，U4、U5（74LS86）负责输入取反和溢出判断
+这个电路实现了连续补码加、减运算。U1（74LS273）保存了 **两个符号位和四个数值位**，共六位，并把结果反馈给下一轮运算。U2、U3（74LS283）计算数值位和符号位，U4、U5（74LS86）负责输入取反和溢出判断
 
 ## 输入口
 
@@ -50,14 +63,15 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 | L3、L2、L1、L0 | 结果的四个数值位，L0 最低位 |
 | L6 | 两个符号位异或的结果，1 表示当前结果溢出 |
 
-按 **L5 L4｜L3 L2 L1 L0** 读取。符号 00、11 为未溢出，01 为正溢出，10 为负溢出。所有输入、输出指示灯均为 **已知高电平 1 亮**；X 或 Z 不按高电平点亮
+结果按 **L5 L4｜L3 L2 L1 L0** 读取。符号 00、11 为未溢出，01 为正溢出，10 为负溢出。所有输入、输出指示灯均在 **已知高电平 1 时点亮**，X 或 Z 状态下保持熄灭
 
 ## 操作步骤
 
-1. 打开电源，将 K6 切到 0 再切回 1，L6～L0 应显示 000 0000
-2. 设置 K4～K0 和加减控制 K5，保持输入稳定
-3. 发一次完整 P− 脉冲，再读取 L5～L0 的六位结果；L6 单独指示溢出
-4. 重复输入和发脉冲，进行连续运算。单独改变输入不会更新累计结果
+1. 打开电源后，将 K6 切到 0 再切回 1，L6～L0 应显示 000 0000
+2. 设置 K4～K0 和加减控制 K5，并保持输入稳定
+3. 发出一次完整 P− 脉冲后，读取 L5～L0 的六位结果，L6 单独指示溢出
+
+累计结果在有效脉冲到来后更新，调整输入时保持原值。你可以重复输入和发脉冲，连续完成运算
 
 ## 验收
 
@@ -68,15 +82,15 @@ export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 
 ## 走线与线色
 
-输入输出板上没有接线孔，K、L、P 信号直接连到对应的面包板列。所有导线只插面包板孔或右侧电源轨孔，端口与孔位对应关系见接线说明
+K、L、P 信号直接连到了对应的面包板列，输入输出板用作信号显示和操作。导线接在面包板孔或右侧电源轨孔上，端口与孔位的对应关系见接线说明
 
-第四块面包板的输入与脉冲对应列通过细线桥接，上下 A～J 的空孔可读取同一信号，其他列及 X/Y 母线保持隔离
+第四块面包板用细线桥接了输入与脉冲对应列，上下 A～J 的空孔可以读取同一信号，其他列及 X/Y 母线分别连接
 
-红色为电源，深灰为地，绿色为数值输入，紫色为加减控制和进位，蓝色为计算结果，黄色为寄存器反馈，青色为 LED 输出，粉色为清零和时钟
+红色为电源，深灰为地，绿色为数值与符号输入（包括取反后的数据），紫色为加减控制和进位，蓝色为计算结果送入寄存器，黄色为寄存器反馈，青色为 L0～L5 结果输出，橙色为溢出判断支路及 L6 输出，粉色为清零和时钟
 
-导线沿分开的通道绕开芯片外框。交叉处没有接点，只有导线两端插入的孔参与连接。你可以点击左侧“整理走线”，确认后调整当前电路的路径；芯片位置、端点、线色和备注保持不变，随后可撤销
+导线沿分开的通道绕开了芯片外框，通过两端插入的孔建立连接，交叉处保持绝缘。当你确认左侧的“整理走线”操作后，程序会调整当前路径，并保留芯片位置、端点、线色和备注，整个操作支持撤销
 
-重新加载文件、断电或撤销后，寄存器易失状态不保留，需要再次清零。这是理想数字逻辑模型，不模拟电流、按键抖动和实际传播时延
+当你重新加载文件、断电或撤销后，寄存器的易失状态会重置，需要再次清零。电路采用了理想数字逻辑模型，电流、按键抖动和实际传播时延属于实物实验的观察范围
 `;
 
 // 在同一个芯片脚的五孔组中分配空孔，返回可接线的物理孔名
@@ -118,7 +132,7 @@ function connect(project, usage, first, second, color) {
     const from = allocatePin(project, usage, first);
     const to = allocatePin(project, usage, second);
     const number = project.wires.length + 1;
-    project.wires.push({ id: "W" + number, from: from, to: to, color: WIRE_COLORS[color], bends: [] });
+    project.wires.push({ id: "W" + number, from: from, to: to, color: color, bends: [] });
 }
 
 // 创建已接好的双符号位补码运算器，电气端点与显示路径分别维护
@@ -136,42 +150,42 @@ export function complementPreset() {
         const model = CHIP_MODELS[chip.model];
         const powerPin = chip.id + "-" + model.power;
         const groundPin = chip.id + "-" + model.ground;
-        connect(project, usage, power, powerPin, 0);
-        connect(project, usage, ground, groundPin, 7);
+        connect(project, usage, power, powerPin, PRESET_WIRE_COLORS.power);
+        connect(project, usage, ground, groundPin, PRESET_WIRE_COLORS.ground);
         power = powerPin;
         ground = groundPin;
     }
     for (const pin of UNUSED_INPUTS) {
-        connect(project, usage, ground, pin, 7);
+        connect(project, usage, ground, pin, PRESET_WIRE_COLORS.ground);
         ground = pin;
     }
     for (let bit = 0; bit < 4; bit = bit + 1) {
-        connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], 2);
-        connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], 2);
+        connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], PRESET_WIRE_COLORS.input);
+        connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], PRESET_WIRE_COLORS.input);
     }
-    connect(project, usage, "K4", "U5-1", 2);
+    connect(project, usage, "K4", "U5-1", PRESET_WIRE_COLORS.input);
     let control = "K5";
     for (const pin of CONTROL_PINS) {
-        connect(project, usage, control, pin, 4);
+        connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
         control = pin;
     }
-    connect(project, usage, "U5-3", "U3-6", 4);
-    connect(project, usage, "U3-6", "U3-2", 4);
-    connect(project, usage, "U2-9", "U3-7", 4);
+    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
     for (const pair of SUM_CONNECTIONS) {
-        connect(project, usage, pair[0], pair[1], 1);
+        connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
     }
     for (const pair of FEEDBACK_CONNECTIONS) {
-        connect(project, usage, pair[0], pair[1], 3);
+        connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.feedback);
     }
     for (let bit = 0; bit < 6; bit = bit + 1) {
-        connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, 5);
+        connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
     }
-    connect(project, usage, "U1-12", "U5-4", 5);
-    connect(project, usage, "U1-15", "U5-5", 5);
-    connect(project, usage, "U5-6", "L6", 5);
-    connect(project, usage, "K6", "U1-1", 6);
-    connect(project, usage, "P-", "U1-11", 6);
+    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
+    connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
     for (const wire of project.wires) {
         if (Object.hasOwn(presetRoutes, wire.id)) {
             wire.bends = structuredClone(presetRoutes[wire.id]);

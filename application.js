@@ -2584,7 +2584,7 @@
     for (let index = 0; index < 8; index = index + 1) {
       bits.push("X");
     }
-    return { bits, clock: "X", powered: false };
+    return { bits, clock: "X" };
   }
   function chipOutputs(chip, pins, registers, devices) {
     const model = CHIP_MODELS[chip.model];
@@ -2733,7 +2733,6 @@
       }
       register.bits = nextBits;
       register.clock = pins[11];
-      register.powered = powered;
     }
     return changed;
   }
@@ -3621,6 +3620,17 @@
   };
 
   // src/presets.mjs
+  var PRESET_WIRE_COLORS = {
+    power: WIRE_COLORS[0],
+    ground: WIRE_COLORS[7],
+    input: WIRE_COLORS[2],
+    control: WIRE_COLORS[4],
+    result: WIRE_COLORS[1],
+    feedback: WIRE_COLORS[3],
+    output: WIRE_COLORS[5],
+    timing: WIRE_COLORS[6],
+    overflow: WIRE_COLORS[9]
+  };
   var PRESET_CHIPS = [
     { id: "U1", model: "74LS273", section: 1, column: 24 },
     { id: "U2", model: "74LS283", section: 2, column: 16 },
@@ -3641,7 +3651,7 @@
 
 ## \u529F\u80FD
 
-\u8FDE\u7EED\u8FDB\u884C\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u5230\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
+\u8FD9\u4E2A\u7535\u8DEF\u5B9E\u73B0\u4E86\u8FDE\u7EED\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58\u4E86 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u7ED9\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
 
 ## \u8F93\u5165\u53E3
 
@@ -3665,14 +3675,15 @@
 | L3\u3001L2\u3001L1\u3001L0 | \u7ED3\u679C\u7684\u56DB\u4E2A\u6570\u503C\u4F4D\uFF0CL0 \u6700\u4F4E\u4F4D |
 | L6 | \u4E24\u4E2A\u7B26\u53F7\u4F4D\u5F02\u6216\u7684\u7ED3\u679C\uFF0C1 \u8868\u793A\u5F53\u524D\u7ED3\u679C\u6EA2\u51FA |
 
-\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u4E3A **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u4EAE**\uFF1BX \u6216 Z \u4E0D\u6309\u9AD8\u7535\u5E73\u70B9\u4EAE
+\u7ED3\u679C\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u5728 **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u65F6\u70B9\u4EAE**\uFF0CX \u6216 Z \u72B6\u6001\u4E0B\u4FDD\u6301\u7184\u706D
 
 ## \u64CD\u4F5C\u6B65\u9AA4
 
-1. \u6253\u5F00\u7535\u6E90\uFF0C\u5C06 K6 \u5207\u5230 0 \u518D\u5207\u56DE 1\uFF0CL6\uFF5EL0 \u5E94\u663E\u793A 000 0000
-2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
-3. \u53D1\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\uFF0C\u518D\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF1BL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
-4. \u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDB\u884C\u8FDE\u7EED\u8FD0\u7B97\u3002\u5355\u72EC\u6539\u53D8\u8F93\u5165\u4E0D\u4F1A\u66F4\u65B0\u7D2F\u8BA1\u7ED3\u679C
+1. \u6253\u5F00\u7535\u6E90\u540E\uFF0C\u5C06 K6 \u5207\u5230 0 \u518D\u5207\u56DE 1\uFF0CL6\uFF5EL0 \u5E94\u663E\u793A 000 0000
+2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u5E76\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
+3. \u53D1\u51FA\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\u540E\uFF0C\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF0CL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
+
+\u7D2F\u8BA1\u7ED3\u679C\u5728\u6709\u6548\u8109\u51B2\u5230\u6765\u540E\u66F4\u65B0\uFF0C\u8C03\u6574\u8F93\u5165\u65F6\u4FDD\u6301\u539F\u503C\u3002\u4F60\u53EF\u4EE5\u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDE\u7EED\u5B8C\u6210\u8FD0\u7B97
 
 ## \u9A8C\u6536
 
@@ -3683,15 +3694,15 @@
 
 ## \u8D70\u7EBF\u4E0E\u7EBF\u8272
 
-\u8F93\u5165\u8F93\u51FA\u677F\u4E0A\u6CA1\u6709\u63A5\u7EBF\u5B54\uFF0CK\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5217\u3002\u6240\u6709\u5BFC\u7EBF\u53EA\u63D2\u9762\u5305\u677F\u5B54\u6216\u53F3\u4FA7\u7535\u6E90\u8F68\u5B54\uFF0C\u7AEF\u53E3\u4E0E\u5B54\u4F4D\u5BF9\u5E94\u5173\u7CFB\u89C1\u63A5\u7EBF\u8BF4\u660E
+K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5217\uFF0C\u8F93\u5165\u8F93\u51FA\u677F\u7528\u4F5C\u4FE1\u53F7\u663E\u793A\u548C\u64CD\u4F5C\u3002\u5BFC\u7EBF\u63A5\u5728\u9762\u5305\u677F\u5B54\u6216\u53F3\u4FA7\u7535\u6E90\u8F68\u5B54\u4E0A\uFF0C\u7AEF\u53E3\u4E0E\u5B54\u4F4D\u7684\u5BF9\u5E94\u5173\u7CFB\u89C1\u63A5\u7EBF\u8BF4\u660E
 
-\u7B2C\u56DB\u5757\u9762\u5305\u677F\u7684\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\u901A\u8FC7\u7EC6\u7EBF\u6865\u63A5\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u4FDD\u6301\u9694\u79BB
+\u7B2C\u56DB\u5757\u9762\u5305\u677F\u7528\u7EC6\u7EBF\u6865\u63A5\u4E86\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u4EE5\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u5206\u522B\u8FDE\u63A5
 
-\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u8F93\u5165\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A LED \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
+\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u4E0E\u7B26\u53F7\u8F93\u5165\uFF08\u5305\u62EC\u53D6\u53CD\u540E\u7684\u6570\u636E\uFF09\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\u9001\u5165\u5BC4\u5B58\u5668\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A L0\uFF5EL5 \u7ED3\u679C\u8F93\u51FA\uFF0C\u6A59\u8272\u4E3A\u6EA2\u51FA\u5224\u65AD\u652F\u8DEF\u53CA L6 \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
 
-\u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u82AF\u7247\u5916\u6846\u3002\u4EA4\u53C9\u5904\u6CA1\u6709\u63A5\u70B9\uFF0C\u53EA\u6709\u5BFC\u7EBF\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u53C2\u4E0E\u8FDE\u63A5\u3002\u4F60\u53EF\u4EE5\u70B9\u51FB\u5DE6\u4FA7\u201C\u6574\u7406\u8D70\u7EBF\u201D\uFF0C\u786E\u8BA4\u540E\u8C03\u6574\u5F53\u524D\u7535\u8DEF\u7684\u8DEF\u5F84\uFF1B\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\u4FDD\u6301\u4E0D\u53D8\uFF0C\u968F\u540E\u53EF\u64A4\u9500
+\u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u4E86\u82AF\u7247\u5916\u6846\uFF0C\u901A\u8FC7\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u5EFA\u7ACB\u8FDE\u63A5\uFF0C\u4EA4\u53C9\u5904\u4FDD\u6301\u7EDD\u7F18\u3002\u5F53\u4F60\u786E\u8BA4\u5DE6\u4FA7\u7684\u201C\u6574\u7406\u8D70\u7EBF\u201D\u64CD\u4F5C\u540E\uFF0C\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u8DEF\u5F84\uFF0C\u5E76\u4FDD\u7559\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\uFF0C\u6574\u4E2A\u64CD\u4F5C\u652F\u6301\u64A4\u9500
 
-\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u6613\u5931\u72B6\u6001\u4E0D\u4FDD\u7559\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u8FD9\u662F\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u4E0D\u6A21\u62DF\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6
+\u5F53\u4F60\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u7684\u6613\u5931\u72B6\u6001\u4F1A\u91CD\u7F6E\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u7535\u8DEF\u91C7\u7528\u4E86\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u5C5E\u4E8E\u5B9E\u7269\u5B9E\u9A8C\u7684\u89C2\u5BDF\u8303\u56F4
 `;
   function allocatePin(project, usage, name) {
     if (!name.startsWith("U")) {
@@ -3729,7 +3740,7 @@
     const from = allocatePin(project, usage, first);
     const to = allocatePin(project, usage, second);
     const number = project.wires.length + 1;
-    project.wires.push({ id: "W" + number, from, to, color: WIRE_COLORS[color], bends: [] });
+    project.wires.push({ id: "W" + number, from, to, color, bends: [] });
   }
   function complementPreset() {
     const project = emptyProject();
@@ -3745,42 +3756,42 @@
       const model = CHIP_MODELS[chip.model];
       const powerPin = chip.id + "-" + model.power;
       const groundPin = chip.id + "-" + model.ground;
-      connect(project, usage, power, powerPin, 0);
-      connect(project, usage, ground, groundPin, 7);
+      connect(project, usage, power, powerPin, PRESET_WIRE_COLORS.power);
+      connect(project, usage, ground, groundPin, PRESET_WIRE_COLORS.ground);
       power = powerPin;
       ground = groundPin;
     }
     for (const pin of UNUSED_INPUTS) {
-      connect(project, usage, ground, pin, 7);
+      connect(project, usage, ground, pin, PRESET_WIRE_COLORS.ground);
       ground = pin;
     }
     for (let bit = 0; bit < 4; bit = bit + 1) {
-      connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], 2);
-      connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], 2);
+      connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], PRESET_WIRE_COLORS.input);
+      connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], PRESET_WIRE_COLORS.input);
     }
-    connect(project, usage, "K4", "U5-1", 2);
+    connect(project, usage, "K4", "U5-1", PRESET_WIRE_COLORS.input);
     let control = "K5";
     for (const pin of CONTROL_PINS) {
-      connect(project, usage, control, pin, 4);
+      connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
       control = pin;
     }
-    connect(project, usage, "U5-3", "U3-6", 4);
-    connect(project, usage, "U3-6", "U3-2", 4);
-    connect(project, usage, "U2-9", "U3-7", 4);
+    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
     for (const pair of SUM_CONNECTIONS) {
-      connect(project, usage, pair[0], pair[1], 1);
+      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
     }
     for (const pair of FEEDBACK_CONNECTIONS) {
-      connect(project, usage, pair[0], pair[1], 3);
+      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.feedback);
     }
     for (let bit = 0; bit < 6; bit = bit + 1) {
-      connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, 5);
+      connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
     }
-    connect(project, usage, "U1-12", "U5-4", 5);
-    connect(project, usage, "U1-15", "U5-5", 5);
-    connect(project, usage, "U5-6", "L6", 5);
-    connect(project, usage, "K6", "U1-1", 6);
-    connect(project, usage, "P-", "U1-11", 6);
+    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
+    connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
     for (const wire of project.wires) {
       if (Object.hasOwn(preset_routes_default, wire.id)) {
         wire.bends = structuredClone(preset_routes_default[wire.id]);
@@ -5307,7 +5318,8 @@ ${l2}`;
     segmentPenalty: 50,
     shapeBuffer: 5,
     nudgingDistance: 6,
-    bottomBoundary: 1110
+    bottomBoundary: 1110,
+    boundaryDepth: 1e3
   };
   function yieldFrame(resolve) {
     setTimeout(resolve, 0);
@@ -5336,11 +5348,12 @@ ${l2}`;
     for (const wire of project.wires) {
       bottom = Math.max(bottom, endpointPosition(wire.from).y, endpointPosition(wire.to).y);
     }
+    const depth = ROUTING.boundaryDepth;
     const walls = [
-      { x: -1e3, y: -1e3, width: 1e3, height: BOARD.height + 2e3 },
-      { x: BOARD.width, y: -1e3, width: 1e3, height: BOARD.height + 2e3 },
-      { x: 0, y: -1e3, width: BOARD.width, height: 1e3 },
-      { x: 0, y: bottom + ROUTING.shapeBuffer, width: BOARD.width, height: 1e3 }
+      { x: -depth, y: -depth, width: depth, height: BOARD.height + depth * 2 },
+      { x: BOARD.width, y: -depth, width: depth, height: BOARD.height + depth * 2 },
+      { x: 0, y: -depth, width: BOARD.width, height: depth },
+      { x: 0, y: bottom + ROUTING.shapeBuffer, width: BOARD.width, height: depth }
     ];
     const obstacles = bounds.concat(walls);
     for (const obstacle of obstacles) {
@@ -5437,7 +5450,8 @@ ${l2}`;
           continue;
         }
         let points = readRoute(connections.get(wire.id), wire, bounds);
-        if (angle === 45) {
+        const preserveManualPoints = targetId !== "" && wire.bends.length > 0;
+        if (angle === 45 && !preserveManualPoints) {
           points = shortCornerPath(points, bounds, LIMITS.bends + 2);
         }
         const bends = points.slice(1, -1);
@@ -9663,7 +9677,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.7.0";
+  var APP_VERSION = "1.7.1";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/app.mjs

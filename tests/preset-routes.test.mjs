@@ -8,7 +8,7 @@ import { wiringMetrics } from "./wiring-metrics.mjs";
 import { routeWires } from "../src/routing.mjs";
 import { emptyProject, portHole, isPhysicalHole } from "../src/board.mjs";
 
-// 和旧示例比较，板载端口改为对应真实孔，其他端点、芯片与线色保持不变
+// 和旧示例比较，板载端口改为真实孔，芯片与端点不变，线色按用途整理
 function testConnectionsUnchanged() {
     const project = validateProject(complementPreset());
     assert.deepEqual(project.chips, original.chips);
@@ -29,7 +29,14 @@ function testConnectionsUnchanged() {
         assert.equal(actual.to, to);
         assert.equal(isPhysicalHole(actual.from), true);
         assert.equal(isPhysicalHole(actual.to), true);
-        assert.equal(actual.color, expected.color);
+        let expectedColor = expected.color;
+        if (actual.id === "W36" || actual.id === "W37") {
+            expectedColor = "#16845b";
+        }
+        if (actual.id === "W57" || actual.id === "W58" || actual.id === "W59") {
+            expectedColor = "#e26c2b";
+        }
+        assert.equal(actual.color, expectedColor);
         assert.ok(actual.bends.length > 0);
         const points = wirePoints(actual, index);
         for (let position = 1; position < points.length; position = position + 1) {

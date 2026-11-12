@@ -116,7 +116,7 @@ function initialRegister() {
     for (let index = 0; index < 8; index = index + 1) {
         bits.push("X");
     }
-    return { bits: bits, clock: "X", powered: false };
+    return { bits: bits, clock: "X" };
 }
 
 // 返回指定芯片应驱动的全部输出电平，未供电时不驱动输出
@@ -281,7 +281,6 @@ function updateRegisters(project, topology, values, registers) {
         }
         register.bits = nextBits;
         register.clock = pins[11];
-        register.powered = powered;
     }
     return changed;
 }
