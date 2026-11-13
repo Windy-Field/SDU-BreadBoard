@@ -214,7 +214,8 @@ async function main() {
         await page.locator("#from-endpoint").fill("R:GND:0");
         await page.locator("#to-endpoint").fill("R:VCC:0");
         await page.locator("#connect-endpoints").click();
-        await page.getByText("+5V 与 GND 被导线短接", { exact: false }).first().waitFor();
+        const shortMessages = page.getByText("+5V 与 GND 被导线短接", { exact: false });
+        await shortMessages.first().waitFor();
         assert.equal(await page.locator("#wire-count").textContent(), "62");
         await page.locator("#undo").click();
         assert.equal(await page.locator("#wire-count").textContent(), "61");
@@ -223,7 +224,8 @@ async function main() {
         await page.locator("#from-endpoint").fill("B3:J:49");
         await page.locator("#to-endpoint").fill("B0:A:1");
         await page.locator("#connect-endpoints").click();
-        await page.getByText("这个孔已被占用", { exact: false }).first().waitFor();
+        const occupiedMessages = page.getByText("这个孔已被占用", { exact: false });
+        await occupiedMessages.first().waitFor();
         assert.equal(await page.locator("#wire-count").textContent(), "61");
         await page.locator("#new-project").click();
         assert.equal(await page.locator("#wire-count").textContent(), "0");
@@ -252,8 +254,9 @@ async function main() {
         await page.waitForFunction(pinoutLoaded);
         await page.screenshot({ path: path.join(SCREENSHOTS, "pinout-panel.png"), fullPage: true });
         await page.locator("#tab-notes").click();
-        assert.equal(await page.locator("#pinned-chip").isVisible(), true);
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
         await page.locator("#tab-inspect").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), true);
         const initialZoom = await zoomPercent(page);
         const viewport = await page.locator("#board-viewport").boundingBox();
         await page.mouse.move(viewport.x + 100, viewport.y + 100);
@@ -296,7 +299,8 @@ async function main() {
         await page.screenshot({ path: path.join(SCREENSHOTS, "read-only.png"), fullPage: true });
         await page.locator("#read-only-toggle").uncheck();
         await page.locator("#import-file").setInputFiles({ name: "invalid.json", mimeType: "application/json", buffer: Buffer.from("{wrong") });
-        await page.getByText("电路文件无法解析", { exact: false }).first().waitFor();
+        const invalidMessages = page.getByText("电路文件无法解析", { exact: false });
+        await invalidMessages.first().waitFor();
         assert.equal(await page.locator("#wire-count").textContent(), "61");
         const downloadEvent = page.waitForEvent("download");
         await page.locator("#export-project").click();

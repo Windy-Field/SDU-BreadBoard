@@ -9,6 +9,10 @@ import { emptyProject, pinHole } from "../src/board.mjs";
 import { simulate, createRuntime, readEndpoint } from "../src/engine.mjs";
 import { validateProject } from "../src/storage.mjs";
 
+// 原厂命名与材料位编号的对应关系，物理脚号不随显示名称变化
+const ADDER_LABELS = ["", "Σ2", "B2", "A2", "Σ1", "A1", "B1", "C0", "GND", "C4", "Σ4", "B4", "A4", "Σ3", "A3", "B3", "VCC"];
+const NAND_SYMMETRIC_LABELS = { 9: "3B", 10: "3A", 12: "4B", 13: "4A" };
+
 // 创建按真实物理脚号索引的低电平输入表
 function pinsFor(model) {
     const pins = {};
@@ -41,13 +45,21 @@ function testDocumentPins() {
     const source = JSON.parse(fs.readFileSync(new URL("./fixtures/chip-reference.json", import.meta.url), "utf8"));
     assert.equal(Object.keys(EXTRA_CHIPS).length, 16);
     assert.equal(Object.keys(CHIP_MODELS).length, 23);
-    for (const name of Object.keys(EXTRA_CHIPS)) {
-        const model = EXTRA_CHIPS[name];
+    for (const name of Object.keys(source)) {
+        const model = CHIP_MODELS[name];
         assert.equal(model.count, source[name].count, name);
         for (let pin = 1; pin <= model.count; pin = pin + 1) {
             const supplied = source[name].pins[String(pin)].label;
             const implemented = model.labels[pin];
             let expected = supplied;
+            if (name === "74LS283") {
+                expected = ADDER_LABELS[pin];
+            }
+            if (name === "74LS00") {
+                if (Object.hasOwn(NAND_SYMMETRIC_LABELS, pin)) {
+                    expected = NAND_SYMMETRIC_LABELS[pin];
+                }
+            }
             if (name === "74LS85" && pin >= 2 && pin <= 4) {
                 expected = expected + "输入";
             }
@@ -353,6 +365,13 @@ function testShift() {
     }
 }
 
+// 取得引脚同列空孔，测试接线不直接占用芯片已经插入的孔
+function availablePinHole(chip, pin) {
+    const position = pinHole(chip, pin);
+    const upperHole = position.replace(":E:", ":D:");
+    return upperHole.replace(":F:", ":G:");
+}
+
 // 创建一片接好电源的芯片，每个输入通过独立 K 端驱动
 function wiredChip(name) {
     const project = emptyProject();
@@ -365,14 +384,14 @@ function wiredChip(name) {
         const pin = model.inputs[index];
         assigned[pin] = index;
         if (model.bidirectional && model.bidirectional.includes(pin)) {
-            const hole = pinHole(chip, pin).replace(":E:", ":D:").replace(":F:", ":G:");
+            const hole = availablePinHole(chip, pin);
             project.pullUps.push(hole);
         } else {
             pairs.push([pin, "K" + index]);
         }
     }
     for (const pair of pairs) {
-        const hole = pinHole(chip, pair[0]).replace(":E:", ":D:").replace(":F:", ":G:");
+        const hole = availablePinHole(chip, pair[0]);
         project.wires.push({ id: "W" + (project.wires.length + 1), from: pair[1], to: hole, color: "#1976d2", bends: [] });
     }
     const physical = validateProject(project);
@@ -528,7 +547,7 @@ function testBlankingRecovery() {
     assert.equal(visible.stable, true);
 }
 
-test("16种新增芯片逐脚匹配文档", testDocumentPins);
+test("材料芯片逐脚匹配文档和原厂命名", testDocumentPins);
 test("新增门电路与三态门全部输入", testGates);
 test("译码器全部地址与使能", testDecoders);
 test("数据选择器全部输入组合", testMultiplexers);

@@ -409,7 +409,7 @@ test("独立实验保存与切换", testWorkspace);
 
 // 画布高亮只读取实际选择，固定资料面板不作为选中依据
 function testSelectionHighlight() {
-    const state = { selection: [], selected: null, pinnedChip: "U1" };
+    const state = { selection: [], selected: null, fixedItems: [{ kind: "chip", id: "U1" }] };
     assert.equal(objectSelected(state, "chip", "U1"), false);
     state.selection.push({ kind: "chip", id: "U1" });
     assert.equal(objectSelected(state, "chip", "U1"), true);

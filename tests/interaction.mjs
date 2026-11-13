@@ -98,7 +98,8 @@ async function testAngleWiring(browser) {
         assert.ok(checkWireAngles(connected) > 0);
         await page.locator("#tool-select").click();
         await page.locator("#tab-wires").click();
-        await page.locator("#wires-panel button[data-wire='W1']").first().click();
+        const firstWire = page.locator("#wires-panel button[data-wire='W1']");
+        await firstWire.first().click();
         const points = wirePoints(connected.wires[0], 0);
         const start = await screenPoint(page, points[1]);
         const target = await screenPoint(page, { x: points[1].x + 24, y: points[1].y - 12 });
@@ -182,10 +183,12 @@ async function testDirectPlacement(page) {
 // 从导线列表选择两根导线，使用真实的 Ctrl 点击保留多选
 async function selectTwoWires(page) {
     await page.locator("#tab-wires").click();
-    await page.locator("#wires-panel button[data-wire='W1']").first().click();
+    const firstWire = page.locator("#wires-panel button[data-wire='W1']");
+    await firstWire.first().click();
     await page.locator("#tab-wires").click();
     await page.keyboard.down("Control");
-    await page.locator("#wires-panel button[data-wire='W2']").first().click();
+    const secondWire = page.locator("#wires-panel button[data-wire='W2']");
+    await secondWire.first().click();
     await page.keyboard.up("Control");
     assert.equal(await page.locator("#inspect-panel .selection-item[data-kind='wire']").count(), 2);
 }
@@ -258,7 +261,8 @@ async function testRoutingToast(page) {
     await waitingToast.waitFor();
     await page.waitForFunction(routingFinished);
     await waitingToast.waitFor({ state: "detached" });
-    await page.locator("#toast-region .toast").filter({ hasText: "走线已整理" }).waitFor();
+    const toasts = page.locator("#toast-region .toast");
+    await toasts.filter({ hasText: "走线已整理" }).waitFor();
 }
 
 // 导入成功后通过实验标题确认页面已切换，不依赖不存在的提示文字
@@ -373,7 +377,7 @@ async function testBatchColors(page) {
     assert.deepEqual((await exportedProject(page)).wires, before.wires);
 }
 
-// 固定状态独立于选择，查看其他芯片、资料和备注后仍保留原芯片
+// 固定状态独立于选择，仅在检查页显示，切回检查后仍保留原芯片
 async function testPinnedInformation(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
@@ -386,6 +390,8 @@ async function testPinnedInformation(browser) {
         assert.equal(await page.locator("#inspect-panel h2").textContent(), "74LS138");
         await page.keyboard.press("Escape");
         await page.locator("#tab-notes").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
+        await page.locator("#tab-inspect").click();
         assert.equal(await page.locator("#pinned-chip").isVisible(), true);
         await page.locator("#read-only-toggle").check();
         assert.equal(await page.locator("#pin-chip-info").isEnabled(), true);
@@ -401,12 +407,201 @@ async function testPinnedInformation(browser) {
         assert.match(await page.locator("#pinned-chip h2").textContent(), /U1/);
         await page.locator("#pin-chip-info").click();
         assert.equal(await page.locator("#pin-chip-info").getAttribute("aria-pressed"), "false");
+        await clickPoint(page, { x: 1000, y: 330 });
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
+        await page.locator("#inspect-panel [data-chip='U1']").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), true);
+        await page.locator("#pin-chip-info").click();
+        await clickPoint(page, { x: 1000, y: 330 });
+        assert.match(await page.locator("#pinned-chip h2").textContent(), /U1/);
+        await page.locator("#pin-chip-info").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
         await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "pin-toggle.png"), fullPage: true });
         await page.locator("#new-experiment").click();
         assert.equal(await page.locator("#pinned-chip").isVisible(), false);
     } finally {
         await page.close();
     }
+}
+
+// 从器件库单击型号后固定资料，检查切换、只读和取消固定不会修改电路
+async function testPinnedCatalogInformation(browser) {
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    try {
+        await page.goto(URL);
+        const before = await exportedProject(page);
+        await page.locator(".chip-option[data-model='74LS273']").click();
+        const pin = page.locator("#pin-catalog-info");
+        assert.equal(await pin.isVisible(), true);
+        assert.equal(await pin.locator("svg").count(), 1);
+        assert.equal(await pin.getAttribute("aria-pressed"), "false");
+        const headingSize = await page.locator("#inspect-panel h2").evaluate(readFontSize);
+        const beforeSize = await page.locator("#inspect-panel").evaluate(readReferenceSize);
+        await pin.click();
+        assert.equal(await page.locator("#fixed-74LS273-pin-catalog-info").getAttribute("aria-pressed"), "true");
+        assert.equal(await page.locator("#pinned-chip h2").textContent(), "74LS273");
+        assert.equal(await page.locator("#pinned-chip h2").evaluate(readFontSize), headingSize);
+        const afterSize = await page.locator("#pane-model-74LS273").evaluate(readReferenceSize);
+        assert.deepEqual(afterSize, beforeSize, "固定前后内边距、图片、表格和侧栏宽度应一致");
+        assert.equal(await page.locator("#inspect-panel").isVisible(), false);
+        assert.equal(await page.locator(".inspector .chip-reference").count(), 1);
+        assert.equal(await page.locator("#fixed-74LS273-place-catalog-chip").isVisible(), true);
+        assert.equal(await page.locator("#pinned-chip .catalog-pin-table tr").count(), 21);
+        await page.locator("#tab-notes").click();
+        assert.equal(await page.locator("#fixed-74LS273-pin-catalog-info").isVisible(), false);
+        for (const tab of ["wires", "diagnostics"]) {
+            await page.locator("#tab-" + tab).click();
+            assert.equal(await page.locator("#pinned-chip").isVisible(), false);
+        }
+        await page.locator("#tab-inspect").click();
+        assert.equal(await page.locator("#pinned-chip h2").textContent(), "74LS273");
+        assert.equal(await page.locator("#fixed-74LS273-pin-catalog-info").isVisible(), true);
+        await page.locator(".chip-option[data-model='74LS86']").click();
+        assert.equal(await page.locator("#pinned-chip h2").textContent(), "74LS273");
+        assert.equal(await page.locator("#inspect-panel h2").textContent(), "74LS86");
+        for (const selector of ["#pane-model-74LS273", "#inspect-panel"]) {
+            const title = await page.locator(selector).evaluate(scrollAndReadHeading);
+            assert.ok(title.scroll > 0, "资料区域应能独立滚动");
+            assert.ok(title.headingTop < title.panelTop, "两处资料标题都应随内容滚出区域顶部");
+        }
+        await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "catalog-scrolled-headings.png"), fullPage: true });
+        await page.locator("#read-only-toggle").check();
+        await page.locator("#pin-catalog-info").click();
+        assert.deepEqual(await page.locator("#pinned-chip h2").allTextContents(), ["74LS273", "74LS86"]);
+        assert.equal(await page.locator("#inspect-panel").isVisible(), false);
+        assert.equal(await page.locator(".inspector .chip-reference").count(), 2);
+        assert.equal(await page.locator("#fixed-74LS86-pin-catalog-info").isEnabled(), true);
+        for (const width of [1600, 375]) {
+            await page.setViewportSize({ width: width, height: 1000 });
+            const tabs = await page.locator(".inspector-tabs").boundingBox();
+            const inspector = await page.locator(".inspector").boundingBox();
+            const pinned = await page.locator("#pinned-chip").boundingBox();
+            assert.ok(Math.abs(tabs.y - inspector.y) <= 1, "标签栏应始终位于检查侧栏顶部");
+            assert.ok(tabs.y + tabs.height <= pinned.y + 1, "置顶资料不能把标签栏压到下方");
+        }
+        await page.setViewportSize({ width: 1600, height: 1000 });
+        await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "catalog-pin.png"), fullPage: true });
+        await page.locator("#fixed-74LS273-pin-catalog-info").click();
+        assert.equal(await page.locator("#pinned-chip h2").textContent(), "74LS86");
+        await page.locator("#fixed-74LS86-pin-catalog-info").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
+        assert.equal(await page.locator("#pin-catalog-info").getAttribute("aria-pressed"), "false");
+        assert.deepEqual(await exportedProject(page), before);
+        await page.locator("#pin-catalog-info").click();
+        await page.locator("#read-only-toggle").uncheck();
+        await page.locator("#new-experiment").click();
+        assert.equal(await page.locator("#pinned-chip").isVisible(), false);
+    } finally {
+        await page.close();
+    }
+}
+
+// 读取标题的实际字号，用于比较固定前后的资料样式
+function readFontSize(heading) {
+    return window.getComputedStyle(heading).fontSize;
+}
+
+// 读取资料尺寸和间距，直接比较同一份资料固定前后的布局
+function readReferenceSize(container) {
+    const style = window.getComputedStyle(container);
+    const image = container.querySelector(".chip-reference img").getBoundingClientRect();
+    const table = container.querySelector(".pin-table").getBoundingClientRect();
+    const sidebar = document.querySelector(".inspector").getBoundingClientRect();
+    return { padding: style.padding, width: container.clientWidth, imageWidth: image.width, imageHeight: image.height, tableWidth: table.width, sidebarWidth: sidebar.width };
+}
+
+// 固定一份资料后选择其他芯片，核对两份详情同时显示且按钮操作各自对应的芯片
+async function testConcurrentChipInformation(browser) {
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    try {
+        await page.goto(URL);
+        const before = await exportedProject(page);
+        await page.locator(".chip-option[data-model='74LS283']").click();
+        await page.locator("#pin-catalog-info").click();
+        await page.locator("#tool-select").click();
+        await clickPoint(page, { x: 570, y: 457 });
+        assert.equal(await page.locator("#pinned-chip h2").textContent(), "74LS283");
+        assert.match(await page.locator("#inspect-panel h2").textContent(), /U1/);
+        assert.equal(await page.locator("#inspect-panel [data-pin]").count(), 20);
+        assert.equal(await page.locator(".inspector .chip-reference").count(), 2);
+        await page.locator("#selected-pin-chip-info").click();
+        assert.deepEqual(await page.locator("#pinned-chip h2").allTextContents(), ["74LS283", "U1 · 74LS273"]);
+        assert.equal(await page.locator("#inspect-panel").isVisible(), false);
+        await clickPoint(page, { x: 420, y: 706 });
+        assert.match(await page.locator("#pane-chip-U1 h2").textContent(), /U1/);
+        assert.match(await page.locator("#inspect-panel h2").textContent(), /U2/);
+        assert.equal(await page.locator("#pinned-chip [data-pin]").count(), 20);
+        assert.equal(await page.locator("#inspect-panel [data-pin]").count(), 16);
+        await page.locator("#inspect-panel [aria-label='删除芯片']").click();
+        assert.match(await page.locator("#confirm-message").textContent(), /U2/);
+        await page.locator("#confirm-cancel").click();
+        await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "concurrent-chip-info.png"), fullPage: true });
+        await page.locator("#selected-pin-chip-info").click();
+        assert.match(await page.locator("#pane-chip-U2 h2").textContent(), /U2/);
+        assert.equal(await page.locator("#pinned-chip .inspection-pane").count(), 3);
+        assert.equal(await page.locator("#inspect-panel").isVisible(), false);
+        const firstPane = page.locator("#pane-model-74LS283");
+        const secondPane = page.locator("#pane-chip-U1");
+        const lastPane = page.locator("#pane-chip-U2");
+        const firstBounds = await firstPane.boundingBox();
+        const secondBounds = await secondPane.boundingBox();
+        const lastBounds = await lastPane.boundingBox();
+        assert.ok(Math.abs(firstBounds.height - secondBounds.height) <= 1);
+        assert.ok(Math.abs(firstBounds.height - lastBounds.height) <= 1);
+        const divider = page.locator("#pinned-chip .inspection-divider").first();
+        const dividerBounds = await divider.boundingBox();
+        await page.mouse.move(dividerBounds.x + 20, dividerBounds.y + dividerBounds.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(dividerBounds.x + 20, dividerBounds.y + 55, { steps: 5 });
+        await page.mouse.up();
+        const resized = await firstPane.boundingBox();
+        assert.ok(resized.height > firstBounds.height + 40);
+        assert.ok(Math.abs((await lastPane.boundingBox()).height - lastBounds.height) <= 1);
+        await divider.focus();
+        await page.keyboard.press("ArrowUp");
+        assert.ok((await firstPane.boundingBox()).height < resized.height - 15);
+        const resizedHeight = (await firstPane.boundingBox()).height;
+        await page.locator("#tab-notes").click();
+        await page.locator("#tab-inspect").click();
+        assert.ok(Math.abs((await firstPane.boundingBox()).height - resizedHeight) <= 1);
+        for (const size of [{ width: 1600, height: 1000 }, { width: 1100, height: 720 }, { width: 850, height: 700 }]) {
+            await page.setViewportSize(size);
+            const layout = await page.evaluate(readInspectorLayout);
+            assert.equal(layout.width, 310);
+            assert.ok(layout.documentHeight <= layout.height + 1, "桌面页面不能被资料撑高");
+            assert.equal(layout.horizontalOverflow, false, "资料内不应出现水平滚动条");
+        }
+        await page.setViewportSize({ width: 1600, height: 1000 });
+        await page.screenshot({ path: path.join(ROOT, "reports", "screenshots", "multiple-pinned-info.png"), fullPage: true });
+        await page.locator("#fixed-U2-pin-chip-info").click();
+        assert.equal(await page.locator("#pinned-chip .inspection-pane").count(), 2);
+        assert.match(await page.locator("#inspect-panel h2").textContent(), /U2/);
+        assert.deepEqual(await exportedProject(page), before);
+    } finally {
+        await page.close();
+    }
+}
+
+// 读取侧栏和页面尺寸，核对固定宽度及资料区的真实溢出情况
+function readInspectorLayout() {
+    const inspector = document.querySelector(".inspector");
+    let horizontalOverflow = false;
+    for (const pane of document.querySelectorAll(".inspection-pane, #inspect-panel")) {
+        if (pane.clientWidth > 0 && pane.scrollWidth > pane.clientWidth + 1) {
+            horizontalOverflow = true;
+        }
+    }
+    return { width: inspector.getBoundingClientRect().width, height: window.innerHeight, documentHeight: document.documentElement.scrollHeight, horizontalOverflow: horizontalOverflow };
+}
+
+// 滚动资料区域并读取标题位置，检查标题是否随内容移出区域顶部
+function scrollAndReadHeading(container) {
+    container.style.scrollBehavior = "auto";
+    container.scrollTop = 180;
+    const heading = container.querySelector(".inspection-heading");
+    const headingBounds = heading.getBoundingClientRect();
+    const panelBounds = container.getBoundingClientRect();
+    return { scroll: container.scrollTop, headingTop: headingBounds.top, panelTop: panelBounds.top };
 }
 
 // 逐项检查材料差异在介绍前部可见，并核对 NC 和双向引脚的文字
@@ -416,9 +611,11 @@ async function testChipReferenceWarnings(page) {
         assert.match(await page.locator("#inspect-panel .pin-warning").textContent(), /材料版脚号/);
     }
     await page.locator(".chip-option[data-model='74LS20']").click();
-    assert.match(await page.locator(".catalog-pin-table tr").nth(3).textContent(), /空脚 NC/);
+    let rows = page.locator(".catalog-pin-table tr");
+    assert.match(await rows.nth(3).textContent(), /空脚 NC/);
     await page.locator(".chip-option[data-model='74LS48']").click();
-    assert.match(await page.locator(".catalog-pin-table tr").nth(4).textContent(), /输入\/输出/);
+    rows = page.locator(".catalog-pin-table tr");
+    assert.match(await rows.nth(4).textContent(), /输入\/输出/);
     await page.keyboard.press("Escape");
 }
 
@@ -452,7 +649,8 @@ async function main() {
         await page.waitForTimeout(250);
         await testAngleWiring(browser);
         await testGeneralDiagnostics(page);
-        assert.equal(await page.locator("h1").first().textContent(), "SDU 面包板");
+        const headings = page.locator("h1");
+        assert.equal(await headings.first().textContent(), "SDU 面包板");
         assert.equal(await page.locator("#autosave-toggle").isChecked(), false);
         assert.equal(await page.evaluate(readSavedWorkspace), null);
         await page.keyboard.press("Control+s");
@@ -488,7 +686,8 @@ async function main() {
         await clickPoint(page, first);
         assert.match(await page.locator("#inspect-panel h2").textContent(), /A1/);
         await page.locator("#tab-wires").click();
-        await page.locator("#wires-panel .wire-row button").first().click();
+        const wireButtons = page.locator("#wires-panel .wire-row button");
+        await wireButtons.first().click();
         const last = endpointPosition("B0:A:5");
         const next = endpointPosition("B0:A:7");
         const from = await screenPoint(page, last);
@@ -520,7 +719,7 @@ async function main() {
         assert.equal(await page.locator("#pinned-chip").isVisible(), true);
         await page.locator("#tab-wires").click();
         await page.keyboard.down("Control");
-        await page.locator("#wires-panel .wire-row button").first().click();
+        await wireButtons.first().click();
         await page.keyboard.up("Control");
         assert.equal(await page.locator("#inspect-panel .selection-item").count(), 2);
         assert.equal(await page.locator("#inspect-panel .selection-item[data-kind='chip']").count(), 1);
@@ -537,7 +736,7 @@ async function main() {
         assert.equal(await page.locator("#pinned-chip").isVisible(), true);
         await page.locator("#tab-wires").click();
         await page.keyboard.down("Control");
-        await page.locator("#wires-panel .wire-row button").first().click();
+        await wireButtons.first().click();
         await page.keyboard.up("Control");
         assert.equal(await page.locator("#inspect-panel .selection-item").count(), 2);
         await page.locator("#quick-delete").click();
@@ -571,6 +770,8 @@ async function main() {
         await testGeneralWireRouting(page);
         await testRoutingToast(page);
         await testPinnedInformation(browser);
+        await testPinnedCatalogInformation(browser);
+        await testConcurrentChipInformation(browser);
         await testChipReferenceWarnings(page);
         assert.deepEqual(errors, []);
         console.log("交互验证通过：23种芯片放置、独立保存、多选改色、拖动端点、通用走线整理与撤销、确认按钮悬停对比度、只读保护");

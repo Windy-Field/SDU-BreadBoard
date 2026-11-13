@@ -57,7 +57,9 @@ function New-OfflinePackage {
     $archive = Join-Path $output ($packageName + '-offline.zip')
     Confirm-ChildPath -TargetPath $archive -ParentPath $output
     if (Test-Path -LiteralPath $archive) {
-        $suffix = [System.Guid]::NewGuid().ToString('N').Substring(0, $DuplicateSuffixLength)
+        $identifier = [System.Guid]::NewGuid()
+        $identifierText = $identifier.ToString('N')
+        $suffix = $identifierText.Substring(0, $DuplicateSuffixLength)
         $archive = Join-Path $output ($packageName + '-offline-' + $suffix + '.zip')
         Confirm-ChildPath -TargetPath $archive -ParentPath $output
     }

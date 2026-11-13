@@ -17,6 +17,7 @@ import { inspectCircuit } from "./diagnostics.mjs";
 import { CHIP_REFERENCES } from "./catalog.mjs";
 import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace } from "./workspace.mjs";
 import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
+import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./inspection-layout.mjs";
 
 // 界面操作参数：时长单位为毫秒，距离单位为画布逻辑像素
 const SETTINGS = {
@@ -40,6 +41,10 @@ const SETTINGS = {
     downloadReleaseDelay: 1000,
     clockInterval: 1000
 };
+// 文件下载名称与缩进集中维护，导出内容仍由各自的函数准备
+const EXPORT_SETTINGS = { indent: 2, circuit: "breadboard-circuit.json", workspace: "sdu-breadboard-workspace.json", image: "breadboard-wiring.png" };
+// 芯片归属板块的点击补偿，和可见面包板上边缘保持一致
+const PLACEMENT_OFFSET = 30;
 // 键盘触发时的按钮高亮时长，真实脉冲不等待动画
 const PULSE_SETTINGS = { feedbackDuration: 160 };
 
@@ -53,8 +58,7 @@ const state = {
     wireAngle: SETTINGS.wireAngle,
     selected: null,
     selection: [],
-    pinnedChip: "",
-    fixedChip: "",
+    fixedItems: [],
     placing: "",
     pending: null,
     pointer: null,
@@ -571,7 +575,8 @@ function changeWireAngle(event) {
 function renderLibrary() {
     const container = element("chip-library");
     container.replaceChildren();
-    const query = element("chip-search").value.toUpperCase().trim();
+    const searchText = element("chip-search").value.trim();
+    const query = searchText.toUpperCase();
     let count = 0;
     for (const model in CHIP_MODELS) {
         if (!model.includes(query)) {
@@ -623,7 +628,6 @@ function chooseChip(event) {
     drag = null;
     state.selected = null;
     state.selection = [];
-    state.pinnedChip = "";
     state.pending = null;
     state.tool = "place";
     if (readOnly) {
@@ -635,11 +639,18 @@ function chooseChip(event) {
 }
 
 // 从资料面板或工具栏重新进入当前型号的放置状态
-function placeCatalogChip() {
-    if (editingLocked() || catalogModel === "") {
+function placeCatalogChip(event) {
+    if (editingLocked()) {
         return;
     }
-    state.placing = catalogModel;
+    let modelName = catalogModel;
+    if (event && event.currentTarget.dataset.model) {
+        modelName = event.currentTarget.dataset.model;
+    }
+    if (modelName === "") {
+        return;
+    }
+    state.placing = modelName;
     state.tool = "place";
     ignoreClick = false;
     state.pending = null;
@@ -651,8 +662,8 @@ function placeChip(point) {
     if (editingLocked()) {
         return;
     }
-    let section = Math.floor((point.y - BOARD.startY + 30) / BOARD.sectionHeight);
-    let column = Math.round((point.x - BOARD.startX) / BOARD.pitch) + 1;
+    const section = Math.floor((point.y - BOARD.startY + PLACEMENT_OFFSET) / BOARD.sectionHeight);
+    const column = Math.round((point.x - BOARD.startX) / BOARD.pitch) + 1;
     const chip = { id: nextId(state.project.chips, "U"), model: state.placing, section: section, column: column };
     let error = placementError(state.project.chips, chip, "");
     if (state.project.chips.length >= LIMITS.chips) {
@@ -764,9 +775,6 @@ function selectTarget(target, multiple) {
     catalogModel = "";
     const same = target && state.selected && target.kind === state.selected.kind && target.id === state.selected.id;
     if (same && !multiple) {
-        if (target.kind === "chip" && state.pinnedChip === target.id) {
-            state.pinnedChip = "";
-        }
         state.selected = null;
         state.selection = [];
         return;
@@ -790,9 +798,6 @@ function selectTarget(target, multiple) {
         }
         if (multiple && position >= 0) {
             state.selection.splice(position, 1);
-            if (target.kind === "chip" && state.pinnedChip === target.id) {
-                state.pinnedChip = "";
-            }
             state.selected = null;
             if (state.selection.length > 0) {
                 state.selected = state.selection[state.selection.length - 1];
@@ -803,7 +808,6 @@ function selectTarget(target, multiple) {
         }
     }
     if (target.kind === "chip") {
-        state.pinnedChip = target.id;
         state.activeTab = "inspect";
         lastPinnedChip = "";
     }
@@ -1097,9 +1101,7 @@ function removeTargets(targets) {
         } else {
             delete state.runtime.registers[chip.id];
             delete state.runtime.devices[chip.id];
-            if (state.fixedChip === chip.id) {
-                state.fixedChip = "";
-            }
+            removeFixedItem("chip", chip.id);
         }
     }
     state.project.wires = wires;
@@ -1109,10 +1111,11 @@ function removeTargets(targets) {
     commit();
 }
 
-// 删除固定引脚面板对应的芯片，不误删后来选中的孔或导线
-function deletePinnedChip() {
-    if (findChip(state.pinnedChip)) {
-        const target = { kind: "chip", id: state.pinnedChip };
+// 删除按钮所属面板中的芯片，不误删上方固定的另一片芯片
+function deletePanelChip(event) {
+    const chipId = event.currentTarget.dataset.chip;
+    if (findChip(chipId)) {
+        const target = { kind: "chip", id: chipId };
         confirmAction("删除芯片？", "确认删除 " + target.id + "？导线会留在原来的插孔", removeTargets.bind(null, [target]));
     }
 }
@@ -1250,10 +1253,10 @@ function resetRuntime() {
     state.selected = null;
     catalogModel = "";
     state.selection = [];
-    state.pinnedChip = "";
     lastPinnedChip = "";
-    state.fixedChip = "";
     state.previousIssues = new Set();
+    state.fixedItems = [];
+    resetInspectionLayout();
 }
 
 // 新建空电路，旧电路可通过撤销恢复
@@ -1307,14 +1310,17 @@ function revokeDownload(url) {
 
 // 导出电路结构与输入状态，不导出寄存器易失内容
 function exportProject() {
-    const content = JSON.stringify(state.project, null, 2);
-    download(new Blob([content], { type: "application/json" }), "breadboard-circuit.json");
+    const content = JSON.stringify(state.project, null, EXPORT_SETTINGS.indent);
+    const file = new Blob([content], { type: "application/json" });
+    download(file, EXPORT_SETTINGS.circuit);
 }
 
 // 备份全部实验，供项目迁移或更换浏览器后导入
 function exportWorkspace() {
     keepExperiment(workspace, activeExperiment, state.project);
-    download(new Blob([JSON.stringify(workspace, null, 2)], { type: "application/json" }), "sdu-breadboard-workspace.json");
+    const content = JSON.stringify(workspace, null, EXPORT_SETTINGS.indent);
+    const file = new Blob([content], { type: "application/json" });
+    download(file, EXPORT_SETTINGS.workspace);
 }
 
 // 打开原生文件选择器
@@ -1331,7 +1337,7 @@ async function importProject(event) {
     }
     try {
         if (file.size > LIMITS.fileBytes) {
-            throw new Error("电路文件过大，请选择小于 2 MB 的文件");
+            throw new Error("电路文件过大，最多支持 " + LIMITS.fileBytes + " 字节");
         }
         const content = await file.text();
         const parsed = JSON.parse(content);
@@ -1373,7 +1379,7 @@ function receiveImage(blob) {
         toast("无法导出图片，请重试", "error");
         return;
     }
-    download(blob, "breadboard-wiring.png");
+    download(blob, EXPORT_SETTINGS.image);
 }
 
 // 导出完整接线画布，不包括工具栏
@@ -1490,27 +1496,39 @@ function inspectPin(event) {
     render();
 }
 
-// 检查面板显示芯片引脚及可调整的摆放位置
-function renderChipPanel(container, chip) {
+// 创建统一的芯片资料标题，参数为标题、按钮编号、固定目标和点击处理函数
+function createChipHeading(title, buttonId, target, handler) {
     const heading = node("div", "", "inspection-heading");
-    heading.append(node("h2", chip.id + " · " + chip.model, ""));
+    heading.append(node("h2", title, ""));
+    const pin = node("button", "", "icon-button");
+    pin.id = buttonId;
+    pin.dataset.model = target;
+    pin.addEventListener("click", handler);
+    updatePinButton(pin, target);
+    heading.append(pin);
+    return heading;
+}
+
+// 显示指定芯片的完整详情；prefix 用于区分各份资料的控件编号
+function renderChipPanel(container, chip, prefix = "") {
+    const title = chip.id + " · " + chip.model;
+    const heading = createChipHeading(title, prefix + "pin-chip-info", chip.id, togglePinnedChip);
+    heading.lastElementChild.dataset.chip = chip.id;
     const remove = node("button", "", "icon-button");
     remove.setAttribute("aria-label", "删除芯片");
     remove.append(icon("trash-2"));
-    remove.addEventListener("click", deletePinnedChip);
-    heading.append(remove);
-    const pin = node("button", "", "icon-button");
-    pin.id = "pin-chip-info";
-    pin.addEventListener("click", togglePinnedChip);
-    heading.append(pin);
-    updatePinButton(pin, chip.id);
+    remove.dataset.chip = chip.id;
+    remove.addEventListener("click", deletePanelChip);
+    heading.insertBefore(remove, heading.lastElementChild);
     container.append(heading, node("p", CHIP_MODELS[chip.model].title + " · 缺口朝左", "inspection-meta"));
     appendChipReference(container, chip);
     const controls = node("div", "", "move-fields");
+    controls.dataset.chip = chip.id;
     const sectionLabel = node("label", "板块", "");
     const section = document.createElement("select");
-    section.id = "move-section";
-    for (let index = 0; index < 4; index = index + 1) {
+    section.id = prefix + "move-section";
+    section.dataset.field = "section";
+    for (let index = 0; index < BOARD.sections; index = index + 1) {
         const option = node("option", "第 " + (index + 1) + " 块", "");
         option.value = String(index);
         section.append(option);
@@ -1519,7 +1537,8 @@ function renderChipPanel(container, chip) {
     sectionLabel.append(section);
     const columnLabel = node("label", "起始列", "");
     const column = document.createElement("input");
-    column.id = "move-column";
+    column.id = prefix + "move-column";
+    column.dataset.field = "column";
     column.type = "number";
     column.min = "1";
     column.max = String(BOARD.columns);
@@ -1550,13 +1569,16 @@ function appendChipPinTable(container, chip) {
     container.append(table);
 }
 
-// 根据位置控件移动选中芯片，保留导线在原来的物理孔
-function moveChip() {
+// 根据按钮所在面板的位置控件移动对应芯片，保留导线在原物理孔
+function moveChip(event) {
     if (editingLocked()) {
         return;
     }
-    const chip = findChip(state.pinnedChip);
-    const candidate = { id: chip.id, model: chip.model, section: Number(element("move-section").value), column: Number(element("move-column").value) };
+    const controls = event.currentTarget.closest(".move-fields");
+    const chip = findChip(controls.dataset.chip);
+    const section = Number(controls.querySelector("[data-field='section']").value);
+    const column = Number(controls.querySelector("[data-field='column']").value);
+    const candidate = { id: chip.id, model: chip.model, section: section, column: column };
     let error = placementError(state.project.chips, candidate, chip.id);
     for (const wire of state.project.wires) {
         for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
@@ -1584,7 +1606,22 @@ function renderInspection() {
     const container = element("inspect-panel");
     const scrollTop = container.scrollTop;
     container.replaceChildren();
+    container.classList.remove("inspection-duplicate");
     if (catalogModel !== "") {
+        let shown = hasFixedItem("model", catalogModel);
+        if (state.fixedItems.length === 0 && !element("pinned-chip").hidden) {
+            let shownChip = null;
+            if (state.selected && state.selected.kind === "chip") {
+                shownChip = findChip(state.selected.id);
+            }
+            if (shownChip && shownChip.model === catalogModel) {
+                shown = true;
+            }
+        }
+        if (shown) {
+            container.classList.add("inspection-duplicate");
+            return;
+        }
         renderCatalogInfo(container, catalogModel);
         return;
     }
@@ -1596,11 +1633,14 @@ function renderInspection() {
     if (state.selected && state.selected.kind === "chip") {
         const chip = findChip(state.selected.id);
         if (chip) {
-            let message = "引脚信息显示在上方";
-            if (state.fixedChip !== "" && state.fixedChip !== chip.id) {
-                message = "上方正在固定显示 " + state.fixedChip + " 的引脚信息";
+            const fixed = hasFixedItem("chip", chip.id);
+            const preview = state.fixedItems.length === 0 && state.selection.length <= 1;
+            if (fixed || preview) {
+                container.classList.add("inspection-duplicate");
+                return;
             }
-            container.append(node("h2", chip.id + " · " + chip.model, ""), node("p", message, "inspection-meta"));
+            renderChipPanel(container, chip, "selected-");
+            container.scrollTop = scrollTop;
             return;
         }
     }
@@ -1677,15 +1717,16 @@ function togglePullUp(event) {
     commit();
 }
 
-// 展示尚未放置的芯片资料，脚位表只描述型号，不混入某片芯片的实时电平
-function renderCatalogInfo(container, modelName) {
+// 展示型号资料；prefix 区分置顶项的控件编号，不混入芯片的实时电平
+function renderCatalogInfo(container, modelName, prefix = "") {
     const model = CHIP_MODELS[modelName];
-    const heading = node("div", "", "inspection-heading");
-    heading.append(node("h2", modelName, ""));
+    const buttonId = prefix + "pin-catalog-info";
+    const heading = createChipHeading(modelName, buttonId, modelName, togglePinnedModel);
     container.append(heading, node("p", model.title + " · DIP-" + model.count, "inspection-meta"));
     appendChipReference(container, { model: modelName });
     const place = node("button", "", "button catalog-place");
-    place.id = "place-catalog-chip";
+    place.id = prefix + "place-catalog-chip";
+    place.dataset.model = modelName;
     place.append(icon("microchip"), node("span", "放置芯片", ""));
     place.disabled = readOnly;
     place.addEventListener("click", placeCatalogChip);
@@ -1728,9 +1769,6 @@ function deselectFromInspection(event) {
     state.selected = null;
     if (kept.length > 0) {
         state.selected = kept[kept.length - 1];
-    }
-    if (kind === "chip" && state.pinnedChip === id) {
-        state.pinnedChip = "";
     }
     render();
 }
@@ -1910,6 +1948,7 @@ function renderDiagnostics() {
 
 // 根据当前标签页显示对应面板
 function renderPanels() {
+    element("inspection-stack").hidden = state.activeTab !== "inspect";
     renderPinnedChip();
     for (const name of ["inspect", "wires", "diagnostics", "notes"]) {
         const active = name === state.activeTab;
@@ -1918,6 +1957,15 @@ function renderPanels() {
         element("tab-" + name).setAttribute("aria-selected", String(active));
     }
     renderInspection();
+    const inspection = element("inspect-panel");
+    const pinned = element("pinned-chip");
+    const onlyPinned = inspection.classList.contains("inspection-duplicate");
+    const divider = element("inspection-divider");
+    divider.hidden = pinned.hidden || onlyPinned || state.activeTab !== "inspect";
+    if (!divider.hidden) {
+        configureInspectionDivider(divider, pinned.lastElementChild, inspection);
+    }
+    applyInspectionSizes();
     if (state.activeTab === "wires") {
         renderWireList();
     }
@@ -1930,36 +1978,102 @@ function renderPanels() {
     refreshIcons();
 }
 
-// 显示固定芯片，未固定时跟随最近选择；固定状态优先于多选和资料查看
+// 查找指定资料的固定记录，未固定时返回空值
+function findFixedItem(kind, id) {
+    for (const item of state.fixedItems) {
+        if (item.kind === kind && item.id === id) {
+            return item;
+        }
+    }
+    return null;
+}
+
+// 判断一份型号资料或芯片详情是否已经固定
+function hasFixedItem(kind, id) {
+    return findFixedItem(kind, id) !== null;
+}
+
+// 删除指定固定记录，保留其他资料和各自的高度比例
+function removeFixedItem(kind, id) {
+    const kept = [];
+    for (const item of state.fixedItems) {
+        if (item.kind !== kind || item.id !== id) {
+            kept.push(item);
+        }
+    }
+    state.fixedItems = kept;
+}
+
+// 显示全部固定资料；没有固定记录时只预览当前选中的芯片
 function renderPinnedChip() {
-    if (state.fixedChip !== "" && !findChip(state.fixedChip)) {
-        state.fixedChip = "";
-    }
-    if (state.fixedChip !== "") {
-        state.pinnedChip = state.fixedChip;
-    } else if (state.selected && state.selected.kind === "chip") {
-        state.pinnedChip = state.selected.id;
-    }
     const container = element("pinned-chip");
-    if (state.selection.length > 1 && state.fixedChip === "") {
+    if (state.activeTab !== "inspect") {
         container.hidden = true;
         return;
     }
-    const chip = findChip(state.pinnedChip);
-    container.hidden = !chip;
-    if (!chip) {
+    const items = [];
+    for (const item of state.fixedItems) {
+        if (item.kind === "model" || findChip(item.id)) {
+            items.push(item);
+        }
+    }
+    state.fixedItems = items;
+    const shown = items.slice();
+    if (shown.length === 0 && state.selection.length <= 1 && state.selected && state.selected.kind === "chip") {
+        const chip = findChip(state.selected.id);
+        if (chip) {
+            shown.push({ kind: "chip", id: chip.id });
+        }
+    }
+    container.hidden = shown.length === 0;
+    if (container.hidden) {
         container.replaceChildren();
         lastPinnedChip = "";
         return;
     }
-    if (lastPinnedChip !== chip.id) {
+    let key = String(readOnly);
+    for (const item of shown) {
+        const fixed = hasFixedItem(item.kind, item.id);
+        key = key + ":" + item.kind + ":" + item.id + ":" + fixed;
+    }
+    if (lastPinnedChip !== key) {
+        const scrollPositions = {};
+        for (const pane of container.querySelectorAll(".inspection-pane")) {
+            scrollPositions[pane.dataset.key] = pane.scrollTop;
+        }
         container.replaceChildren();
-        renderChipPanel(container, chip);
-        lastPinnedChip = chip.id;
-        fadeContent(container);
-    } else {
-        updatePinButton(element("pin-chip-info"), chip.id);
-        for (const cell of container.querySelectorAll("[data-pin]")) {
+        let previous = null;
+        for (const item of shown) {
+            const pane = node("section", "", "inspection-pane");
+            pane.dataset.key = item.kind + ":" + item.id;
+            pane.dataset.kind = item.kind;
+            pane.dataset.id = item.id;
+            pane.id = "pane-" + item.kind + "-" + item.id;
+            if (previous) {
+                const divider = node("div", "", "");
+                configureInspectionDivider(divider, previous, pane);
+                container.append(divider);
+            }
+            container.append(pane);
+            let prefix = "fixed-" + item.id + "-";
+            if (item.kind === "chip") {
+                if (!container.querySelector("#pin-chip-info")) {
+                    prefix = "";
+                }
+                renderChipPanel(pane, findChip(item.id), prefix);
+            } else {
+                renderCatalogInfo(pane, item.id, prefix);
+            }
+            if (Object.hasOwn(scrollPositions, pane.dataset.key)) {
+                pane.scrollTop = scrollPositions[pane.dataset.key];
+            }
+            previous = pane;
+        }
+        lastPinnedChip = key;
+    }
+    for (const pane of container.querySelectorAll(".inspection-pane[data-kind='chip']")) {
+        const chip = findChip(pane.dataset.id);
+        for (const cell of pane.querySelectorAll("[data-pin]")) {
             const value = readEndpoint(state.result, pinHole(chip, Number(cell.dataset.pin)));
             cell.textContent = String(value);
             cell.classList.toggle("high", value === 1);
@@ -1970,7 +2084,7 @@ function renderPinnedChip() {
 
 // 同步固定按钮的图标、提示和按下状态，不改变对象选择
 function updatePinButton(button, chipId) {
-    const fixed = state.fixedChip === chipId;
+    const fixed = hasFixedItem("chip", chipId) || hasFixedItem("model", chipId);
     let label = "固定引脚信息";
     let symbol = "pin";
     if (fixed) {
@@ -1984,19 +2098,27 @@ function updatePinButton(button, chipId) {
     button.replaceChildren(icon(symbol));
 }
 
-// 固定时记住当前芯片，取消后恢复跟随选择，不删除芯片或改变接线
-function togglePinnedChip() {
-    if (state.fixedChip === "") {
-        state.fixedChip = state.pinnedChip;
+// 添加或移除一份固定资料，不替换已经固定的其他资料
+function toggleFixedItem(kind, id) {
+    if (hasFixedItem(kind, id)) {
+        removeFixedItem(kind, id);
     } else {
-        state.fixedChip = "";
-        state.pinnedChip = "";
-        if (state.selected && state.selected.kind === "chip") {
-            state.pinnedChip = state.selected.id;
-        }
+        state.fixedItems.push({ kind: kind, id: id });
     }
     lastPinnedChip = "";
     render();
+}
+
+// 根据按钮所属型号固定或取消这一份型号资料
+function togglePinnedModel(event) {
+    const modelName = event.currentTarget.dataset.model;
+    toggleFixedItem("model", modelName);
+}
+
+// 固定时记住当前芯片，取消后恢复跟随选择，不删除芯片或改变接线
+function togglePinnedChip(event) {
+    const chipId = event.currentTarget.dataset.chip;
+    toggleFixedItem("chip", chipId);
 }
 
 // 创建某一个输入端口的快速开关和高有效 LED
@@ -2421,6 +2543,8 @@ function start() {
     renderLibrary();
     fitBoard();
     render();
+    const inspectionObserver = new ResizeObserver(applyInspectionSizes);
+    inspectionObserver.observe(element("inspection-stack"));
     refreshIcons();
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);

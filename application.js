@@ -2101,10 +2101,22 @@
     for (let index = 0; index < IO_LIMIT; index = index + 1) {
       switches.push(0);
     }
-    return { version: 1, wiringVersion: WIRING_VERSION, inputCount: PROJECT_DEFAULTS.inputCount, outputCount: PROJECT_DEFAULTS.outputCount, notes: GENERAL_NOTES, name: "\u672A\u547D\u540D\u7535\u8DEF", chips: [], wires: [], pullUps: [], switches, power: PROJECT_DEFAULTS.power };
+    return {
+      version: 1,
+      wiringVersion: WIRING_VERSION,
+      inputCount: PROJECT_DEFAULTS.inputCount,
+      outputCount: PROJECT_DEFAULTS.outputCount,
+      notes: GENERAL_NOTES,
+      name: "\u672A\u547D\u540D\u7535\u8DEF",
+      chips: [],
+      wires: [],
+      pullUps: [],
+      switches,
+      power: PROJECT_DEFAULTS.power
+    };
   }
   function copyProject(project) {
-    return JSON.parse(JSON.stringify(project));
+    return structuredClone(project);
   }
 
   // src/chip-logic.mjs
@@ -5315,7 +5327,8 @@ ${l2}`;
 
   // src/routing.mjs
   var ROUTING = {
-    segmentPenalty: 50,
+    // 提高每个额外正交线段的代价，避免连续小折段
+    segmentPenalty: 2e3,
     shapeBuffer: 5,
     nudgingDistance: 6,
     bottomBoundary: 1110,
@@ -9677,8 +9690,154 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.7.1";
+  var APP_VERSION = "1.7.2";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
+
+  // src/inspection-layout.mjs
+  var INSPECTION_SIZES = { minimum: 64, step: 24 };
+  var weights = /* @__PURE__ */ new Map();
+  var resizing = null;
+  function resetInspectionLayout() {
+    weights.clear();
+    resizing = null;
+  }
+  function paneWeight(pane) {
+    if (weights.has(pane.id)) {
+      return weights.get(pane.id);
+    }
+    return 1;
+  }
+  function applyInspectionSizes() {
+    const stack = element("inspection-stack");
+    if (stack.hidden || stack.clientHeight === 0) {
+      return;
+    }
+    const pinned = element("pinned-chip");
+    const panes = pinned.querySelectorAll(".inspection-pane");
+    const inspection = element("inspect-panel");
+    const showInspection = !inspection.classList.contains("inspection-duplicate");
+    let count = panes.length;
+    let pinnedWeight = 0;
+    for (const pane of panes) {
+      pinnedWeight = pinnedWeight + paneWeight(pane);
+    }
+    let totalWeight = pinnedWeight;
+    if (showInspection) {
+      count = count + 1;
+      totalWeight = totalWeight + paneWeight(inspection);
+    }
+    if (count === 0) {
+      return;
+    }
+    const style = window.getComputedStyle(stack);
+    const dividerHeight = Number.parseFloat(style.getPropertyValue("--inspection-divider-height"));
+    const dividerCount = Math.max(0, count - 1);
+    const contentHeight = Math.max(0, stack.clientHeight - dividerCount * dividerHeight);
+    for (const pane of panes) {
+      const height = contentHeight * paneWeight(pane) / totalWeight;
+      pane.style.flexBasis = height + "px";
+    }
+    const internalDividers = Math.max(0, panes.length - 1);
+    const pinnedHeight = contentHeight * pinnedWeight / totalWeight;
+    pinned.style.flexBasis = pinnedHeight + internalDividers * dividerHeight + "px";
+    inspection.style.flexBasis = contentHeight * paneWeight(inspection) / totalWeight + "px";
+  }
+  function configureInspectionDivider(divider, before, after) {
+    divider.className = "inspection-divider";
+    divider.setAttribute("role", "separator");
+    divider.setAttribute("aria-orientation", "horizontal");
+    divider.setAttribute("aria-label", "\u8C03\u6574\u4E0A\u4E0B\u8D44\u6599\u7A7A\u95F4");
+    divider.setAttribute("aria-controls", before.id + " " + after.id);
+    divider.setAttribute("aria-valuemin", "0");
+    divider.setAttribute("aria-valuemax", "100");
+    const totalWeight = paneWeight(before) + paneWeight(after);
+    const percentage = Math.round(paneWeight(before) / totalWeight * 100);
+    divider.setAttribute("aria-valuenow", String(percentage));
+    divider.tabIndex = 0;
+    divider.dataset.before = before.id;
+    divider.dataset.after = after.id;
+    if (divider.childElementCount > 0) {
+      return;
+    }
+    for (const direction of ["up", "down"]) {
+      const button = node("button", "", "splitter-adjust");
+      button.dataset.direction = direction;
+      let label2 = "\u589E\u52A0\u4E0B\u65B9\u8D44\u6599\u7A7A\u95F4";
+      if (direction === "down") {
+        label2 = "\u589E\u52A0\u4E0A\u65B9\u8D44\u6599\u7A7A\u95F4";
+      }
+      button.setAttribute("aria-label", label2);
+      button.dataset.tip = label2;
+      button.append(icon("chevron-" + direction));
+      button.addEventListener("click", clickInspectionDivider);
+      divider.append(button);
+    }
+    divider.addEventListener("pointerdown", startInspectionResize);
+    divider.addEventListener("pointermove", moveInspectionResize);
+    divider.addEventListener("pointerup", stopInspectionResize);
+    divider.addEventListener("pointercancel", stopInspectionResize);
+    divider.addEventListener("lostpointercapture", stopInspectionResize);
+    divider.addEventListener("keydown", keyInspectionResize);
+  }
+  function resizeInspectionPair(divider, change) {
+    const before = element(divider.dataset.before);
+    const after = element(divider.dataset.after);
+    const firstHeight = before.getBoundingClientRect().height;
+    const totalHeight = firstHeight + after.getBoundingClientRect().height;
+    if (totalHeight === 0) {
+      return;
+    }
+    const minimum = Math.min(INSPECTION_SIZES.minimum, totalHeight / 3);
+    const requestedHeight = firstHeight + change;
+    const height = Math.max(minimum, Math.min(totalHeight - minimum, requestedHeight));
+    const totalWeight = paneWeight(before) + paneWeight(after);
+    weights.set(before.id, totalWeight * height / totalHeight);
+    weights.set(after.id, totalWeight * (totalHeight - height) / totalHeight);
+    divider.setAttribute("aria-valuenow", String(Math.round(height / totalHeight * 100)));
+    applyInspectionSizes();
+  }
+  function startInspectionResize(event) {
+    if (event.button !== 0 || event.target.closest("button")) {
+      return;
+    }
+    event.preventDefault();
+    const divider = event.currentTarget;
+    resizing = { divider, y: event.clientY };
+    divider.setPointerCapture(event.pointerId);
+  }
+  function moveInspectionResize(event) {
+    if (!resizing || resizing.divider !== event.currentTarget) {
+      return;
+    }
+    const change = event.clientY - resizing.y;
+    resizing.y = event.clientY;
+    resizeInspectionPair(event.currentTarget, change);
+  }
+  function stopInspectionResize() {
+    resizing = null;
+  }
+  function keyInspectionResize(event) {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+    let change = 0;
+    if (event.key === "ArrowUp") {
+      change = -INSPECTION_SIZES.step;
+    } else if (event.key === "ArrowDown") {
+      change = INSPECTION_SIZES.step;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    resizeInspectionPair(event.currentTarget, change);
+  }
+  function clickInspectionDivider(event) {
+    let change = INSPECTION_SIZES.step;
+    if (event.currentTarget.dataset.direction === "up") {
+      change = -change;
+    }
+    resizeInspectionPair(event.currentTarget.parentElement, change);
+  }
 
   // src/app.mjs
   var SETTINGS = {
@@ -9702,6 +9861,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     downloadReleaseDelay: 1e3,
     clockInterval: 1e3
   };
+  var EXPORT_SETTINGS = { indent: 2, circuit: "breadboard-circuit.json", workspace: "sdu-breadboard-workspace.json", image: "breadboard-wiring.png" };
+  var PLACEMENT_OFFSET = 30;
   var PULSE_SETTINGS = { feedbackDuration: 160 };
   var state = {
     project: emptyProject(),
@@ -9712,8 +9873,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     wireAngle: SETTINGS.wireAngle,
     selected: null,
     selection: [],
-    pinnedChip: "",
-    fixedChip: "",
+    fixedItems: [],
     placing: "",
     pending: null,
     pointer: null,
@@ -10169,7 +10329,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function renderLibrary() {
     const container = element("chip-library");
     container.replaceChildren();
-    const query = element("chip-search").value.toUpperCase().trim();
+    const searchText = element("chip-search").value.trim();
+    const query = searchText.toUpperCase();
     let count = 0;
     for (const model in CHIP_MODELS) {
       if (!model.includes(query)) {
@@ -10219,7 +10380,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     drag = null;
     state.selected = null;
     state.selection = [];
-    state.pinnedChip = "";
     state.pending = null;
     state.tool = "place";
     if (readOnly) {
@@ -10229,11 +10389,18 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderLibrary();
     render();
   }
-  function placeCatalogChip() {
-    if (editingLocked() || catalogModel === "") {
+  function placeCatalogChip(event) {
+    if (editingLocked()) {
       return;
     }
-    state.placing = catalogModel;
+    let modelName = catalogModel;
+    if (event && event.currentTarget.dataset.model) {
+      modelName = event.currentTarget.dataset.model;
+    }
+    if (modelName === "") {
+      return;
+    }
+    state.placing = modelName;
     state.tool = "place";
     ignoreClick = false;
     state.pending = null;
@@ -10243,8 +10410,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (editingLocked()) {
       return;
     }
-    let section = Math.floor((point.y - BOARD.startY + 30) / BOARD.sectionHeight);
-    let column = Math.round((point.x - BOARD.startX) / BOARD.pitch) + 1;
+    const section = Math.floor((point.y - BOARD.startY + PLACEMENT_OFFSET) / BOARD.sectionHeight);
+    const column = Math.round((point.x - BOARD.startX) / BOARD.pitch) + 1;
     const chip = { id: nextId(state.project.chips, "U"), model: state.placing, section, column };
     let error = placementError(state.project.chips, chip, "");
     if (state.project.chips.length >= LIMITS.chips) {
@@ -10348,9 +10515,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     catalogModel = "";
     const same = target && state.selected && target.kind === state.selected.kind && target.id === state.selected.id;
     if (same && !multiple) {
-      if (target.kind === "chip" && state.pinnedChip === target.id) {
-        state.pinnedChip = "";
-      }
       state.selected = null;
       state.selection = [];
       return;
@@ -10374,9 +10538,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
       if (multiple && position >= 0) {
         state.selection.splice(position, 1);
-        if (target.kind === "chip" && state.pinnedChip === target.id) {
-          state.pinnedChip = "";
-        }
         state.selected = null;
         if (state.selection.length > 0) {
           state.selected = state.selection[state.selection.length - 1];
@@ -10387,7 +10548,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
     }
     if (target.kind === "chip") {
-      state.pinnedChip = target.id;
       state.activeTab = "inspect";
       lastPinnedChip = "";
     }
@@ -10649,9 +10809,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       } else {
         delete state.runtime.registers[chip.id];
         delete state.runtime.devices[chip.id];
-        if (state.fixedChip === chip.id) {
-          state.fixedChip = "";
-        }
+        removeFixedItem("chip", chip.id);
       }
     }
     state.project.wires = wires;
@@ -10660,9 +10818,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.selection = [];
     commit();
   }
-  function deletePinnedChip() {
-    if (findChip(state.pinnedChip)) {
-      const target = { kind: "chip", id: state.pinnedChip };
+  function deletePanelChip(event) {
+    const chipId = event.currentTarget.dataset.chip;
+    if (findChip(chipId)) {
+      const target = { kind: "chip", id: chipId };
       confirmAction("\u5220\u9664\u82AF\u7247\uFF1F", "\u786E\u8BA4\u5220\u9664 " + target.id + "\uFF1F\u5BFC\u7EBF\u4F1A\u7559\u5728\u539F\u6765\u7684\u63D2\u5B54", removeTargets.bind(null, [target]));
     }
   }
@@ -10774,10 +10933,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.selected = null;
     catalogModel = "";
     state.selection = [];
-    state.pinnedChip = "";
     lastPinnedChip = "";
-    state.fixedChip = "";
     state.previousIssues = /* @__PURE__ */ new Set();
+    state.fixedItems = [];
+    resetInspectionLayout();
   }
   function newProject() {
     keepExperiment(workspace, activeExperiment, state.project);
@@ -10821,12 +10980,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     URL.revokeObjectURL(url);
   }
   function exportProject() {
-    const content = JSON.stringify(state.project, null, 2);
-    download(new Blob([content], { type: "application/json" }), "breadboard-circuit.json");
+    const content = JSON.stringify(state.project, null, EXPORT_SETTINGS.indent);
+    const file = new Blob([content], { type: "application/json" });
+    download(file, EXPORT_SETTINGS.circuit);
   }
   function exportWorkspace() {
     keepExperiment(workspace, activeExperiment, state.project);
-    download(new Blob([JSON.stringify(workspace, null, 2)], { type: "application/json" }), "sdu-breadboard-workspace.json");
+    const content = JSON.stringify(workspace, null, EXPORT_SETTINGS.indent);
+    const file = new Blob([content], { type: "application/json" });
+    download(file, EXPORT_SETTINGS.workspace);
   }
   function chooseImport() {
     element("import-file").click();
@@ -10839,7 +11001,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     try {
       if (file.size > LIMITS.fileBytes) {
-        throw new Error("\u7535\u8DEF\u6587\u4EF6\u8FC7\u5927\uFF0C\u8BF7\u9009\u62E9\u5C0F\u4E8E 2 MB \u7684\u6587\u4EF6");
+        throw new Error("\u7535\u8DEF\u6587\u4EF6\u8FC7\u5927\uFF0C\u6700\u591A\u652F\u6301 " + LIMITS.fileBytes + " \u5B57\u8282");
       }
       const content = await file.text();
       const parsed = JSON.parse(content);
@@ -10879,7 +11041,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       toast("\u65E0\u6CD5\u5BFC\u51FA\u56FE\u7247\uFF0C\u8BF7\u91CD\u8BD5", "error");
       return;
     }
-    download(blob, "breadboard-wiring.png");
+    download(blob, EXPORT_SETTINGS.image);
   }
   function exportImage() {
     canvas.toBlob(receiveImage, "image/png");
@@ -10971,26 +11133,36 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.selection = [];
     render();
   }
-  function renderChipPanel(container, chip) {
+  function createChipHeading(title, buttonId, target, handler) {
     const heading = node("div", "", "inspection-heading");
-    heading.append(node("h2", chip.id + " \xB7 " + chip.model, ""));
+    heading.append(node("h2", title, ""));
+    const pin = node("button", "", "icon-button");
+    pin.id = buttonId;
+    pin.dataset.model = target;
+    pin.addEventListener("click", handler);
+    updatePinButton(pin, target);
+    heading.append(pin);
+    return heading;
+  }
+  function renderChipPanel(container, chip, prefix = "") {
+    const title = chip.id + " \xB7 " + chip.model;
+    const heading = createChipHeading(title, prefix + "pin-chip-info", chip.id, togglePinnedChip);
+    heading.lastElementChild.dataset.chip = chip.id;
     const remove = node("button", "", "icon-button");
     remove.setAttribute("aria-label", "\u5220\u9664\u82AF\u7247");
     remove.append(icon("trash-2"));
-    remove.addEventListener("click", deletePinnedChip);
-    heading.append(remove);
-    const pin = node("button", "", "icon-button");
-    pin.id = "pin-chip-info";
-    pin.addEventListener("click", togglePinnedChip);
-    heading.append(pin);
-    updatePinButton(pin, chip.id);
+    remove.dataset.chip = chip.id;
+    remove.addEventListener("click", deletePanelChip);
+    heading.insertBefore(remove, heading.lastElementChild);
     container.append(heading, node("p", CHIP_MODELS[chip.model].title + " \xB7 \u7F3A\u53E3\u671D\u5DE6", "inspection-meta"));
     appendChipReference(container, chip);
     const controls2 = node("div", "", "move-fields");
+    controls2.dataset.chip = chip.id;
     const sectionLabel = node("label", "\u677F\u5757", "");
     const section = document.createElement("select");
-    section.id = "move-section";
-    for (let index = 0; index < 4; index = index + 1) {
+    section.id = prefix + "move-section";
+    section.dataset.field = "section";
+    for (let index = 0; index < BOARD.sections; index = index + 1) {
       const option = node("option", "\u7B2C " + (index + 1) + " \u5757", "");
       option.value = String(index);
       section.append(option);
@@ -10999,7 +11171,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     sectionLabel.append(section);
     const columnLabel = node("label", "\u8D77\u59CB\u5217", "");
     const column = document.createElement("input");
-    column.id = "move-column";
+    column.id = prefix + "move-column";
+    column.dataset.field = "column";
     column.type = "number";
     column.min = "1";
     column.max = String(BOARD.columns);
@@ -11027,12 +11200,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     container.append(table);
   }
-  function moveChip() {
+  function moveChip(event) {
     if (editingLocked()) {
       return;
     }
-    const chip = findChip(state.pinnedChip);
-    const candidate = { id: chip.id, model: chip.model, section: Number(element("move-section").value), column: Number(element("move-column").value) };
+    const controls2 = event.currentTarget.closest(".move-fields");
+    const chip = findChip(controls2.dataset.chip);
+    const section = Number(controls2.querySelector("[data-field='section']").value);
+    const column = Number(controls2.querySelector("[data-field='column']").value);
+    const candidate = { id: chip.id, model: chip.model, section, column };
     let error = placementError(state.project.chips, candidate, chip.id);
     for (const wire of state.project.wires) {
       for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
@@ -11058,7 +11234,22 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const container = element("inspect-panel");
     const scrollTop = container.scrollTop;
     container.replaceChildren();
+    container.classList.remove("inspection-duplicate");
     if (catalogModel !== "") {
+      let shown = hasFixedItem("model", catalogModel);
+      if (state.fixedItems.length === 0 && !element("pinned-chip").hidden) {
+        let shownChip = null;
+        if (state.selected && state.selected.kind === "chip") {
+          shownChip = findChip(state.selected.id);
+        }
+        if (shownChip && shownChip.model === catalogModel) {
+          shown = true;
+        }
+      }
+      if (shown) {
+        container.classList.add("inspection-duplicate");
+        return;
+      }
       renderCatalogInfo(container, catalogModel);
       return;
     }
@@ -11070,11 +11261,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (state.selected && state.selected.kind === "chip") {
       const chip = findChip(state.selected.id);
       if (chip) {
-        let message = "\u5F15\u811A\u4FE1\u606F\u663E\u793A\u5728\u4E0A\u65B9";
-        if (state.fixedChip !== "" && state.fixedChip !== chip.id) {
-          message = "\u4E0A\u65B9\u6B63\u5728\u56FA\u5B9A\u663E\u793A " + state.fixedChip + " \u7684\u5F15\u811A\u4FE1\u606F";
+        const fixed = hasFixedItem("chip", chip.id);
+        const preview = state.fixedItems.length === 0 && state.selection.length <= 1;
+        if (fixed || preview) {
+          container.classList.add("inspection-duplicate");
+          return;
         }
-        container.append(node("h2", chip.id + " \xB7 " + chip.model, ""), node("p", message, "inspection-meta"));
+        renderChipPanel(container, chip, "selected-");
+        container.scrollTop = scrollTop;
         return;
       }
     }
@@ -11148,14 +11342,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     commit();
   }
-  function renderCatalogInfo(container, modelName) {
+  function renderCatalogInfo(container, modelName, prefix = "") {
     const model = CHIP_MODELS[modelName];
-    const heading = node("div", "", "inspection-heading");
-    heading.append(node("h2", modelName, ""));
+    const buttonId = prefix + "pin-catalog-info";
+    const heading = createChipHeading(modelName, buttonId, modelName, togglePinnedModel);
     container.append(heading, node("p", model.title + " \xB7 DIP-" + model.count, "inspection-meta"));
     appendChipReference(container, { model: modelName });
     const place = node("button", "", "button catalog-place");
-    place.id = "place-catalog-chip";
+    place.id = prefix + "place-catalog-chip";
+    place.dataset.model = modelName;
     place.append(icon("microchip"), node("span", "\u653E\u7F6E\u82AF\u7247", ""));
     place.disabled = readOnly;
     place.addEventListener("click", placeCatalogChip);
@@ -11196,9 +11391,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.selected = null;
     if (kept.length > 0) {
       state.selected = kept[kept.length - 1];
-    }
-    if (kind === "chip" && state.pinnedChip === id) {
-      state.pinnedChip = "";
     }
     render();
   }
@@ -11356,6 +11548,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function renderPanels() {
+    element("inspection-stack").hidden = state.activeTab !== "inspect";
     renderPinnedChip();
     for (const name of ["inspect", "wires", "diagnostics", "notes"]) {
       const active = name === state.activeTab;
@@ -11364,6 +11557,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       element("tab-" + name).setAttribute("aria-selected", String(active));
     }
     renderInspection();
+    const inspection = element("inspect-panel");
+    const pinned = element("pinned-chip");
+    const onlyPinned = inspection.classList.contains("inspection-duplicate");
+    const divider = element("inspection-divider");
+    divider.hidden = pinned.hidden || onlyPinned || state.activeTab !== "inspect";
+    if (!divider.hidden) {
+      configureInspectionDivider(divider, pinned.lastElementChild, inspection);
+    }
+    applyInspectionSizes();
     if (state.activeTab === "wires") {
       renderWireList();
     }
@@ -11375,35 +11577,95 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     refreshIcons();
   }
+  function findFixedItem(kind, id) {
+    for (const item of state.fixedItems) {
+      if (item.kind === kind && item.id === id) {
+        return item;
+      }
+    }
+    return null;
+  }
+  function hasFixedItem(kind, id) {
+    return findFixedItem(kind, id) !== null;
+  }
+  function removeFixedItem(kind, id) {
+    const kept = [];
+    for (const item of state.fixedItems) {
+      if (item.kind !== kind || item.id !== id) {
+        kept.push(item);
+      }
+    }
+    state.fixedItems = kept;
+  }
   function renderPinnedChip() {
-    if (state.fixedChip !== "" && !findChip(state.fixedChip)) {
-      state.fixedChip = "";
-    }
-    if (state.fixedChip !== "") {
-      state.pinnedChip = state.fixedChip;
-    } else if (state.selected && state.selected.kind === "chip") {
-      state.pinnedChip = state.selected.id;
-    }
     const container = element("pinned-chip");
-    if (state.selection.length > 1 && state.fixedChip === "") {
+    if (state.activeTab !== "inspect") {
       container.hidden = true;
       return;
     }
-    const chip = findChip(state.pinnedChip);
-    container.hidden = !chip;
-    if (!chip) {
+    const items = [];
+    for (const item of state.fixedItems) {
+      if (item.kind === "model" || findChip(item.id)) {
+        items.push(item);
+      }
+    }
+    state.fixedItems = items;
+    const shown = items.slice();
+    if (shown.length === 0 && state.selection.length <= 1 && state.selected && state.selected.kind === "chip") {
+      const chip = findChip(state.selected.id);
+      if (chip) {
+        shown.push({ kind: "chip", id: chip.id });
+      }
+    }
+    container.hidden = shown.length === 0;
+    if (container.hidden) {
       container.replaceChildren();
       lastPinnedChip = "";
       return;
     }
-    if (lastPinnedChip !== chip.id) {
+    let key = String(readOnly);
+    for (const item of shown) {
+      const fixed = hasFixedItem(item.kind, item.id);
+      key = key + ":" + item.kind + ":" + item.id + ":" + fixed;
+    }
+    if (lastPinnedChip !== key) {
+      const scrollPositions = {};
+      for (const pane of container.querySelectorAll(".inspection-pane")) {
+        scrollPositions[pane.dataset.key] = pane.scrollTop;
+      }
       container.replaceChildren();
-      renderChipPanel(container, chip);
-      lastPinnedChip = chip.id;
-      fadeContent(container);
-    } else {
-      updatePinButton(element("pin-chip-info"), chip.id);
-      for (const cell of container.querySelectorAll("[data-pin]")) {
+      let previous = null;
+      for (const item of shown) {
+        const pane = node("section", "", "inspection-pane");
+        pane.dataset.key = item.kind + ":" + item.id;
+        pane.dataset.kind = item.kind;
+        pane.dataset.id = item.id;
+        pane.id = "pane-" + item.kind + "-" + item.id;
+        if (previous) {
+          const divider = node("div", "", "");
+          configureInspectionDivider(divider, previous, pane);
+          container.append(divider);
+        }
+        container.append(pane);
+        let prefix = "fixed-" + item.id + "-";
+        if (item.kind === "chip") {
+          if (!container.querySelector("#pin-chip-info")) {
+            prefix = "";
+          }
+          renderChipPanel(pane, findChip(item.id), prefix);
+        } else {
+          renderCatalogInfo(pane, item.id, prefix);
+        }
+        if (Object.hasOwn(scrollPositions, pane.dataset.key)) {
+          pane.scrollTop = scrollPositions[pane.dataset.key];
+        }
+        previous = pane;
+      }
+      lastPinnedChip = key;
+    }
+    for (const pane of container.querySelectorAll(".inspection-pane[data-kind='chip']")) {
+      const chip = findChip(pane.dataset.id);
+      for (const cell of pane.querySelectorAll("[data-pin]")) {
         const value = readEndpoint(state.result, pinHole(chip, Number(cell.dataset.pin)));
         cell.textContent = String(value);
         cell.classList.toggle("high", value === 1);
@@ -11412,7 +11674,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function updatePinButton(button, chipId) {
-    const fixed = state.fixedChip === chipId;
+    const fixed = hasFixedItem("chip", chipId) || hasFixedItem("model", chipId);
     let label2 = "\u56FA\u5B9A\u5F15\u811A\u4FE1\u606F";
     let symbol = "pin";
     if (fixed) {
@@ -11425,18 +11687,22 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     button.classList.toggle("selected", fixed);
     button.replaceChildren(icon(symbol));
   }
-  function togglePinnedChip() {
-    if (state.fixedChip === "") {
-      state.fixedChip = state.pinnedChip;
+  function toggleFixedItem(kind, id) {
+    if (hasFixedItem(kind, id)) {
+      removeFixedItem(kind, id);
     } else {
-      state.fixedChip = "";
-      state.pinnedChip = "";
-      if (state.selected && state.selected.kind === "chip") {
-        state.pinnedChip = state.selected.id;
-      }
+      state.fixedItems.push({ kind, id });
     }
     lastPinnedChip = "";
     render();
+  }
+  function togglePinnedModel(event) {
+    const modelName = event.currentTarget.dataset.model;
+    toggleFixedItem("model", modelName);
+  }
+  function togglePinnedChip(event) {
+    const chipId = event.currentTarget.dataset.chip;
+    toggleFixedItem("chip", chipId);
   }
   function createQuickInput(bit) {
     const wrapper = node("div", "", "quick-input");
@@ -11824,6 +12090,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderLibrary();
     fitBoard();
     render();
+    const inspectionObserver = new ResizeObserver(applyInspectionSizes);
+    inspectionObserver.observe(element("inspection-stack"));
     refreshIcons();
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);

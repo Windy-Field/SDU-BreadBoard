@@ -77,9 +77,12 @@
             </section>
         </section>
         <aside class="inspector" aria-label="电路检查">
-            <section id="pinned-chip" class="pinned-chip" aria-label="固定芯片引脚信息" hidden></section>
             <div class="inspector-tabs" role="tablist" aria-label="检查面板"><button id="tab-inspect" role="tab" aria-selected="true" class="active">检查</button><button id="tab-wires" role="tab" aria-selected="false">导线 <span id="wire-count">61</span></button><button id="tab-diagnostics" role="tab" aria-selected="false">诊断 <span id="issue-count">0</span></button><button id="tab-notes" role="tab" aria-selected="false">备注</button></div>
-            <div id="inspect-panel" role="tabpanel" class="inspector-content"></div>
+            <div id="inspection-stack" class="inspection-stack">
+                <section id="pinned-chip" class="pinned-chip" aria-label="固定芯片引脚信息" hidden></section>
+                <div id="inspection-divider" hidden></div>
+                <div id="inspect-panel" role="tabpanel" class="inspector-content"></div>
+            </div>
             <div id="wires-panel" role="tabpanel" class="inspector-content" hidden></div>
             <div id="diagnostics-panel" role="tabpanel" class="inspector-content" hidden></div>
             <div id="notes-panel" role="tabpanel" class="inspector-content notes-panel" hidden><div class="notes-heading"><h2>电路备注</h2><div class="segmented" role="group" aria-label="备注视图"><button id="notes-preview-button" class="icon-button selected" aria-label="预览备注" aria-pressed="true" data-tip="预览"><i data-lucide="eye"></i></button><button id="notes-edit-button" class="icon-button" aria-label="编辑Markdown备注" aria-pressed="false" data-tip="编辑 Markdown"><i data-lucide="square-pen"></i></button></div></div><label id="notes-editor-label" for="notes-editor" hidden>Markdown 备注</label><textarea id="notes-editor" maxlength="50000" spellcheck="false" hidden></textarea><article id="notes-preview" class="markdown"></article><span id="notes-status" class="notes-status">备注随电路保存</span></div>
@@ -97,7 +100,7 @@
             <p>点击器件库中的芯片后，你可以查看功能和引脚图，同时进入放置模式。接着点击面包板即可放置，芯片缺口朝左，跨 E/F 沟槽。再次点击同一型号或按 Esc 可以取消放置。接线时依次选择起点和终点，点击空白可增加转折点，每个孔只插一根线</p>
             <p>同列 A～E 相通，F～J 相通。第四块的输入与脉冲对应列以固定细线桥接上下五孔组，其余列分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通。输入输出板没有接线孔，输出只接最上块 A～E，输入和脉冲接第四块对应列的 A～J</p>
             <p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。你也可以使用工具栏的缩放和适应宽度按钮</p>
-            <p>选中芯片后，引脚图、脚号、电平和位置会固定显示。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p>
+            <p>选中芯片后可查看引脚图、脚号、电平和位置。点击图钉可同时固定多份资料，拖动分隔条或点击方向按钮可调整上下空间；资料只在“检查”页显示，未固定资料在取消选择后关闭。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p>
             <p>标题旁的“只读”开关保护接线和备注，你仍可以调整输入、发脉冲、查看资料和导出实验。左侧“诊断”检查当前电路的供电、短路、驱动冲突、悬空输入与时序状态，不会发出脉冲或改变接线；“整理走线”在确认后调整路径，不改端点、线色和备注，也可以撤销</p>
             <p>补码示例中，K0～K3 是数值位，K4 是符号位，K5 为 0 时加、1 时减。你把 K6 切到 0 再切回 1 即可清零。按住 P− 后松开，寄存器在恢复上升沿保存结果。L5、L4 是两个符号位，L6 指示溢出，所有 LED 均在已知高电平时点亮</p>
             <p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。导入、重新打开或结构撤销后，你需要给寄存器重新清零。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件</p>

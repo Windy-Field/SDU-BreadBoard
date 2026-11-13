@@ -23,7 +23,9 @@ function createCircuit(modelName) {
 
 // 用同列空孔连接芯片引脚，仅用于建立测试电路
 function connectPin(project, chip, pin, endpoint) {
-    const hole = pinHole(chip, pin).replace(":E:", ":D:").replace(":F:", ":G:");
+    const position = pinHole(chip, pin);
+    const upperHole = position.replace(":E:", ":D:");
+    const hole = upperHole.replace(":F:", ":G:");
     project.wires.push({ id: "W" + (project.wires.length + 1), from: endpoint, to: hole, color: "#1976d2", bends: [] });
 }
 

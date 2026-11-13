@@ -6,7 +6,8 @@ import { initializeRouting } from "./routing-runtime.mjs";
 
 // libavoid 的代价是相对权重，间距和避让距离以画布逻辑像素计算
 const ROUTING = {
-    segmentPenalty: 50,
+    // 提高每个额外正交线段的代价，避免连续小折段
+    segmentPenalty: 2000,
     shapeBuffer: 5,
     nudgingDistance: 6,
     bottomBoundary: 1110,

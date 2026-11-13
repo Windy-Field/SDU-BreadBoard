@@ -289,10 +289,22 @@ export function emptyProject() {
     for (let index = 0; index < IO_LIMIT; index = index + 1) {
         switches.push(0);
     }
-    return { version: 1, wiringVersion: WIRING_VERSION, inputCount: PROJECT_DEFAULTS.inputCount, outputCount: PROJECT_DEFAULTS.outputCount, notes: GENERAL_NOTES, name: "未命名电路", chips: [], wires: [], pullUps: [], switches: switches, power: PROJECT_DEFAULTS.power };
+    return {
+        version: 1,
+        wiringVersion: WIRING_VERSION,
+        inputCount: PROJECT_DEFAULTS.inputCount,
+        outputCount: PROJECT_DEFAULTS.outputCount,
+        notes: GENERAL_NOTES,
+        name: "未命名电路",
+        chips: [],
+        wires: [],
+        pullUps: [],
+        switches: switches,
+        power: PROJECT_DEFAULTS.power
+    };
 }
 
 // 复制电路的可保存数据，不复制仿真过程中的临时状态
 export function copyProject(project) {
-    return JSON.parse(JSON.stringify(project));
+    return structuredClone(project);
 }

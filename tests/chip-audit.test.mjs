@@ -10,6 +10,96 @@ import { createRuntime, simulate, readEndpoint } from "../src/engine.mjs";
 const SEGMENT_MASKS = [63, 6, 91, 79, 102, 109, 124, 7, 127, 103, 88, 76, 98, 105, 120, 0];
 const DECADE_NEXT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 4, 13, 4, 15, 0];
 
+// 每个物理引脚都有明确用途，双向脚单独登记，未使用脚只能标为 NC
+function testPinRoles() {
+    for (const name of Object.keys(CHIP_MODELS)) {
+        const model = CHIP_MODELS[name];
+        assert.equal(model.labels.length, model.count + 1, name);
+        assert.notEqual(model.power, model.ground, name);
+        const inputs = new Set(model.inputs);
+        const outputs = new Set(model.outputs);
+        assert.equal(inputs.size, model.inputs.length, name + " 输入脚重复");
+        assert.equal(outputs.size, model.outputs.length, name + " 输出脚重复");
+        for (let pin = 1; pin <= model.count; pin = pin + 1) {
+            const input = inputs.has(pin);
+            const output = outputs.has(pin);
+            if (pin === model.power || pin === model.ground) {
+                assert.equal(input || output, false, name + " 电源脚不能参与数据运算");
+            } else if (!input && !output) {
+                assert.equal(model.labels[pin], "NC", name + " 第 " + pin + " 脚未分类");
+            } else if (input && output) {
+                assert.ok(model.bidirectional.includes(pin), name + " 双向脚应明确登记");
+            }
+        }
+        for (const pin of model.inputs.concat(model.outputs)) {
+            assert.ok(pin >= 1 && pin <= model.count, name + " 引脚超出封装");
+        }
+        if (model.gates) {
+            for (const gate of model.gates) {
+                const outputPin = gate[gate.length - 1];
+                assert.ok(outputs.has(outputPin), name);
+                for (let index = 0; index < gate.length - 1; index = index + 1) {
+                    assert.ok(inputs.has(gate[index]), name);
+                }
+            }
+        }
+    }
+}
+
+// 固定第一路门的输入后，其他门的输入变化不能影响这一门的输出
+function testIndependentGateOutputs() {
+    for (const name of ["74LS03", "74LS20", "CD4011", "74LS125"]) {
+        const model = CHIP_MODELS[name];
+        const firstGate = model.gates[0];
+        const pins = {};
+        for (const pin of model.inputs) {
+            pins[pin] = 0;
+        }
+        const outputPin = firstGate[firstGate.length - 1];
+        const expected = evaluateExtra(model, pins)[outputPin];
+        for (const pin of model.inputs) {
+            if (!firstGate.includes(pin)) {
+                pins[pin] = 1;
+                assert.equal(evaluateExtra(model, pins)[outputPin], expected, name);
+            }
+        }
+    }
+}
+
+// 枚举一位全加器的已知和未知输入，和位只在三项全已知时确定，进位由多数决定
+function testAllCarryUnknowns() {
+    const values = [0, 1, "X", "Z"];
+    for (const first of values) {
+        for (const second of values) {
+            for (const carry of values) {
+                const pins = { 5: first, 6: second, 7: carry, 3: 0, 2: 0, 14: 0, 15: 0, 12: 0, 11: 0 };
+                let ones = 0;
+                let zeros = 0;
+                for (const value of [first, second, carry]) {
+                    if (value === 1) {
+                        ones = ones + 1;
+                    } else if (value === 0) {
+                        zeros = zeros + 1;
+                    }
+                }
+                let expectedSum = "X";
+                if (ones + zeros === 3) {
+                    expectedSum = ones % 2;
+                }
+                let expectedCarry = "X";
+                if (ones >= 2) {
+                    expectedCarry = 1;
+                } else if (zeros >= 2) {
+                    expectedCarry = 0;
+                }
+                const output = evaluateAdder(pins);
+                assert.equal(output[4], expectedSum);
+                assert.equal(output[1], expectedCarry);
+            }
+        }
+    }
+}
+
 // 按低位优先顺序把整数拆成固定位数的数组
 function bitsOf(number, count) {
     const bits = [];
@@ -438,7 +528,10 @@ function testCounterCascade() {
 }
 
 test("九种门芯片逐门全部二值输入", testAllGateModels);
+test("23种芯片逐脚分类与门脚号完整", testPinRoles);
+test("多路门输出相互独立", testIndependentGateOutputs);
 test("加法器进位的未知输入抑制", testUnknownCarry);
+test("全加器64种已知未知输入组合", testAllCarryUnknowns);
 test("74LS48全部字形与128种控制组合", testAllSegmentControls);
 test("JK未知状态恢复与未知时钟保持", testSequentialUnknowns);
 test("计数器4096种装载使能和非法BCD状态", testAllCounterControls);
