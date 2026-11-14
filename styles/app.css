@@ -98,9 +98,10 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
 .board-status > span:first-child { display: flex; gap: 7px; align-items: center; margin-right: auto; }
 .board-status label { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
 .rail-note { color: var(--color-muted); font-family: var(--font-mono); }
-.board-viewport { overflow: auto; flex: 1; min-height: 0; padding: var(--board-padding); overscroll-behavior: contain; }
+.board-viewport { overflow: auto; flex: 1; min-height: 0; padding: var(--board-padding); overscroll-behavior: contain; cursor: grab; }
+.board-viewport.board-panning, .board-viewport.board-panning #board-canvas { cursor: grabbing; }
 #canvas-size { position: relative; margin: 0 auto; background: var(--color-board); border-radius: 8px; box-shadow: 0 2px 8px var(--color-shadow); }
-#board-canvas { display: block; position: absolute; top: 0; left: 0; width: 1300px; height: 1280px; transform-origin: top left; touch-action: manipulation; cursor: crosshair; }
+#board-canvas { display: block; position: absolute; top: 0; left: 0; width: 1300px; height: 1280px; transform-origin: top left; touch-action: manipulation; cursor: grab; }
 .board-footer { padding: 7px 15px; display: flex; justify-content: space-between; border-top: 1px solid var(--color-rule); font-size: 11px; color: var(--color-muted); font-family: var(--font-mono); min-height: 30px; gap: 10px; }
 .io-strip { background: var(--color-surface); border-top: 1px solid var(--color-rule); padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
 .field-label { font-size: 10px; color: var(--color-muted); display: block; margin-bottom: 6px; }

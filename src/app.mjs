@@ -19,8 +19,9 @@ import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keep
 import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
 import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./inspection-layout.mjs";
 import { openLogicDiagram, bindLogicDiagram } from "./logic-diagram-view.mjs";
+import { bindViewportPan } from "./viewport-pan.mjs";
 
-// 界面操作参数：时长单位为毫秒，距离单位为画布逻辑像素
+// 界面操作参数：时长单位为毫秒，编辑距离为画布逻辑像素
 const SETTINGS = {
     // 新打开页面时采用的走线角度，0 表示自由走线，45 表示斜角走线
     wireAngle: 45,
@@ -48,6 +49,13 @@ const EXPORT_SETTINGS = { indent: 2, circuit: "breadboard-circuit.json", image: 
 const PLACEMENT_OFFSET = 30;
 // 键盘触发时的按钮高亮时长，真实脉冲不等待动画
 const PULSE_SETTINGS = { feedbackDuration: 160 };
+// 面包板只接管左键平移，业务回调保留导线编辑与脉冲操作的优先级
+const BOARD_PAN_OPTIONS = {
+    buttons: [0],
+    activeClass: "board-panning",
+    canStart: canPanBoard,
+    onStart: prepareBoardPan
+};
 
 // 电路结构、真实仿真状态和界面预览分别保存，动画不会改变逻辑电平
 const state = {
@@ -94,6 +102,7 @@ let savedExperiments = { version: 1, activeId: "", projects: {} };
 let autoSave = false;
 let confirmationAction = null;
 let drag = null;
+let boardPan = null;
 let ignoreClick = false;
 let cycle = { x: -100, y: -100, signature: "", index: 0 };
 let catalogModel = "";
@@ -840,6 +849,20 @@ function pointerDown(event) {
     }
 }
 
+// 导线节点拖动、脉冲和组合键选择优先，其他鼠标拖动可用于平移
+function canPanBoard(event) {
+    if (drag || heldPulse !== "") {
+        return false;
+    }
+    return !event.ctrlKey && !event.metaKey;
+}
+
+// 开始平移时清除孔位提示和接线预览，电路结构与当前选择保持不变
+function prepareBoardPan() {
+    canvas.title = "";
+    leaveBoard();
+}
+
 // 拖动转折点直接预览路径；端点等松开时吸附到合法空孔
 function dragPointer(event) {
     if (!drag) {
@@ -930,6 +953,9 @@ function cancelPointer() {
 
 // 鼠标移动时只重绘画布和孔位文字，不重新计算电路
 function movePointer(event) {
+    if (boardPan.isDragging()) {
+        return;
+    }
     if (drag) {
         dragPointer(event);
         return;
@@ -2433,6 +2459,8 @@ function keyDown(event) {
 
 // 将命名事件处理函数绑定到界面控件
 function bindEvents() {
+    const viewport = element("board-viewport");
+    boardPan = bindViewportPan(viewport, BOARD_PAN_OPTIONS);
     element("tool-place").addEventListener("click", chooseTool);
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
@@ -2451,7 +2479,7 @@ function bindEvents() {
     canvas.addEventListener("click", clickBoard);
     canvas.addEventListener("pointermove", movePointer);
     canvas.addEventListener("pointerleave", leaveBoard);
-    element("board-viewport").addEventListener("wheel", wheelBoard, { passive: false });
+    viewport.addEventListener("wheel", wheelBoard, { passive: false });
     element("tool-wire").addEventListener("click", chooseTool);
     element("tool-select").addEventListener("click", chooseTool);
     element("tool-delete").addEventListener("click", chooseTool);

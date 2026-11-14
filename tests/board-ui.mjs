@@ -1,5 +1,6 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { BOARD, endpointPosition, portHole } from "../src/board.mjs";
@@ -36,6 +37,92 @@ async function clickPoint(page, point) {
     await page.mouse.click(bounds.x + point.x / BOARD.width * bounds.width, bounds.y + point.y / BOARD.height * bounds.height);
 }
 
+// 读取平移位置与实际光标，缩放后仍按屏幕像素核对移动距离
+function readBoardView() {
+    const viewport = document.getElementById("board-viewport");
+    const canvas = document.getElementById("board-canvas");
+    return {
+        scrollLeft: viewport.scrollLeft,
+        scrollTop: viewport.scrollTop,
+        cursor: window.getComputedStyle(canvas).cursor,
+        panning: viewport.classList.contains("board-panning")
+    };
+}
+
+// 等缩放动画到达上限后再拖动，避免动画改变测试时的画布位置
+function boardZoomReady() {
+    return document.getElementById("zoom-label").textContent === "200%";
+}
+
+// 导出当前实验核对平移前后结构不变，不读取应用内部状态
+async function readProject(page) {
+    const waiting = page.waitForEvent("download");
+    await page.locator("#export-project").click();
+    const download = await waiting;
+    const filename = await download.path();
+    return fs.readFileSync(filename, "utf8");
+}
+
+// 在各工具模式下按住左键平移，松开后不能新增接线、放置芯片或发起删除
+async function dragBoardView(page) {
+    const viewport = page.locator("#board-viewport");
+    const bounds = await viewport.boundingBox();
+    const startX = bounds.x + bounds.width * 0.6;
+    const startY = bounds.y + bounds.height * 0.5;
+    const before = await page.evaluate(readBoardView);
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(startX - 70, startY - 50, { steps: 6 });
+    const moving = await page.evaluate(readBoardView);
+    assert.equal(moving.cursor, "grabbing");
+    assert.equal(moving.panning, true);
+    await page.mouse.up();
+    const after = await page.evaluate(readBoardView);
+    assert.equal(after.panning, false);
+    assert.equal(after.cursor, "grab");
+    assert.ok(Math.abs(after.scrollLeft - before.scrollLeft - 70) <= 1);
+    assert.ok(Math.abs(after.scrollTop - before.scrollTop - 50) <= 1);
+    assert.equal(await page.locator("#confirm-dialog").isVisible(), false);
+}
+
+// 检查左键平移、只读操作和鼠标移出画布时的释放，随后恢复原测试的缩放位置
+async function testBoardPan(page) {
+    const before = await readProject(page);
+    const viewport = page.locator("#board-viewport");
+    const bounds = await viewport.boundingBox();
+    await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    await page.keyboard.down("Control");
+    await page.mouse.wheel(0, -5000);
+    await page.keyboard.up("Control");
+    await page.waitForFunction(boardZoomReady);
+    for (const tool of ["#tool-wire", "#tool-select", "#tool-delete"]) {
+        await page.locator(tool).click();
+        await dragBoardView(page);
+    }
+    const chipOption = page.locator(".chip-option[data-model='74LS86']");
+    await chipOption.click();
+    await dragBoardView(page);
+    await page.keyboard.press("Escape");
+    assert.equal(await readProject(page), before);
+    await page.locator("#read-only-toggle").check();
+    await dragBoardView(page);
+    assert.equal(await readProject(page), before);
+    await page.locator("#read-only-toggle").uncheck();
+
+    // 捕获鼠标后，即使松开位置在侧栏上，也必须释放小手拖动状态
+    const startX = bounds.x + bounds.width / 2;
+    const startY = bounds.y + bounds.height / 2;
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(startX - 20, startY, { steps: 2 });
+    await page.mouse.move(bounds.x - 20, startY, { steps: 5 });
+    await page.mouse.up();
+    assert.equal((await page.evaluate(readBoardView)).panning, false);
+    assert.equal(await readProject(page), before);
+    await page.locator("#fit-board").click();
+    await viewport.evaluate(scrollToTop);
+}
+
 // 检查真实插孔操作、板载非插孔区域和内部电平标识
 async function main() {
     const browser = await chromium.launch({ headless: true, channel: "msedge" });
@@ -43,6 +130,7 @@ async function main() {
     try {
         await page.goto(pathToFileURL(path.join(process.cwd(), "index.html")).href);
         await page.locator("#new-experiment").click();
+        await testBoardPan(page);
         const linePoint = { x: endpointPosition("L0").x, y: 83 };
         const defaultPixel = await page.evaluate(readConnectionPixel, linePoint);
         const besidePixel = await page.evaluate(readConnectionPixel, { x: linePoint.x + 4, y: linePoint.y });
@@ -91,7 +179,7 @@ async function main() {
         await page.locator("#to-endpoint").fill("R:VCC:0");
         await page.locator("#connect-endpoints").click();
         assert.ok((await page.evaluate(readLabels)).includes("X"), "冲突节点应显示 X");
-        console.log("板面验证通过：板载标识不可插线、真实孔连接、直连电平、内部示意和字符电平标签");
+        console.log("板面验证通过：左键平移和抓握光标、工具与只读兼容、移出释放、板载标识不可插线、真实孔连接、直连电平、内部示意和字符电平标签");
     } finally {
         await browser.close();
     }

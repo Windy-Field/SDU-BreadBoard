@@ -1,11 +1,19 @@
 import { element, node, refreshIcons } from "./dom.mjs";
 import { buildLogicDiagram } from "./logic-diagram.mjs";
 import { layoutLogicDiagram } from "./logic-diagram-layout.mjs";
+import { bindViewportPan } from "./viewport-pan.mjs";
 
 // 缩放上下限、步长与下载地址释放时间集中维护
 const VIEW_OPTIONS = {
     minimum: 0.15, maximum: 2.5, step: 0.15, margin: 24, releaseDelay: 1000,
-    wheelSpeed: 0.0015, wheelLinePixels: 16, dragThreshold: 4
+    wheelSpeed: 0.0015, wheelLinePixels: 16
+};
+// 逻辑图允许左键和中键平移，布局状态与键盘焦点由图纸界面维护
+const DIAGRAM_PAN_OPTIONS = {
+    buttons: [0, 1],
+    activeClass: "logic-panning",
+    canStart: canPanDiagram,
+    onStart: prepareDiagramPan
 };
 // 导出 SVG 时复制实际样式，文件离开网页后仍保留字号、线色和透明度
 const EXPORT_PROPERTIES = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "font-family", "font-size", "font-weight", "text-anchor", "opacity", "paint-order"];
@@ -20,8 +28,7 @@ let currentProject = null;
 let currentResult = null;
 let zoom = 1;
 let generation = 0;
-let pan = null;
-let suppressClick = false;
+let diagramPan = null;
 
 // 创建 SVG 节点，绘图只设置几何属性，配色和字体由样式文件维护
 function svgElement(parent, name, attributes, text = "") {
@@ -272,7 +279,7 @@ function drawGraph() {
 
 // 重新生成图纸时保留工程与仿真的原对象，仅读取当前网络数据
 async function generateDiagram() {
-    finishDiagramPan();
+    diagramPan.finish();
     const request = generation + 1;
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
@@ -385,68 +392,17 @@ function wheelLogicDiagram(event) {
     setLogicZoom(zoom * scale, event);
 }
 
-// 记录鼠标拖动起点，滚动条和触摸屏继续使用浏览器自己的操作
-function startDiagramPan(event) {
-    if (event.pointerType !== "mouse" || pan || (event.button !== 0 && event.button !== 1)) {
-        return;
-    }
+// 有图纸且布局完成后允许平移，生成期间保持原图纸位置
+function canPanDiagram() {
     if (!currentGraph || element("logic-diagram-dialog").getAttribute("aria-busy") === "true") {
-        return;
+        return false;
     }
-    const viewport = element("logic-diagram-scroll");
-    const bounds = viewport.getBoundingClientRect();
-    if (event.clientX >= bounds.left + viewport.clientLeft + viewport.clientWidth ||
-        event.clientY >= bounds.top + viewport.clientTop + viewport.clientHeight) {
-        return;
-    }
-    suppressClick = false;
-    pan = {
-        pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY,
-        scrollLeft: viewport.scrollLeft, scrollTop: viewport.scrollTop, moved: false
-    };
-    if (event.button === 1) {
-        event.preventDefault();
-    }
+    return true;
 }
 
-// 超过小幅抖动后才平移，并捕获鼠标，让移出画布的拖动也能正常结束
-function moveDiagramPan(event) {
-    if (!pan || event.pointerId !== pan.pointerId) {
-        return;
-    }
-    const distanceX = event.clientX - pan.clientX;
-    const distanceY = event.clientY - pan.clientY;
-    if (!pan.moved && Math.hypot(distanceX, distanceY) <= VIEW_OPTIONS.dragThreshold) {
-        return;
-    }
-    const viewport = element("logic-diagram-scroll");
-    if (!pan.moved) {
-        pan.moved = true;
-        suppressClick = true;
-        viewport.setPointerCapture(event.pointerId);
-        viewport.classList.add("logic-panning");
-        viewport.focus({ preventScroll: true });
-    }
-    event.preventDefault();
-    viewport.scrollLeft = pan.scrollLeft - distanceX;
-    viewport.scrollTop = pan.scrollTop - distanceY;
-}
-
-// 松开、取消、关闭窗口或重新布局时释放拖动状态和鼠标捕获
-function finishDiagramPan(event = null) {
-    if (!pan) {
-        return;
-    }
-    if (event && event.pointerId !== undefined && event.pointerId !== pan.pointerId) {
-        return;
-    }
-    const pointerId = pan.pointerId;
-    pan = null;
-    const viewport = element("logic-diagram-scroll");
-    viewport.classList.remove("logic-panning");
-    if (viewport.hasPointerCapture(pointerId)) {
-        viewport.releasePointerCapture(pointerId);
-    }
+// 平移后将键盘焦点留在图纸容器，方向键可继续滚动查看
+function prepareDiagramPan() {
+    element("logic-diagram-scroll").focus({ preventScroll: true });
 }
 
 // 同时标亮一条网络的全部分支，核对表列出所有真实端点及上拉节点
@@ -473,10 +429,6 @@ function selectNetwork(id) {
 
 // 点击线路或引脚时读取所属网络，不改变芯片选择
 function clickDiagram(event) {
-    if (suppressClick && event.detail > 0) {
-        suppressClick = false;
-        return;
-    }
     const target = event.target.closest("[data-net]");
     if (target) {
         selectNetwork(target.dataset.net);
@@ -532,13 +484,9 @@ function releaseLogicDownload(url) {
 // 将逻辑图控件绑定一次，窗口反复打开时不重复添加监听
 export function bindLogicDiagram() {
     const viewport = element("logic-diagram-scroll");
+    diagramPan = bindViewportPan(viewport, DIAGRAM_PAN_OPTIONS);
     viewport.addEventListener("wheel", wheelLogicDiagram, { passive: false });
-    viewport.addEventListener("pointerdown", startDiagramPan);
-    viewport.addEventListener("pointermove", moveDiagramPan);
-    viewport.addEventListener("lostpointercapture", finishDiagramPan);
-    window.addEventListener("pointerup", finishDiagramPan);
-    window.addEventListener("pointercancel", finishDiagramPan);
-    element("logic-diagram-dialog").addEventListener("close", finishDiagramPan);
+    element("logic-diagram-dialog").addEventListener("close", diagramPan.finish);
     element("close-logic-diagram").addEventListener("click", closeLogicDiagram);
     element("logic-show-power").addEventListener("change", generateDiagram);
     element("logic-fit").addEventListener("click", fitLogicDiagram);

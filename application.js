@@ -104453,6 +104453,95 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     return best;
   }
 
+  // src/viewport-pan.mjs
+  var PAN_SETTINGS = { threshold: 4 };
+  function bindViewportPan(viewport, options) {
+    let gesture = null;
+    let suppressClick = false;
+    function startPan(event) {
+      if (gesture) {
+        return;
+      }
+      suppressClick = false;
+      if (event.pointerType !== "mouse" || !options.buttons.includes(event.button)) {
+        return;
+      }
+      if (!options.canStart(event)) {
+        return;
+      }
+      const bounds = viewport.getBoundingClientRect();
+      const contentRight = bounds.left + viewport.clientLeft + viewport.clientWidth;
+      const contentBottom = bounds.top + viewport.clientTop + viewport.clientHeight;
+      if (event.clientX >= contentRight || event.clientY >= contentBottom) {
+        return;
+      }
+      gesture = {
+        pointerId: event.pointerId,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        scrollLeft: viewport.scrollLeft,
+        scrollTop: viewport.scrollTop,
+        moved: false
+      };
+      if (event.button === 1) {
+        event.preventDefault();
+      }
+    }
+    function movePan(event) {
+      if (!gesture || event.pointerId !== gesture.pointerId) {
+        return;
+      }
+      const distanceX = event.clientX - gesture.clientX;
+      const distanceY = event.clientY - gesture.clientY;
+      const distance = Math.hypot(distanceX, distanceY);
+      if (!gesture.moved && distance <= PAN_SETTINGS.threshold) {
+        return;
+      }
+      if (!gesture.moved) {
+        gesture.moved = true;
+        suppressClick = true;
+        viewport.setPointerCapture(event.pointerId);
+        viewport.classList.add(options.activeClass);
+        options.onStart();
+      }
+      event.preventDefault();
+      viewport.scrollLeft = gesture.scrollLeft - distanceX;
+      viewport.scrollTop = gesture.scrollTop - distanceY;
+    }
+    function finishPan(event = null) {
+      if (!gesture) {
+        return;
+      }
+      if (event && event.pointerId !== void 0 && event.pointerId !== gesture.pointerId) {
+        return;
+      }
+      const pointerId = gesture.pointerId;
+      gesture = null;
+      viewport.classList.remove(options.activeClass);
+      if (viewport.hasPointerCapture(pointerId)) {
+        viewport.releasePointerCapture(pointerId);
+      }
+    }
+    function suppressPanClick(event) {
+      if (suppressClick && event.detail > 0) {
+        suppressClick = false;
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+    function isDragging() {
+      return gesture !== null && gesture.moved;
+    }
+    viewport.addEventListener("pointerdown", startPan);
+    viewport.addEventListener("pointermove", movePan);
+    viewport.addEventListener("lostpointercapture", finishPan);
+    viewport.addEventListener("click", suppressPanClick, true);
+    window.addEventListener("pointerup", finishPan);
+    window.addEventListener("pointercancel", finishPan);
+    window.addEventListener("blur", finishPan);
+    return { isDragging, finish: finishPan };
+  }
+
   // src/logic-diagram-view.mjs
   var VIEW_OPTIONS = {
     minimum: 0.15,
@@ -104461,8 +104550,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     margin: 24,
     releaseDelay: 1e3,
     wheelSpeed: 15e-4,
-    wheelLinePixels: 16,
-    dragThreshold: 4
+    wheelLinePixels: 16
+  };
+  var DIAGRAM_PAN_OPTIONS = {
+    buttons: [0, 1],
+    activeClass: "logic-panning",
+    canStart: canPanDiagram,
+    onStart: prepareDiagramPan
   };
   var EXPORT_PROPERTIES = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "font-family", "font-size", "font-weight", "text-anchor", "opacity", "paint-order"];
   var DIAGRAM_CONTROLS = ["logic-export", "logic-show-power", "logic-fit", "logic-zoom-in", "logic-zoom-out", "logic-network"];
@@ -104474,8 +104568,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var currentResult = null;
   var zoom = 1;
   var generation = 0;
-  var pan = null;
-  var suppressClick = false;
+  var diagramPan = null;
   function svgElement(parent, name, attributes, text2 = "") {
     const shape = document.createElementNS(SVG_NAMESPACE, name);
     for (const key of Object.keys(attributes)) {
@@ -104722,7 +104815,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     fitLogicDiagram();
   }
   async function generateDiagram() {
-    finishDiagramPan();
+    diagramPan.finish();
     const request = generation + 1;
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
@@ -104818,66 +104911,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const scale = Math.exp(-delta * VIEW_OPTIONS.wheelSpeed);
     setLogicZoom(zoom * scale, event);
   }
-  function startDiagramPan(event) {
-    if (event.pointerType !== "mouse" || pan || event.button !== 0 && event.button !== 1) {
-      return;
-    }
+  function canPanDiagram() {
     if (!currentGraph || element("logic-diagram-dialog").getAttribute("aria-busy") === "true") {
-      return;
+      return false;
     }
-    const viewport = element("logic-diagram-scroll");
-    const bounds = viewport.getBoundingClientRect();
-    if (event.clientX >= bounds.left + viewport.clientLeft + viewport.clientWidth || event.clientY >= bounds.top + viewport.clientTop + viewport.clientHeight) {
-      return;
-    }
-    suppressClick = false;
-    pan = {
-      pointerId: event.pointerId,
-      clientX: event.clientX,
-      clientY: event.clientY,
-      scrollLeft: viewport.scrollLeft,
-      scrollTop: viewport.scrollTop,
-      moved: false
-    };
-    if (event.button === 1) {
-      event.preventDefault();
-    }
+    return true;
   }
-  function moveDiagramPan(event) {
-    if (!pan || event.pointerId !== pan.pointerId) {
-      return;
-    }
-    const distanceX = event.clientX - pan.clientX;
-    const distanceY = event.clientY - pan.clientY;
-    if (!pan.moved && Math.hypot(distanceX, distanceY) <= VIEW_OPTIONS.dragThreshold) {
-      return;
-    }
-    const viewport = element("logic-diagram-scroll");
-    if (!pan.moved) {
-      pan.moved = true;
-      suppressClick = true;
-      viewport.setPointerCapture(event.pointerId);
-      viewport.classList.add("logic-panning");
-      viewport.focus({ preventScroll: true });
-    }
-    event.preventDefault();
-    viewport.scrollLeft = pan.scrollLeft - distanceX;
-    viewport.scrollTop = pan.scrollTop - distanceY;
-  }
-  function finishDiagramPan(event = null) {
-    if (!pan) {
-      return;
-    }
-    if (event && event.pointerId !== void 0 && event.pointerId !== pan.pointerId) {
-      return;
-    }
-    const pointerId = pan.pointerId;
-    pan = null;
-    const viewport = element("logic-diagram-scroll");
-    viewport.classList.remove("logic-panning");
-    if (viewport.hasPointerCapture(pointerId)) {
-      viewport.releasePointerCapture(pointerId);
-    }
+  function prepareDiagramPan() {
+    element("logic-diagram-scroll").focus({ preventScroll: true });
   }
   function selectNetwork(id) {
     element("logic-network").value = id;
@@ -104900,10 +104941,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function clickDiagram(event) {
-    if (suppressClick && event.detail > 0) {
-      suppressClick = false;
-      return;
-    }
     const target = event.target.closest("[data-net]");
     if (target) {
       selectNetwork(target.dataset.net);
@@ -104949,13 +104986,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function bindLogicDiagram() {
     const viewport = element("logic-diagram-scroll");
+    diagramPan = bindViewportPan(viewport, DIAGRAM_PAN_OPTIONS);
     viewport.addEventListener("wheel", wheelLogicDiagram, { passive: false });
-    viewport.addEventListener("pointerdown", startDiagramPan);
-    viewport.addEventListener("pointermove", moveDiagramPan);
-    viewport.addEventListener("lostpointercapture", finishDiagramPan);
-    window.addEventListener("pointerup", finishDiagramPan);
-    window.addEventListener("pointercancel", finishDiagramPan);
-    element("logic-diagram-dialog").addEventListener("close", finishDiagramPan);
+    element("logic-diagram-dialog").addEventListener("close", diagramPan.finish);
     element("close-logic-diagram").addEventListener("click", closeLogicDiagram);
     element("logic-show-power").addEventListener("change", generateDiagram);
     element("logic-fit").addEventListener("click", fitLogicDiagram);
@@ -104993,6 +105026,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var EXPORT_SETTINGS = { indent: 2, circuit: "breadboard-circuit.json", image: "breadboard-wiring.png" };
   var PLACEMENT_OFFSET = 30;
   var PULSE_SETTINGS = { feedbackDuration: 160 };
+  var BOARD_PAN_OPTIONS = {
+    buttons: [0],
+    activeClass: "board-panning",
+    canStart: canPanBoard,
+    onStart: prepareBoardPan
+  };
   var state = {
     project: emptyProject(),
     runtime: createRuntime(),
@@ -105037,6 +105076,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var autoSave = false;
   var confirmationAction = null;
   var drag = null;
+  var boardPan = null;
   var ignoreClick = false;
   var cycle = { x: -100, y: -100, signature: "", index: 0 };
   var catalogModel = "";
@@ -105705,6 +105745,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       canvas.setPointerCapture(event.pointerId);
     }
   }
+  function canPanBoard(event) {
+    if (drag || heldPulse !== "") {
+      return false;
+    }
+    return !event.ctrlKey && !event.metaKey;
+  }
+  function prepareBoardPan() {
+    canvas.title = "";
+    leaveBoard();
+  }
   function dragPointer(event) {
     if (!drag) {
       return;
@@ -105788,6 +105838,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderBoard(canvas, state, endpoints);
   }
   function movePointer(event) {
+    if (boardPan.isDragging()) {
+      return;
+    }
     if (drag) {
       dragPointer(event);
       return;
@@ -107111,6 +107164,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function bindEvents() {
+    const viewport = element("board-viewport");
+    boardPan = bindViewportPan(viewport, BOARD_PAN_OPTIONS);
     element("tool-place").addEventListener("click", chooseTool);
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
@@ -107129,7 +107184,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     canvas.addEventListener("click", clickBoard);
     canvas.addEventListener("pointermove", movePointer);
     canvas.addEventListener("pointerleave", leaveBoard);
-    element("board-viewport").addEventListener("wheel", wheelBoard, { passive: false });
+    viewport.addEventListener("wheel", wheelBoard, { passive: false });
     element("tool-wire").addEventListener("click", chooseTool);
     element("tool-select").addEventListener("click", chooseTool);
     element("tool-delete").addEventListener("click", chooseTool);
