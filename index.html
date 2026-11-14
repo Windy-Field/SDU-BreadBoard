@@ -36,10 +36,11 @@
                 <h2>我的实验</h2>
                 <label class="experiment-picker-label" for="experiment-picker">切换实验</label><select id="experiment-picker" aria-label="切换实验"></select>
                 <button id="new-experiment" class="preset-button"><i data-lucide="file-plus-2" aria-hidden="true"></i><span>新建空白实验</span></button>
-                <button id="diagnose-circuit" class="preset-button"><i data-lucide="stethoscope" aria-hidden="true"></i><span>诊断</span></button>
+                <button id="diagnose-circuit" class="preset-button"><i data-lucide="stethoscope" aria-hidden="true"></i><span>诊断电路</span></button>
                 <button id="arrange-wires" class="preset-button"><i data-lucide="route" aria-hidden="true"></i><span>整理走线</span></button>
+                <button id="view-logic-diagram" class="preset-button"><i data-lucide="circuit-board" aria-hidden="true"></i><span>显示逻辑电路图</span></button>
             </section>
-            <div class="library-footer"><a class="sidebar-action" href="assets/reference-board.jpg" target="_blank" rel="noopener"><i data-lucide="image" aria-hidden="true"></i><span>原板对照图</span></a><button id="view-logic-diagram" class="sidebar-action"><i data-lucide="circuit-board" aria-hidden="true"></i><span>显示逻辑电路图</span></button></div>
+            <div class="library-footer"><a class="sidebar-action" href="assets/reference-board.jpg" target="_blank" rel="noopener"><i data-lucide="image" aria-hidden="true"></i><span>原板对照图</span></a></div>
         </aside>
         <section class="workbench" aria-label="接线工作区">
             <div class="toolbar">
@@ -101,7 +102,7 @@
             <p>同列 A～E 相通，F～J 相通。第四块的输入与脉冲对应列以固定细线桥接上下五孔组，其余列分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通。输入输出板没有接线孔，输出只接最上块 A～E，输入和脉冲接第四块对应列的 A～J</p>
             <p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。你也可以使用工具栏的缩放和适应宽度按钮</p>
             <p>选中芯片后可查看引脚图、脚号、电平和位置。点击图钉可同时固定多份资料，拖动分隔条或点击方向按钮可调整上下空间；资料只在“检查”页显示，未固定资料在取消选择后关闭。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p>
-            <p>标题旁的“只读”开关保护接线和备注，你仍可以调整输入、发脉冲、查看资料和导出实验。左侧“诊断”检查当前电路的供电、短路、驱动冲突、悬空输入与时序状态，不会发出脉冲或改变接线；“整理走线”在确认后调整路径，不改端点、线色和备注，也可以撤销</p>
+            <p>标题旁的“只读”开关保护接线和备注，你仍可以调整输入、发脉冲、查看资料和导出实验。左侧“诊断电路”检查当前电路的供电、短路、驱动冲突、悬空输入与时序状态，不会发出脉冲或改变接线；“整理走线”在确认后调整路径，不改端点、线色和备注，也可以撤销</p>
             <p>补码示例中，K0～K3 是数值位，K4 是符号位，K5 为 0 时加、1 时减。你把 K6 切到 0 再切回 1 即可清零。按住 P− 后松开，寄存器在恢复上升沿保存结果。L5、L4 是两个符号位，L6 指示溢出，所有 LED 均在已知高电平时点亮</p>
             <p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。导入、重新打开或结构撤销后，你需要给寄存器重新清零。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件</p>
             <p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 请求删除选中对象，Ctrl+S 只保存当前实验。你可以按住 Ctrl 多选器件和导线，在选择模式下拖动导线端点或转折点。自动保存默认关闭；有未保存内容时，关闭或刷新页面会显示离开确认，你选择留在页面后可以按 Ctrl+S 保存</p>

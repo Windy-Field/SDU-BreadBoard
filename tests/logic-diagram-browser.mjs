@@ -253,7 +253,7 @@ async function main() {
         await page.goto(pathToFileURL(path.join(ROOT, "index.html")).href);
         await page.waitForSelector(".chip-option");
         assert.equal(await page.locator("#export-workspace").count(), 0);
-        assert.equal(await page.locator(".library-footer #view-logic-diagram").count(), 1);
+        assert.equal(await page.locator(".library-section #view-logic-diagram").count(), 1);
         assert.equal(await page.getByRole("button", { name: "显示逻辑电路图", exact: true }).count(), 1);
         const before = await readProject(page);
         const resultBefore = await page.locator("#binary-result").textContent();
