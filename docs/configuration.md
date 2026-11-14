@@ -6,6 +6,8 @@
 | --- | --- |
 | `src/app.mjs` | 撤销上限、缩放、点击与拖动阈值、下载释放时间和时钟刷新 |
 | `src/inspection-layout.mjs` | 资料分区的最小高度、按钮调整距离和阅读比例，分隔条高度从样式读取 |
+| `src/logic-diagram-layout.mjs` | 逻辑图元件宽度、引脚间距和 ELK 自动排版参数 |
+| `src/logic-diagram-view.mjs`、`styles/logic-diagram.css` | 逻辑图缩放范围、导出样式属性、窗口尺寸和线路样式 |
 | `src/board.mjs` | 实物孔距、母线分段、电源轨、端口数量、默认显示位数、备注上限和线色 |
 | `src/storage.mjs` | 导入大小、芯片和导线数量、转折点上限、名称长度及旧文件坐标范围 |
 | `src/geometry.mjs` | 选择范围、吸附距离、默认折线通道和芯片外框 |

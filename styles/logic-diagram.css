@@ -1,0 +1,58 @@
+/* 逻辑图只改变显示位置，所有元件、网络和电平仍来自当前电路 */
+:root {
+    --logic-dialog-width: 1440px;
+    --logic-dialog-height: 90dvh;
+    --logic-wire-width: 1.6px;
+    --logic-wire-hit-width: 12px;
+}
+.logic-diagram-dialog { width: min(var(--logic-dialog-width), calc(100% - 24px)); height: var(--logic-dialog-height); max-height: var(--logic-dialog-height); overflow: hidden; }
+.logic-diagram-dialog[open] { display: flex; flex-direction: column; }
+.logic-diagram-dialog .dialog-heading { flex-shrink: 0; align-items: center; padding: 6px 14px; }
+.logic-diagram-dialog .dialog-heading h2 { font-size: 14px; }
+.logic-diagram-toolbar { display: flex; align-items: center; gap: 4px; flex-shrink: 0; padding: 4px 14px; border-bottom: 1px solid var(--color-rule); }
+.logic-diagram-toolbar label { display: flex; align-items: center; gap: 5px; font-size: 12px; margin-right: auto; white-space: nowrap; }
+#logic-zoom-label { min-width: 42px; text-align: center; font: 11px var(--font-mono); }
+.logic-diagram-content { display: flex; flex: 1; flex-direction: column; gap: 8px; min-height: 0; padding: 8px 14px 12px; }
+.logic-diagram-content .inspection-meta { flex-shrink: 0; margin: 0; font-size: 11px; }
+.logic-diagram-scroll { position: relative; min-height: 0; min-width: 0; flex: 1; overflow: auto; border: 1px solid var(--color-rule); background: var(--color-surface); overscroll-behavior: contain; cursor: grab; user-select: none; }
+.logic-diagram-scroll.logic-panning, .logic-diagram-scroll.logic-panning * { cursor: grabbing; }
+#logic-diagram { display: block; max-width: none; }
+.logic-paper { fill: var(--color-surface); }
+.logic-wire { fill: none; stroke: var(--color-ink); stroke-width: var(--logic-wire-width); }
+.logic-wire-halo { fill: none; stroke: var(--color-surface); stroke-width: 5px; }
+.logic-wire-hit { fill: none; stroke: transparent; stroke-width: var(--logic-wire-hit-width); pointer-events: stroke; cursor: pointer; }
+.logic-junction { fill: var(--color-ink); stroke: var(--color-surface); stroke-width: 0.8px; cursor: pointer; }
+.logic-component-body { fill: var(--color-surface); stroke: var(--color-ink); stroke-width: 1.3px; }
+.logic-component-title { fill: var(--color-ink); font: 600 13px var(--font-mono); }
+.logic-component-subtitle { fill: var(--color-muted); font: 11px var(--font-body); }
+.logic-inversion { fill: var(--color-surface); stroke: var(--color-ink); stroke-width: 1.3px; }
+.logic-pin-lead { stroke: var(--color-ink); stroke-width: 1.6px; }
+.logic-pin-number { fill: var(--color-muted); font: 9px var(--font-mono); }
+.logic-pin-label { fill: var(--color-ink); font: 11px var(--font-mono); }
+.logic-gate-symbol { fill: var(--color-ink); font: 600 18px var(--font-mono); }
+.logic-function-symbol { fill: var(--color-ink); font: 600 12px var(--font-mono); }
+.logic-power-label { fill: var(--color-muted); font: 9px var(--font-mono); }
+.logic-level-text { fill: var(--color-success); font: 11px var(--font-mono); }
+.logic-edge[data-level="X"] .logic-wire { stroke: var(--color-warning); }
+.logic-edge[data-level="Z"] .logic-wire { stroke: var(--color-muted); stroke-dasharray: 4 3; }
+.logic-active-net .logic-wire { stroke: var(--color-success); stroke-width: 3px; }
+.logic-active-net .logic-pin-lead { stroke: var(--color-success); stroke-width: 2.5px; }
+.logic-junction.logic-active-net { fill: var(--color-success); }
+[data-net][role="button"] { cursor: pointer; }
+/* SVG 组的焦点框会围出整条线路的外接矩形，改用原线路加粗表示焦点 */
+#logic-diagram [data-net][role="button"]:focus { outline: none; }
+.logic-edge:focus-visible .logic-wire { stroke: var(--color-focus); stroke-width: 3px; }
+.logic-pin:focus-visible .logic-pin-lead { stroke: var(--color-focus); stroke-width: 3px; }
+.logic-component:focus-visible text { fill: var(--color-focus); text-decoration: underline; }
+.logic-network-inspection { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: start; gap: 10px; flex-shrink: 0; max-height: 132px; min-height: 36px; }
+#logic-network { height: 34px; font-size: 11px; }
+#logic-network-members { display: flex; flex-wrap: wrap; gap: 4px 14px; max-height: 130px; overflow: auto; font: 11px/1.8 var(--font-mono); }
+#logic-network-members strong { color: var(--color-success); }
+@media (max-width: 700px) {
+    .logic-diagram-dialog { width: calc(100% - 12px); }
+    .logic-diagram-content { padding-inline: 8px; }
+    .logic-diagram-toolbar { padding-inline: 8px; gap: 0; }
+    .logic-diagram-toolbar .icon-button { width: 29px; flex-basis: 29px; }
+    .logic-network-inspection { grid-template-columns: minmax(0, 1fr); gap: 4px; max-height: 148px; }
+    #logic-network-members { max-height: 100px; }
+}

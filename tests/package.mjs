@@ -5,6 +5,7 @@ import path from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
+import { APP_VERSION } from "../src/version.mjs";
 
 const ROOT = process.cwd();
 const POWERSHELL = "powershell.exe";
@@ -77,7 +78,10 @@ async function testOfflinePackage() {
         const folders = fs.readdirSync(expanded);
         assert.equal(folders.length, 1);
         const packageRoot = path.join(expanded, folders[0]);
-        for (const required of ["index.html", "application.js", "assets/favicon.png", "assets/favicon.ico", "assets/pinouts/sn74ls273.png", "vendor/lucide.min.js", "styles/app.css", "LICENSE", "START-HERE.md"]) {
+        const pageSource = fs.readFileSync(path.join(packageRoot, "index.html"), "utf8");
+        assert.ok(pageSource.includes('<span id="app-version">v' + APP_VERSION + "</span>"));
+        assert.ok(pageSource.includes('src="application.js?v=' + APP_VERSION + '"'));
+        for (const required of ["index.html", "application.js", "assets/favicon.png", "assets/favicon.ico", "assets/pinouts/sn74ls273.png", "vendor/lucide.min.js", "vendor/elkjs.LICENSE", "styles/app.css", "styles/logic-diagram.css", "LICENSE", "START-HERE.md"]) {
             assert.ok(fs.existsSync(path.join(packageRoot, required)), "离线包缺少文件：" + required);
         }
         for (const excluded of ["node_modules", ".git", "reports", "src", "tests"]) {
@@ -90,11 +94,11 @@ async function testOfflinePackage() {
         page.on("pageerror", collectError.bind(null, errors));
         await page.goto(pathToFileURL(path.join(packageRoot, "index.html")).href);
         await page.waitForSelector(".chip-option");
+        assert.equal(await page.locator("#app-version").textContent(), "v" + APP_VERSION);
         assert.match(await page.locator("head link[rel='icon']").getAttribute("href"), /^assets\/favicon\.png/);
         assert.equal(await page.locator("head link[rel='shortcut icon']").count(), 1);
-        await page.getByRole("button", { name: "切换 K6", exact: true }).click();
-        await page.getByRole("button", { name: "切换 K6", exact: true }).click();
         assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
+        assert.equal(await page.locator("#issue-count").textContent(), "0");
         await page.getByRole("button", { name: "切换 K0", exact: true }).click();
         await page.locator("#pulse-negative").click();
         assert.equal(await page.locator("#binary-result").textContent(), "000 0001");
@@ -103,6 +107,11 @@ async function testOfflinePackage() {
         await image.waitFor();
         await page.waitForFunction(pinoutReady);
         assert.ok(await image.evaluate(imageWidth) > 100);
+        await page.locator("#view-logic-diagram").click();
+        await page.waitForFunction(offlineLogicReady);
+        assert.match(await page.locator("#logic-diagram-summary").textContent(), /5 片芯片/);
+        assert.ok(await page.locator("#logic-diagram .logic-wire").count() > 30);
+        await page.locator("#close-logic-diagram").click();
         const downloadEvent = page.waitForEvent("download");
         await page.locator("#export-project").click();
         const download = await downloadEvent;
@@ -119,6 +128,13 @@ async function testOfflinePackage() {
         }
         cleanTemporaryDirectory(temporaryRoot);
     }
+}
+
+// 断网时也能完成布局和绘制，不依赖远程脚本或服务
+function offlineLogicReady() {
+    const dialog = document.getElementById("logic-diagram-dialog");
+    return dialog.getAttribute("aria-busy") === "false" &&
+        document.querySelectorAll("#logic-diagram .logic-component").length > 0;
 }
 
 // 断网新增导线也能完成，表明内嵌 WebAssembly 无需外部网络

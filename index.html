@@ -10,7 +10,7 @@
     <meta name="author" content="Octorange/Windy-Field">
     <link rel="stylesheet" href="styles/app.css">
     <script src="vendor/lucide.min.js" defer></script>
-    <script src="application.js" defer></script>
+    <script src="application.js?v=1.8.2" defer></script>
 </head>
 <body>
     <header class="app-header">
@@ -39,7 +39,7 @@
                 <button id="diagnose-circuit" class="preset-button"><i data-lucide="stethoscope" aria-hidden="true"></i><span>诊断</span></button>
                 <button id="arrange-wires" class="preset-button"><i data-lucide="route" aria-hidden="true"></i><span>整理走线</span></button>
             </section>
-            <div class="library-footer"><a class="sidebar-action" href="assets/reference-board.jpg" target="_blank" rel="noopener"><i data-lucide="image" aria-hidden="true"></i><span>原板对照图</span></a><button id="export-workspace" class="sidebar-action"><i data-lucide="archive" aria-hidden="true"></i><span>备份全部实验</span></button></div>
+            <div class="library-footer"><a class="sidebar-action" href="assets/reference-board.jpg" target="_blank" rel="noopener"><i data-lucide="image" aria-hidden="true"></i><span>原板对照图</span></a><button id="view-logic-diagram" class="sidebar-action"><i data-lucide="circuit-board" aria-hidden="true"></i><span>显示逻辑电路图</span></button></div>
         </aside>
         <section class="workbench" aria-label="接线工作区">
             <div class="toolbar">
@@ -89,7 +89,7 @@
             <section class="terminal-connect"><h2>按孔位接线</h2><label>起点<input id="from-endpoint" placeholder="B3:J:49"></label><label>终点<input id="to-endpoint" placeholder="B1:G:4"></label><button id="connect-endpoints" class="button"><i data-lucide="link-2" aria-hidden="true"></i>连接</button></section>
         </aside>
     </main>
-    <footer class="app-footer"><span class="release-info"><span id="app-version">v1.0.0</span><time id="current-time"></time></span><span id="action-status" role="status">就绪</span><span>0 低电平 · 1 高电平 · X 未知 · Z 悬空</span></footer>
+    <footer class="app-footer"><span class="release-info"><span id="app-version">v1.8.2</span><time id="current-time"></time></span><span id="action-status" role="status">就绪</span><span>0 低电平 · 1 高电平 · X 未知 · Z 悬空</span></footer>
     <div id="toast-region" class="toast-region" aria-label="操作提示" aria-live="polite"></div>
     <input type="file" id="import-file" accept=".json,application/json" hidden>
     <dialog id="confirm-dialog" aria-labelledby="confirm-title"><div class="dialog-heading"><h2 id="confirm-title">确认删除</h2></div><p id="confirm-message" class="dialog-body"></p><div class="dialog-actions"><button id="confirm-cancel" class="button">取消</button><button id="confirm-accept" class="button danger">确认删除</button></div></dialog>
@@ -105,6 +105,30 @@
             <p>补码示例中，K0～K3 是数值位，K4 是符号位，K5 为 0 时加、1 时减。你把 K6 切到 0 再切回 1 即可清零。按住 P− 后松开，寄存器在恢复上升沿保存结果。L5、L4 是两个符号位，L6 指示溢出，所有 LED 均在已知高电平时点亮</p>
             <p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。导入、重新打开或结构撤销后，你需要给寄存器重新清零。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件</p>
             <p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 请求删除选中对象，Ctrl+S 只保存当前实验。你可以按住 Ctrl 多选器件和导线，在选择模式下拖动导线端点或转折点。自动保存默认关闭；有未保存内容时，关闭或刷新页面会显示离开确认，你选择留在页面后可以按 Ctrl+S 保存</p>
+        </div>
+    </dialog>
+    <dialog id="logic-diagram-dialog" class="logic-diagram-dialog" aria-labelledby="logic-diagram-title" aria-busy="false">
+        <div class="dialog-heading">
+            <h2 id="logic-diagram-title">逻辑连线图</h2>
+            <button id="close-logic-diagram" class="icon-button" aria-label="关闭逻辑连线图"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="logic-diagram-toolbar">
+            <label><input id="logic-show-power" type="checkbox">电源连线</label>
+            <button id="logic-zoom-out" class="icon-button" aria-label="缩小逻辑图" data-tip="缩小"><i data-lucide="minus" aria-hidden="true"></i></button>
+            <output id="logic-zoom-label">100%</output>
+            <button id="logic-zoom-in" class="icon-button" aria-label="放大逻辑图" data-tip="放大"><i data-lucide="plus" aria-hidden="true"></i></button>
+            <button id="logic-fit" class="icon-button" aria-label="逻辑图适应宽度" data-tip="适应宽度"><i data-lucide="scan" aria-hidden="true"></i></button>
+            <button id="logic-export" class="icon-button" aria-label="导出逻辑图 SVG" data-tip="导出 SVG"><i data-lucide="download" aria-hidden="true"></i></button>
+        </div>
+        <div class="logic-diagram-content">
+            <p id="logic-diagram-summary" class="inspection-meta" role="status"></p>
+            <div id="logic-diagram-scroll" class="logic-diagram-scroll" tabindex="0" aria-label="逻辑图画布">
+                <svg id="logic-diagram" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+            <div class="logic-network-inspection">
+                <select id="logic-network" aria-label="选择核对网络"><option value="">网络核对</option></select>
+                <div id="logic-network-members" aria-live="polite"></div>
+            </div>
         </div>
     </dialog>
 </body>

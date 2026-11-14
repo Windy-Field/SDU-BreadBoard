@@ -161,7 +161,18 @@ async function main() {
         await waitForZoom(page);
         assert.ok(await page.evaluate(titleControlGap) <= 10);
         assert.equal(await page.evaluate(sidebarFits), true);
-        await expectResult(page, "XX XXXX");
+        await expectResult(page, "00 0000");
+        assert.equal(await page.locator("#issue-count").textContent(), "0");
+        await page.locator("#view-logic-diagram").click();
+        await page.locator("#logic-export").waitFor({ state: "visible" });
+        await page.waitForFunction(logicDiagramReady);
+        assert.equal(await page.locator("#logic-diagram-dialog").isVisible(), true);
+        assert.match(await page.locator("#logic-diagram-summary").textContent(), /5 片芯片/);
+        assert.ok(await page.locator("#logic-diagram .logic-component").count() > 0);
+        assert.match(await page.locator("#logic-diagram").textContent(), /K0 按键/);
+        assert.match(await page.locator("#logic-diagram").textContent(), /U4 · 1脚 1A/);
+        await page.locator("#close-logic-diagram").click();
+        assert.equal(await page.locator("#logic-diagram-dialog").isVisible(), false);
         assert.equal(await page.evaluate(inspectPalette), true);
         await page.locator("#diagnose-circuit").click();
         assert.equal(await page.locator("#diagnostics-panel .diagnostic-chip").count(), 5);
@@ -335,6 +346,11 @@ async function main() {
         await page.screenshot({ path: path.join(SCREENSHOTS, "last-state.png"), fullPage: true });
         await browser.close();
     }
+}
+
+// 等待布局完成后再核对图纸，排除异步自动排版仍在计算的阶段
+function logicDiagramReady() {
+    return document.getElementById("logic-diagram-dialog").getAttribute("aria-busy") === "false";
 }
 
 // 等待异步导入结束，避免读取文件尚未完成时检查数量

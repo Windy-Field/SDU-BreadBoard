@@ -18,6 +18,7 @@ import { CHIP_REFERENCES } from "./catalog.mjs";
 import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace } from "./workspace.mjs";
 import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
 import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./inspection-layout.mjs";
+import { openLogicDiagram, bindLogicDiagram } from "./logic-diagram-view.mjs";
 
 // 界面操作参数：时长单位为毫秒，距离单位为画布逻辑像素
 const SETTINGS = {
@@ -42,7 +43,7 @@ const SETTINGS = {
     clockInterval: 1000
 };
 // 文件下载名称与缩进集中维护，导出内容仍由各自的函数准备
-const EXPORT_SETTINGS = { indent: 2, circuit: "breadboard-circuit.json", workspace: "sdu-breadboard-workspace.json", image: "breadboard-wiring.png" };
+const EXPORT_SETTINGS = { indent: 2, circuit: "breadboard-circuit.json", image: "breadboard-wiring.png" };
 // 芯片归属板块的点击补偿，和可见面包板上边缘保持一致
 const PLACEMENT_OFFSET = 30;
 // 键盘触发时的按钮高亮时长，真实脉冲不等待动画
@@ -1315,14 +1316,6 @@ function exportProject() {
     download(file, EXPORT_SETTINGS.circuit);
 }
 
-// 备份全部实验，供项目迁移或更换浏览器后导入
-function exportWorkspace() {
-    keepExperiment(workspace, activeExperiment, state.project);
-    const content = JSON.stringify(workspace, null, EXPORT_SETTINGS.indent);
-    const file = new Blob([content], { type: "application/json" });
-    download(file, EXPORT_SETTINGS.workspace);
-}
-
 // 打开原生文件选择器
 function chooseImport() {
     element("import-file").click();
@@ -2398,6 +2391,11 @@ function closeHelp() {
     element("help-dialog").close();
 }
 
+// 打开当前项目的逻辑连接图，不修改接线或仿真状态
+function showLogicDiagram() {
+    openLogicDiagram(state.project, state.result);
+}
+
 // 处理全局快捷键，文本输入时不抢占普通编辑操作
 function keyDown(event) {
     const tag = event.target.tagName;
@@ -2408,6 +2406,9 @@ function keyDown(event) {
         return;
     }
     if (element("confirm-dialog").open) {
+        return;
+    }
+    if (element("logic-diagram-dialog").open) {
         return;
     }
     if (event.key === "Escape") {
@@ -2441,7 +2442,6 @@ function bindEvents() {
     element("quick-delete").addEventListener("click", quickDelete);
     element("confirm-cancel").addEventListener("click", cancelConfirmation);
     element("confirm-accept").addEventListener("click", acceptConfirmation);
-    element("export-workspace").addEventListener("click", exportWorkspace);
     window.addEventListener("beforeunload", beforeLeave);
     element("read-only-toggle").addEventListener("change", changeReadOnly);
     element("new-experiment").addEventListener("click", newProject);
@@ -2493,7 +2493,17 @@ function bindEvents() {
     element("notes-editor").addEventListener("input", updateNotes);
     element("help-button").addEventListener("click", showHelp);
     element("close-help").addEventListener("click", closeHelp);
+    element("view-logic-diagram").addEventListener("click", showLogicDiagram);
+    bindLogicDiagram();
     document.addEventListener("keydown", keyDown);
+}
+
+// 初始化默认示例的寄存器，让首次打开时能直接看到确定的零结果
+function initializeDefaultPreset() {
+    state.project.switches[6] = 0;
+    calculate(false);
+    state.project.switches[6] = 1;
+    calculate(false);
 }
 
 // 初始化离线工作台，恢复本地结构，寄存器仍从未知状态开始
@@ -2509,6 +2519,7 @@ function start() {
     canvas.style.height = BOARD.height + "px";
     let loadError = "";
     let removedCount = 0;
+    let initializePreset = false;
     try {
         readOnly = localStorage.getItem(READ_ONLY_KEY) === "true";
         const savedWorkspace = localStorage.getItem(WORKSPACE_KEY);
@@ -2527,9 +2538,11 @@ function start() {
             state.project = validateProject(JSON.parse(saved));
         } else {
             state.project = complementPreset();
+            initializePreset = true;
         }
     } catch (error) {
         state.project = complementPreset();
+        initializePreset = true;
         loadError = "本地电路无法恢复，已打开示例。原文件可重新导入";
     }
     if (activeExperiment === "") {
@@ -2540,6 +2553,9 @@ function start() {
     bindEvents();
     createPalette();
     calculate(false);
+    if (initializePreset) {
+        initializeDefaultPreset();
+    }
     renderLibrary();
     fitBoard();
     render();

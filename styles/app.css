@@ -1,6 +1,7 @@
 /* 页面布局与交互样式集中在这里，电路计算不参与样式处理 */
 @import url("tokens.css");
 @import url("select.css");
+@import url("logic-diagram.css");
 :root {
     /* 工作台左右栏宽度 */
     --sidebar-width: 214px;
