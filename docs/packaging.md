@@ -18,6 +18,12 @@
 
 开发时运行 `npm run desktop`，构建两个 Windows 程序运行 `npm run desktop:package`，产物位于 `releases/desktop/`，可使用 `npm run test:desktop` 检查真实桌面入口
 
+发行版启动约 15 秒后自动检查 GitHub 正式版，运行期间每小时检查一次。安装版自动下载新版本，完成后提示重启安装；有未保存实验时仍可返回保存。免安装版自动检查并提示打开下载页，不自动覆盖正在运行的程序
+
+发布桌面更新时，需要一起上传安装版 EXE、对应 `.blockmap` 和 `latest.yml`，免安装 EXE 作为单独下载项。`latest.yml` 必须来自同一次构建，包含安装包版本、文件名和 SHA-512；下一版需使用更高版本号
+
+1.8.3 已加入更新检查，之前下载的不带更新功能的同版本桌面程序需手动下载替换一次。GitHub 暂时无法连接时保留离线功能，下次定时检查重试
+
 桌面运行使用 [Electron](https://www.electronjs.org/docs/latest/)，安装包使用 [electron-builder](https://www.electron.build/)，主进程在 `desktop/` 中维护，页面继续复用原有 `src/` 和构建产物
 
 ## Windows 快捷打包

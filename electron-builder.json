@@ -17,7 +17,10 @@
     "README.md",
     "LICENSE",
     "package.json",
-    "!node_modules/**/*"
+    "!node_modules/dompurify/**/*",
+    "!node_modules/elkjs/**/*",
+    "!node_modules/libavoid-js/**/*",
+    "!node_modules/marked/**/*"
   ],
   "win": {
     "icon": "desktop/icon.png",
@@ -39,5 +42,12 @@
   },
   "portable": {
     "artifactName": "SDU-BreadBoard-${version}-Portable-x64.exe"
+  },
+  "publish": {
+    "provider": "github",
+    "owner": "Windy-Field",
+    "repo": "SDU-BreadBoard",
+    "vPrefixedTagName": false,
+    "releaseType": "release"
   }
 }

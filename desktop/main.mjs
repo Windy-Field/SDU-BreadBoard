@@ -2,6 +2,9 @@ import { app, BrowserWindow, Menu, dialog, shell, protocol, net } from "electron
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { DESKTOP_SETTINGS } from "./settings.mjs";
+import updaterPackage from "electron-updater";
+import { startUpdates } from "./updates.mjs";
+import { loadDesktopPage } from "./window-load.mjs";
 
 // 桌面程序与网页入口保持相同目录关系，安装后仍从应用内部读取资源
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -10,6 +13,8 @@ const ENTRY_URL = APP_ORIGIN + "/" + DESKTOP_SETTINGS.entry;
 const ICON_PATH = path.join(PROJECT_ROOT, DESKTOP_SETTINGS.icon);
 const ASSET_ROOT = path.join(PROJECT_ROOT, "assets");
 let mainWindow = null;
+let pendingUpdateInstall = null;
+let updates = null;
 
 // 把固定应用地址映射到包内文件，校验路径后返回真实文件名，升级不改变网页存储来源
 function bundledPath(address) {
@@ -90,7 +95,7 @@ function openReference(address) {
     });
     reference.webContents.setWindowOpenHandler(denyNewWindow);
     reference.webContents.on("will-navigate", preventReferenceNavigation);
-    reference.loadURL(address).catch(reportDesktopError);
+    loadDesktopPage(reference, address, reportDesktopError);
 }
 
 // 资料窗口不再打开子窗口，返回 Electron 规定的拒绝结果
@@ -130,6 +135,8 @@ function confirmUnsavedExit(event) {
     });
     if (choice === 1) {
         event.preventDefault();
+    } else {
+        pendingUpdateInstall = null;
     }
 }
 
@@ -150,6 +157,80 @@ function reportDesktopError(error) {
 // 主窗口关闭后释放引用，下次激活时可以创建新窗口
 function clearMainWindow() {
     mainWindow = null;
+    if (pendingUpdateInstall) {
+        const install = pendingUpdateInstall;
+        pendingUpdateInstall = null;
+        install();
+    }
+}
+
+// 更新检查的网络错误只写入日志，用户仍可继续离线使用
+function logUpdateError(error) {
+    console.warn("更新检查暂未完成：", error.message);
+}
+
+// 免安装版发现新版本时提供发布页，用户可选择下载安装版以获得自动安装能力
+async function offerPortableUpdate(version, address) {
+    if (!mainWindow) {
+        return;
+    }
+    const result = await dialog.showMessageBox(mainWindow, {
+        type: "info",
+        title: "发现新版本",
+        message: "SDU 面包板 " + version + " 已发布",
+        detail: "免安装版需手动替换程序，安装版支持自动下载和重启安装，实验存档会保留",
+        buttons: ["稍后", "打开下载页"],
+        defaultId: 1,
+        cancelId: 0
+    });
+    if (result.response === 1) {
+        await shell.openExternal(address);
+    }
+}
+
+// 提示更新已下载，关闭窗口前仍会经过原有未保存检查，取消离开则不启动安装器
+async function offerUpdateInstall(version, install) {
+    if (!mainWindow) {
+        return;
+    }
+    const result = await dialog.showMessageBox(mainWindow, {
+        type: "info",
+        title: "更新已准备好",
+        message: "SDU 面包板 " + version + " 已下载完成",
+        detail: "重启后安装更新，实验存档会保留；如有未保存内容，下一步可返回保存",
+        buttons: ["稍后", "重启安装"],
+        defaultId: 1,
+        cancelId: 0
+    });
+    if (result.response === 1 && mainWindow) {
+        pendingUpdateInstall = install;
+        mainWindow.close();
+    }
+}
+
+// 仅发行版开启网络更新，测试与开发入口不访问 GitHub
+function initializeUpdates() {
+    if (!app.isPackaged || app.commandLine.hasSwitch("test-desktop")) {
+        return;
+    }
+    updates = startUpdates(updaterPackage.autoUpdater, {
+        portable: Boolean(process.env.PORTABLE_EXECUTABLE_FILE),
+        log: logUpdateError,
+        offerPortable: offerPortableUpdate,
+        offerInstall: offerUpdateInstall,
+        setTimeout: setTimeout,
+        clearTimeout: clearTimeout,
+        setInterval: setInterval,
+        clearInterval: clearInterval
+    });
+}
+
+// 最后退出时停止更新定时器，不留下后台检查任务
+function stopDesktopUpdates() {
+    if (updates) {
+        updates.stop();
+        updates = null;
+    }
 }
 
 // 创建独立桌面窗口，网页只能访问浏览器能力，不直接访问 Node.js 或系统接口
@@ -169,7 +250,7 @@ function createMainWindow() {
     mainWindow.webContents.on("will-navigate", preventMainNavigation);
     mainWindow.webContents.on("will-prevent-unload", confirmUnsavedExit);
     mainWindow.on("closed", clearMainWindow);
-    mainWindow.loadURL(ENTRY_URL).catch(reportDesktopError);
+    loadDesktopPage(mainWindow, ENTRY_URL, reportDesktopError);
 }
 
 // 再次启动时聚焦原窗口，避免两份窗口同时覆盖本地实验列表
@@ -192,6 +273,9 @@ function activateApplication() {
 
 // Windows 关闭最后一个窗口后退出，不留下后台进程
 function quitAfterWindowsClosed() {
+    if (pendingUpdateInstall) {
+        return;
+    }
     app.quit();
 }
 
@@ -203,6 +287,8 @@ function startDesktop() {
     mainWindow.webContents.session.on("will-download", prepareDownload);
     app.on("activate", activateApplication);
     app.on("window-all-closed", quitAfterWindowsClosed);
+    app.on("will-quit", stopDesktopUpdates);
+    initializeUpdates();
 }
 
 app.setName(DESKTOP_SETTINGS.name);
