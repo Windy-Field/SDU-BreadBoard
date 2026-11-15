@@ -2,6 +2,8 @@ import { element, node, refreshIcons } from "./dom.mjs";
 import { buildLogicDiagram } from "./logic-diagram.mjs";
 import { layoutLogicDiagram } from "./logic-diagram-layout.mjs";
 import { bindViewportPan } from "./viewport-pan.mjs";
+import { bindViewportSelection } from "./viewport-selection.mjs";
+import { pathIntersectsRectangle, segmentIntersectsRectangle } from "./selection-geometry.mjs";
 
 // 缩放上下限、步长与下载地址释放时间集中维护
 const VIEW_OPTIONS = {
@@ -15,6 +17,8 @@ const DIAGRAM_PAN_OPTIONS = {
     canStart: canPanDiagram,
     onStart: prepareDiagramPan
 };
+// 逻辑图按真实网络框选，任意支线命中后整组网络一起高亮
+const DIAGRAM_SELECTION_OPTIONS = { canStart: canSelectDiagramArea, onSelect: selectDiagramArea };
 // 导出 SVG 时复制实际样式，文件离开网页后仍保留字号、线色和透明度
 const EXPORT_PROPERTIES = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "font-family", "font-size", "font-weight", "text-anchor", "opacity", "paint-order"];
 // 布局期间暂停图纸操作，关闭按钮始终可用
@@ -29,6 +33,8 @@ let currentResult = null;
 let zoom = 1;
 let generation = 0;
 let diagramPan = null;
+let diagramSelection = null;
+const selectedNetworks = new Set();
 
 // 创建 SVG 节点，绘图只设置几何属性，配色和字体由样式文件维护
 function svgElement(parent, name, attributes, text = "") {
@@ -59,6 +65,7 @@ function makeNetworkTarget(shape, network) {
     shape.dataset.level = String(network.level);
     shape.setAttribute("tabindex", "0");
     shape.setAttribute("role", "button");
+    shape.setAttribute("aria-pressed", "false");
     shape.setAttribute("aria-label", network.id + "，电平 " + network.level);
 }
 
@@ -248,6 +255,7 @@ function drawNode(svg, item) {
 
 // 把布局结果转换为图纸，图形和网络核对信息均来自同一份快照
 function drawGraph() {
+    selectedNetworks.clear();
     const svg = element("logic-diagram");
     svg.replaceChildren();
     svg.setAttribute("viewBox", "0 0 " + currentGraph.width + " " + currentGraph.height);
@@ -280,6 +288,7 @@ function drawGraph() {
 // 重新生成图纸时保留工程与仿真的原对象，仅读取当前网络数据
 async function generateDiagram() {
     diagramPan.finish();
+    diagramSelection.cancel();
     const request = generation + 1;
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
@@ -393,11 +402,19 @@ function wheelLogicDiagram(event) {
 }
 
 // 有图纸且布局完成后允许平移，生成期间保持原图纸位置
-function canPanDiagram() {
+function canPanDiagram(event) {
+    if (event.ctrlKey || event.metaKey || diagramSelection.isSelecting()) {
+        return false;
+    }
+    return canSelectDiagramArea();
+}
+
+// 图纸生成完成且没有左键平移时允许框选，业务仍只读取当前图纸
+function canSelectDiagramArea() {
     if (!currentGraph || element("logic-diagram-dialog").getAttribute("aria-busy") === "true") {
         return false;
     }
-    return true;
+    return !diagramPan.isDragging();
 }
 
 // 平移后将键盘焦点留在图纸容器，方向键可继续滚动查看
@@ -405,19 +422,33 @@ function prepareDiagramPan() {
     element("logic-diagram-scroll").focus({ preventScroll: true });
 }
 
-// 同时标亮一条网络的全部分支，核对表列出所有真实端点及上拉节点
-function selectNetwork(id) {
-    element("logic-network").value = id;
+// 根据网络集合同步高亮、按钮状态和端点表，多选时菜单显示已选数量
+function renderNetworkSelection() {
+    const select = element("logic-network");
+    const placeholder = select.options[0];
+    placeholder.textContent = "网络核对";
+    select.value = "";
+    if (selectedNetworks.size === 1) {
+        for (const id of selectedNetworks) {
+            select.value = id;
+        }
+    } else if (selectedNetworks.size > 1) {
+        placeholder.textContent = "已选 " + selectedNetworks.size + " 组网络";
+    }
     for (const shape of element("logic-diagram").querySelectorAll("[data-net]")) {
-        shape.classList.toggle("logic-active-net", shape.dataset.net === id);
+        const selected = selectedNetworks.has(shape.dataset.net);
+        shape.classList.toggle("logic-active-net", selected);
+        if (shape.getAttribute("role") === "button") {
+            shape.setAttribute("aria-pressed", String(selected));
+        }
     }
     const members = element("logic-network-members");
     members.replaceChildren();
     for (const network of currentDiagram.nets) {
-        if (network.id !== id) {
+        if (!selectedNetworks.has(network.id)) {
             continue;
         }
-        members.append(node("strong", id + " · 电平 " + network.level, ""));
+        members.append(node("strong", network.id + " · 电平 " + network.level, ""));
         for (const terminal of network.members) {
             members.append(node("span", terminal.label, ""));
         }
@@ -427,12 +458,69 @@ function selectNetwork(id) {
     }
 }
 
-// 点击线路或引脚时读取所属网络，不改变芯片选择
+// 菜单选择替换原网络集合，空字符串统一用于清除选择
+function selectNetwork(id) {
+    selectedNetworks.clear();
+    if (id !== "") {
+        selectedNetworks.add(id);
+    }
+    renderNetworkSelection();
+}
+
+// 点击已选网络只取消这一组，Ctrl 点击新网络追加，普通点击新网络替换选择
 function clickDiagram(event) {
     const target = event.target.closest("[data-net]");
-    if (target) {
-        selectNetwork(target.dataset.net);
+    if (!target) {
+        selectNetwork("");
+        return;
     }
+    const id = target.dataset.net;
+    if (selectedNetworks.has(id)) {
+        selectedNetworks.delete(id);
+        renderNetworkSelection();
+    } else if (event.ctrlKey || event.metaKey) {
+        selectedNetworks.add(id);
+        renderNetworkSelection();
+    } else {
+        selectNetwork(id);
+    }
+}
+
+// 将屏幕选框转为图纸坐标，缩放和滚动只影响换算，不影响实际网络
+function selectDiagramArea(rectangle, multiple) {
+    const bounds = element("logic-diagram").getBoundingClientRect();
+    const area = {
+        left: (rectangle.left - bounds.left) / zoom,
+        top: (rectangle.top - bounds.top) / zoom,
+        right: (rectangle.right - bounds.left) / zoom,
+        bottom: (rectangle.bottom - bounds.top) / zoom
+    };
+    if (!multiple) {
+        selectedNetworks.clear();
+    }
+    for (const edge of currentGraph.edges) {
+        for (const section of edge.sections || []) {
+            const points = [section.startPoint];
+            for (const point of section.bendPoints || []) {
+                points.push(point);
+            }
+            points.push(section.endPoint);
+            if (pathIntersectsRectangle(points, area)) {
+                selectedNetworks.add(edge.netId);
+            }
+        }
+    }
+    // 外置引脚短线也属于网络，单独框住引脚时无需碰到长导线
+    const leads = element("logic-diagram").querySelectorAll("[data-net] .logic-pin-lead");
+    for (const lead of leads) {
+        const transform = lead.getScreenCTM();
+        const first = new DOMPoint(lead.x1.baseVal.value, lead.y1.baseVal.value).matrixTransform(transform);
+        const last = new DOMPoint(lead.x2.baseVal.value, lead.y2.baseVal.value).matrixTransform(transform);
+        if (segmentIntersectsRectangle(first, last, rectangle)) {
+            selectedNetworks.add(lead.closest("[data-net]").dataset.net);
+        }
+    }
+    renderNetworkSelection();
 }
 
 // 回车和空格提供与鼠标点线相同的网络核对操作
@@ -485,8 +573,10 @@ function releaseLogicDownload(url) {
 export function bindLogicDiagram() {
     const viewport = element("logic-diagram-scroll");
     diagramPan = bindViewportPan(viewport, DIAGRAM_PAN_OPTIONS);
+    diagramSelection = bindViewportSelection(viewport, DIAGRAM_SELECTION_OPTIONS);
     viewport.addEventListener("wheel", wheelLogicDiagram, { passive: false });
     element("logic-diagram-dialog").addEventListener("close", diagramPan.finish);
+    element("logic-diagram-dialog").addEventListener("close", diagramSelection.cancel);
     element("close-logic-diagram").addEventListener("click", closeLogicDiagram);
     element("logic-show-power").addEventListener("change", generateDiagram);
     element("logic-fit").addEventListener("click", fitLogicDiagram);

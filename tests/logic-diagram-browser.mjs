@@ -173,6 +173,35 @@ function centerDiagramJunction(dot) {
     viewport.scrollTop = viewport.scrollTop + offsetY - viewport.clientHeight / 2;
 }
 
+// 取消网络后高亮、下拉菜单和端点列表必须一起清空
+async function expectNoNetworkSelection(page) {
+    assert.equal(await page.locator("#logic-network").inputValue(), "");
+    assert.equal(await page.locator("#logic-diagram .logic-active-net").count(), 0);
+    assert.equal(await page.locator("#logic-network-members").textContent(), "");
+}
+
+// 实际单击分岔点和图纸空白，验证重复点击取消及菜单选择后的取消行为
+async function verifyNetworkDeselection(page) {
+    const paths = await page.evaluate(readWirePaths);
+    const target = await page.evaluate(visibleJunction);
+    await page.mouse.click(target.x, target.y);
+    assert.equal(await page.locator("#logic-network").inputValue(), target.netId);
+    await page.mouse.click(target.x, target.y);
+    await expectNoNetworkSelection(page);
+
+    await page.locator("#logic-network").selectOption(target.netId);
+    await page.mouse.click(target.x, target.y);
+    await expectNoNetworkSelection(page);
+
+    await page.mouse.click(target.x, target.y);
+    const bounds = await page.locator("#logic-diagram").boundingBox();
+    await page.mouse.click(bounds.x + 10, bounds.y + 10);
+    await expectNoNetworkSelection(page);
+    await page.mouse.click(bounds.x + 10, bounds.y + 10);
+    await expectNoNetworkSelection(page);
+    assert.deepEqual(await page.evaluate(readWirePaths), paths);
+}
+
 // 验证鼠标中心缩放、普通滚动、左键和中键平移，所有操作都不能改变线路路径
 async function verifyDiagramNavigation(page) {
     const viewport = page.locator("#logic-diagram-scroll");
@@ -201,6 +230,7 @@ async function verifyDiagramNavigation(page) {
     const firstJunction = junctions.first();
     await firstJunction.evaluate(centerDiagramJunction);
     const junction = await page.evaluate(visibleJunction);
+    await page.locator("#logic-network").selectOption(junction.netId);
     const selected = await page.locator("#logic-network").inputValue();
     const start = await page.evaluate(readDiagramPosition, junction);
     await page.mouse.move(junction.x, junction.y);
@@ -235,6 +265,7 @@ async function verifyDiagramNavigation(page) {
     const fitted = await page.evaluate(readDiagramPosition, point);
     assert.equal(fitted.scrollLeft, 0);
     assert.equal(fitted.scrollTop, 0);
+    await page.locator("#logic-network").selectOption("");
     const target = await page.evaluate(visibleJunction);
     await page.mouse.click(target.x, target.y);
     assert.equal(await page.locator("#logic-network").inputValue(), target.netId);
@@ -274,6 +305,7 @@ async function main() {
         assert.notEqual(await page.locator("#logic-zoom-label").textContent(), zoomBefore);
         await page.locator("#logic-fit").click();
         await verifyDiagramNavigation(page);
+        await verifyNetworkDeselection(page);
         const pathsBefore = await page.evaluate(readWirePaths);
         await page.locator("#logic-network").selectOption(controlNetwork());
         assert.ok(await page.locator(".logic-edge.logic-active-net").count() >= 5);
@@ -282,6 +314,9 @@ async function main() {
         const focusEdge = networkEdges.first();
         await focusEdge.focus();
         await page.keyboard.press("Enter");
+        await expectNoNetworkSelection(page);
+        await page.keyboard.press("Space");
+        assert.equal(await page.locator("#logic-network").inputValue(), controlNetwork());
         const focused = await page.evaluate(readFocusedWire);
         assert.equal(focused.outline, "none");
         assert.ok(focused.width >= 3);

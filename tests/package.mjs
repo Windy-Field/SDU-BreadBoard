@@ -6,6 +6,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { APP_VERSION } from "../src/version.mjs";
+import { WORKSPACE_KEY } from "../src/workspace.mjs";
 
 const ROOT = process.cwd();
 const POWERSHELL = "powershell.exe";
@@ -17,6 +18,65 @@ const LAUNCHER_FILES = ["package.cmd", "package.json", "scripts/package.ps1", "i
 // 记录离线包页面的脚本错误，便于测试结束时统一断言
 function collectError(errors, error) {
     errors.push(error.message);
+}
+
+// 从浏览器读取已保存的实验，验证重新打开没有改写用户设置
+function readStoredWorkspace(key) {
+    return JSON.parse(localStorage.getItem(key));
+}
+
+// 只在独立测试浏览器中切换存档，用于验证标准示例和改接电路的启动区别
+function writeStoredWorkspace(saved) {
+    localStorage.setItem(saved.key, JSON.stringify(saved.workspace));
+}
+
+// 保存后重新打开应清零标准示例，改接电路仍按真实上电规则显示未知状态
+async function testSavedPresetStartup(page) {
+    await page.locator("#save-project").click();
+    const saved = await page.evaluate(readStoredWorkspace, WORKSPACE_KEY);
+    await page.reload();
+    await page.waitForSelector(".chip-option");
+    assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
+    assert.equal(await page.locator("#issue-count").textContent(), "0");
+    assert.equal(await page.locator("[data-bit='0']").getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator("[data-bit='6']").getAttribute("aria-pressed"), "true");
+    assert.deepEqual(await page.evaluate(readStoredWorkspace, WORKSPACE_KEY), saved);
+    await page.locator("#pulse-negative").click();
+    assert.equal(await page.locator("#binary-result").textContent(), "000 0001");
+
+    // 清零开关为零或电源关闭时，也不能替用户恢复成其他设置
+    const heldReset = structuredClone(saved);
+    heldReset.projects[heldReset.activeId].switches[6] = 0;
+    await page.locator("#save-project").click();
+    await page.evaluate(writeStoredWorkspace, { key: WORKSPACE_KEY, workspace: heldReset });
+    await page.reload();
+    await page.waitForSelector(".chip-option");
+    assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
+    assert.equal(await page.locator("[data-bit='6']").getAttribute("aria-pressed"), "false");
+    const poweredOff = structuredClone(saved);
+    poweredOff.projects[poweredOff.activeId].power = false;
+    await page.evaluate(writeStoredWorkspace, { key: WORKSPACE_KEY, workspace: poweredOff });
+    await page.reload();
+    await page.waitForSelector(".chip-option");
+    assert.equal(await page.locator("#power-toggle").isChecked(), false);
+    assert.deepEqual(await page.evaluate(readStoredWorkspace, WORKSPACE_KEY), poweredOff);
+
+    // 断开时钟线仍保留原示例标题，防止仅凭名称对用户工程强制清零
+    const modified = structuredClone(saved);
+    const project = modified.projects[modified.activeId];
+    project.wires[project.wires.length - 1].to = "B0:A:1";
+    await page.evaluate(writeStoredWorkspace, { key: WORKSPACE_KEY, workspace: modified });
+    await page.reload();
+    await page.waitForSelector(".chip-option");
+    assert.equal(await page.locator("#binary-result").textContent(), "XXX XXXX");
+    assert.deepEqual(await page.evaluate(readStoredWorkspace, WORKSPACE_KEY), modified);
+
+    await page.evaluate(writeStoredWorkspace, { key: WORKSPACE_KEY, workspace: saved });
+    await page.reload();
+    await page.waitForSelector(".chip-option");
+    assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
+    await page.locator("#pulse-negative").click();
+    assert.equal(await page.locator("#binary-result").textContent(), "000 0001");
 }
 
 // 确认临时目录位于系统临时文件夹内，再清理本次测试产生的文件
@@ -102,6 +162,7 @@ async function testOfflinePackage() {
         await page.getByRole("button", { name: "切换 K0", exact: true }).click();
         await page.locator("#pulse-negative").click();
         assert.equal(await page.locator("#binary-result").textContent(), "000 0001");
+        await testSavedPresetStartup(page);
         await page.locator(".chip-option[data-model='74LS273']").click();
         const image = page.locator("#inspect-panel .chip-reference img");
         await image.waitFor();
@@ -121,7 +182,7 @@ async function testOfflinePackage() {
         await page.locator("#connect-endpoints").click();
         await page.waitForFunction(offlineWireReady);
         assert.deepEqual(errors, []);
-        console.log("离线包验证通过：断网直接打开、芯片引脚图、脉冲运算、导出及 libavoid 新增接线");
+        console.log("离线包验证通过：首次及保存后启动清零、输入与电源设置保留、改接电路不清零、断网引脚图、脉冲、导出及新增接线");
     } finally {
         if (browser) {
             await browser.close();

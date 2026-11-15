@@ -52,8 +52,10 @@ function nextJk(first, second, previous) {
     if (first === 0 && second === 1) {
         return 0;
     }
-    const setPart = logicGate("and", first, logicGate("not", previous, 0));
-    const keepPart = logicGate("and", logicGate("not", second, 0), previous);
+    const previousInverse = logicGate("not", previous, 0);
+    const secondInverse = logicGate("not", second, 0);
+    const setPart = logicGate("and", first, previousInverse);
+    const keepPart = logicGate("and", secondInverse, previous);
     return logicGate("or", setPart, keepPart);
 }
 

@@ -5,11 +5,11 @@ import { refreshSelect, cleanSelectPanels } from "./select-control.mjs";
 import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
 import { createRuntime, readEndpoint, simulate } from "./engine.mjs";
-import { complementPreset } from "./presets.mjs";
+import { complementPreset, isComplementPreset, COMPLEMENT_RESET_INPUT } from "./presets.mjs";
 import { routeWires, routeNewWire } from "./routing.mjs";
 import { initializeRouting } from "./routing-runtime.mjs";
 import { DRAW, allEndpoints, renderBoard } from "./render.mjs";
-import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint } from "./geometry.mjs";
+import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint, chipBounds, wireDisplayPaths } from "./geometry.mjs";
 import { LIMITS, STORAGE_KEY, validateProject } from "./storage.mjs";
 import { MOTION, tween, fadeContent } from "./motion.mjs";
 import { markdownFragment } from "./notes.mjs";
@@ -20,6 +20,8 @@ import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
 import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./inspection-layout.mjs";
 import { openLogicDiagram, bindLogicDiagram } from "./logic-diagram-view.mjs";
 import { bindViewportPan } from "./viewport-pan.mjs";
+import { bindViewportSelection } from "./viewport-selection.mjs";
+import { rectanglesIntersect, pathIntersectsRectangle } from "./selection-geometry.mjs";
 
 // 界面操作参数：时长单位为毫秒，编辑距离为画布逻辑像素
 const SETTINGS = {
@@ -56,6 +58,8 @@ const BOARD_PAN_OPTIONS = {
     canStart: canPanBoard,
     onStart: prepareBoardPan
 };
+// 框选只改变界面选择，不改接线或仿真，可在只读模式使用
+const BOARD_SELECTION_OPTIONS = { canStart: canSelectBoardArea, onSelect: selectBoardArea };
 
 // 电路结构、真实仿真状态和界面预览分别保存，动画不会改变逻辑电平
 const state = {
@@ -103,6 +107,7 @@ let autoSave = false;
 let confirmationAction = null;
 let drag = null;
 let boardPan = null;
+let boardSelection = null;
 let ignoreClick = false;
 let cycle = { x: -100, y: -100, signature: "", index: 0 };
 let catalogModel = "";
@@ -780,10 +785,37 @@ function cycleTarget(point) {
     return candidates[cycle.index];
 }
 
-// 普通点击替换选择，Ctrl 点击增减选择；选中芯片时立即打开其介绍
+// 返回对象在当前多选列表中的位置，单击、框选和资料面板共用同一种匹配方式
+function selectedTargetIndex(target) {
+    for (let index = 0; index < state.selection.length; index = index + 1) {
+        const selected = state.selection[index];
+        if (selected.kind === target.kind && selected.id === target.id) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+// 从选择列表移除一个对象，当前对象切换到剩余列表末项，没有剩余时清空
+function removeSelectedTarget(target) {
+    const index = selectedTargetIndex(target);
+    if (index >= 0) {
+        state.selection.splice(index, 1);
+    }
+    state.selected = null;
+    if (state.selection.length > 0) {
+        state.selected = state.selection[state.selection.length - 1];
+    }
+}
+
+// 点击已选对象只移除这一项，Ctrl 点击新对象追加，普通点击新对象替换选择
 function selectTarget(target, multiple) {
     catalogModel = "";
     const same = target && state.selected && target.kind === state.selected.kind && target.id === state.selected.id;
+    if (target && (target.kind === "chip" || target.kind === "wire") && selectedTargetIndex(target) >= 0) {
+        removeSelectedTarget(target);
+        return;
+    }
     if (same && !multiple) {
         state.selected = null;
         state.selection = [];
@@ -800,22 +832,7 @@ function selectTarget(target, multiple) {
         return;
     }
     if (target.kind === "chip" || target.kind === "wire") {
-        let position = -1;
-        for (let index = 0; index < state.selection.length; index = index + 1) {
-            if (state.selection[index].kind === target.kind && state.selection[index].id === target.id) {
-                position = index;
-            }
-        }
-        if (multiple && position >= 0) {
-            state.selection.splice(position, 1);
-            state.selected = null;
-            if (state.selection.length > 0) {
-                state.selected = state.selection[state.selection.length - 1];
-            }
-            return;
-        } else if (position < 0) {
-            state.selection.push({ kind: target.kind, id: target.id });
-        }
+        state.selection.push({ kind: target.kind, id: target.id });
     }
     if (target.kind === "chip") {
         state.activeTab = "inspect";
@@ -825,16 +842,19 @@ function selectTarget(target, multiple) {
 
 // 只在选择模式下记录拖线起点，实际移动超过阈值后才建立撤销记录
 function pointerDown(event) {
+    if (event.button !== 0) {
+        return;
+    }
     if (state.placing !== "" || state.tool === "place") {
         return;
     }
     const target = hitTest(canvasPoint(event), state, endpoints);
-    if (target && target.kind === "pulse" && event.button === 0) {
+    if (target && target.kind === "pulse") {
         startPulse(target.id);
         canvas.setPointerCapture(event.pointerId);
         return;
     }
-    if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey || event.button !== 0) {
+    if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey) {
         return;
     }
     const point = canvasPoint(event);
@@ -851,7 +871,7 @@ function pointerDown(event) {
 
 // 导线节点拖动、脉冲和组合键选择优先，其他鼠标拖动可用于平移
 function canPanBoard(event) {
-    if (drag || heldPulse !== "") {
+    if (drag || heldPulse !== "" || boardSelection.isSelecting()) {
         return false;
     }
     return !event.ctrlKey && !event.metaKey;
@@ -861,6 +881,49 @@ function canPanBoard(event) {
 function prepareBoardPan() {
     canvas.title = "";
     leaveBoard();
+}
+
+// 导线编辑和左键平移期间不再开始框选，避免同一鼠标同时改变两种状态
+function canSelectBoardArea() {
+    return !drag && heldPulse === "" && !boardPan.isDragging();
+}
+
+// 将屏幕选框换算到面包板坐标，命中芯片外壳或实际导线段时纳入选择
+function selectBoardArea(rectangle, multiple) {
+    const first = canvasPoint({ clientX: rectangle.left, clientY: rectangle.top });
+    const last = canvasPoint({ clientX: rectangle.right, clientY: rectangle.bottom });
+    const area = { left: first.x, top: first.y, right: last.x, bottom: last.y };
+    const targets = [];
+    for (const chip of state.project.chips) {
+        const bounds = chipBounds(chip);
+        const chipArea = { left: bounds.x, top: bounds.y, right: bounds.x + bounds.width, bottom: bounds.y + bounds.height };
+        if (rectanglesIntersect(area, chipArea)) {
+            targets.push({ kind: "chip", id: chip.id });
+        }
+    }
+    const paths = wireDisplayPaths(state.project.wires);
+    for (let index = 0; index < paths.length; index = index + 1) {
+        if (pathIntersectsRectangle(paths[index], area)) {
+            targets.push({ kind: "wire", id: state.project.wires[index].id });
+        }
+    }
+    if (!multiple) {
+        state.selection = [];
+        state.selected = null;
+    }
+    // 追加时只加入新对象，已经选中的对象不会因为再次框住而取消
+    for (const target of targets) {
+        if (selectedTargetIndex(target) < 0) {
+            state.selection.push(target);
+        }
+    }
+    if (state.selection.length > 0) {
+        state.selected = state.selection[state.selection.length - 1];
+    }
+    catalogModel = "";
+    state.activeTab = "inspect";
+    lastPinnedChip = "";
+    render();
 }
 
 // 拖动转折点直接预览路径；端点等松开时吸附到合法空孔
@@ -953,7 +1016,7 @@ function cancelPointer() {
 
 // 鼠标移动时只重绘画布和孔位文字，不重新计算电路
 function movePointer(event) {
-    if (boardPan.isDragging()) {
+    if (boardPan.isDragging() || boardSelection.isSelecting()) {
         return;
     }
     if (drag) {
@@ -1778,17 +1841,7 @@ function renderCatalogInfo(container, modelName, prefix = "") {
 function deselectFromInspection(event) {
     const kind = event.currentTarget.dataset.kind;
     const id = event.currentTarget.dataset.id;
-    const kept = [];
-    for (const target of state.selection) {
-        if (target.kind !== kind || target.id !== id) {
-            kept.push(target);
-        }
-    }
-    state.selection = kept;
-    state.selected = null;
-    if (kept.length > 0) {
-        state.selected = kept[kept.length - 1];
-    }
+    removeSelectedTarget({ kind: kind, id: id });
     render();
 }
 
@@ -2461,6 +2514,7 @@ function keyDown(event) {
 function bindEvents() {
     const viewport = element("board-viewport");
     boardPan = bindViewportPan(viewport, BOARD_PAN_OPTIONS);
+    boardSelection = bindViewportSelection(viewport, BOARD_SELECTION_OPTIONS);
     element("tool-place").addEventListener("click", chooseTool);
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
@@ -2526,15 +2580,16 @@ function bindEvents() {
     document.addEventListener("keydown", keyDown);
 }
 
-// 初始化默认示例的寄存器，让首次打开时能直接看到确定的零结果
+// 启动标准示例时先清零寄存器，再恢复用户保存的清零开关，不改其他输入
 function initializeDefaultPreset() {
-    state.project.switches[6] = 0;
+    const resetValue = state.project.switches[COMPLEMENT_RESET_INPUT];
+    state.project.switches[COMPLEMENT_RESET_INPUT] = 0;
     calculate(false);
-    state.project.switches[6] = 1;
+    state.project.switches[COMPLEMENT_RESET_INPUT] = resetValue;
     calculate(false);
 }
 
-// 初始化离线工作台，恢复本地结构，寄存器仍从未知状态开始
+// 恢复本地工程，标准示例启动时清零，其他电路保留上电未知状态
 function start() {
     canvas = element("board-canvas");
     // 输入约束读取共享配置，HTML 中的初值仅作为加载前的回退
@@ -2572,6 +2627,9 @@ function start() {
         state.project = complementPreset();
         initializePreset = true;
         loadError = "本地电路无法恢复，已打开示例。原文件可重新导入";
+    }
+    if (!initializePreset && state.project.power && isComplementPreset(state.project)) {
+        initializePreset = true;
     }
     if (activeExperiment === "") {
         activeExperiment = newExperimentId();

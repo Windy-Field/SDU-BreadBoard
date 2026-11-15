@@ -96479,8 +96479,10 @@
     if (first === 0 && second === 1) {
       return 0;
     }
-    const setPart = logicGate("and", first, logicGate("not", previous, 0));
-    const keepPart = logicGate("and", logicGate("not", second, 0), previous);
+    const previousInverse = logicGate("not", previous, 0);
+    const secondInverse = logicGate("not", second, 0);
+    const setPart = logicGate("and", first, previousInverse);
+    const keepPart = logicGate("and", secondInverse, previous);
     return logicGate("or", setPart, keepPart);
   }
   function updateFlipFlops(model, pins, state2) {
@@ -97806,6 +97808,7 @@
   var FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
   var REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
   var PRESET_PORT_COUNT = 7;
+  var COMPLEMENT_RESET_INPUT = 6;
   var COMPLEMENT_NOTES = `# \u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668
 
 ## \u529F\u80FD
@@ -97956,8 +97959,53 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         wire.bends = structuredClone(preset_routes_default[wire.id]);
       }
     }
-    project.switches[6] = 1;
+    project.switches[COMPLEMENT_RESET_INPUT] = 1;
     return project;
+  }
+  function presetWireKey(wire) {
+    const first = baseNode(wire.from);
+    const second = baseNode(wire.to);
+    if (first < second) {
+      return first + "|" + second;
+    }
+    return second + "|" + first;
+  }
+  function isComplementPreset(project) {
+    const reference = complementPreset();
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
+      return false;
+    }
+    if (project.pullUps.length !== reference.pullUps.length) {
+      return false;
+    }
+    const chips = /* @__PURE__ */ new Map();
+    for (const chip of project.chips) {
+      chips.set(chip.id, chip);
+    }
+    for (const expected of reference.chips) {
+      const actual = chips.get(expected.id);
+      if (!actual || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
+        return false;
+      }
+    }
+    const wires = /* @__PURE__ */ new Map();
+    for (const wire of reference.wires) {
+      const key = presetWireKey(wire);
+      let count = 0;
+      if (wires.has(key)) {
+        count = wires.get(key);
+      }
+      wires.set(key, count + 1);
+    }
+    for (const wire of project.wires) {
+      const key = presetWireKey(wire);
+      const count = wires.get(key);
+      if (!count) {
+        return false;
+      }
+      wires.set(key, count - 1);
+    }
+    return true;
   }
 
   // src/wire-path.mjs
@@ -98242,6 +98290,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     // 实验名称字符数上限
   };
   var FILE_BOUNDS = { width: 1300, height: 1280 };
+  var LEGACY_COMPLEMENT_PORT_COUNT = 7;
   function legacyNode(name, wiringVersion) {
     if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
       return name;
@@ -98324,7 +98373,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     }
     throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
   }
-  function validateProject(value) {
+  function validateProjectHeader(value) {
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
       throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
     }
@@ -98334,7 +98383,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
       throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
     }
-    const project = emptyProject();
+  }
+  function restoreProjectSettings(value, project) {
     if (value.inputCount !== void 0 || value.outputCount !== void 0) {
       if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
         throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
@@ -98343,8 +98393,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       project.outputCount = value.outputCount;
     }
     if (value.mode === "complement") {
-      project.inputCount = Math.max(project.inputCount, 7);
-      project.outputCount = Math.max(project.outputCount, 7);
+      project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+      project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
     }
     if (value.notes === void 0 && value.mode === "complement") {
       project.notes = COMPLEMENT_NOTES;
@@ -98354,6 +98404,12 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       }
       project.notes = value.notes;
     }
+    if (typeof value.name === "string") {
+      project.name = value.name.slice(0, LIMITS.nameLength);
+    }
+    project.power = value.power === true;
+  }
+  function restorePullUps(value, project) {
     if (value.pullUps !== void 0) {
       if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
         throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
@@ -98367,10 +98423,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         seen.add(endpoint);
       }
     }
-    if (typeof value.name === "string") {
-      project.name = value.name.slice(0, LIMITS.nameLength);
-    }
-    project.power = value.power === true;
+  }
+  function restoreChips(value, project) {
     const identifiers = /* @__PURE__ */ new Set();
     const occupied2 = /* @__PURE__ */ new Set();
     for (const entry of value.chips) {
@@ -98388,7 +98442,10 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         occupied2.add(pinHole(chip, pin));
       }
     }
-    identifiers.clear();
+    return occupied2;
+  }
+  function restoreWires(value, project, occupied2) {
+    const identifiers = /* @__PURE__ */ new Set();
     const reserved = new Set(occupied2);
     for (const entry of value.wires) {
       if (entry && isPhysicalHole(entry.from)) {
@@ -98432,12 +98489,23 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       occupied2.add(entry.to);
       identifiers.add(entry.id);
     }
+  }
+  function restoreSwitches(value, project) {
     for (let index = 0; index < IO_LIMIT; index = index + 1) {
       if (value.switches[index] !== 0 && value.switches[index] !== 1) {
         throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
       }
       project.switches[index] = value.switches[index];
     }
+  }
+  function validateProject(value) {
+    validateProjectHeader(value);
+    const project = emptyProject();
+    restoreProjectSettings(value, project);
+    restorePullUps(value, project);
+    const occupied2 = restoreChips(value, project);
+    restoreWires(value, project, occupied2);
+    restoreSwitches(value, project);
     if (value.wiringVersion !== WIRING_VERSION) {
       verifyPortMigration(value, project);
     }
@@ -103837,7 +103905,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.8.2";
+  var APP_VERSION = "1.8.3";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/inspection-layout.mjs
@@ -104542,6 +104610,161 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     return { isDragging, finish: finishPan };
   }
 
+  // src/selection-geometry.mjs
+  function selectionRectangle(first, last) {
+    return {
+      left: Math.min(first.x, last.x),
+      top: Math.min(first.y, last.y),
+      right: Math.max(first.x, last.x),
+      bottom: Math.max(first.y, last.y)
+    };
+  }
+  function rectanglesIntersect(first, second) {
+    return first.left <= second.right && first.right >= second.left && first.top <= second.bottom && first.bottom >= second.top;
+  }
+  function segmentIntersectsRectangle(first, last, rectangle2) {
+    let start2 = 0;
+    let end = 1;
+    const directions = [
+      { origin: first.x, distance: last.x - first.x, minimum: rectangle2.left, maximum: rectangle2.right },
+      { origin: first.y, distance: last.y - first.y, minimum: rectangle2.top, maximum: rectangle2.bottom }
+    ];
+    for (const direction of directions) {
+      if (direction.distance === 0) {
+        if (direction.origin < direction.minimum || direction.origin > direction.maximum) {
+          return false;
+        }
+        continue;
+      }
+      const firstCrossing = (direction.minimum - direction.origin) / direction.distance;
+      const lastCrossing = (direction.maximum - direction.origin) / direction.distance;
+      start2 = Math.max(start2, Math.min(firstCrossing, lastCrossing));
+      end = Math.min(end, Math.max(firstCrossing, lastCrossing));
+      if (start2 > end) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function pathIntersectsRectangle(points, rectangle2) {
+    for (let index = 1; index < points.length; index = index + 1) {
+      if (segmentIntersectsRectangle(points[index - 1], points[index], rectangle2)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // src/viewport-selection.mjs
+  var BOX_SETTINGS = { threshold: 4 };
+  function bindViewportSelection(viewport, options) {
+    let gesture = null;
+    const overlay = document.createElement("div");
+    overlay.className = "viewport-selection-box";
+    overlay.hidden = true;
+    overlay.setAttribute("aria-hidden", "true");
+    viewport.append(overlay);
+    function selectionPoint(event) {
+      const bounds = viewport.getBoundingClientRect();
+      const left = bounds.left + viewport.clientLeft;
+      const top = bounds.top + viewport.clientTop;
+      return {
+        x: Math.max(left, Math.min(left + viewport.clientWidth, event.clientX)),
+        y: Math.max(top, Math.min(top + viewport.clientHeight, event.clientY))
+      };
+    }
+    function startSelection(event) {
+      if (event.pointerType !== "mouse" || event.button !== 2 || gesture || !options.canStart()) {
+        return;
+      }
+      const point = selectionPoint(event);
+      if (point.x !== event.clientX || point.y !== event.clientY) {
+        return;
+      }
+      event.preventDefault();
+      gesture = {
+        pointerId: event.pointerId,
+        first: point,
+        last: point,
+        multiple: event.ctrlKey || event.metaKey,
+        moved: false
+      };
+      viewport.setPointerCapture(event.pointerId);
+    }
+    function moveSelection(event) {
+      if (!gesture || event.pointerId !== gesture.pointerId) {
+        return;
+      }
+      gesture.last = selectionPoint(event);
+      const distanceX = gesture.last.x - gesture.first.x;
+      const distanceY = gesture.last.y - gesture.first.y;
+      if (!gesture.moved && Math.hypot(distanceX, distanceY) <= BOX_SETTINGS.threshold) {
+        return;
+      }
+      gesture.moved = true;
+      event.preventDefault();
+      const rectangle2 = selectionRectangle(gesture.first, gesture.last);
+      const bounds = viewport.getBoundingClientRect();
+      overlay.hidden = false;
+      overlay.style.left = rectangle2.left - bounds.left - viewport.clientLeft + viewport.scrollLeft + "px";
+      overlay.style.top = rectangle2.top - bounds.top - viewport.clientTop + viewport.scrollTop + "px";
+      overlay.style.width = rectangle2.right - rectangle2.left + "px";
+      overlay.style.height = rectangle2.bottom - rectangle2.top + "px";
+      viewport.classList.add("viewport-selecting");
+    }
+    function cancelSelection() {
+      if (!gesture) {
+        return;
+      }
+      const pointerId = gesture.pointerId;
+      gesture = null;
+      overlay.hidden = true;
+      viewport.classList.remove("viewport-selecting");
+      if (viewport.hasPointerCapture(pointerId)) {
+        viewport.releasePointerCapture(pointerId);
+      }
+    }
+    function finishSelection(event) {
+      if (!gesture || event.pointerId !== gesture.pointerId || event.button !== 2) {
+        return;
+      }
+      moveSelection(event);
+      const completed = gesture;
+      cancelSelection();
+      if (completed.moved) {
+        const rectangle2 = selectionRectangle(completed.first, completed.last);
+        options.onSelect(rectangle2, completed.multiple);
+      }
+    }
+    function cancelPointerSelection(event) {
+      if (gesture && event.pointerId === gesture.pointerId) {
+        cancelSelection();
+      }
+    }
+    function cancelSelectionKey(event) {
+      if (gesture && event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        cancelSelection();
+      }
+    }
+    function preventSelectionMenu(event) {
+      event.preventDefault();
+    }
+    function isSelecting() {
+      return gesture !== null;
+    }
+    viewport.addEventListener("pointerdown", startSelection);
+    viewport.addEventListener("pointermove", moveSelection);
+    viewport.addEventListener("lostpointercapture", cancelPointerSelection);
+    viewport.addEventListener("contextmenu", preventSelectionMenu);
+    window.addEventListener("pointerup", finishSelection);
+    window.addEventListener("pointercancel", cancelPointerSelection);
+    window.addEventListener("blur", cancelSelection);
+    document.addEventListener("keydown", cancelSelectionKey, true);
+    return { cancel: cancelSelection, isSelecting };
+  }
+
   // src/logic-diagram-view.mjs
   var VIEW_OPTIONS = {
     minimum: 0.15,
@@ -104558,6 +104781,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     canStart: canPanDiagram,
     onStart: prepareDiagramPan
   };
+  var DIAGRAM_SELECTION_OPTIONS = { canStart: canSelectDiagramArea, onSelect: selectDiagramArea };
   var EXPORT_PROPERTIES = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "font-family", "font-size", "font-weight", "text-anchor", "opacity", "paint-order"];
   var DIAGRAM_CONTROLS = ["logic-export", "logic-show-power", "logic-fit", "logic-zoom-in", "logic-zoom-out", "logic-network"];
   var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
@@ -104569,6 +104793,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var zoom = 1;
   var generation = 0;
   var diagramPan = null;
+  var diagramSelection = null;
+  var selectedNetworks = /* @__PURE__ */ new Set();
   function svgElement(parent, name, attributes, text2 = "") {
     const shape = document.createElementNS(SVG_NAMESPACE, name);
     for (const key of Object.keys(attributes)) {
@@ -104593,6 +104819,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     shape.dataset.level = String(network.level);
     shape.setAttribute("tabindex", "0");
     shape.setAttribute("role", "button");
+    shape.setAttribute("aria-pressed", "false");
     shape.setAttribute("aria-label", network.id + "\uFF0C\u7535\u5E73 " + network.level);
   }
   function drawEdge(svg2, edge) {
@@ -104786,6 +105013,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     svgElement(group, "title", {}, block.title + " \xB7 " + block.subtitle);
   }
   function drawGraph() {
+    selectedNetworks.clear();
     const svg2 = element("logic-diagram");
     svg2.replaceChildren();
     svg2.setAttribute("viewBox", "0 0 " + currentGraph.width + " " + currentGraph.height);
@@ -104816,6 +105044,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   async function generateDiagram() {
     diagramPan.finish();
+    diagramSelection.cancel();
     const request = generation + 1;
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
@@ -104911,27 +105140,47 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const scale = Math.exp(-delta * VIEW_OPTIONS.wheelSpeed);
     setLogicZoom(zoom * scale, event);
   }
-  function canPanDiagram() {
+  function canPanDiagram(event) {
+    if (event.ctrlKey || event.metaKey || diagramSelection.isSelecting()) {
+      return false;
+    }
+    return canSelectDiagramArea();
+  }
+  function canSelectDiagramArea() {
     if (!currentGraph || element("logic-diagram-dialog").getAttribute("aria-busy") === "true") {
       return false;
     }
-    return true;
+    return !diagramPan.isDragging();
   }
   function prepareDiagramPan() {
     element("logic-diagram-scroll").focus({ preventScroll: true });
   }
-  function selectNetwork(id) {
-    element("logic-network").value = id;
+  function renderNetworkSelection() {
+    const select = element("logic-network");
+    const placeholder = select.options[0];
+    placeholder.textContent = "\u7F51\u7EDC\u6838\u5BF9";
+    select.value = "";
+    if (selectedNetworks.size === 1) {
+      for (const id of selectedNetworks) {
+        select.value = id;
+      }
+    } else if (selectedNetworks.size > 1) {
+      placeholder.textContent = "\u5DF2\u9009 " + selectedNetworks.size + " \u7EC4\u7F51\u7EDC";
+    }
     for (const shape of element("logic-diagram").querySelectorAll("[data-net]")) {
-      shape.classList.toggle("logic-active-net", shape.dataset.net === id);
+      const selected = selectedNetworks.has(shape.dataset.net);
+      shape.classList.toggle("logic-active-net", selected);
+      if (shape.getAttribute("role") === "button") {
+        shape.setAttribute("aria-pressed", String(selected));
+      }
     }
     const members = element("logic-network-members");
     members.replaceChildren();
     for (const network of currentDiagram.nets) {
-      if (network.id !== id) {
+      if (!selectedNetworks.has(network.id)) {
         continue;
       }
-      members.append(node("strong", id + " \xB7 \u7535\u5E73 " + network.level, ""));
+      members.append(node("strong", network.id + " \xB7 \u7535\u5E73 " + network.level, ""));
       for (const terminal of network.members) {
         members.append(node("span", terminal.label, ""));
       }
@@ -104940,11 +105189,63 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
     }
   }
+  function selectNetwork(id) {
+    selectedNetworks.clear();
+    if (id !== "") {
+      selectedNetworks.add(id);
+    }
+    renderNetworkSelection();
+  }
   function clickDiagram(event) {
     const target = event.target.closest("[data-net]");
-    if (target) {
-      selectNetwork(target.dataset.net);
+    if (!target) {
+      selectNetwork("");
+      return;
     }
+    const id = target.dataset.net;
+    if (selectedNetworks.has(id)) {
+      selectedNetworks.delete(id);
+      renderNetworkSelection();
+    } else if (event.ctrlKey || event.metaKey) {
+      selectedNetworks.add(id);
+      renderNetworkSelection();
+    } else {
+      selectNetwork(id);
+    }
+  }
+  function selectDiagramArea(rectangle2, multiple) {
+    const bounds = element("logic-diagram").getBoundingClientRect();
+    const area = {
+      left: (rectangle2.left - bounds.left) / zoom,
+      top: (rectangle2.top - bounds.top) / zoom,
+      right: (rectangle2.right - bounds.left) / zoom,
+      bottom: (rectangle2.bottom - bounds.top) / zoom
+    };
+    if (!multiple) {
+      selectedNetworks.clear();
+    }
+    for (const edge of currentGraph.edges) {
+      for (const section of edge.sections || []) {
+        const points = [section.startPoint];
+        for (const point of section.bendPoints || []) {
+          points.push(point);
+        }
+        points.push(section.endPoint);
+        if (pathIntersectsRectangle(points, area)) {
+          selectedNetworks.add(edge.netId);
+        }
+      }
+    }
+    const leads = element("logic-diagram").querySelectorAll("[data-net] .logic-pin-lead");
+    for (const lead of leads) {
+      const transform = lead.getScreenCTM();
+      const first = new DOMPoint(lead.x1.baseVal.value, lead.y1.baseVal.value).matrixTransform(transform);
+      const last = new DOMPoint(lead.x2.baseVal.value, lead.y2.baseVal.value).matrixTransform(transform);
+      if (segmentIntersectsRectangle(first, last, rectangle2)) {
+        selectedNetworks.add(lead.closest("[data-net]").dataset.net);
+      }
+    }
+    renderNetworkSelection();
   }
   function keyDiagram(event) {
     if (event.key === "Enter" || event.key === " ") {
@@ -104987,8 +105288,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function bindLogicDiagram() {
     const viewport = element("logic-diagram-scroll");
     diagramPan = bindViewportPan(viewport, DIAGRAM_PAN_OPTIONS);
+    diagramSelection = bindViewportSelection(viewport, DIAGRAM_SELECTION_OPTIONS);
     viewport.addEventListener("wheel", wheelLogicDiagram, { passive: false });
     element("logic-diagram-dialog").addEventListener("close", diagramPan.finish);
+    element("logic-diagram-dialog").addEventListener("close", diagramSelection.cancel);
     element("close-logic-diagram").addEventListener("click", closeLogicDiagram);
     element("logic-show-power").addEventListener("change", generateDiagram);
     element("logic-fit").addEventListener("click", fitLogicDiagram);
@@ -105032,6 +105335,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     canStart: canPanBoard,
     onStart: prepareBoardPan
   };
+  var BOARD_SELECTION_OPTIONS = { canStart: canSelectBoardArea, onSelect: selectBoardArea };
   var state = {
     project: emptyProject(),
     runtime: createRuntime(),
@@ -105077,6 +105381,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var confirmationAction = null;
   var drag = null;
   var boardPan = null;
+  var boardSelection = null;
   var ignoreClick = false;
   var cycle = { x: -100, y: -100, signature: "", index: 0 };
   var catalogModel = "";
@@ -105680,9 +105985,32 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     return candidates[cycle.index];
   }
+  function selectedTargetIndex(target) {
+    for (let index = 0; index < state.selection.length; index = index + 1) {
+      const selected = state.selection[index];
+      if (selected.kind === target.kind && selected.id === target.id) {
+        return index;
+      }
+    }
+    return -1;
+  }
+  function removeSelectedTarget(target) {
+    const index = selectedTargetIndex(target);
+    if (index >= 0) {
+      state.selection.splice(index, 1);
+    }
+    state.selected = null;
+    if (state.selection.length > 0) {
+      state.selected = state.selection[state.selection.length - 1];
+    }
+  }
   function selectTarget(target, multiple) {
     catalogModel = "";
     const same = target && state.selected && target.kind === state.selected.kind && target.id === state.selected.id;
+    if (target && (target.kind === "chip" || target.kind === "wire") && selectedTargetIndex(target) >= 0) {
+      removeSelectedTarget(target);
+      return;
+    }
     if (same && !multiple) {
       state.selected = null;
       state.selection = [];
@@ -105699,22 +106027,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       return;
     }
     if (target.kind === "chip" || target.kind === "wire") {
-      let position = -1;
-      for (let index = 0; index < state.selection.length; index = index + 1) {
-        if (state.selection[index].kind === target.kind && state.selection[index].id === target.id) {
-          position = index;
-        }
-      }
-      if (multiple && position >= 0) {
-        state.selection.splice(position, 1);
-        state.selected = null;
-        if (state.selection.length > 0) {
-          state.selected = state.selection[state.selection.length - 1];
-        }
-        return;
-      } else if (position < 0) {
-        state.selection.push({ kind: target.kind, id: target.id });
-      }
+      state.selection.push({ kind: target.kind, id: target.id });
     }
     if (target.kind === "chip") {
       state.activeTab = "inspect";
@@ -105722,16 +106035,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function pointerDown(event) {
+    if (event.button !== 0) {
+      return;
+    }
     if (state.placing !== "" || state.tool === "place") {
       return;
     }
     const target = hitTest(canvasPoint(event), state, endpoints);
-    if (target && target.kind === "pulse" && event.button === 0) {
+    if (target && target.kind === "pulse") {
       startPulse(target.id);
       canvas.setPointerCapture(event.pointerId);
       return;
     }
-    if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey || event.button !== 0) {
+    if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey) {
       return;
     }
     const point = canvasPoint(event);
@@ -105746,7 +106062,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function canPanBoard(event) {
-    if (drag || heldPulse !== "") {
+    if (drag || heldPulse !== "" || boardSelection.isSelecting()) {
       return false;
     }
     return !event.ctrlKey && !event.metaKey;
@@ -105754,6 +106070,44 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function prepareBoardPan() {
     canvas.title = "";
     leaveBoard();
+  }
+  function canSelectBoardArea() {
+    return !drag && heldPulse === "" && !boardPan.isDragging();
+  }
+  function selectBoardArea(rectangle2, multiple) {
+    const first = canvasPoint({ clientX: rectangle2.left, clientY: rectangle2.top });
+    const last = canvasPoint({ clientX: rectangle2.right, clientY: rectangle2.bottom });
+    const area = { left: first.x, top: first.y, right: last.x, bottom: last.y };
+    const targets = [];
+    for (const chip of state.project.chips) {
+      const bounds = chipBounds(chip);
+      const chipArea = { left: bounds.x, top: bounds.y, right: bounds.x + bounds.width, bottom: bounds.y + bounds.height };
+      if (rectanglesIntersect(area, chipArea)) {
+        targets.push({ kind: "chip", id: chip.id });
+      }
+    }
+    const paths = wireDisplayPaths(state.project.wires);
+    for (let index = 0; index < paths.length; index = index + 1) {
+      if (pathIntersectsRectangle(paths[index], area)) {
+        targets.push({ kind: "wire", id: state.project.wires[index].id });
+      }
+    }
+    if (!multiple) {
+      state.selection = [];
+      state.selected = null;
+    }
+    for (const target of targets) {
+      if (selectedTargetIndex(target) < 0) {
+        state.selection.push(target);
+      }
+    }
+    if (state.selection.length > 0) {
+      state.selected = state.selection[state.selection.length - 1];
+    }
+    catalogModel = "";
+    state.activeTab = "inspect";
+    lastPinnedChip = "";
+    render();
   }
   function dragPointer(event) {
     if (!drag) {
@@ -105838,7 +106192,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderBoard(canvas, state, endpoints);
   }
   function movePointer(event) {
-    if (boardPan.isDragging()) {
+    if (boardPan.isDragging() || boardSelection.isSelecting()) {
       return;
     }
     if (drag) {
@@ -106557,17 +106911,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function deselectFromInspection(event) {
     const kind = event.currentTarget.dataset.kind;
     const id = event.currentTarget.dataset.id;
-    const kept = [];
-    for (const target of state.selection) {
-      if (target.kind !== kind || target.id !== id) {
-        kept.push(target);
-      }
-    }
-    state.selection = kept;
-    state.selected = null;
-    if (kept.length > 0) {
-      state.selected = kept[kept.length - 1];
-    }
+    removeSelectedTarget({ kind, id });
     render();
   }
   function toggleSelectionDetails(event) {
@@ -107166,6 +107510,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function bindEvents() {
     const viewport = element("board-viewport");
     boardPan = bindViewportPan(viewport, BOARD_PAN_OPTIONS);
+    boardSelection = bindViewportSelection(viewport, BOARD_SELECTION_OPTIONS);
     element("tool-place").addEventListener("click", chooseTool);
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
@@ -107231,9 +107576,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     document.addEventListener("keydown", keyDown);
   }
   function initializeDefaultPreset() {
-    state.project.switches[6] = 0;
+    const resetValue = state.project.switches[COMPLEMENT_RESET_INPUT];
+    state.project.switches[COMPLEMENT_RESET_INPUT] = 0;
     calculate(false);
-    state.project.switches[6] = 1;
+    state.project.switches[COMPLEMENT_RESET_INPUT] = resetValue;
     calculate(false);
   }
   function start() {
@@ -107272,6 +107618,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       state.project = complementPreset();
       initializePreset = true;
       loadError = "\u672C\u5730\u7535\u8DEF\u65E0\u6CD5\u6062\u590D\uFF0C\u5DF2\u6253\u5F00\u793A\u4F8B\u3002\u539F\u6587\u4EF6\u53EF\u91CD\u65B0\u5BFC\u5165";
+    }
+    if (!initializePreset && state.project.power && isComplementPreset(state.project)) {
+      initializePreset = true;
     }
     if (activeExperiment === "") {
       activeExperiment = newExperimentId();

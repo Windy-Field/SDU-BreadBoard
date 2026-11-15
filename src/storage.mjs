@@ -14,6 +14,8 @@ export const LIMITS = {
 };
 // 兼容旧文件的坐标范围，不随可见画布高度变化
 const FILE_BOUNDS = { width: 1300, height: 1280 };
+// 旧补码文件至少显示七个端口，包含清零输入与溢出输出
+const LEGACY_COMPLEMENT_PORT_COUNT = 7;
 
 // 无版本旧文件的板载端口独立，版本 2 的第四块上下五孔也尚未桥接
 function legacyNode(name, wiringVersion) {
@@ -105,8 +107,8 @@ function migrateEndpoint(name, occupied) {
     throw new Error(name + " 对应列已无空孔，原文件未修改，请先腾出一个插孔");
 }
 
-// 校验并重建导入电路，只接受约定字段，避免把任意文件当成电路运行
-export function validateProject(value) {
+// 先核对文件结构和规模，后续字段校验只处理格式明确的实验对象
+function validateProjectHeader(value) {
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
         throw new Error("文件不是受支持的电路格式");
     }
@@ -116,7 +118,10 @@ export function validateProject(value) {
     if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
         throw new Error("电路规模超过限制，或按键数量不正确");
     }
-    const project = emptyProject();
+}
+
+// 恢复名称、备注、显示位数和电源设置，兼容旧版补码模式字段
+function restoreProjectSettings(value, project) {
     // 旧文件的显示位数继续保留，补码示例的控制端和溢出端也一并显示
     if (value.inputCount !== undefined || value.outputCount !== undefined) {
         if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
@@ -126,8 +131,8 @@ export function validateProject(value) {
         project.outputCount = value.outputCount;
     }
     if (value.mode === "complement") {
-        project.inputCount = Math.max(project.inputCount, 7);
-        project.outputCount = Math.max(project.outputCount, 7);
+        project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+        project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
     }
     if (value.notes === undefined && value.mode === "complement") {
         project.notes = COMPLEMENT_NOTES;
@@ -137,6 +142,14 @@ export function validateProject(value) {
         }
         project.notes = value.notes;
     }
+    if (typeof value.name === "string") {
+        project.name = value.name.slice(0, LIMITS.nameLength);
+    }
+    project.power = value.power === true;
+}
+
+// 核对上拉节点的数量与端点，重复节点不写入恢复结果
+function restorePullUps(value, project) {
     if (value.pullUps !== undefined) {
         if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
             throw new Error("上拉节点列表格式不正确");
@@ -150,10 +163,10 @@ export function validateProject(value) {
             seen.add(endpoint);
         }
     }
-    if (typeof value.name === "string") {
-        project.name = value.name.slice(0, LIMITS.nameLength);
-    }
-    project.power = value.power === true;
+}
+
+// 按合法物理位置恢复芯片，返回被引脚占用的孔供导线校验使用
+function restoreChips(value, project) {
     const identifiers = new Set();
     const occupied = new Set();
     for (const entry of value.chips) {
@@ -171,7 +184,12 @@ export function validateProject(value) {
             occupied.add(pinHole(chip, pin));
         }
     }
-    identifiers.clear();
+    return occupied;
+}
+
+// 校验并迁移导线，保留真实端点占用检查和旧端口迁移顺序
+function restoreWires(value, project, occupied) {
+    const identifiers = new Set();
     // 迁移时不能抢占文件中已有的物理端点
     const reserved = new Set(occupied);
     for (const entry of value.wires) {
@@ -216,12 +234,27 @@ export function validateProject(value) {
         occupied.add(entry.to);
         identifiers.add(entry.id);
     }
+}
+
+// 每个输入只接受已知的零或一，不从其他类型隐式转换
+function restoreSwitches(value, project) {
     for (let index = 0; index < IO_LIMIT; index = index + 1) {
         if (value.switches[index] !== 0 && value.switches[index] !== 1) {
             throw new Error("按键状态必须是 0 或 1");
         }
         project.switches[index] = value.switches[index];
     }
+}
+
+// 校验并重建导入电路，各字段分开恢复，只返回完成全部校验的工程
+export function validateProject(value) {
+    validateProjectHeader(value);
+    const project = emptyProject();
+    restoreProjectSettings(value, project);
+    restorePullUps(value, project);
+    const occupied = restoreChips(value, project);
+    restoreWires(value, project, occupied);
+    restoreSwitches(value, project);
     if (value.wiringVersion !== WIRING_VERSION) {
         verifyPortMigration(value, project);
     }

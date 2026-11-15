@@ -1,5 +1,5 @@
 import { CHIP_MODELS } from "./chips.mjs";
-import { emptyProject, holeId, pinHole, portHole, WIRE_COLORS } from "./board.mjs";
+import { emptyProject, holeId, pinHole, portHole, baseNode, WIRE_COLORS } from "./board.mjs";
 import presetRoutes from "./preset-routes.json" with { type: "json" };
 
 // 示例按信号用途配色，与用户自选线色分开维护，避免调色板编号掩盖含义
@@ -34,6 +34,8 @@ const FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-1
 const REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
 // 新载入示例的端口显示数量，包含清零控制与溢出指示
 const PRESET_PORT_COUNT = 7;
+// 示例低电平清零端口，启动初始化与示例接线共用
+export const COMPLEMENT_RESET_INPUT = 6;
 // 示例备注模板，与构建生成的接线文档共用
 export const COMPLEMENT_NOTES = `# 双符号位补码运算器
 
@@ -191,7 +193,57 @@ export function complementPreset() {
             wire.bends = structuredClone(presetRoutes[wire.id]);
         }
     }
-    project.switches[6] = 1;
+    project.switches[COMPLEMENT_RESET_INPUT] = 1;
     return project;
+}
+
+// 将一根线的两端归入板内连通组，交换接线方向或同列换孔不影响比较
+function presetWireKey(wire) {
+    const first = baseNode(wire.from);
+    const second = baseNode(wire.to);
+    if (first < second) {
+        return first + "|" + second;
+    }
+    return second + "|" + first;
+}
+
+// 核对是否仍为标准示例接法，忽略标题、备注、开关、线色和路径，不按名称猜测电路
+export function isComplementPreset(project) {
+    const reference = complementPreset();
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
+        return false;
+    }
+    if (project.pullUps.length !== reference.pullUps.length) {
+        return false;
+    }
+    const chips = new Map();
+    for (const chip of project.chips) {
+        chips.set(chip.id, chip);
+    }
+    for (const expected of reference.chips) {
+        const actual = chips.get(expected.id);
+        if (!actual || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
+            return false;
+        }
+    }
+    // 记录相同连通组之间的导线数量，不能把增加或缺失的线当作原示例
+    const wires = new Map();
+    for (const wire of reference.wires) {
+        const key = presetWireKey(wire);
+        let count = 0;
+        if (wires.has(key)) {
+            count = wires.get(key);
+        }
+        wires.set(key, count + 1);
+    }
+    for (const wire of project.wires) {
+        const key = presetWireKey(wire);
+        const count = wires.get(key);
+        if (!count) {
+            return false;
+        }
+        wires.set(key, count - 1);
+    }
+    return true;
 }
 

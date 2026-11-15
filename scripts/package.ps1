@@ -20,7 +20,8 @@ function Confirm-ChildPath {
     )
     $absoluteTarget = [System.IO.Path]::GetFullPath($TargetPath)
     $absoluteParent = [System.IO.Path]::GetFullPath($ParentPath)
-    $prefix = $absoluteParent.TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    $parentWithoutSeparator = $absoluteParent.TrimEnd([System.IO.Path]::DirectorySeparatorChar)
+    $prefix = $parentWithoutSeparator + [System.IO.Path]::DirectorySeparatorChar
     if (!$absoluteTarget.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw '目标路径超出了打包目录，请检查路径设置'
     }
@@ -49,7 +50,8 @@ function New-OfflinePackage {
     }
     $output = [System.IO.Path]::GetFullPath($output)
     New-Item -ItemType Directory -Path $output -Force | Out-Null
-    $temporaryName = '.package-' + [System.Guid]::NewGuid().ToString('N')
+    $temporaryIdentifier = [System.Guid]::NewGuid()
+    $temporaryName = '.package-' + $temporaryIdentifier.ToString('N')
     $temporaryRoot = Join-Path $output $temporaryName
     Confirm-ChildPath -TargetPath $temporaryRoot -ParentPath $output
     $packageName = $PackagePrefix + $version

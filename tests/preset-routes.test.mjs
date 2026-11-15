@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import original from "./fixtures/complement-original.json" with { type: "json" };
-import { complementPreset } from "../src/presets.mjs";
+import { complementPreset, isComplementPreset } from "../src/presets.mjs";
 import { wirePoints } from "../src/geometry.mjs";
 import { validateProject } from "../src/storage.mjs";
 import { wiringMetrics } from "./wiring-metrics.mjs";
@@ -81,3 +81,50 @@ async function testGeneralRouting() {
 }
 
 test("普通实验整理路径保持端点且绕开芯片", testGeneralRouting);
+
+// 示例识别只看芯片和实际接线，显示调整、输入值及导线排列不影响启动清零
+function testPresetRecognition() {
+    const project = complementPreset();
+    project.name = "我的加法实验";
+    project.notes = "自定义备注";
+    project.switches[0] = 1;
+    project.switches[6] = 0;
+    project.chips.reverse();
+    project.wires.reverse();
+    for (const wire of project.wires) {
+        const previousFrom = wire.from;
+        wire.from = wire.to;
+        wire.to = previousFrom;
+        wire.color = "#123abc";
+        wire.bends = [];
+    }
+    const before = structuredClone(project);
+    assert.equal(isComplementPreset(project), true);
+    assert.deepEqual(project, before);
+    assert.equal(isComplementPreset(emptyProject()), false);
+}
+
+// 名称相同但接线、型号、位置或上拉发生变化时，不允许自动清零用户电路
+function testModifiedPresetRecognition() {
+    let project = complementPreset();
+    project.wires.pop();
+    assert.equal(isComplementPreset(project), false);
+    project = complementPreset();
+    project.wires[0].to = "B0:A:1";
+    assert.equal(isComplementPreset(project), false);
+    project = complementPreset();
+    project.wires[0] = structuredClone(project.wires[1]);
+    assert.equal(isComplementPreset(project), false);
+    project = complementPreset();
+    project.chips[0].model = "74LS283";
+    assert.equal(isComplementPreset(project), false);
+    project = complementPreset();
+    project.chips[0].column = project.chips[0].column + 1;
+    assert.equal(isComplementPreset(project), false);
+    project = complementPreset();
+    project.pullUps.push("B0:A:1");
+    assert.equal(isComplementPreset(project), false);
+}
+
+test("启动示例识别忽略显示与输入并保持工程不变", testPresetRecognition);
+test("改接或自定义电路不会误判为标准启动示例", testModifiedPresetRecognition);

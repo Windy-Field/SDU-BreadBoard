@@ -209,8 +209,6 @@ async function main() {
         assert.equal(await page.locator("[data-output-led='6']").getAttribute("data-value"), "1");
         await page.evaluate(clearVisibleToasts);
         await page.screenshot({ path: path.join(SCREENSHOTS, "desktop.png"), fullPage: true });
-        fs.mkdirSync(path.join(ROOT, "assets", "screenshots"), { recursive: true });
-        await page.screenshot({ path: path.join(ROOT, "assets", "screenshots", "latest.png"), fullPage: true });
         await clearRegisters(page);
         await setUiInput(page, -12);
         await page.locator("#pulse-negative").click();
