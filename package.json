@@ -3,6 +3,9 @@
   "version": "1.8.3",
   "private": true,
   "type": "module",
+  "main": "desktop/main.mjs",
+  "description": "面包板数字电路模拟器与逻辑电路图工具",
+  "author": "Octorange/Windy-Field",
   "scripts": {
     "build": "node scripts/build.mjs",
     "lint": "node tests/style.mjs",
@@ -10,10 +13,15 @@
     "route:preset": "node scripts/route-preset.mjs",
     "test:ui": "node tests/browser.mjs && node tests/interaction.mjs && node tests/select-control.mjs && node tests/board-ui.mjs && node tests/logic-diagram-browser.mjs && node tests/selection-browser.mjs",
     "package": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1",
-    "test:package": "node tests/package.mjs"
+    "test:package": "node tests/package.mjs",
+    "desktop": "electron .",
+    "desktop:package": "npm run build && electron-builder --config electron-builder.json --win --x64",
+    "test:desktop": "node tests/desktop.mjs"
   },
   "devDependencies": {
     "acorn": "^8.15.0",
+    "electron": "45.3.2",
+    "electron-builder": "26.18.0",
     "esbuild": "^0.25.0",
     "playwright": "^1.62.1"
   },

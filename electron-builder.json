@@ -1,0 +1,43 @@
+{
+  "appId": "cn.sdu.breadboard",
+  "productName": "SDU-BreadBoard",
+  "asar": true,
+  "directories": {
+    "output": "releases/desktop"
+  },
+  "files": [
+    "desktop/**/*",
+    "index.html",
+    "application.js",
+    "styles/**/*",
+    "vendor/**/*",
+    "assets/**/*",
+    "examples/**/*",
+    "docs/**/*",
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "!node_modules/**/*"
+  ],
+  "win": {
+    "icon": "desktop/icon.png",
+    "target": [
+      { "target": "nsis", "arch": ["x64"] },
+      { "target": "portable", "arch": ["x64"] }
+    ],
+    "signExecutable": false
+  },
+  "nsis": {
+    "artifactName": "SDU-BreadBoard-${version}-Setup-x64.exe",
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "SDU 面包板",
+    "deleteAppDataOnUninstall": false
+  },
+  "portable": {
+    "artifactName": "SDU-BreadBoard-${version}-Portable-x64.exe"
+  }
+}
