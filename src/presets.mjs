@@ -1,5 +1,6 @@
 import { CHIP_MODELS } from "./chips.mjs";
-import { emptyProject, holeId, pinHole, portHole, baseNode, WIRE_COLORS } from "./board.mjs";
+import { emptyProject, baseNode, WIRE_COLORS } from "./board.mjs";
+import { connect } from "./preset-wiring.mjs";
 import presetRoutes from "./preset-routes.json" with { type: "json" };
 
 // 示例按信号用途配色，与用户自选线色分开维护，避免调色板编号掩盖含义
@@ -17,10 +18,10 @@ const PRESET_WIRE_COLORS = {
 
 // 标准示例的芯片位置，改变位置后需重新生成路径并运行接线验证
 const PRESET_CHIPS = [
-    { id: "U1", model: "74LS273", section: 1, column: 24 },
-    { id: "U2", model: "74LS283", section: 2, column: 16 },
-    { id: "U3", model: "74LS283", section: 2, column: 39 },
-    { id: "U4", model: "74LS86", section: 1, column: 3 },
+    { id: "U1", model: "74LS273", section: 1, column: 25 },
+    { id: "U2", model: "74LS283", section: 2, column: 15 },
+    { id: "U3", model: "74LS283", section: 2, column: 38 },
+    { id: "U4", model: "74LS86", section: 1, column: 10 },
     { id: "U5", model: "74LS86", section: 1, column: 44 }
 ];
 // 以下为固定引脚接法，不是可随意改变的显示选项
@@ -94,48 +95,6 @@ K、L、P 信号直接连到了对应的面包板列，输入输出板用作信�
 
 当你重新加载文件、断电或撤销后，寄存器的易失状态会重置，需要再次清零。电路采用了理想数字逻辑模型，电流、按键抖动和实际传播时延属于实物实验的观察范围
 `;
-
-// 在同一个芯片脚的五孔组中分配空孔，返回可接线的物理孔名
-function allocatePin(project, usage, name) {
-    if (!name.startsWith("U")) {
-        const hole = portHole(name);
-        if (hole !== "") {
-            return hole;
-        }
-        return name;
-    }
-    const parts = name.split("-");
-    let chip = null;
-    for (const candidate of project.chips) {
-        if (candidate.id === parts[0]) {
-            chip = candidate;
-        }
-    }
-    const pin = Number(parts[1]);
-    const hole = pinHole(chip, pin);
-    const position = hole.split(":");
-    let rows = "GHIJ";
-    if (pin > CHIP_MODELS[chip.model].count / 2) {
-        rows = "DCBA";
-    }
-    let index = 0;
-    if (Object.hasOwn(usage, name)) {
-        index = usage[name];
-    }
-    if (index >= rows.length) {
-        throw new Error("示例电路的同列空孔不足");
-    }
-    usage[name] = index + 1;
-    return holeId(chip.section, rows[index], Number(position[2]));
-}
-
-// 为示例增加一根导线，按物理孔分配端点
-function connect(project, usage, first, second, color) {
-    const from = allocatePin(project, usage, first);
-    const to = allocatePin(project, usage, second);
-    const number = project.wires.length + 1;
-    project.wires.push({ id: "W" + number, from: from, to: to, color: color, bends: [] });
-}
 
 // 创建已接好的双符号位补码运算器，电气端点与显示路径分别维护
 export function complementPreset() {

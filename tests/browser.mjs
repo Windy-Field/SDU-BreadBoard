@@ -340,10 +340,32 @@ async function main() {
         assert.equal(await page.locator("#help-dialog").isVisible(), false);
         assert.deepEqual(errors, []);
         console.log("浏览器验证通过：两组验收、Toast、接线、放置芯片、撤销、导入校验、5种视口与画布像素");
+    } catch (error) {
+        console.log("输入命中诊断：" + JSON.stringify(await page.evaluate(inspectInputHit)));
+        throw error;
     } finally {
         await page.screenshot({ path: path.join(SCREENSHOTS, "last-state.png"), fullPage: true });
         await browser.close();
     }
+}
+
+// 失败时记录按钮尺寸与点击层级，便于定位实际遮挡而不是强制绕过点击
+function inspectInputHit() {
+    const items = [];
+    for (const selector of [".input-block", "#quick-switches", "button[data-bit='0']", ".input-decimal"]) {
+        const element = document.querySelector(selector);
+        const bounds = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        items.push({ selector: selector, left: bounds.left, top: bounds.top, width: bounds.width, height: bounds.height, overflow: style.overflow, opacity: style.opacity, transform: style.transform });
+    }
+    const button = document.querySelector("button[data-bit='0']");
+    const bounds = button.getBoundingClientRect();
+    const hits = document.elementsFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    const names = [];
+    for (const hit of hits) {
+        names.push(hit.tagName + "." + hit.className);
+    }
+    return { items: items, hits: names };
 }
 
 // 等待布局完成后再核对图纸，排除异步自动排版仍在计算的阶段

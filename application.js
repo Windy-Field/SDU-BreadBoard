@@ -94182,6 +94182,16 @@
 
   // src/document-references.mjs
   var DOCUMENT_REFERENCES = {
+    "6116": {
+      image: "assets/pinouts/document/6116-1.png",
+      logicImage: "assets/pinouts/document/6116-2.jpeg",
+      summary: "\u4F9D\u636E\u7B2C\u4E09\u6B21\u5B9E\u9A8C\u8BFE\u4EF6\u7B2C6\u9875\uFF1A6116\u4E3A2K\xD78\u9759\u6001RAM\uFF0C24\u811A\u63A5+5V\uFF0C12\u811A\u63A5\u5730\u3002A0\uFF5EA10\u9009\u62E9\u7247\u5185\u5730\u5740\uFF0CD0\uFF5ED7\u4E3A\u53CC\u5411\u6570\u636E\u811A\u3002CE\u2032\u3001OE\u2032\u3001WE\u2032\u5747\u4F4E\u6709\u6548\u3002\u5199\u5165\u65F6CE\u2032=0\u3001WE\u2032=0\uFF1B\u8BFB\u53D6\u65F6CE\u2032=0\u3001WE\u2032=1\u3001OE\u2032=0\uFF0C\u5176\u4F59\u786E\u5B9A\u7684\u7981\u6B62\u6761\u4EF6\u4E0B\u6570\u636E\u8F93\u51FA\u4E3A\u9AD8\u963B\u3002\u4E0A\u7535\u5185\u5BB9\u672A\u77E5\uFF0C\u65AD\u7535\u540E\u4E22\u5931\u3002\u5E94\u5148\u7ED3\u675F\u5199\u5165\uFF0C\u518D\u5173\u95ED74LS244\uFF0C\u907F\u514D\u8BEF\u5199"
+    },
+    "74LS244": {
+      image: "assets/pinouts/document/74ls244-1.png",
+      logicImage: "assets/pinouts/document/74ls244-1.png",
+      summary: "\u4F9D\u636E\u7B2C\u4E09\u6B21\u5B9E\u9A8C\u8BFE\u4EF6\u7B2C7\u9875\uFF1A\u516B\u8DEF\u540C\u76F8\u4E09\u6001\u7F13\u51B2\u5668\uFF0C\u5206\u4E3A\u4E24\u7EC4\uFF0C\u6BCF\u7EC4\u56DB\u8DEF\uFF0C\u5206\u522B\u75311\u811A\u548C19\u811A\u4F4E\u6709\u6548\u4F7F\u80FD\u63A7\u5236\u3002\u4F7F\u80FD\u4E3A0\u65F6\u8F93\u51FA\u8DDF\u968F\u672C\u7EC4\u8F93\u5165\uFF0C\u4F7F\u80FD\u4E3A1\u65F6\u672C\u7EC4\u8F93\u51FA\u5168\u90E8\u8FDB\u5165\u9AD8\u963B\u6001\u3002\u6570\u636E\u53EA\u4ECEA\u7AEF\u6D41\u5411Y\u7AEF\uFF0C\u4E24\u7EC4\u72EC\u7ACB\u300220\u811A\u63A5+5V\uFF0C10\u811A\u63A5\u5730"
+    },
     "74LS03": {
       "image": "assets/pinouts/document/74ls03-1.png",
       "logicImage": "assets/pinouts/document/74ls03-2.png",
@@ -94280,6 +94290,20 @@
   };
   for (const model of Object.keys(DOCUMENT_REFERENCES)) {
     CHIP_REFERENCES[model] = DOCUMENT_REFERENCES[model];
+  }
+  function compareChipNames(first, second) {
+    const firstFamily = first.replace(/[0-9]+$/, "");
+    const secondFamily = second.replace(/[0-9]+$/, "");
+    const familyOrder = firstFamily.localeCompare(secondFamily, "en");
+    if (familyOrder !== 0) {
+      return familyOrder;
+    }
+    return first.localeCompare(second, "en", { numeric: true });
+  }
+  function sortedChipNames() {
+    const names = Object.keys(CHIP_REFERENCES);
+    names.sort(compareChipNames);
+    return names;
   }
 
   // src/chip-reference-view.mjs
@@ -95680,6 +95704,36 @@
 
   // src/extra-chips.mjs
   var EXTRA_CHIPS = {
+    "6116": {
+      title: "2K\xD78 \u9759\u6001RAM",
+      count: 24,
+      power: 24,
+      ground: 12,
+      labels: ["", "A7", "A6", "A5", "A4", "A3", "A2", "A1", "A0", "D0", "D1", "D2", "GND", "D3", "D4", "D5", "D6", "D7", "CE\u2032", "A10", "OE\u2032", "WE\u2032", "A9", "A8", "VCC"],
+      inputs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      outputs: [9, 10, 11, 13, 14, 15, 16, 17],
+      bidirectional: [9, 10, 11, 13, 14, 15, 16, 17],
+      memory: {
+        words: 2048,
+        address: [8, 7, 6, 5, 4, 3, 2, 1, 23, 22, 19],
+        data: [9, 10, 11, 13, 14, 15, 16, 17],
+        select: 18,
+        read: 20,
+        write: 21
+      }
+    },
+    "74LS244": {
+      title: "\u516B\u8DEF\u4E09\u6001\u7F13\u51B2\u5668",
+      count: 20,
+      power: 20,
+      ground: 10,
+      labels: ["", "1G\u2032", "1A1", "2Y4", "1A2", "2Y3", "1A3", "2Y2", "1A4", "2Y1", "GND", "2A1", "1Y4", "2A2", "1Y3", "2A3", "1Y2", "2A4", "1Y1", "2G\u2032", "VCC"],
+      inputs: [1, 2, 4, 6, 8, 11, 13, 15, 17, 19],
+      outputs: [18, 16, 14, 12, 9, 7, 5, 3],
+      kind: "tristate",
+      diagramSymbol: "BUF",
+      gates: [[1, 2, 18], [1, 4, 16], [1, 6, 14], [1, 8, 12], [19, 11, 9], [19, 13, 7], [19, 15, 5], [19, 17, 3]]
+    },
     "74LS03": {
       title: "\u56DB\u8DEFOC\u4E0E\u975E\u95E8",
       count: 14,
@@ -96266,6 +96320,2536 @@
     return structuredClone(project);
   }
 
+  // src/preset-wiring.mjs
+  function allocatePin(project, usage, name) {
+    if (!name.startsWith("U")) {
+      const hole2 = portHole(name);
+      if (hole2 !== "") {
+        return hole2;
+      }
+      return name;
+    }
+    const parts = name.split("-");
+    let chip = null;
+    for (const candidate of project.chips) {
+      if (candidate.id === parts[0]) {
+        chip = candidate;
+      }
+    }
+    const pin = Number(parts[1]);
+    const hole = pinHole(chip, pin);
+    const position = hole.split(":");
+    let rows = "GHIJ";
+    if (pin > CHIP_MODELS[chip.model].count / 2) {
+      rows = "DCBA";
+    }
+    let index = 0;
+    if (Object.hasOwn(usage, name)) {
+      index = usage[name];
+    }
+    if (index >= rows.length) {
+      throw new Error("\u793A\u4F8B\u7535\u8DEF\u7684\u540C\u5217\u7A7A\u5B54\u4E0D\u8DB3");
+    }
+    usage[name] = index + 1;
+    return holeId(chip.section, rows[index], Number(position[2]));
+  }
+  function connect(project, usage, first, second, color) {
+    const from = allocatePin(project, usage, first);
+    const to = allocatePin(project, usage, second);
+    const number = project.wires.length + 1;
+    project.wires.push({ id: "W" + number, from, to, color, bends: [] });
+  }
+
+  // src/preset-routes.json
+  var preset_routes_default = {
+    W1: [
+      {
+        x: 1242,
+        y: 402.0000002219999
+      },
+      {
+        x: 522,
+        y: 402.0000002219999
+      }
+    ],
+    W2: [
+      {
+        x: 1210,
+        y: 496.9999999700001
+      },
+      {
+        x: 684,
+        y: 496.9999999700001
+      }
+    ],
+    W3: [
+      {
+        x: 522,
+        y: 399.0000002219999
+      },
+      {
+        x: 493.9999999967,
+        y: 399.0000002219999
+      },
+      {
+        x: 493.9999999967,
+        y: 651.925
+      },
+      {
+        x: 342,
+        y: 651.925
+      }
+    ],
+    W4: [
+      {
+        x: 686.0689655172414,
+        y: 506
+      },
+      {
+        x: 686.0689655172414,
+        y: 726
+      },
+      {
+        x: 468,
+        y: 726
+      }
+    ],
+    W5: [
+      {
+        x: 342,
+        y: 642.325
+      },
+      {
+        x: 756,
+        y: 642.325
+      }
+    ],
+    W6: [
+      {
+        x: 468,
+        y: 767.9999998200001
+      },
+      {
+        x: 882,
+        y: 767.9999998200001
+      }
+    ],
+    W7: [
+      {
+        x: 756,
+        y: 408.0000002219999
+      },
+      {
+        x: 252,
+        y: 408.0000002219999
+      }
+    ],
+    W8: [
+      {
+        x: 882,
+        y: 761.9999998200001
+      },
+      {
+        x: 674.0689655172414,
+        y: 761.9999998200001
+      },
+      {
+        x: 674.0689655172414,
+        y: 496.9999999700001
+      },
+      {
+        x: 360,
+        y: 496.9999999700001
+      }
+    ],
+    W9: [
+      {
+        x: 252,
+        y: 390.0000002219999
+      },
+      {
+        x: 864,
+        y: 390.0000002219999
+      }
+    ],
+    W10: [
+      {
+        x: 360,
+        y: 514.9999999700001
+      },
+      {
+        x: 972,
+        y: 514.9999999700001
+      }
+    ],
+    W11: [
+      {
+        x: 972,
+        y: 511.9999999700001
+      },
+      {
+        x: 735.5260663507107,
+        y: 511.9999999700001
+      },
+      {
+        x: 735.5260663507107,
+        y: 411.0000002219999
+      },
+      {
+        x: 576,
+        y: 411.0000002219999
+      }
+    ],
+    W12: [
+      {
+        x: 576,
+        y: 399.0000002219999
+      },
+      {
+        x: 558,
+        y: 399.0000002219999
+      }
+    ],
+    W13: [
+      {
+        x: 558,
+        y: 393.0000002219999
+      },
+      {
+        x: 789,
+        y: 393.0000002219999
+      },
+      {
+        x: 789,
+        y: 661
+      }
+    ],
+    W14: [
+      {
+        x: 795,
+        y: 646
+      },
+      {
+        x: 795,
+        y: 661
+      }
+    ],
+    W15: [
+      {
+        x: 828,
+        y: 646
+      }
+    ],
+    W16: [
+      {
+        x: 846,
+        y: 646
+      }
+    ],
+    W17: [
+      {
+        x: 849,
+        y: 646
+      },
+      {
+        x: 849,
+        y: 411.0000002219999
+      },
+      {
+        x: 954,
+        y: 411.0000002219999
+      }
+    ],
+    W18: [
+      {
+        x: 954,
+        y: 399.0000002219999
+      },
+      {
+        x: 936,
+        y: 399.0000002219999
+      }
+    ],
+    W19: [
+      {
+        x: 936,
+        y: 399.0000002219999
+      },
+      {
+        x: 900,
+        y: 399.0000002219999
+      }
+    ],
+    W20: [
+      {
+        x: 900,
+        y: 399.0000002219999
+      },
+      {
+        x: 882,
+        y: 399.0000002219999
+      }
+    ],
+    W21: [
+      {
+        x: 954,
+        y: 487.9999999700001
+      },
+      {
+        x: 252,
+        y: 487.9999999700001
+      }
+    ],
+    W22: [
+      {
+        x: 288,
+        y: 755.9999997600002
+      },
+      {
+        x: 432,
+        y: 755.9999997600002
+      }
+    ],
+    W23: [
+      {
+        x: 918,
+        y: 490.9999999700001
+      },
+      {
+        x: 306,
+        y: 490.9999999700001
+      }
+    ],
+    W24: [
+      {
+        x: 342,
+        y: 493.9999999700001
+      },
+      {
+        x: 328,
+        y: 493.9999999700001
+      },
+      {
+        x: 328,
+        y: 749.9999997600002
+      },
+      {
+        x: 360,
+        y: 749.9999997600002
+      }
+    ],
+    W25: [
+      {
+        x: 882,
+        y: 1028.5
+      },
+      {
+        x: 487.9999999967,
+        y: 1028.5
+      },
+      {
+        x: 487.9999999967,
+        y: 417.0000002219999
+      },
+      {
+        x: 342,
+        y: 417.0000002219999
+      }
+    ],
+    W26: [
+      {
+        x: 360,
+        y: 426
+      },
+      {
+        x: 379.99999994000007,
+        y: 426
+      },
+      {
+        x: 379.99999994000007,
+        y: 647.125
+      },
+      {
+        x: 360,
+        y: 647.125
+      }
+    ],
+    W27: [
+      {
+        x: 846,
+        y: 1034.5
+      },
+      {
+        x: 482,
+        y: 1034.5
+      },
+      {
+        x: 482,
+        y: 414.0000002219999
+      },
+      {
+        x: 288,
+        y: 414.0000002219999
+      }
+    ],
+    W28: [
+      {
+        x: 306,
+        y: 420.0000002219999
+      },
+      {
+        x: 432,
+        y: 420.0000002219999
+      }
+    ],
+    W29: [
+      {
+        x: 810,
+        y: 1040.5
+      },
+      {
+        x: 896,
+        y: 1040.5
+      },
+      {
+        x: 896,
+        y: 499.9999999700001
+      },
+      {
+        x: 864,
+        y: 499.9999999700001
+      }
+    ],
+    W30: [
+      {
+        x: 774,
+        y: 1040.5
+      },
+      {
+        x: 270,
+        y: 1040.5
+      }
+    ],
+    W31: [
+      {
+        x: 322.00000002,
+        y: 506
+      },
+      {
+        x: 322.00000002,
+        y: 491
+      }
+    ],
+    W32: [
+      {
+        x: 374,
+        y: 506
+      },
+      {
+        x: 374,
+        y: 423.0000002219999
+      },
+      {
+        x: 324,
+        y: 423.0000002219999
+      }
+    ],
+    W33: [
+      {
+        x: 324,
+        y: 411.0000002219999
+      },
+      {
+        x: 270,
+        y: 411.0000002219999
+      }
+    ],
+    W34: [
+      {
+        x: 270,
+        y: 396.0000002219999
+      },
+      {
+        x: 699.5260663507107,
+        y: 396.0000002219999
+      },
+      {
+        x: 699.5260663507107,
+        y: 484.9999999700001
+      },
+      {
+        x: 882,
+        y: 484.9999999700001
+      }
+    ],
+    W35: [
+      {
+        x: 882,
+        y: 517.9999999700001
+      },
+      {
+        x: 668.0689655172414,
+        y: 517.9999999700001
+      },
+      {
+        x: 668.0689655172414,
+        y: 755.9999997600002
+      },
+      {
+        x: 450,
+        y: 755.9999997600002
+      }
+    ],
+    W36: [
+      {
+        x: 901.9999999800001,
+        y: 491
+      },
+      {
+        x: 901.9999999800001,
+        y: 741
+      }
+    ],
+    W37: [
+      {
+        x: 846,
+        y: 755.9999998200001
+      },
+      {
+        x: 774,
+        y: 755.9999998200001
+      }
+    ],
+    W38: [
+      {
+        x: 468,
+        y: 675.925
+      },
+      {
+        x: 680.0689655172414,
+        y: 675.925
+      },
+      {
+        x: 680.0689655172414,
+        y: 749.9999998200001
+      },
+      {
+        x: 864,
+        y: 749.9999998200001
+      }
+    ],
+    W39: [
+      {
+        x: 396,
+        y: 737.9999997600002
+      },
+      {
+        x: 558,
+        y: 737.9999997600002
+      }
+    ],
+    W40: [
+      {
+        x: 342,
+        y: 743.9999997600002
+      },
+      {
+        x: 576,
+        y: 743.9999997600002
+      }
+    ],
+    W41: [
+      {
+        x: 396,
+        y: 661.525
+      },
+      {
+        x: 630,
+        y: 661.525
+      }
+    ],
+    W42: [
+      {
+        x: 450,
+        y: 671.125
+      },
+      {
+        x: 648,
+        y: 671.125
+      }
+    ],
+    W43: [
+      {
+        x: 810,
+        y: 731.9999998200001
+      },
+      {
+        x: 731.9260663507108,
+        y: 731.9999998200001
+      },
+      {
+        x: 731.9260663507108,
+        y: 414.0000002219999
+      },
+      {
+        x: 648,
+        y: 414.0000002219999
+      }
+    ],
+    W44: [
+      {
+        x: 756,
+        y: 743.9999998200001
+      },
+      {
+        x: 724.7260663507108,
+        y: 743.9999998200001
+      },
+      {
+        x: 724.7260663507108,
+        y: 420.0000002219999
+      },
+      {
+        x: 630,
+        y: 420.0000002219999
+      }
+    ],
+    W45: [
+      {
+        x: 540,
+        y: 731.9999997600002
+      },
+      {
+        x: 414,
+        y: 731.9999997600002
+      }
+    ],
+    W46: [
+      {
+        x: 594,
+        y: 749.9999997600002
+      },
+      {
+        x: 378,
+        y: 749.9999997600002
+      }
+    ],
+    W47: [
+      {
+        x: 612,
+        y: 656.725
+      },
+      {
+        x: 378,
+        y: 656.725
+      }
+    ],
+    W48: [
+      {
+        x: 662.0689655172414,
+        y: 491
+      },
+      {
+        x: 662.0689655172414,
+        y: 666.325
+      },
+      {
+        x: 414,
+        y: 666.325
+      }
+    ],
+    W49: [
+      {
+        x: 666,
+        y: 417.0000002219999
+      },
+      {
+        x: 728.3260663507108,
+        y: 417.0000002219999
+      },
+      {
+        x: 728.3260663507108,
+        y: 726
+      },
+      {
+        x: 828,
+        y: 726
+      }
+    ],
+    W50: [
+      {
+        x: 612,
+        y: 423.0000002219999
+      },
+      {
+        x: 721.1260663507107,
+        y: 423.0000002219999
+      },
+      {
+        x: 721.1260663507107,
+        y: 737.9999998200001
+      },
+      {
+        x: 792,
+        y: 737.9999998200001
+      }
+    ],
+    W51: [
+      {
+        x: 540,
+        y: 499.9999999700001
+      },
+      {
+        x: 703.1260663507107,
+        y: 499.9999999700001
+      },
+      {
+        x: 703.1260663507107,
+        y: 110
+      },
+      {
+        x: 954,
+        y: 110
+      }
+    ],
+    W52: [
+      {
+        x: 594,
+        y: 502.9999999700001
+      },
+      {
+        x: 706.7260663507108,
+        y: 502.9999999700001
+      },
+      {
+        x: 706.7260663507108,
+        y: 116
+      }
+    ],
+    W53: [
+      {
+        x: 612,
+        y: 505.9999999700001
+      },
+      {
+        x: 710.3260663507108,
+        y: 505.9999999700001
+      },
+      {
+        x: 710.3260663507108,
+        y: 122
+      },
+      {
+        x: 882,
+        y: 122
+      }
+    ],
+    W54: [
+      {
+        x: 666,
+        y: 508.9999999700001
+      },
+      {
+        x: 843,
+        y: 508.9999999700001
+      },
+      {
+        x: 843,
+        y: 116
+      }
+    ],
+    W55: [
+      {
+        x: 666,
+        y: 387.0000002219999
+      },
+      {
+        x: 810,
+        y: 387.0000002219999
+      }
+    ],
+    W56: [
+      {
+        x: 612,
+        y: 384.0000002219999
+      },
+      {
+        x: 774,
+        y: 384.0000002219999
+      }
+    ],
+    W57: [
+      {
+        x: 666,
+        y: 376.80000022199994
+      },
+      {
+        x: 717.5260663507107,
+        y: 376.80000022199994
+      },
+      {
+        x: 717.5260663507107,
+        y: 481.9999999700001
+      },
+      {
+        x: 918,
+        y: 481.9999999700001
+      }
+    ],
+    W58: [
+      {
+        x: 612,
+        y: 381.0000002219999
+      },
+      {
+        x: 713.9260663507108,
+        y: 381.0000002219999
+      },
+      {
+        x: 713.9260663507108,
+        y: 478.9999999700001
+      },
+      {
+        x: 936,
+        y: 478.9999999700001
+      }
+    ],
+    W59: [
+      {
+        x: 954,
+        y: 476
+      },
+      {
+        x: 740.9260663507108,
+        y: 476
+      },
+      {
+        x: 740.9260663507108,
+        y: 116
+      }
+    ],
+    W60: [
+      {
+        x: 739.1260663507107,
+        y: 1036
+      },
+      {
+        x: 739.1260663507107,
+        y: 493.9999999700001
+      },
+      {
+        x: 522,
+        y: 493.9999999700001
+      }
+    ],
+    W61: [
+      {
+        x: 1098,
+        y: 405.0000002219999
+      },
+      {
+        x: 684,
+        y: 405.0000002219999
+      }
+    ]
+  };
+
+  // src/presets.mjs
+  var PRESET_WIRE_COLORS = {
+    power: WIRE_COLORS[0],
+    ground: WIRE_COLORS[7],
+    input: WIRE_COLORS[2],
+    control: WIRE_COLORS[4],
+    result: WIRE_COLORS[1],
+    feedback: WIRE_COLORS[3],
+    output: WIRE_COLORS[5],
+    timing: WIRE_COLORS[6],
+    overflow: WIRE_COLORS[9]
+  };
+  var PRESET_CHIPS = [
+    { id: "U1", model: "74LS273", section: 1, column: 25 },
+    { id: "U2", model: "74LS283", section: 2, column: 15 },
+    { id: "U3", model: "74LS283", section: 2, column: 38 },
+    { id: "U4", model: "74LS86", section: 1, column: 10 },
+    { id: "U5", model: "74LS86", section: 1, column: 44 }
+  ];
+  var UNUSED_INPUTS = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
+  var INPUT_PINS = [1, 4, 9, 12];
+  var OUTPUT_PINS = [3, 6, 8, 11];
+  var ADDER_PINS = [6, 2, 15, 11];
+  var CONTROL_PINS = ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"];
+  var SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
+  var FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
+  var REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
+  var PRESET_PORT_COUNT = 7;
+  var COMPLEMENT_RESET_INPUT = 6;
+  var COMPLEMENT_NOTES = `# \u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668
+
+## \u529F\u80FD
+
+\u8FD9\u4E2A\u7535\u8DEF\u5B9E\u73B0\u4E86\u8FDE\u7EED\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58\u4E86 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u7ED9\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
+
+## \u8F93\u5165\u53E3
+
+| \u7AEF\u53E3 | \u4F5C\u7528 |
+| --- | --- |
+| K0\u3001K1\u3001K2\u3001K3 | \u8F93\u5165\u8865\u7801\u7684\u4F4E\u56DB\u4F4D\uFF0CK0 \u6700\u4F4E\u4F4D |
+| K4 | \u8F93\u5165\u7B26\u53F7\u4F4D\uFF1B\u7535\u8DEF\u5C06\u6B64\u4F4D\u590D\u5236\u6210\u4E24\u4E2A\u7B26\u53F7\u4F4D |
+| K5 | 0 \u4E3A\u52A0\u6CD5\uFF0C1 \u4E3A\u51CF\u6CD5 |
+| K6 | 0 \u5F02\u6B65\u6E05\u96F6\uFF0C\u6B63\u5E38\u8FD0\u7B97\u4FDD\u6301 1 |
+| P\u2212 | \u5B8C\u6574\u8D1F\u8109\u51B2\u7ED3\u675F\u65F6\u7684\u4E0A\u5347\u6CBF\uFF0C\u4FDD\u5B58\u672C\u6B21\u7ED3\u679C |
+| P+ | \u672C\u793A\u4F8B\u672A\u8FDE\u63A5\uFF0C\u4E0D\u4F1A\u52A0\u8F7D\u7ED3\u679C |
+
+\u8F93\u5165\u987A\u5E8F\u4E3A **K4 K3 K2 K1 K0**\uFF0C\u4F7F\u7528\u4E94\u4F4D\u8865\u7801\uFF0C\u8303\u56F4\u4E3A \u221216\uFF5E15\u3002\u4F8B\uFF1A7 \u4E3A 00111\uFF0C\u221212 \u4E3A 10100\uFF0C\u22122 \u4E3A 11110\u3002\u51CF\u53BB 6 \u65F6\u8F93\u5165\u6B63\u6570 00110\uFF0C\u518D\u628A K5 \u8BBE\u7F6E\u4E3A 1
+
+## \u8F93\u51FA\u53E3
+
+| \u7AEF\u53E3 | \u4F5C\u7528 |
+| --- | --- |
+| L5 | \u9AD8\u7B26\u53F7\u4F4D |
+| L4 | \u4F4E\u7B26\u53F7\u4F4D |
+| L3\u3001L2\u3001L1\u3001L0 | \u7ED3\u679C\u7684\u56DB\u4E2A\u6570\u503C\u4F4D\uFF0CL0 \u6700\u4F4E\u4F4D |
+| L6 | \u4E24\u4E2A\u7B26\u53F7\u4F4D\u5F02\u6216\u7684\u7ED3\u679C\uFF0C1 \u8868\u793A\u5F53\u524D\u7ED3\u679C\u6EA2\u51FA |
+
+\u7ED3\u679C\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u5728 **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u65F6\u70B9\u4EAE**\uFF0CX \u6216 Z \u72B6\u6001\u4E0B\u4FDD\u6301\u7184\u706D
+
+## \u64CD\u4F5C\u6B65\u9AA4
+
+1. \u6253\u5F00\u7535\u6E90\u540E\uFF0C\u5C06 K6 \u5207\u5230 0 \u518D\u5207\u56DE 1\uFF0CL6\uFF5EL0 \u5E94\u663E\u793A 000 0000
+2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u5E76\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
+3. \u53D1\u51FA\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\u540E\uFF0C\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF0CL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
+
+\u7D2F\u8BA1\u7ED3\u679C\u5728\u6709\u6548\u8109\u51B2\u5230\u6765\u540E\u66F4\u65B0\uFF0C\u8C03\u6574\u8F93\u5165\u65F6\u4FDD\u6301\u539F\u503C\u3002\u4F60\u53EF\u4EE5\u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDE\u7EED\u5B8C\u6210\u8FD0\u7B97
+
+## \u9A8C\u6536
+
+| \u7B97\u5F0F | \u6BCF\u6B21\u8109\u51B2\u540E\u7684\u7D2F\u8BA1\u7ED3\u679C |
+| --- | --- |
+| 7\uFF0B5\u22126\uFF0B12 | 00 0111 \u2192 00 1100 \u2192 00 0110 \u2192 **01 0010**\uFF08\u6B63\u6EA2\u51FA\uFF09 |
+| \uFF08\u221212\uFF09\uFF0B\uFF08\u22122\uFF09\u22126 | 11 0100 \u2192 11 0010 \u2192 **10 1100**\uFF08\u8D1F\u6EA2\u51FA\uFF09 |
+
+## \u8D70\u7EBF\u4E0E\u7EBF\u8272
+
+K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5217\uFF0C\u8F93\u5165\u8F93\u51FA\u677F\u7528\u4F5C\u4FE1\u53F7\u663E\u793A\u548C\u64CD\u4F5C\u3002\u5BFC\u7EBF\u63A5\u5728\u9762\u5305\u677F\u5B54\u6216\u53F3\u4FA7\u7535\u6E90\u8F68\u5B54\u4E0A\uFF0C\u7AEF\u53E3\u4E0E\u5B54\u4F4D\u7684\u5BF9\u5E94\u5173\u7CFB\u89C1\u63A5\u7EBF\u8BF4\u660E
+
+\u7B2C\u56DB\u5757\u9762\u5305\u677F\u7528\u7EC6\u7EBF\u6865\u63A5\u4E86\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u4EE5\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u5206\u522B\u8FDE\u63A5
+
+\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u4E0E\u7B26\u53F7\u8F93\u5165\uFF08\u5305\u62EC\u53D6\u53CD\u540E\u7684\u6570\u636E\uFF09\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\u9001\u5165\u5BC4\u5B58\u5668\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A L0\uFF5EL5 \u7ED3\u679C\u8F93\u51FA\uFF0C\u6A59\u8272\u4E3A\u6EA2\u51FA\u5224\u65AD\u652F\u8DEF\u53CA L6 \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
+
+\u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u4E86\u82AF\u7247\u5916\u6846\uFF0C\u901A\u8FC7\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u5EFA\u7ACB\u8FDE\u63A5\uFF0C\u4EA4\u53C9\u5904\u4FDD\u6301\u7EDD\u7F18\u3002\u5F53\u4F60\u786E\u8BA4\u5DE6\u4FA7\u7684\u201C\u6574\u7406\u8D70\u7EBF\u201D\u64CD\u4F5C\u540E\uFF0C\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u8DEF\u5F84\uFF0C\u5E76\u4FDD\u7559\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\uFF0C\u6574\u4E2A\u64CD\u4F5C\u652F\u6301\u64A4\u9500
+
+\u5F53\u4F60\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u7684\u6613\u5931\u72B6\u6001\u4F1A\u91CD\u7F6E\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u7535\u8DEF\u91C7\u7528\u4E86\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u5C5E\u4E8E\u5B9E\u7269\u5B9E\u9A8C\u7684\u89C2\u5BDF\u8303\u56F4
+`;
+  function complementPreset() {
+    const project = emptyProject();
+    project.inputCount = PRESET_PORT_COUNT;
+    project.outputCount = PRESET_PORT_COUNT;
+    project.notes = COMPLEMENT_NOTES;
+    project.name = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
+    project.chips = structuredClone(PRESET_CHIPS);
+    const usage = {};
+    let power = "VCC";
+    let ground = "GND";
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      const powerPin = chip.id + "-" + model.power;
+      const groundPin = chip.id + "-" + model.ground;
+      connect(project, usage, power, powerPin, PRESET_WIRE_COLORS.power);
+      connect(project, usage, ground, groundPin, PRESET_WIRE_COLORS.ground);
+      power = powerPin;
+      ground = groundPin;
+    }
+    for (const pin of UNUSED_INPUTS) {
+      connect(project, usage, ground, pin, PRESET_WIRE_COLORS.ground);
+      ground = pin;
+    }
+    for (let bit = 0; bit < 4; bit = bit + 1) {
+      connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], PRESET_WIRE_COLORS.input);
+      connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], PRESET_WIRE_COLORS.input);
+    }
+    connect(project, usage, "K4", "U5-1", PRESET_WIRE_COLORS.input);
+    let control = "K5";
+    for (const pin of CONTROL_PINS) {
+      connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
+      control = pin;
+    }
+    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
+    for (const pair of SUM_CONNECTIONS) {
+      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
+    }
+    for (const pair of FEEDBACK_CONNECTIONS) {
+      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.feedback);
+    }
+    for (let bit = 0; bit < 6; bit = bit + 1) {
+      connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
+    }
+    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
+    connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
+    for (const wire of project.wires) {
+      if (Object.hasOwn(preset_routes_default, wire.id)) {
+        wire.bends = structuredClone(preset_routes_default[wire.id]);
+      }
+    }
+    project.switches[COMPLEMENT_RESET_INPUT] = 1;
+    return project;
+  }
+  function presetWireKey(wire) {
+    const first = baseNode(wire.from);
+    const second = baseNode(wire.to);
+    if (first < second) {
+      return first + "|" + second;
+    }
+    return second + "|" + first;
+  }
+  function isComplementPreset(project) {
+    const reference = complementPreset();
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
+      return false;
+    }
+    if (project.pullUps.length !== reference.pullUps.length) {
+      return false;
+    }
+    const chips = /* @__PURE__ */ new Map();
+    for (const chip of project.chips) {
+      chips.set(chip.id, chip);
+    }
+    for (const expected of reference.chips) {
+      const actual = chips.get(expected.id);
+      if (!actual || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
+        return false;
+      }
+    }
+    const wires = /* @__PURE__ */ new Map();
+    for (const wire of reference.wires) {
+      const key = presetWireKey(wire);
+      let count = 0;
+      if (wires.has(key)) {
+        count = wires.get(key);
+      }
+      wires.set(key, count + 1);
+    }
+    for (const wire of project.wires) {
+      const key = presetWireKey(wire);
+      const count = wires.get(key);
+      if (!count) {
+        return false;
+      }
+      wires.set(key, count - 1);
+    }
+    return true;
+  }
+
+  // src/ram-routes.json
+  var ram_routes_default = {
+    W1: [
+      {
+        x: 1242,
+        y: 405.3599999999995
+      },
+      {
+        x: 252,
+        y: 405.3599999999995
+      }
+    ],
+    W2: [
+      {
+        x: 1210,
+        y: 495.28571428571416
+      },
+      {
+        x: 450,
+        y: 495.28571428571416
+      }
+    ],
+    W3: [
+      {
+        x: 252,
+        y: 396.3599999999995
+      },
+      {
+        x: 774,
+        y: 396.3599999999995
+      }
+    ],
+    W4: [
+      {
+        x: 450,
+        y: 514.4857142857142
+      },
+      {
+        x: 972,
+        y: 514.4857142857142
+      }
+    ],
+    W5: [
+      {
+        x: 774,
+        y: 402.3599999999995
+      },
+      {
+        x: 748.0000001799999,
+        y: 402.3599999999995
+      },
+      {
+        x: 748.0000001799999,
+        y: 646.00000015
+      },
+      {
+        x: 792,
+        y: 646.00000015
+      }
+    ],
+    W6: [
+      {
+        x: 973.9999999800001,
+        y: 506
+      },
+      {
+        x: 973.9999999800001,
+        y: 726
+      },
+      {
+        x: 954,
+        y: 726
+      }
+    ],
+    W7: [
+      {
+        x: 792,
+        y: 652.00000015
+      },
+      {
+        x: 288,
+        y: 652.00000015
+      }
+    ],
+    W8: [
+      {
+        x: 951,
+        y: 756
+      },
+      {
+        x: 951,
+        y: 743.9999998499999
+      },
+      {
+        x: 414,
+        y: 743.9999998499999
+      }
+    ],
+    W9: [
+      {
+        x: 414,
+        y: 757.1999998499999
+      },
+      {
+        x: 428,
+        y: 757.1999998499999
+      },
+      {
+        x: 428,
+        y: 495.28571428571416
+      },
+      {
+        x: 306,
+        y: 495.28571428571416
+      }
+    ],
+    W10: [
+      {
+        x: 306,
+        y: 491
+      }
+    ],
+    W11: [
+      {
+        x: 288,
+        y: 491
+      }
+    ],
+    W12: [
+      {
+        x: 270,
+        y: 491
+      }
+    ],
+    W13: [
+      {
+        x: 238,
+        y: 506
+      },
+      {
+        x: 238,
+        y: 417.3599999999995
+      },
+      {
+        x: 270,
+        y: 417.3599999999995
+      }
+    ],
+    W14: [
+      {
+        x: 270,
+        y: 399.3599999999995
+      },
+      {
+        x: 288,
+        y: 399.3599999999995
+      }
+    ],
+    W15: [
+      {
+        x: 288,
+        y: 399.3599999999995
+      },
+      {
+        x: 342,
+        y: 399.3599999999995
+      }
+    ],
+    W16: [
+      {
+        x: 342,
+        y: 399.3599999999995
+      },
+      {
+        x: 594.1698113207547,
+        y: 399.3599999999995
+      },
+      {
+        x: 594.1698113207547,
+        y: 480.8857142857142
+      },
+      {
+        x: 828,
+        y: 480.8857142857142
+      }
+    ],
+    W17: [
+      {
+        x: 828,
+        y: 500.0857142857142
+      },
+      {
+        x: 810,
+        y: 500.0857142857142
+      }
+    ],
+    W18: [
+      {
+        x: 810,
+        y: 500.0857142857142
+      },
+      {
+        x: 792,
+        y: 500.0857142857142
+      }
+    ],
+    W19: [
+      {
+        x: 792,
+        y: 500.0857142857142
+      },
+      {
+        x: 774,
+        y: 500.0857142857142
+      }
+    ],
+    W20: [
+      {
+        x: 760,
+        y: 506
+      },
+      {
+        x: 760,
+        y: 414.3599999999995
+      },
+      {
+        x: 792,
+        y: 414.3599999999995
+      }
+    ],
+    W21: [
+      {
+        x: 792,
+        y: 402.3599999999995
+      },
+      {
+        x: 810,
+        y: 402.3599999999995
+      }
+    ],
+    W22: [
+      {
+        x: 810,
+        y: 402.3599999999995
+      },
+      {
+        x: 864,
+        y: 402.3599999999995
+      }
+    ],
+    W23: [
+      {
+        x: 864,
+        y: 399.3599999999995
+      },
+      {
+        x: 618.1698113207547,
+        y: 399.3599999999995
+      },
+      {
+        x: 618.1698113207547,
+        y: 751.1999998499999
+      },
+      {
+        x: 306,
+        y: 751.1999998499999
+      }
+    ],
+    W24: [
+      {
+        x: 306,
+        y: 760.79999985
+      },
+      {
+        x: 324,
+        y: 760.79999985
+      }
+    ],
+    W25: [
+      {
+        x: 324,
+        y: 760.79999985
+      },
+      {
+        x: 342,
+        y: 760.79999985
+      }
+    ],
+    W26: [
+      {
+        x: 342,
+        y: 760.79999985
+      },
+      {
+        x: 360,
+        y: 760.79999985
+      }
+    ],
+    W27: [
+      {
+        x: 274,
+        y: 646
+      },
+      {
+        x: 274,
+        y: 754.79999985
+      },
+      {
+        x: 378,
+        y: 754.79999985
+      }
+    ],
+    W28: [
+      {
+        x: 666,
+        y: 490.48571428571415
+      },
+      {
+        x: 378,
+        y: 490.48571428571415
+      }
+    ],
+    W29: [
+      {
+        x: 378,
+        y: 545
+      },
+      {
+        x: 900,
+        y: 545
+      }
+    ],
+    W30: [
+      {
+        x: 630.1698113207547,
+        y: 1036
+      },
+      {
+        x: 630.1698113207547,
+        y: 485.6857142857142
+      },
+      {
+        x: 360,
+        y: 485.6857142857142
+      }
+    ],
+    W31: [
+      {
+        x: 360,
+        y: 554
+      },
+      {
+        x: 882,
+        y: 554
+      }
+    ],
+    W32: [
+      {
+        x: 594,
+        y: 480.8857142857142
+      },
+      {
+        x: 342,
+        y: 480.8857142857142
+      }
+    ],
+    W33: [
+      {
+        x: 342,
+        y: 563
+      },
+      {
+        x: 864,
+        y: 563
+      }
+    ],
+    W34: [
+      {
+        x: 558,
+        y: 476.0857142857142
+      },
+      {
+        x: 324,
+        y: 476.0857142857142
+      }
+    ],
+    W35: [
+      {
+        x: 324,
+        y: 572
+      },
+      {
+        x: 846,
+        y: 572
+      }
+    ],
+    W36: [
+      {
+        x: 522,
+        y: 747.5999998499999
+      },
+      {
+        x: 288,
+        y: 747.5999998499999
+      }
+    ],
+    W37: [
+      {
+        x: 232.00000006,
+        y: 661
+      },
+      {
+        x: 232.00000006,
+        y: 414.3599999999995
+      },
+      {
+        x: 360,
+        y: 414.3599999999995
+      }
+    ],
+    W38: [
+      {
+        x: 324,
+        y: 646.00000015
+      },
+      {
+        x: 624.1698113207547,
+        y: 646.00000015
+      },
+      {
+        x: 624.1698113207547,
+        y: 411.3599999999995
+      },
+      {
+        x: 882,
+        y: 411.3599999999995
+      }
+    ],
+    W39: [
+      {
+        x: 957,
+        y: 1036
+      },
+      {
+        x: 957,
+        y: 740.39999985
+      },
+      {
+        x: 810,
+        y: 740.39999985
+      }
+    ],
+    W40: [
+      {
+        x: 828,
+        y: 649
+      },
+      {
+        x: 918,
+        y: 649
+      }
+    ],
+    W41: [
+      {
+        x: 918,
+        y: 581
+      },
+      {
+        x: 396,
+        y: 581
+      }
+    ],
+    W42: [
+      {
+        x: 396,
+        y: 500.0857142857142
+      },
+      {
+        x: 600.1698113207547,
+        y: 500.0857142857142
+      },
+      {
+        x: 600.1698113207547,
+        y: 110
+      },
+      {
+        x: 954,
+        y: 110
+      }
+    ],
+    W43: [
+      {
+        x: 915,
+        y: 1036
+      },
+      {
+        x: 915,
+        y: 749.9999998499999
+      },
+      {
+        x: 846,
+        y: 749.9999998499999
+      }
+    ],
+    W44: [
+      {
+        x: 864,
+        y: 655
+      },
+      {
+        x: 936,
+        y: 655
+      }
+    ],
+    W45: [
+      {
+        x: 936,
+        y: 590
+      },
+      {
+        x: 414,
+        y: 590
+      }
+    ],
+    W46: [
+      {
+        x: 414,
+        y: 504.8857142857142
+      },
+      {
+        x: 606.1698113207547,
+        y: 504.8857142857142
+      },
+      {
+        x: 606.1698113207547,
+        y: 116
+      }
+    ],
+    W47: [
+      {
+        x: 882,
+        y: 888.5
+      }
+    ],
+    W48: [
+      {
+        x: 954,
+        y: 661
+      }
+    ],
+    W49: [
+      {
+        x: 954,
+        y: 599
+      },
+      {
+        x: 432,
+        y: 599
+      }
+    ],
+    W50: [
+      {
+        x: 432,
+        y: 509.6857142857142
+      },
+      {
+        x: 612.1698113207547,
+        y: 509.6857142857142
+      },
+      {
+        x: 612.1698113207547,
+        y: 122
+      },
+      {
+        x: 882,
+        y: 122
+      }
+    ],
+    W51: [
+      {
+        x: 846,
+        y: 1033.0000000000002
+      },
+      {
+        x: 921,
+        y: 1033.0000000000002
+      },
+      {
+        x: 921,
+        y: 741
+      }
+    ],
+    W52: [
+      {
+        x: 936,
+        y: 667
+      },
+      {
+        x: 1003.99999964,
+        y: 667
+      },
+      {
+        x: 1003.99999964,
+        y: 417.3599999999995
+      },
+      {
+        x: 972,
+        y: 417.3599999999995
+      }
+    ],
+    W53: [
+      {
+        x: 972,
+        y: 357
+      },
+      {
+        x: 450,
+        y: 357
+      }
+    ],
+    W54: [
+      {
+        x: 450,
+        y: 393.3599999999995
+      },
+      {
+        x: 846,
+        y: 393.3599999999995
+      }
+    ],
+    W55: [
+      {
+        x: 810,
+        y: 1039.0000000000002
+      },
+      {
+        x: 968,
+        y: 1039.0000000000002
+      },
+      {
+        x: 968,
+        y: 673
+      },
+      {
+        x: 954,
+        y: 673
+      }
+    ],
+    W56: [
+      {
+        x: 936,
+        y: 736.79999985
+      },
+      {
+        x: 997.99999964,
+        y: 736.79999985
+      },
+      {
+        x: 997.99999964,
+        y: 414.3599999999995
+      },
+      {
+        x: 954,
+        y: 414.3599999999995
+      }
+    ],
+    W57: [
+      {
+        x: 954,
+        y: 348
+      },
+      {
+        x: 432,
+        y: 348
+      }
+    ],
+    W58: [
+      {
+        x: 432,
+        y: 390.3599999999995
+      },
+      {
+        x: 810,
+        y: 390.3599999999995
+      }
+    ],
+    W59: [
+      {
+        x: 772.0000000200001,
+        y: 1036
+      },
+      {
+        x: 772.0000000200001,
+        y: 670.00000015
+      },
+      {
+        x: 918,
+        y: 670.00000015
+      }
+    ],
+    W60: [
+      {
+        x: 900,
+        y: 733.1999998499999
+      },
+      {
+        x: 991.99999964,
+        y: 733.1999998499999
+      },
+      {
+        x: 991.99999964,
+        y: 411.3599999999995
+      },
+      {
+        x: 936,
+        y: 411.3599999999995
+      }
+    ],
+    W61: [
+      {
+        x: 936,
+        y: 339
+      },
+      {
+        x: 414,
+        y: 339
+      }
+    ],
+    W62: [
+      {
+        x: 414,
+        y: 387.3599999999995
+      },
+      {
+        x: 774,
+        y: 387.3599999999995
+      }
+    ],
+    W63: [
+      {
+        x: 738,
+        y: 664.00000015
+      },
+      {
+        x: 882,
+        y: 664.00000015
+      }
+    ],
+    W64: [
+      {
+        x: 864,
+        y: 729.5999998499999
+      },
+      {
+        x: 986,
+        y: 729.5999998499999
+      },
+      {
+        x: 986,
+        y: 408.3599999999995
+      },
+      {
+        x: 918,
+        y: 408.3599999999995
+      }
+    ],
+    W65: [
+      {
+        x: 918,
+        y: 330
+      },
+      {
+        x: 396,
+        y: 330
+      }
+    ],
+    W66: [
+      {
+        x: 396,
+        y: 384.3599999999995
+      },
+      {
+        x: 738,
+        y: 384.3599999999995
+      }
+    ],
+    W67: [
+      {
+        x: 702,
+        y: 658.00000015
+      },
+      {
+        x: 846,
+        y: 658.00000015
+      }
+    ],
+    W68: [
+      {
+        x: 828,
+        y: 736.79999985
+      },
+      {
+        x: 754.0000001799999,
+        y: 736.79999985
+      },
+      {
+        x: 754.0000001799999,
+        y: 408.3599999999995
+      },
+      {
+        x: 900,
+        y: 408.3599999999995
+      }
+    ],
+    W69: [
+      {
+        x: 900,
+        y: 321
+      },
+      {
+        x: 378,
+        y: 321
+      }
+    ],
+    W70: [
+      {
+        x: 378,
+        y: 381.3599999999995
+      },
+      {
+        x: 702,
+        y: 381.3599999999995
+      }
+    ],
+    W71: [
+      {
+        x: 486,
+        y: 408.3599999999995
+      },
+      {
+        x: 306,
+        y: 408.3599999999995
+      }
+    ],
+    W72: [
+      {
+        x: 306,
+        y: 312
+      },
+      {
+        x: 828,
+        y: 312
+      }
+    ],
+    W73: [
+      {
+        x: 450,
+        y: 1033.0000000000002
+      },
+      {
+        x: 464,
+        y: 1033.0000000000002
+      },
+      {
+        x: 464,
+        y: 411.3599999999995
+      },
+      {
+        x: 324,
+        y: 411.3599999999995
+      }
+    ],
+    W74: [
+      {
+        x: 324,
+        y: 303
+      },
+      {
+        x: 846,
+        y: 303
+      }
+    ],
+    W75: [
+      {
+        x: 414,
+        y: 1039.0000000000002
+      },
+      {
+        x: 792,
+        y: 1039.0000000000002
+      }
+    ],
+    W76: [
+      {
+        x: 778,
+        y: 756
+      },
+      {
+        x: 778,
+        y: 676
+      },
+      {
+        x: 810,
+        y: 676
+      }
+    ]
+  };
+
+  // src/ram-preset.mjs
+  var RAM_CHIPS = [
+    { id: "U1", model: "6116", section: 1, column: 10 },
+    { id: "U2", model: "6116", section: 1, column: 39 },
+    { id: "U3", model: "74LS244", section: 2, column: 40 },
+    { id: "U4", model: "74LS138", section: 2, column: 12 }
+  ];
+  var RAM_COLORS = {
+    power: WIRE_COLORS[0],
+    ground: WIRE_COLORS[7],
+    dataInput: WIRE_COLORS[2],
+    dataBus: WIRE_COLORS[1],
+    address: WIRE_COLORS[3],
+    select: WIRE_COLORS[5],
+    control: WIRE_COLORS[4]
+  };
+  var RAM_INPUTS = { dataStart: 0, addressStart: 8, bank: 12, write: 13, read: 14, isolate: 15, count: 16 };
+  var RAM_EXPERIMENT_ID = "ram-expansion-example";
+  var RAM_EXPERIMENT_NAME = "\u5B9E\u9A8C\u4E09 RAM\u5B57\u6269\u5C55";
+  var RAM_OUTER_WIRES = ["W29", "W31", "W33", "W35", "W41", "W45", "W49", "W53", "W57", "W61", "W65", "W69", "W72", "W74"];
+  var PREVIOUS_RAM_NOTES = `# \u5B9E\u9A8C\u4E09 RAM\u5B57\u6269\u5C55
+
+## \u5B9E\u9A8C\u76EE\u6807
+
+\u4F7F\u7528\u4E24\u72476116\uFF08\u54042K\xD78\uFF09\u548C74LS138\u7EC4\u62104K\xD78\u5B58\u50A8\u5668\uFF0C74LS244\u9694\u79BB\u6570\u636E\u5F00\u5173\u4E0E\u5171\u4EAB\u6570\u636E\u603B\u7EBF\u3002\u63A5\u7EBF\u4F9D\u636E\u7B2C\u4E09\u6B21\u5B9E\u9A8C\u8BFE\u4EF6\u7B2C4\uFF5E8\u9875
+
+## \u5668\u4EF6\u4E0E\u5730\u5740
+
+| \u5668\u4EF6 | \u4F5C\u7528 | \u5B8C\u6574\u5730\u5740\u8303\u56F4 |
+| --- | --- | --- |
+| U1 6116 | \u7B2C1\u7247RAM\uFF0CA11=0\u65F6\u9009\u4E2D | 000H\uFF5E7FFH |
+| U2 6116 | \u7B2C2\u7247RAM\uFF0CA11=1\u65F6\u9009\u4E2D | 800H\uFF5EFFFH |
+| U3 74LS244 | \u4E24\u7EC4\u56DB\u8DEF\u7F13\u51B2\u5668\uFF0C\u5171\u540C\u63A7\u5236\u516B\u4F4D\u6570\u636E\u8F93\u5165 | \u5355\u5411\u8F93\u5165\u603B\u7EBF |
+| U4 74LS138 | A\u8F93\u5165\u63A5A11\uFF0CB/C\u63A5\u5730\uFF0CY0\u2032/Y1\u2032\u5206\u522B\u9009\u4E2DU1/U2 | \u4E24\u7247\u4E0D\u4F1A\u540C\u65F6\u9009\u4E2D |
+
+\u6309\u8BFE\u4EF6\u5141\u8BB8\u7684\u7B80\u5316\u65B9\u5F0F\uFF0CA4\uFF5EA10\u63A5\u5730\uFF0CA0\uFF5EA3\u7531\u5F00\u5173\u8BBE\u7F6E\uFF0CA11\u72EC\u7ACB\u9009\u7247\u3002\u53EF\u64CD\u4F5C\u5730\u5740\u4E3A000H\uFF5E00FH\u53CA800H\uFF5E80FH\uFF0C\u6BCF\u7247RAM\u7684\u5B8C\u6574\u5BB9\u91CF\u4ECD\u4E3A2K\xD78
+
+## \u5F00\u5173\u548C\u6307\u793A\u706F
+
+| \u7AEF\u53E3 | \u4F5C\u7528 |
+| --- | --- |
+| K7\uFF5EK0 | \u5199\u5165\u6570\u636ED7\uFF5ED0\uFF0CK0\u4E3A\u6700\u4F4E\u4F4D |
+| K11\uFF5EK8 | \u7247\u5185\u5730\u5740A3\uFF5EA0\uFF0CK8\u4E3A\u6700\u4F4E\u4F4D |
+| K12 | A11\uFF0C0\u9009U1\uFF0C1\u9009U2 |
+| K13 | WE\u2032\uFF0C0\u5141\u8BB8\u5199\u5165\uFF0C1\u7ED3\u675F\u5199\u5165 |
+| K14 | OE\u2032\uFF0C0\u5141\u8BB8\u8BFB\u51FA\uFF0C1\u5173\u95EDRAM\u8BFB\u8F93\u51FA |
+| K15 | 244\u4F7F\u80FD\uFF0C0\u63A5\u5165\u6570\u636E\u5F00\u5173\uFF0C1\u9694\u79BB\u5F00\u5173 |
+| L7\uFF5EL0 | \u5171\u4EAB\u6570\u636E\u603B\u7EBF\uFF0C\u8BFB\u53D6\u65F6\u663E\u793ARAM\u5185\u5BB9 |
+
+\u9ED8\u8BA4K13\u3001K14\u3001K15\u5747\u4E3A1\uFF0C\u8BFB\u5199\u548C\u6570\u636E\u8F93\u5165\u5747\u5173\u95ED\uFF0C\u603B\u7EBF\u663E\u793AZ\u5C5E\u4E8E\u6B63\u5E38\u72B6\u6001\u3002\u5199\u5165\u65F6\u6307\u793A\u706F\u663E\u793A\u5F00\u5173\u6570\u636E\uFF0C\u5FC5\u987B\u5207\u5230\u8BFB\u53D6\u72B6\u6001\u624D\u80FD\u786E\u8BA4RAM\u4FDD\u5B58\u4E86\u5185\u5BB9
+
+## \u5199\u5165\u6B65\u9AA4
+
+1. \u4FDD\u6301K13=1\u3001K14=1\u3001K15=1\uFF0C\u8BBE\u7F6EK12\u9009\u7247\u548CK11\uFF5EK8\u5730\u5740
+2. \u7528K7\uFF5EK0\u8BBE\u7F6E\u516B\u4F4D\u6570\u636E\uFF0C\u8BBE\u7F6EK15=0\uFF0C\u8BA9244\u9A71\u52A8\u6570\u636E\u603B\u7EBF
+3. \u8BBE\u7F6EK13=0\u5199\u5165\uFF0C\u4FDD\u6301\u5730\u5740\u548C\u6570\u636E\u7A33\u5B9A\uFF0C\u518D\u8BBE\u7F6EK13=1\u7ED3\u675F\u5199\u5165
+4. \u8BBE\u7F6EK15=1\u9694\u79BB\u6570\u636E\u5F00\u5173\u3002\u66F4\u6362\u5730\u5740\u524D\u5FC5\u987B\u786E\u8BA4K13=1
+
+## \u8BFB\u53D6\u6B65\u9AA4
+
+1. \u4FDD\u6301K13=1\u3001K15=1\uFF0C\u8BBE\u7F6EK12\u548CK11\uFF5EK8\u9009\u62E9\u5730\u5740
+2. \u8BBE\u7F6EK14=0\uFF0C\u4ECEL7\uFF5EL0\u8BFB\u53D6\u6570\u636E
+3. \u4E0B\u4E00\u6B21\u5199\u5165\u524D\u5148\u8BBE\u7F6EK14=1\uFF0C\u907F\u514DRAM\u4E0E244\u540C\u65F6\u9A71\u52A8\u603B\u7EBF
+
+## \u8BFE\u4EF6\u9A8C\u6536
+
+\u5148\u5B8C\u6210\u4EE5\u4E0B\u56DB\u6B21\u5199\u5165\uFF0C\u518D\u96C6\u4E2D\u8BFB\u53D6\u6838\u5BF9\uFF0C\u8BFB\u53D6\u65F6\u53EA\u6539\u53D8\u5730\u5740\u548C\u9009\u7247\uFF0C\u4E0D\u91CD\u65B0\u5199\u5165
+
+| K12 | K11\uFF5EK8 | \u5B8C\u6574\u5730\u5740 | \u5199\u5165\u5E76\u9884\u671F\u8BFB\u51FA\u7684\u6570\u636E |
+| --- | --- | --- | --- |
+| 0 | 1010 | 00AH | 01010101 |
+| 0 | 0101 | 005H | 10101010 |
+| 1 | 1010 | 80AH | 11111111 |
+| 1 | 0101 | 805H | 00000000 |
+
+\u76F8\u540C\u7247\u5185\u5730\u5740\u5728\u4E0D\u540C\u82AF\u7247\u4E2D\u4FDD\u5B58\u4E0D\u540C\u5185\u5BB9\uFF0C\u624D\u80FD\u8BC1\u660E\u5B57\u6269\u5C55\u548C\u8BD1\u7801\u9009\u7247\u6B63\u786E
+
+## \u73B0\u8C61\u4E0E\u62A5\u544A
+
+\u8BB0\u5F55\u56DB\u4E2A\u5730\u5740\u7684\u5199\u5165\u5185\u5BB9\u3001\u5B9E\u9645\u8BFB\u51FA\u5185\u5BB9\u548C\u662F\u5426\u4E00\u81F4\uFF0C\u62A5\u544A\u5199\u660E\u4E24\u7247RAM\u5B8C\u6574\u5730\u5740\u8303\u56F4\u3001\u8BD1\u7801\u63A5\u6CD5\u4E0E\u8BFB\u5199\u987A\u5E8F\u3002\u5148\u7ED3\u675F\u5199\u5165\uFF0C\u518D\u9694\u79BB244\uFF0C\u5426\u5219\u60AC\u7A7A\u6570\u636E\u53EF\u80FD\u88AB\u5199\u5165RAM\u5E76\u53D8\u4E3AX\u3002RAM\u8BFB\u51FA\u5F00\u542F\u65F6\u53C8\u63A5\u5165244\u4F1A\u9020\u6210\u9A71\u52A8\u51B2\u7A81
+
+\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u636E\u5F00\u5173\uFF0C\u84DD\u8272\u4E3A\u5171\u4EAB\u6570\u636E\u603B\u7EBF\uFF0C\u9EC4\u8272\u4E3A\u5730\u5740\uFF0C\u9752\u8272\u4E3A\u7247\u9009\uFF0C\u7D2B\u8272\u4E3A\u8BFB\u5199\u4E0E\u9694\u79BB\u63A7\u5236\u3002\u4EA4\u53C9\u5BFC\u7EBF\u4FDD\u6301\u7EDD\u7F18\uFF0C\u7535\u6C14\u8FDE\u63A5\u7531\u5B9E\u9645\u63D2\u5B54\u51B3\u5B9A
+
+RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u7535\u3001\u5207\u6362\u5B9E\u9A8C\u3001\u91CD\u65B0\u52A0\u8F7D\u3001\u5BFC\u5165\u6216\u64A4\u9500\u540E\u9700\u8981\u91CD\u65B0\u5199\u5165\uFF0C\u5B58\u6863\u4FDD\u5B58\u63A5\u7EBF\u3001\u5F00\u5173\u548C\u5907\u6CE8\uFF0C\u4E0D\u4FDD\u5B58\u5DF2\u5199\u5165\u7684\u6570\u636E\u3002\u521D\u6B21\u8BFB\u53D6\u672A\u5199\u8FC7\u7684\u5730\u5740\u4F1A\u663E\u793AX\uFF0C\u4E0D\u80FD\u636E\u6B64\u5224\u65AD\u63A5\u7EBF\u9519\u8BEF
+`;
+  var RAM_NOTES = `# RAM \u5B57\u6269\u5C55\u64CD\u4F5C
+
+## \u5F00\u5173
+
+| \u7AEF\u53E3 | \u7528\u9014 |
+| --- | --- |
+| K7\uFF5EK0 | \u5199\u5165\u6570\u636E\uFF0C\u9AD8\u4F4D\u5728\u5DE6 |
+| K11\uFF5EK8 | \u7247\u5185\u5730\u5740\uFF0C\u9AD8\u4F4D\u5728\u5DE6 |
+| K12 | 0\u9009\u7B2C\u4E00\u7247\uFF0C1\u9009\u7B2C\u4E8C\u7247 |
+| K13 | 0\u5199\u5165\uFF0C1\u505C\u6B62\u5199\u5165 |
+| K14 | 0\u8BFB\u51FA\uFF0C1\u5173\u95ED\u8BFB\u51FA |
+| K15 | 0\u63A5\u5165\u6570\u636E\u5F00\u5173\uFF0C1\u9694\u79BB\u6570\u636E\u5F00\u5173 |
+| L7\uFF5EL0 | \u8BFB\u51FA\u7ED3\u679C |
+
+## \u5199\u5165
+
+1. \u6253\u5F00\u7535\u6E90\uFF0C\u5C06K13\u3001K14\u3001K15\u90FD\u8BBE\u4E3A1
+2. \u8BBE\u7F6EK12\u9009\u7247\u3001K11\uFF5EK8\u5730\u5740\u3001K7\uFF5EK0\u6570\u636E
+3. K15\u8BBE\u4E3A0\uFF0C\u63A5\u5165\u6570\u636E
+4. K13\u8BBE\u4E3A0\uFF0C\u518D\u8BBE\u56DE1\uFF0C\u5B8C\u6210\u5199\u5165
+5. K15\u8BBE\u56DE1\uFF0C\u9694\u79BB\u6570\u636E
+
+\u91CD\u590D\u6B65\u9AA42\uFF5E5\uFF0C\u5148\u5199\u5B8C\u4E0B\u9762\u56DB\u7EC4\u6570\u636E
+
+## \u9A8C\u6536\u6570\u636E
+
+| K12 | K11\uFF5EK8 | K7\uFF5EK0 |
+| --- | --- | --- |
+| 0 | 1010 | 01010101 |
+| 0 | 0101 | 10101010 |
+| 1 | 1010 | 11111111 |
+| 1 | 0101 | 00000000 |
+
+## \u8BFB\u53D6
+
+\u4FDD\u6301K13=1\u3001K15=1\uFF0C\u628AK14\u8BBE\u4E3A0\u3002\u53EA\u5207\u6362K12\u548CK11\uFF5EK8\uFF0C\u68C0\u67E5L7\uFF5EL0\u662F\u5426\u4E0E\u8868\u4E2D\u6570\u636E\u4E00\u81F4
+
+\u518D\u6B21\u5199\u5165\u524D\uFF0C\u5148\u628AK14\u8BBE\u56DE1\u3002\u4E0D\u9700\u8981\u4F7F\u7528P+\u6216P\u2212
+
+## \u63D0\u9192
+
+\u5148\u505C\u6B62\u5199\u5165\uFF0C\u518D\u9694\u79BB\u6570\u636E\u3002Z\u8868\u793A\u603B\u7EBF\u672A\u8F93\u51FA\uFF0C\u672A\u5199\u5165\u7684\u5730\u5740\u8BFB\u51FAX\u3002\u65AD\u7535\u3001\u5237\u65B0\u6216\u5207\u6362\u5B9E\u9A8C\u540E\u9700\u91CD\u65B0\u5199\u5165\uFF0C\u4FDD\u5B58\u5B58\u6863\u4E0D\u4FDD\u5B58RAM\u6570\u636E
+`;
+  function connectPower(project, usage) {
+    let power = "VCC";
+    let ground = "GND";
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      const powerPin = chip.id + "-" + model.power;
+      const groundPin = chip.id + "-" + model.ground;
+      connect(project, usage, power, powerPin, RAM_COLORS.power);
+      connect(project, usage, ground, groundPin, RAM_COLORS.ground);
+      power = powerPin;
+      ground = groundPin;
+    }
+    for (const id of ["U1", "U2"]) {
+      const memory = CHIP_MODELS["6116"].memory;
+      for (let bit = 4; bit < memory.address.length; bit = bit + 1) {
+        const pin = id + "-" + memory.address[bit];
+        connect(project, usage, ground, pin, RAM_COLORS.ground);
+        ground = pin;
+      }
+    }
+    for (const pin of [2, 3, 4, 5]) {
+      const endpoint = "U4-" + pin;
+      connect(project, usage, ground, endpoint, RAM_COLORS.ground);
+      ground = endpoint;
+    }
+    connect(project, usage, power, "U4-6", RAM_COLORS.power);
+  }
+  function connectAddresses(project, usage) {
+    const memory = CHIP_MODELS["6116"].memory;
+    for (let bit = 0; bit < 4; bit = bit + 1) {
+      const firstPin = "U1-" + memory.address[bit];
+      const secondPin = "U2-" + memory.address[bit];
+      const input = "K" + (RAM_INPUTS.addressStart + bit);
+      connect(project, usage, input, firstPin, RAM_COLORS.address);
+      connect(project, usage, firstPin, secondPin, RAM_COLORS.address);
+    }
+    connect(project, usage, "K" + RAM_INPUTS.bank, "U4-1", RAM_COLORS.address);
+    connect(project, usage, "U4-15", "U1-18", RAM_COLORS.select);
+    connect(project, usage, "U4-14", "U2-18", RAM_COLORS.select);
+  }
+  function connectData(project, usage) {
+    const memory = CHIP_MODELS["6116"].memory;
+    const buffer = CHIP_MODELS["74LS244"];
+    for (let bit = 0; bit < memory.data.length; bit = bit + 1) {
+      const gate = buffer.gates[bit];
+      const input = "K" + (RAM_INPUTS.dataStart + bit);
+      const firstPin = "U1-" + memory.data[bit];
+      const secondPin = "U2-" + memory.data[bit];
+      connect(project, usage, input, "U3-" + gate[1], RAM_COLORS.dataInput);
+      connect(project, usage, "U3-" + gate[2], secondPin, RAM_COLORS.dataBus);
+      connect(project, usage, secondPin, firstPin, RAM_COLORS.dataBus);
+      connect(project, usage, firstPin, "L" + bit, RAM_COLORS.dataBus);
+    }
+  }
+  function connectControls(project, usage) {
+    const memory = CHIP_MODELS["6116"].memory;
+    connect(project, usage, "K" + RAM_INPUTS.write, "U1-" + memory.write, RAM_COLORS.control);
+    connect(project, usage, "U1-" + memory.write, "U2-" + memory.write, RAM_COLORS.control);
+    connect(project, usage, "K" + RAM_INPUTS.read, "U1-" + memory.read, RAM_COLORS.control);
+    connect(project, usage, "U1-" + memory.read, "U2-" + memory.read, RAM_COLORS.control);
+    connect(project, usage, "K" + RAM_INPUTS.isolate, "U3-1", RAM_COLORS.control);
+    connect(project, usage, "U3-1", "U3-19", RAM_COLORS.control);
+  }
+  function outerHole(endpoint) {
+    const parts = endpoint.split(":");
+    if (parts[0] !== "B1") {
+      return endpoint;
+    }
+    if (parts[1] === "C" || parts[1] === "D") {
+      return parts[0] + ":A:" + parts[2];
+    }
+    if (parts[1] === "G" || parts[1] === "H") {
+      return parts[0] + ":J:" + parts[2];
+    }
+    return endpoint;
+  }
+  function ramPreset(useOuterHoles = true) {
+    const project = emptyProject();
+    project.name = RAM_EXPERIMENT_NAME;
+    project.notes = RAM_NOTES;
+    project.inputCount = RAM_INPUTS.count;
+    project.outputCount = 8;
+    project.chips = structuredClone(RAM_CHIPS);
+    const usage = {};
+    connectPower(project, usage);
+    connectAddresses(project, usage);
+    connectData(project, usage);
+    connectControls(project, usage);
+    project.switches[RAM_INPUTS.write] = 1;
+    project.switches[RAM_INPUTS.read] = 1;
+    project.switches[RAM_INPUTS.isolate] = 1;
+    for (const wire of project.wires) {
+      if (useOuterHoles && RAM_OUTER_WIRES.includes(wire.id)) {
+        wire.from = outerHole(wire.from);
+        wire.to = outerHole(wire.to);
+      }
+      if (Object.hasOwn(ram_routes_default, wire.id)) {
+        wire.bends = structuredClone(ram_routes_default[wire.id]);
+      }
+    }
+    return project;
+  }
+
+  // src/storage.mjs
+  var STORAGE_KEY = "breadboard-lab-v1";
+  var LIMITS = {
+    chips: 40,
+    // 单个实验的芯片数量上限
+    wires: 800,
+    // 单个实验的导线及上拉节点数量上限
+    bends: 24,
+    // 每根导线的转折点数量上限
+    fileBytes: 2e6,
+    // 导入文件字节数上限
+    nameLength: 80
+    // 实验名称字符数上限
+  };
+  var FILE_BOUNDS = { width: 1300, height: 1280 };
+  var LEGACY_COMPLEMENT_PORT_COUNT = 7;
+  function legacyNode(name, wiringVersion) {
+    if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
+      return name;
+    }
+    return baseNode(name, 2);
+  }
+  function connectionRoot(parents, name) {
+    if (!parents.has(name)) {
+      parents.set(name, name);
+    }
+    let root = name;
+    while (parents.get(root) !== root) {
+      root = parents.get(root);
+    }
+    return root;
+  }
+  function verifyPortMigration(original, migrated) {
+    const before = /* @__PURE__ */ new Map();
+    const after = /* @__PURE__ */ new Map();
+    for (const wire of original.wires) {
+      const first = connectionRoot(before, legacyNode(wire.from, original.wiringVersion));
+      const last = connectionRoot(before, legacyNode(wire.to, original.wiringVersion));
+      before.set(last, first);
+    }
+    for (const wire of migrated.wires) {
+      const first = connectionRoot(after, baseNode(wire.from));
+      const last = connectionRoot(after, baseNode(wire.to));
+      after.set(last, first);
+    }
+    const terminals = ["P+", "P-", "VCC", "GND"];
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      terminals.push("K" + bit, "L" + bit);
+    }
+    for (const chip of migrated.chips) {
+      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
+        terminals.push(pinHole(chip, pin));
+      }
+    }
+    const forward = /* @__PURE__ */ new Map();
+    const reverse = /* @__PURE__ */ new Map();
+    for (const name of terminals) {
+      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
+      const newGroup = connectionRoot(after, baseNode(name));
+      if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
+        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
+      }
+      forward.set(oldGroup, newGroup);
+      reverse.set(newGroup, oldGroup);
+    }
+  }
+  function migrateEndpoint(name, occupied2) {
+    if (isPhysicalHole(name)) {
+      return name;
+    }
+    const preferred = portHole(name);
+    if (preferred === "") {
+      throw new Error("\u65E0\u6CD5\u627E\u5230\u7AEF\u53E3\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5B54\uFF1A" + name);
+    }
+    const parts = preferred.split(":");
+    if (preferred.startsWith("R:")) {
+      for (let index = Number(parts[2]); index >= 0; index = index - 1) {
+        const hole = parts[0] + ":" + parts[1] + ":" + index;
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    } else {
+      let rows = "JIHGF";
+      if (parts[1] === "A") {
+        rows = "ABCDE";
+      }
+      for (const row of rows) {
+        const hole = parts[0] + ":" + row + ":" + parts[2];
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    }
+    throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
+  }
+  function validateProjectHeader(value) {
+    if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
+      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
+    }
+    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
+      throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
+    }
+    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
+      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
+    }
+  }
+  function restoreProjectSettings(value, project) {
+    if (value.inputCount !== void 0 || value.outputCount !== void 0) {
+      if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
+        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
+      }
+      project.inputCount = value.inputCount;
+      project.outputCount = value.outputCount;
+    }
+    if (value.mode === "complement") {
+      project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+      project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+    }
+    if (value.notes === void 0 && value.mode === "complement") {
+      project.notes = COMPLEMENT_NOTES;
+    } else if (value.notes !== void 0) {
+      if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
+        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 " + NOTES_LIMIT + " \u4E2A\u5B57\u7B26");
+      }
+      project.notes = value.notes;
+    }
+    if (typeof value.name === "string") {
+      project.name = value.name.slice(0, LIMITS.nameLength);
+    }
+    project.power = value.power === true;
+  }
+  function restorePullUps(value, project) {
+    if (value.pullUps !== void 0) {
+      if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
+        throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
+      }
+      const seen = /* @__PURE__ */ new Set();
+      for (const endpoint of value.pullUps) {
+        if (!validEndpoint(endpoint) || seen.has(endpoint)) {
+          throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+        }
+        project.pullUps.push(endpoint);
+        seen.add(endpoint);
+      }
+    }
+  }
+  function restoreChips(value, project) {
+    const identifiers = /* @__PURE__ */ new Set();
+    const occupied2 = /* @__PURE__ */ new Set();
+    for (const entry of value.chips) {
+      if (!entry || typeof entry.id !== "string" || !/^U[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
+        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+      }
+      const chip = { id: entry.id, model: entry.model, section: entry.section, column: entry.column };
+      const error = placementError(project.chips, chip, "");
+      if (error !== "") {
+        throw new Error(error);
+      }
+      identifiers.add(chip.id);
+      project.chips.push(chip);
+      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
+        occupied2.add(pinHole(chip, pin));
+      }
+    }
+    return occupied2;
+  }
+  function restoreWires(value, project, occupied2) {
+    const identifiers = /* @__PURE__ */ new Set();
+    const reserved = new Set(occupied2);
+    for (const entry of value.wires) {
+      if (entry && isPhysicalHole(entry.from)) {
+        reserved.add(entry.from);
+      }
+      if (entry && isPhysicalHole(entry.to)) {
+        reserved.add(entry.to);
+      }
+    }
+    for (const entry of value.wires) {
+      if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
+        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+      }
+      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
+        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
+      }
+      if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
+        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5");
+      }
+      const bends = [];
+      for (const bend of entry.bends) {
+        if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y) || bend.x < 0 || bend.x > FILE_BOUNDS.width || bend.y < 0 || bend.y > FILE_BOUNDS.height) {
+          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
+        }
+        bends.push({ x: bend.x, y: bend.y });
+      }
+      const from = migrateEndpoint(entry.from, reserved);
+      const to = migrateEndpoint(entry.to, reserved);
+      if (from !== entry.from || to !== entry.to) {
+        bends.length = 0;
+      }
+      const wire = { id: entry.id, from, to, color: entry.color, bends };
+      if (entry.angle !== void 0 && entry.angle !== 45) {
+        throw new Error("\u5BFC\u7EBF\u89D2\u5EA6\u8BBE\u7F6E\u4E0D\u6B63\u786E");
+      }
+      if (entry.angle === 45) {
+        wire.angle = 45;
+      }
+      project.wires.push(wire);
+      occupied2.add(entry.from);
+      occupied2.add(entry.to);
+      identifiers.add(entry.id);
+    }
+  }
+  function restoreSwitches(value, project) {
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      if (value.switches[index] !== 0 && value.switches[index] !== 1) {
+        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
+      }
+      project.switches[index] = value.switches[index];
+    }
+  }
+  function validateProject(value) {
+    validateProjectHeader(value);
+    const project = emptyProject();
+    restoreProjectSettings(value, project);
+    restorePullUps(value, project);
+    const occupied2 = restoreChips(value, project);
+    restoreWires(value, project, occupied2);
+    restoreSwitches(value, project);
+    if (value.wiringVersion !== WIRING_VERSION) {
+      verifyPortMigration(value, project);
+    }
+    return project;
+  }
+
+  // src/preset-layout.mjs
+  var PREVIOUS_LAYOUTS = [
+    { create: complementPreset, columns: [24, 16, 39, 3, 44], ram: false },
+    { create: ramPreset, columns: [8, 35, 35, 12], ram: true }
+  ];
+  function previousEndpoint(endpoint, reference, columns) {
+    for (let index = 0; index < reference.chips.length; index = index + 1) {
+      const chip = reference.chips[index];
+      const model = CHIP_MODELS[chip.model];
+      for (let pin = 1; pin <= model.count; pin = pin + 1) {
+        if (baseNode(endpoint) === baseNode(pinHole(chip, pin))) {
+          const parts = endpoint.split(":");
+          const column = Number(parts[2]) + columns[index] - chip.column;
+          return parts[0] + ":" + parts[1] + ":" + column;
+        }
+      }
+    }
+    return endpoint;
+  }
+  function matchesPreviousLayout(project, reference, columns) {
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length || project.pullUps.length !== 0) {
+      return false;
+    }
+    for (let index = 0; index < reference.chips.length; index = index + 1) {
+      const expected = reference.chips[index];
+      const actual = project.chips[index];
+      if (actual.id !== expected.id || actual.model !== expected.model || actual.section !== expected.section || actual.column !== columns[index]) {
+        return false;
+      }
+    }
+    for (let index = 0; index < reference.wires.length; index = index + 1) {
+      const expected = reference.wires[index];
+      const actual = project.wires[index];
+      const from = previousEndpoint(expected.from, reference, columns);
+      const to = previousEndpoint(expected.to, reference, columns);
+      if (actual.id !== expected.id || actual.from !== from || actual.to !== to) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function centerSavedPresets(workspace2) {
+    let changed = false;
+    for (const id of Object.keys(workspace2.projects)) {
+      const project = workspace2.projects[id];
+      if (project.notes === PREVIOUS_RAM_NOTES) {
+        project.notes = RAM_NOTES;
+        changed = true;
+      }
+      for (const layout of PREVIOUS_LAYOUTS) {
+        const reference = layout.create();
+        let previous = reference;
+        if (layout.ram) {
+          previous = ramPreset(false);
+        }
+        if (!matchesPreviousLayout(project, previous, layout.columns)) {
+          continue;
+        }
+        const updated = copyProject(project);
+        updated.chips = copyProject(reference.chips);
+        for (let index = 0; index < updated.wires.length; index = index + 1) {
+          const wire = updated.wires[index];
+          const expected = reference.wires[index];
+          wire.from = expected.from;
+          wire.to = expected.to;
+          wire.bends = copyProject(expected.bends);
+          delete wire.angle;
+        }
+        workspace2.projects[id] = updated;
+        changed = true;
+      }
+      const rerouted = separateSavedRamWires(workspace2.projects[id]);
+      if (rerouted) {
+        workspace2.projects[id] = rerouted;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  function separateSavedRamWires(project) {
+    const previous = ramPreset(false);
+    const current = ramPreset();
+    if (project.chips.length !== current.chips.length || project.wires.length !== current.wires.length) {
+      return null;
+    }
+    for (let index = 0; index < current.chips.length; index = index + 1) {
+      const expected = current.chips[index];
+      const actual = project.chips[index];
+      if (actual.id !== expected.id || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
+        return null;
+      }
+    }
+    const updated = copyProject(project);
+    let changed = false;
+    for (let index = 0; index < current.wires.length; index = index + 1) {
+      const wire = updated.wires[index];
+      const oldWire = previous.wires[index];
+      const newWire = current.wires[index];
+      if (wire.id !== oldWire.id) {
+        return null;
+      }
+      if (baseNode(wire.from) !== baseNode(oldWire.from) || baseNode(wire.to) !== baseNode(oldWire.to)) {
+        return null;
+      }
+      if (!RAM_OUTER_WIRES.includes(wire.id)) {
+        continue;
+      }
+      if (wire.from === newWire.from && wire.to === newWire.to) {
+        continue;
+      }
+      if (wire.from !== oldWire.from || wire.to !== oldWire.to) {
+        return null;
+      }
+      wire.from = newWire.from;
+      wire.to = newWire.to;
+      wire.bends = copyProject(newWire.bends);
+      delete wire.angle;
+      changed = true;
+    }
+    if (!changed) {
+      return null;
+    }
+    try {
+      validateProject(updated);
+    } catch (error) {
+      return null;
+    }
+    return updated;
+  }
+
   // src/chip-logic.mjs
   var SEGMENT_PATTERNS = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "0011111", "1110000", "1111111", "1110011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
   var SEGMENT_PINS = [13, 12, 11, 10, 9, 15, 14];
@@ -96653,6 +99237,107 @@
     return outputs;
   }
 
+  // src/chip-memory.mjs
+  function createMemory(specification) {
+    const words = [];
+    for (let address = 0; address < specification.words; address = address + 1) {
+      const bits = [];
+      for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
+        bits.push("X");
+      }
+      words.push(bits);
+    }
+    return { words, powered: false };
+  }
+  function matchesAddress(specification, pins, address) {
+    for (let bit = 0; bit < specification.address.length; bit = bit + 1) {
+      const value = logicValue(pins[specification.address[bit]]);
+      const expected = address >> bit & 1;
+      if (value !== "X" && value !== expected) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function readMemoryBit(specification, pins, state2, bit) {
+    const address = readNumber(pins, specification.address);
+    if (address !== "X") {
+      return state2.words[address][bit];
+    }
+    let value;
+    for (let candidate = 0; candidate < specification.words; candidate = candidate + 1) {
+      if (matchesAddress(specification, pins, candidate)) {
+        const stored = state2.words[candidate][bit];
+        if (value === void 0) {
+          value = stored;
+        } else if (value !== stored) {
+          return "X";
+        }
+      }
+    }
+    return value;
+  }
+  function memoryOutputs(specification, pins, state2) {
+    const outputs = {};
+    const selected = pins[specification.select];
+    const reading = pins[specification.read];
+    const writing = pins[specification.write];
+    for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
+      let value = "X";
+      if (selected === 1 || reading === 1 || writing === 0) {
+        value = "Z";
+      } else if (selected === 0 && reading === 0 && writing === 1) {
+        value = readMemoryBit(specification, pins, state2, bit);
+      }
+      outputs[specification.data[bit]] = value;
+    }
+    return outputs;
+  }
+  function writeMemoryWord(specification, pins, state2, address, certain) {
+    let changed = false;
+    const word = state2.words[address];
+    for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
+      let value = logicValue(pins[specification.data[bit]]);
+      if (!certain && word[bit] !== value) {
+        value = "X";
+      }
+      if (word[bit] !== value) {
+        word[bit] = value;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  function updateMemory(specification, pins, state2, powered) {
+    if (!powered) {
+      if (state2.powered) {
+        const cleared = createMemory(specification);
+        state2.words = cleared.words;
+      }
+      state2.powered = false;
+      return false;
+    }
+    state2.powered = true;
+    const selected = pins[specification.select];
+    const writing = pins[specification.write];
+    if (selected === 1 || writing === 1) {
+      return false;
+    }
+    const address = readNumber(pins, specification.address);
+    const certain = selected === 0 && writing === 0 && address !== "X";
+    if (certain) {
+      return writeMemoryWord(specification, pins, state2, address, true);
+    }
+    let changed = false;
+    for (let candidate = 0; candidate < specification.words; candidate = candidate + 1) {
+      if (matchesAddress(specification, pins, candidate)) {
+        const updated = writeMemoryWord(specification, pins, state2, candidate, false);
+        changed = changed || updated;
+      }
+    }
+    return changed;
+  }
+
   // src/engine.mjs
   var MAX_SETTLE_PASSES = 96;
   var MAX_SEQUENTIAL_PASSES = 12;
@@ -96763,6 +99448,9 @@
     if (chip.model === "74LS283") {
       return evaluateAdder(pins);
     }
+    if (model.memory) {
+      return memoryOutputs(model.memory, pins, devices[chip.id]);
+    }
     if (model.sequential) {
       return stateOutputs(model, pins, devices[chip.id]);
     }
@@ -96794,7 +99482,6 @@
         if (model.bidirectional && chipPowered(chip, pins)) {
           for (const pin of model.bidirectional) {
             const node2 = nodeFor(topology, pinHole(chip, pin));
-            addDriver(drivers, node2, 1, chip.id + "-" + pin + "-bias", "pull-up");
             const external = [];
             const source = chip.id + "-" + pin;
             const entries2 = previousDrivers[node2] || [];
@@ -96803,7 +99490,10 @@
                 external.push(driver);
               }
             }
-            external.push({ value: 1, kind: "pull-up" });
+            if (model.kind === "seven-segment") {
+              addDriver(drivers, node2, 1, chip.id + "-" + pin + "-bias", "pull-up");
+              external.push({ value: 1, kind: "pull-up" });
+            }
             pins[pin] = resolveDrivers(external);
           }
         }
@@ -96811,7 +99501,7 @@
         for (const pin in outputs) {
           const hole = pinHole(chip, Number(pin));
           let kind = "push-pull";
-          if (model.kind === "open-collector" || model.bidirectional && model.bidirectional.includes(Number(pin))) {
+          if (model.kind === "open-collector" || model.kind === "seven-segment" && Number(pin) === 4) {
             kind = "open-collector";
           }
           if (model.kind === "seven-segment" && Number(pin) !== 4) {
@@ -96946,7 +99636,15 @@
         continue;
       }
       const missing = [];
-      for (const pin of CHIP_MODELS[chip.model].inputs) {
+      const model = CHIP_MODELS[chip.model];
+      for (const pin of model.inputs) {
+        if (model.memory && model.bidirectional.includes(pin)) {
+          const selected = pins[model.memory.select];
+          const writing = pins[model.memory.write];
+          if (selected !== 0 || writing !== 0) {
+            continue;
+          }
+        }
         if (pins[pin] === "Z") {
           missing.push(String(pin));
         }
@@ -96954,7 +99652,6 @@
       if (missing.length > 0) {
         issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " \u8F93\u5165\u60AC\u7A7A\uFF1A\u7B2C " + missing.join("\u3001") + " \u811A" });
       }
-      const model = CHIP_MODELS[chip.model];
       if (model.channels) {
         let active = 0;
         if (model.activeHigh) {
@@ -96986,6 +99683,9 @@
       if (model.sequential && !Object.hasOwn(runtime.devices, chip.id)) {
         runtime.devices[chip.id] = createChipState(model);
       }
+      if (model.memory && !Object.hasOwn(runtime.devices, chip.id)) {
+        runtime.devices[chip.id] = createMemory(model.memory);
+      }
     }
     let settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
     let complete = false;
@@ -96998,6 +99698,12 @@
           const updated = updateChipState(model, pins, runtime.devices[chip.id], project.power && chipPowered(chip, pins));
           changed = changed || updated;
         }
+        if (model.memory) {
+          const pins = readPins(chip, topology, settled.values);
+          const powered = project.power && chipPowered(chip, pins);
+          const updated = updateMemory(model.memory, pins, runtime.devices[chip.id], powered);
+          changed = changed || updated;
+        }
       }
       if (!changed) {
         complete = true;
@@ -97008,1004 +99714,6 @@
     const result = { topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
     result.issues = diagnose(project, result);
     return result;
-  }
-
-  // src/preset-routes.json
-  var preset_routes_default = {
-    W1: [
-      {
-        x: 1242,
-        y: 402.0000002219999
-      },
-      {
-        x: 504,
-        y: 402.0000002219999
-      }
-    ],
-    W2: [
-      {
-        x: 1210,
-        y: 496.99999994
-      },
-      {
-        x: 666,
-        y: 496.99999994
-      }
-    ],
-    W3: [
-      {
-        x: 504,
-        y: 399.0000002219999
-      },
-      {
-        x: 360,
-        y: 399.0000002219999
-      }
-    ],
-    W4: [
-      {
-        x: 665.1176470588235,
-        y: 506
-      },
-      {
-        x: 665.1176470588235,
-        y: 755.9999998499998
-      },
-      {
-        x: 486,
-        y: 755.9999998499998
-      }
-    ],
-    W5: [
-      {
-        x: 360,
-        y: 643.5
-      },
-      {
-        x: 774,
-        y: 643.5
-      }
-    ],
-    W6: [
-      {
-        x: 486,
-        y: 767.9999998499998
-      },
-      {
-        x: 900,
-        y: 767.9999998499998
-      }
-    ],
-    W7: [
-      {
-        x: 774,
-        y: 408.0000002219999
-      },
-      {
-        x: 126,
-        y: 408.0000002219999
-      }
-    ],
-    W8: [
-      {
-        x: 900,
-        y: 761.9999998499998
-      },
-      {
-        x: 234,
-        y: 761.9999998499998
-      }
-    ],
-    W9: [
-      {
-        x: 126,
-        y: 390.0000002219999
-      },
-      {
-        x: 864,
-        y: 390.0000002219999
-      }
-    ],
-    W10: [
-      {
-        x: 234,
-        y: 514.9999999400001
-      },
-      {
-        x: 972,
-        y: 514.9999999400001
-      }
-    ],
-    W11: [
-      {
-        x: 972,
-        y: 511.99999994
-      },
-      {
-        x: 739.9999998825,
-        y: 511.99999994
-      },
-      {
-        x: 739.9999998825,
-        y: 411.0000002219999
-      },
-      {
-        x: 558,
-        y: 411.0000002219999
-      }
-    ],
-    W12: [
-      {
-        x: 558,
-        y: 399.0000002219999
-      },
-      {
-        x: 540,
-        y: 399.0000002219999
-      }
-    ],
-    W13: [
-      {
-        x: 540,
-        y: 393.0000002219999
-      },
-      {
-        x: 807,
-        y: 393.0000002219999
-      },
-      {
-        x: 807,
-        y: 661
-      }
-    ],
-    W14: [
-      {
-        x: 813,
-        y: 646
-      },
-      {
-        x: 813,
-        y: 661
-      }
-    ],
-    W15: [
-      {
-        x: 846,
-        y: 646
-      }
-    ],
-    W16: [
-      {
-        x: 846,
-        y: 649
-      },
-      {
-        x: 864,
-        y: 649
-      }
-    ],
-    W17: [
-      {
-        x: 864,
-        y: 643
-      },
-      {
-        x: 850,
-        y: 643
-      },
-      {
-        x: 850,
-        y: 411.0000002219999
-      },
-      {
-        x: 954,
-        y: 411.0000002219999
-      }
-    ],
-    W18: [
-      {
-        x: 954,
-        y: 399.0000002219999
-      },
-      {
-        x: 936,
-        y: 399.0000002219999
-      }
-    ],
-    W19: [
-      {
-        x: 936,
-        y: 399.0000002219999
-      },
-      {
-        x: 900,
-        y: 399.0000002219999
-      }
-    ],
-    W20: [
-      {
-        x: 900,
-        y: 399.0000002219999
-      },
-      {
-        x: 882,
-        y: 399.0000002219999
-      }
-    ],
-    W21: [
-      {
-        x: 954,
-        y: 487.99999994
-      },
-      {
-        x: 126,
-        y: 487.99999994
-      }
-    ],
-    W22: [
-      {
-        x: 162,
-        y: 749.9999998499998
-      },
-      {
-        x: 450,
-        y: 749.9999998499998
-      }
-    ],
-    W23: [
-      {
-        x: 925.99999986,
-        y: 1036
-      },
-      {
-        x: 925.99999986,
-        y: 490.99999994
-      },
-      {
-        x: 180,
-        y: 490.99999994
-      }
-    ],
-    W24: [
-      {
-        x: 216,
-        y: 743.9999998499998
-      },
-      {
-        x: 378,
-        y: 743.9999998499998
-      }
-    ],
-    W25: [
-      {
-        x: 882,
-        y: 1028.5
-      },
-      {
-        x: 300,
-        y: 1028.5
-      },
-      {
-        x: 300,
-        y: 423.0000002219999
-      },
-      {
-        x: 216,
-        y: 423.0000002219999
-      }
-    ],
-    W26: [
-      {
-        x: 234,
-        y: 420.0000002219999
-      },
-      {
-        x: 378,
-        y: 420.0000002219999
-      }
-    ],
-    W27: [
-      {
-        x: 846,
-        y: 1034.5
-      },
-      {
-        x: 294,
-        y: 1034.5
-      },
-      {
-        x: 294,
-        y: 417.0000002219999
-      },
-      {
-        x: 162,
-        y: 417.0000002219999
-      }
-    ],
-    W28: [
-      {
-        x: 180,
-        y: 414.0000002219999
-      },
-      {
-        x: 450,
-        y: 414.0000002219999
-      }
-    ],
-    W29: [
-      {
-        x: 810,
-        y: 1040.5
-      },
-      {
-        x: 919.99999986,
-        y: 1040.5
-      },
-      {
-        x: 919.99999986,
-        y: 502.99999994
-      },
-      {
-        x: 864,
-        y: 502.99999994
-      }
-    ],
-    W30: [
-      {
-        x: 774,
-        y: 1040.5
-      },
-      {
-        x: 144,
-        y: 1040.5
-      }
-    ],
-    W31: [
-      {
-        x: 198,
-        y: 506
-      }
-    ],
-    W32: [
-      {
-        x: 248,
-        y: 506
-      },
-      {
-        x: 248,
-        y: 426
-      },
-      {
-        x: 198,
-        y: 426
-      }
-    ],
-    W33: [
-      {
-        x: 198,
-        y: 411.0000002219999
-      },
-      {
-        x: 144,
-        y: 411.0000002219999
-      }
-    ],
-    W34: [
-      {
-        x: 144,
-        y: 396.0000002219999
-      },
-      {
-        x: 680,
-        y: 396.0000002219999
-      },
-      {
-        x: 680,
-        y: 484.99999994
-      },
-      {
-        x: 882,
-        y: 484.99999994
-      }
-    ],
-    W35: [
-      {
-        x: 882,
-        y: 517.9999999400001
-      },
-      {
-        x: 671.1176470588235,
-        y: 517.9999999400001
-      },
-      {
-        x: 671.1176470588235,
-        y: 749.9999998499998
-      },
-      {
-        x: 468,
-        y: 749.9999998499998
-      }
-    ],
-    W36: [
-      {
-        x: 900,
-        y: 499.99999994
-      },
-      {
-        x: 914,
-        y: 499.99999994
-      },
-      {
-        x: 914,
-        y: 741
-      }
-    ],
-    W37: [
-      {
-        x: 864,
-        y: 755.9999998499998
-      },
-      {
-        x: 792,
-        y: 755.9999998499998
-      }
-    ],
-    W38: [
-      {
-        x: 486,
-        y: 673.5
-      },
-      {
-        x: 677.1176470588235,
-        y: 673.5
-      },
-      {
-        x: 677.1176470588235,
-        y: 749.9999998499998
-      },
-      {
-        x: 882,
-        y: 749.9999998499998
-      }
-    ],
-    W39: [
-      {
-        x: 414,
-        y: 731.9999998499998
-      },
-      {
-        x: 540,
-        y: 731.9999998499998
-      }
-    ],
-    W40: [
-      {
-        x: 360,
-        y: 737.9999998499998
-      },
-      {
-        x: 558,
-        y: 737.9999998499998
-      }
-    ],
-    W41: [
-      {
-        x: 414,
-        y: 655.5
-      },
-      {
-        x: 612,
-        y: 655.5
-      }
-    ],
-    W42: [
-      {
-        x: 468,
-        y: 667.5
-      },
-      {
-        x: 630,
-        y: 667.5
-      }
-    ],
-    W43: [
-      {
-        x: 828,
-        y: 731.9999998499998
-      },
-      {
-        x: 733.9999998825,
-        y: 731.9999998499998
-      },
-      {
-        x: 733.9999998825,
-        y: 414.0000002219999
-      },
-      {
-        x: 630,
-        y: 414.0000002219999
-      }
-    ],
-    W44: [
-      {
-        x: 774,
-        y: 743.9999998499998
-      },
-      {
-        x: 721.9999998825,
-        y: 743.9999998499998
-      },
-      {
-        x: 721.9999998825,
-        y: 420.0000002219999
-      },
-      {
-        x: 612,
-        y: 420.0000002219999
-      }
-    ],
-    W45: [
-      {
-        x: 522,
-        y: 726
-      },
-      {
-        x: 432,
-        y: 726
-      }
-    ],
-    W46: [
-      {
-        x: 576,
-        y: 743.9999998499998
-      },
-      {
-        x: 396,
-        y: 743.9999998499998
-      }
-    ],
-    W47: [
-      {
-        x: 594,
-        y: 649.5
-      },
-      {
-        x: 396,
-        y: 649.5
-      }
-    ],
-    W48: [
-      {
-        x: 648,
-        y: 661.5
-      },
-      {
-        x: 432,
-        y: 661.5
-      }
-    ],
-    W49: [
-      {
-        x: 648,
-        y: 417.0000002219999
-      },
-      {
-        x: 727.9999998825,
-        y: 417.0000002219999
-      },
-      {
-        x: 727.9999998825,
-        y: 726
-      },
-      {
-        x: 846,
-        y: 726
-      }
-    ],
-    W50: [
-      {
-        x: 594,
-        y: 423.0000002219999
-      },
-      {
-        x: 715.9999998825,
-        y: 423.0000002219999
-      },
-      {
-        x: 715.9999998825,
-        y: 737.9999998499998
-      },
-      {
-        x: 810,
-        y: 737.9999998499998
-      }
-    ],
-    W51: [
-      {
-        x: 522,
-        y: 499.99999994
-      },
-      {
-        x: 685.9999998825,
-        y: 499.99999994
-      },
-      {
-        x: 685.9999998825,
-        y: 110
-      },
-      {
-        x: 954,
-        y: 110
-      }
-    ],
-    W52: [
-      {
-        x: 576,
-        y: 502.99999994
-      },
-      {
-        x: 691.9999998825,
-        y: 502.99999994
-      },
-      {
-        x: 691.9999998825,
-        y: 116
-      }
-    ],
-    W53: [
-      {
-        x: 594,
-        y: 505.99999994
-      },
-      {
-        x: 697.9999998825,
-        y: 505.99999994
-      },
-      {
-        x: 697.9999998825,
-        y: 122
-      },
-      {
-        x: 882,
-        y: 122
-      }
-    ],
-    W54: [
-      {
-        x: 648,
-        y: 508.99999994
-      },
-      {
-        x: 844.00000002,
-        y: 508.99999994
-      },
-      {
-        x: 844.00000002,
-        y: 116
-      }
-    ],
-    W55: [
-      {
-        x: 648,
-        y: 387.0000002219999
-      },
-      {
-        x: 810,
-        y: 387.0000002219999
-      }
-    ],
-    W56: [
-      {
-        x: 594,
-        y: 384.0000002219999
-      },
-      {
-        x: 774,
-        y: 384.0000002219999
-      }
-    ],
-    W57: [
-      {
-        x: 648,
-        y: 376.80000022199994
-      },
-      {
-        x: 709.9999998825,
-        y: 376.80000022199994
-      },
-      {
-        x: 709.9999998825,
-        y: 481.99999994
-      },
-      {
-        x: 918,
-        y: 481.99999994
-      }
-    ],
-    W58: [
-      {
-        x: 594,
-        y: 381.0000002219999
-      },
-      {
-        x: 703.9999998825,
-        y: 381.0000002219999
-      },
-      {
-        x: 703.9999998825,
-        y: 478.99999994
-      },
-      {
-        x: 936,
-        y: 478.99999994
-      }
-    ],
-    W59: [
-      {
-        x: 954,
-        y: 476
-      },
-      {
-        x: 745.9999998825,
-        y: 476
-      },
-      {
-        x: 745.9999998825,
-        y: 116
-      }
-    ],
-    W60: [
-      {
-        x: 745.9999998825,
-        y: 1036
-      },
-      {
-        x: 745.9999998825,
-        y: 493.99999994
-      },
-      {
-        x: 504,
-        y: 493.99999994
-      }
-    ],
-    W61: [
-      {
-        x: 1098,
-        y: 405.0000002219999
-      },
-      {
-        x: 666,
-        y: 405.0000002219999
-      }
-    ]
-  };
-
-  // src/presets.mjs
-  var PRESET_WIRE_COLORS = {
-    power: WIRE_COLORS[0],
-    ground: WIRE_COLORS[7],
-    input: WIRE_COLORS[2],
-    control: WIRE_COLORS[4],
-    result: WIRE_COLORS[1],
-    feedback: WIRE_COLORS[3],
-    output: WIRE_COLORS[5],
-    timing: WIRE_COLORS[6],
-    overflow: WIRE_COLORS[9]
-  };
-  var PRESET_CHIPS = [
-    { id: "U1", model: "74LS273", section: 1, column: 24 },
-    { id: "U2", model: "74LS283", section: 2, column: 16 },
-    { id: "U3", model: "74LS283", section: 2, column: 39 },
-    { id: "U4", model: "74LS86", section: 1, column: 3 },
-    { id: "U5", model: "74LS86", section: 1, column: 44 }
-  ];
-  var UNUSED_INPUTS = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
-  var INPUT_PINS = [1, 4, 9, 12];
-  var OUTPUT_PINS = [3, 6, 8, 11];
-  var ADDER_PINS = [6, 2, 15, 11];
-  var CONTROL_PINS = ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"];
-  var SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
-  var FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
-  var REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
-  var PRESET_PORT_COUNT = 7;
-  var COMPLEMENT_RESET_INPUT = 6;
-  var COMPLEMENT_NOTES = `# \u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668
-
-## \u529F\u80FD
-
-\u8FD9\u4E2A\u7535\u8DEF\u5B9E\u73B0\u4E86\u8FDE\u7EED\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58\u4E86 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u7ED9\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
-
-## \u8F93\u5165\u53E3
-
-| \u7AEF\u53E3 | \u4F5C\u7528 |
-| --- | --- |
-| K0\u3001K1\u3001K2\u3001K3 | \u8F93\u5165\u8865\u7801\u7684\u4F4E\u56DB\u4F4D\uFF0CK0 \u6700\u4F4E\u4F4D |
-| K4 | \u8F93\u5165\u7B26\u53F7\u4F4D\uFF1B\u7535\u8DEF\u5C06\u6B64\u4F4D\u590D\u5236\u6210\u4E24\u4E2A\u7B26\u53F7\u4F4D |
-| K5 | 0 \u4E3A\u52A0\u6CD5\uFF0C1 \u4E3A\u51CF\u6CD5 |
-| K6 | 0 \u5F02\u6B65\u6E05\u96F6\uFF0C\u6B63\u5E38\u8FD0\u7B97\u4FDD\u6301 1 |
-| P\u2212 | \u5B8C\u6574\u8D1F\u8109\u51B2\u7ED3\u675F\u65F6\u7684\u4E0A\u5347\u6CBF\uFF0C\u4FDD\u5B58\u672C\u6B21\u7ED3\u679C |
-| P+ | \u672C\u793A\u4F8B\u672A\u8FDE\u63A5\uFF0C\u4E0D\u4F1A\u52A0\u8F7D\u7ED3\u679C |
-
-\u8F93\u5165\u987A\u5E8F\u4E3A **K4 K3 K2 K1 K0**\uFF0C\u4F7F\u7528\u4E94\u4F4D\u8865\u7801\uFF0C\u8303\u56F4\u4E3A \u221216\uFF5E15\u3002\u4F8B\uFF1A7 \u4E3A 00111\uFF0C\u221212 \u4E3A 10100\uFF0C\u22122 \u4E3A 11110\u3002\u51CF\u53BB 6 \u65F6\u8F93\u5165\u6B63\u6570 00110\uFF0C\u518D\u628A K5 \u8BBE\u7F6E\u4E3A 1
-
-## \u8F93\u51FA\u53E3
-
-| \u7AEF\u53E3 | \u4F5C\u7528 |
-| --- | --- |
-| L5 | \u9AD8\u7B26\u53F7\u4F4D |
-| L4 | \u4F4E\u7B26\u53F7\u4F4D |
-| L3\u3001L2\u3001L1\u3001L0 | \u7ED3\u679C\u7684\u56DB\u4E2A\u6570\u503C\u4F4D\uFF0CL0 \u6700\u4F4E\u4F4D |
-| L6 | \u4E24\u4E2A\u7B26\u53F7\u4F4D\u5F02\u6216\u7684\u7ED3\u679C\uFF0C1 \u8868\u793A\u5F53\u524D\u7ED3\u679C\u6EA2\u51FA |
-
-\u7ED3\u679C\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u5728 **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u65F6\u70B9\u4EAE**\uFF0CX \u6216 Z \u72B6\u6001\u4E0B\u4FDD\u6301\u7184\u706D
-
-## \u64CD\u4F5C\u6B65\u9AA4
-
-1. \u6253\u5F00\u7535\u6E90\u540E\uFF0C\u5C06 K6 \u5207\u5230 0 \u518D\u5207\u56DE 1\uFF0CL6\uFF5EL0 \u5E94\u663E\u793A 000 0000
-2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u5E76\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
-3. \u53D1\u51FA\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\u540E\uFF0C\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF0CL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
-
-\u7D2F\u8BA1\u7ED3\u679C\u5728\u6709\u6548\u8109\u51B2\u5230\u6765\u540E\u66F4\u65B0\uFF0C\u8C03\u6574\u8F93\u5165\u65F6\u4FDD\u6301\u539F\u503C\u3002\u4F60\u53EF\u4EE5\u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDE\u7EED\u5B8C\u6210\u8FD0\u7B97
-
-## \u9A8C\u6536
-
-| \u7B97\u5F0F | \u6BCF\u6B21\u8109\u51B2\u540E\u7684\u7D2F\u8BA1\u7ED3\u679C |
-| --- | --- |
-| 7\uFF0B5\u22126\uFF0B12 | 00 0111 \u2192 00 1100 \u2192 00 0110 \u2192 **01 0010**\uFF08\u6B63\u6EA2\u51FA\uFF09 |
-| \uFF08\u221212\uFF09\uFF0B\uFF08\u22122\uFF09\u22126 | 11 0100 \u2192 11 0010 \u2192 **10 1100**\uFF08\u8D1F\u6EA2\u51FA\uFF09 |
-
-## \u8D70\u7EBF\u4E0E\u7EBF\u8272
-
-K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5217\uFF0C\u8F93\u5165\u8F93\u51FA\u677F\u7528\u4F5C\u4FE1\u53F7\u663E\u793A\u548C\u64CD\u4F5C\u3002\u5BFC\u7EBF\u63A5\u5728\u9762\u5305\u677F\u5B54\u6216\u53F3\u4FA7\u7535\u6E90\u8F68\u5B54\u4E0A\uFF0C\u7AEF\u53E3\u4E0E\u5B54\u4F4D\u7684\u5BF9\u5E94\u5173\u7CFB\u89C1\u63A5\u7EBF\u8BF4\u660E
-
-\u7B2C\u56DB\u5757\u9762\u5305\u677F\u7528\u7EC6\u7EBF\u6865\u63A5\u4E86\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u4EE5\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u5206\u522B\u8FDE\u63A5
-
-\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u4E0E\u7B26\u53F7\u8F93\u5165\uFF08\u5305\u62EC\u53D6\u53CD\u540E\u7684\u6570\u636E\uFF09\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\u9001\u5165\u5BC4\u5B58\u5668\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A L0\uFF5EL5 \u7ED3\u679C\u8F93\u51FA\uFF0C\u6A59\u8272\u4E3A\u6EA2\u51FA\u5224\u65AD\u652F\u8DEF\u53CA L6 \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
-
-\u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u4E86\u82AF\u7247\u5916\u6846\uFF0C\u901A\u8FC7\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u5EFA\u7ACB\u8FDE\u63A5\uFF0C\u4EA4\u53C9\u5904\u4FDD\u6301\u7EDD\u7F18\u3002\u5F53\u4F60\u786E\u8BA4\u5DE6\u4FA7\u7684\u201C\u6574\u7406\u8D70\u7EBF\u201D\u64CD\u4F5C\u540E\uFF0C\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u8DEF\u5F84\uFF0C\u5E76\u4FDD\u7559\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\uFF0C\u6574\u4E2A\u64CD\u4F5C\u652F\u6301\u64A4\u9500
-
-\u5F53\u4F60\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u7684\u6613\u5931\u72B6\u6001\u4F1A\u91CD\u7F6E\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u7535\u8DEF\u91C7\u7528\u4E86\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u5C5E\u4E8E\u5B9E\u7269\u5B9E\u9A8C\u7684\u89C2\u5BDF\u8303\u56F4
-`;
-  function allocatePin(project, usage, name) {
-    if (!name.startsWith("U")) {
-      const hole2 = portHole(name);
-      if (hole2 !== "") {
-        return hole2;
-      }
-      return name;
-    }
-    const parts = name.split("-");
-    let chip = null;
-    for (const candidate of project.chips) {
-      if (candidate.id === parts[0]) {
-        chip = candidate;
-      }
-    }
-    const pin = Number(parts[1]);
-    const hole = pinHole(chip, pin);
-    const position = hole.split(":");
-    let rows = "GHIJ";
-    if (pin > CHIP_MODELS[chip.model].count / 2) {
-      rows = "DCBA";
-    }
-    let index = 0;
-    if (Object.hasOwn(usage, name)) {
-      index = usage[name];
-    }
-    if (index >= rows.length) {
-      throw new Error("\u793A\u4F8B\u7535\u8DEF\u7684\u540C\u5217\u7A7A\u5B54\u4E0D\u8DB3");
-    }
-    usage[name] = index + 1;
-    return holeId(chip.section, rows[index], Number(position[2]));
-  }
-  function connect(project, usage, first, second, color) {
-    const from = allocatePin(project, usage, first);
-    const to = allocatePin(project, usage, second);
-    const number = project.wires.length + 1;
-    project.wires.push({ id: "W" + number, from, to, color, bends: [] });
-  }
-  function complementPreset() {
-    const project = emptyProject();
-    project.inputCount = PRESET_PORT_COUNT;
-    project.outputCount = PRESET_PORT_COUNT;
-    project.notes = COMPLEMENT_NOTES;
-    project.name = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
-    project.chips = structuredClone(PRESET_CHIPS);
-    const usage = {};
-    let power = "VCC";
-    let ground = "GND";
-    for (const chip of project.chips) {
-      const model = CHIP_MODELS[chip.model];
-      const powerPin = chip.id + "-" + model.power;
-      const groundPin = chip.id + "-" + model.ground;
-      connect(project, usage, power, powerPin, PRESET_WIRE_COLORS.power);
-      connect(project, usage, ground, groundPin, PRESET_WIRE_COLORS.ground);
-      power = powerPin;
-      ground = groundPin;
-    }
-    for (const pin of UNUSED_INPUTS) {
-      connect(project, usage, ground, pin, PRESET_WIRE_COLORS.ground);
-      ground = pin;
-    }
-    for (let bit = 0; bit < 4; bit = bit + 1) {
-      connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], PRESET_WIRE_COLORS.input);
-      connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], PRESET_WIRE_COLORS.input);
-    }
-    connect(project, usage, "K4", "U5-1", PRESET_WIRE_COLORS.input);
-    let control = "K5";
-    for (const pin of CONTROL_PINS) {
-      connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
-      control = pin;
-    }
-    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
-    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
-    connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
-    for (const pair of SUM_CONNECTIONS) {
-      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
-    }
-    for (const pair of FEEDBACK_CONNECTIONS) {
-      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.feedback);
-    }
-    for (let bit = 0; bit < 6; bit = bit + 1) {
-      connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
-    }
-    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
-    connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
-    for (const wire of project.wires) {
-      if (Object.hasOwn(preset_routes_default, wire.id)) {
-        wire.bends = structuredClone(preset_routes_default[wire.id]);
-      }
-    }
-    project.switches[COMPLEMENT_RESET_INPUT] = 1;
-    return project;
-  }
-  function presetWireKey(wire) {
-    const first = baseNode(wire.from);
-    const second = baseNode(wire.to);
-    if (first < second) {
-      return first + "|" + second;
-    }
-    return second + "|" + first;
-  }
-  function isComplementPreset(project) {
-    const reference = complementPreset();
-    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
-      return false;
-    }
-    if (project.pullUps.length !== reference.pullUps.length) {
-      return false;
-    }
-    const chips = /* @__PURE__ */ new Map();
-    for (const chip of project.chips) {
-      chips.set(chip.id, chip);
-    }
-    for (const expected of reference.chips) {
-      const actual = chips.get(expected.id);
-      if (!actual || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
-        return false;
-      }
-    }
-    const wires = /* @__PURE__ */ new Map();
-    for (const wire of reference.wires) {
-      const key = presetWireKey(wire);
-      let count = 0;
-      if (wires.has(key)) {
-        count = wires.get(key);
-      }
-      wires.set(key, count + 1);
-    }
-    for (const wire of project.wires) {
-      const key = presetWireKey(wire);
-      const count = wires.get(key);
-      if (!count) {
-        return false;
-      }
-      wires.set(key, count - 1);
-    }
-    return true;
   }
 
   // src/wire-path.mjs
@@ -98273,243 +99981,6 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       }
     }
     return null;
-  }
-
-  // src/storage.mjs
-  var STORAGE_KEY = "breadboard-lab-v1";
-  var LIMITS = {
-    chips: 40,
-    // 单个实验的芯片数量上限
-    wires: 800,
-    // 单个实验的导线及上拉节点数量上限
-    bends: 24,
-    // 每根导线的转折点数量上限
-    fileBytes: 2e6,
-    // 导入文件字节数上限
-    nameLength: 80
-    // 实验名称字符数上限
-  };
-  var FILE_BOUNDS = { width: 1300, height: 1280 };
-  var LEGACY_COMPLEMENT_PORT_COUNT = 7;
-  function legacyNode(name, wiringVersion) {
-    if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
-      return name;
-    }
-    return baseNode(name, 2);
-  }
-  function connectionRoot(parents, name) {
-    if (!parents.has(name)) {
-      parents.set(name, name);
-    }
-    let root = name;
-    while (parents.get(root) !== root) {
-      root = parents.get(root);
-    }
-    return root;
-  }
-  function verifyPortMigration(original, migrated) {
-    const before = /* @__PURE__ */ new Map();
-    const after = /* @__PURE__ */ new Map();
-    for (const wire of original.wires) {
-      const first = connectionRoot(before, legacyNode(wire.from, original.wiringVersion));
-      const last = connectionRoot(before, legacyNode(wire.to, original.wiringVersion));
-      before.set(last, first);
-    }
-    for (const wire of migrated.wires) {
-      const first = connectionRoot(after, baseNode(wire.from));
-      const last = connectionRoot(after, baseNode(wire.to));
-      after.set(last, first);
-    }
-    const terminals = ["P+", "P-", "VCC", "GND"];
-    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
-      terminals.push("K" + bit, "L" + bit);
-    }
-    for (const chip of migrated.chips) {
-      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-        terminals.push(pinHole(chip, pin));
-      }
-    }
-    const forward = /* @__PURE__ */ new Map();
-    const reverse = /* @__PURE__ */ new Map();
-    for (const name of terminals) {
-      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
-      const newGroup = connectionRoot(after, baseNode(name));
-      if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
-        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
-      }
-      forward.set(oldGroup, newGroup);
-      reverse.set(newGroup, oldGroup);
-    }
-  }
-  function migrateEndpoint(name, occupied2) {
-    if (isPhysicalHole(name)) {
-      return name;
-    }
-    const preferred = portHole(name);
-    if (preferred === "") {
-      throw new Error("\u65E0\u6CD5\u627E\u5230\u7AEF\u53E3\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5B54\uFF1A" + name);
-    }
-    const parts = preferred.split(":");
-    if (preferred.startsWith("R:")) {
-      for (let index = Number(parts[2]); index >= 0; index = index - 1) {
-        const hole = parts[0] + ":" + parts[1] + ":" + index;
-        if (!occupied2.has(hole)) {
-          occupied2.add(hole);
-          return hole;
-        }
-      }
-    } else {
-      let rows = "JIHGF";
-      if (parts[1] === "A") {
-        rows = "ABCDE";
-      }
-      for (const row of rows) {
-        const hole = parts[0] + ":" + row + ":" + parts[2];
-        if (!occupied2.has(hole)) {
-          occupied2.add(hole);
-          return hole;
-        }
-      }
-    }
-    throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
-  }
-  function validateProjectHeader(value) {
-    if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
-      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
-    }
-    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
-      throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
-    }
-    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
-      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
-    }
-  }
-  function restoreProjectSettings(value, project) {
-    if (value.inputCount !== void 0 || value.outputCount !== void 0) {
-      if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
-        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
-      }
-      project.inputCount = value.inputCount;
-      project.outputCount = value.outputCount;
-    }
-    if (value.mode === "complement") {
-      project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
-      project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
-    }
-    if (value.notes === void 0 && value.mode === "complement") {
-      project.notes = COMPLEMENT_NOTES;
-    } else if (value.notes !== void 0) {
-      if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
-        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 " + NOTES_LIMIT + " \u4E2A\u5B57\u7B26");
-      }
-      project.notes = value.notes;
-    }
-    if (typeof value.name === "string") {
-      project.name = value.name.slice(0, LIMITS.nameLength);
-    }
-    project.power = value.power === true;
-  }
-  function restorePullUps(value, project) {
-    if (value.pullUps !== void 0) {
-      if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
-        throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
-      }
-      const seen = /* @__PURE__ */ new Set();
-      for (const endpoint of value.pullUps) {
-        if (!validEndpoint(endpoint) || seen.has(endpoint)) {
-          throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-        }
-        project.pullUps.push(endpoint);
-        seen.add(endpoint);
-      }
-    }
-  }
-  function restoreChips(value, project) {
-    const identifiers = /* @__PURE__ */ new Set();
-    const occupied2 = /* @__PURE__ */ new Set();
-    for (const entry of value.chips) {
-      if (!entry || typeof entry.id !== "string" || !/^U[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-      }
-      const chip = { id: entry.id, model: entry.model, section: entry.section, column: entry.column };
-      const error = placementError(project.chips, chip, "");
-      if (error !== "") {
-        throw new Error(error);
-      }
-      identifiers.add(chip.id);
-      project.chips.push(chip);
-      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-        occupied2.add(pinHole(chip, pin));
-      }
-    }
-    return occupied2;
-  }
-  function restoreWires(value, project, occupied2) {
-    const identifiers = /* @__PURE__ */ new Set();
-    const reserved = new Set(occupied2);
-    for (const entry of value.wires) {
-      if (entry && isPhysicalHole(entry.from)) {
-        reserved.add(entry.from);
-      }
-      if (entry && isPhysicalHole(entry.to)) {
-        reserved.add(entry.to);
-      }
-    }
-    for (const entry of value.wires) {
-      if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-      }
-      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
-        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
-      }
-      if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
-        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5");
-      }
-      const bends = [];
-      for (const bend of entry.bends) {
-        if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y) || bend.x < 0 || bend.x > FILE_BOUNDS.width || bend.y < 0 || bend.y > FILE_BOUNDS.height) {
-          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
-        }
-        bends.push({ x: bend.x, y: bend.y });
-      }
-      const from = migrateEndpoint(entry.from, reserved);
-      const to = migrateEndpoint(entry.to, reserved);
-      if (from !== entry.from || to !== entry.to) {
-        bends.length = 0;
-      }
-      const wire = { id: entry.id, from, to, color: entry.color, bends };
-      if (entry.angle !== void 0 && entry.angle !== 45) {
-        throw new Error("\u5BFC\u7EBF\u89D2\u5EA6\u8BBE\u7F6E\u4E0D\u6B63\u786E");
-      }
-      if (entry.angle === 45) {
-        wire.angle = 45;
-      }
-      project.wires.push(wire);
-      occupied2.add(entry.from);
-      occupied2.add(entry.to);
-      identifiers.add(entry.id);
-    }
-  }
-  function restoreSwitches(value, project) {
-    for (let index = 0; index < IO_LIMIT; index = index + 1) {
-      if (value.switches[index] !== 0 && value.switches[index] !== 1) {
-        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
-      }
-      project.switches[index] = value.switches[index];
-    }
-  }
-  function validateProject(value) {
-    validateProjectHeader(value);
-    const project = emptyProject();
-    restoreProjectSettings(value, project);
-    restorePullUps(value, project);
-    const occupied2 = restoreChips(value, project);
-    restoreWires(value, project, occupied2);
-    restoreSwitches(value, project);
-    if (value.wiringVersion !== WIRING_VERSION) {
-      verifyPortMigration(value, project);
-    }
-    return project;
   }
 
   // node_modules/libavoid-js/dist/index.js
@@ -103718,6 +105189,37 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     inspectStoredState(chip, result, report);
     return details.join("\uFF1B");
   }
+  function inspectMemory(chip, result, report) {
+    const specification = CHIP_MODELS[chip.model].memory;
+    const selected = readEndpoint(result, pinHole(chip, specification.select));
+    const writing = readEndpoint(result, pinHole(chip, specification.write));
+    const reading = readEndpoint(result, pinHole(chip, specification.read));
+    if (selected === 1) {
+      return "\u7247\u9009\u65E0\u6548\uFF0C\u6570\u636E\u8F93\u51FA\u4E3A\u9AD8\u963B";
+    }
+    if (selected !== 0) {
+      return "\u7247\u9009\u7535\u5E73\u5C1A\u4E0D\u786E\u5B9A";
+    }
+    if (writing === 0) {
+      return "\u5199\u5165\u6709\u6548\uFF0C\u8BF7\u5148\u7ED3\u675F\u5199\u5165\u518D\u65AD\u5F00\u6570\u636E\u7F13\u51B2\u5668";
+    }
+    if (writing !== 1) {
+      return "\u5199\u63A7\u5236\u5C1A\u4E0D\u786E\u5B9A\uFF0C\u5B58\u50A8\u5185\u5BB9\u53EF\u80FD\u88AB\u6539\u5199";
+    }
+    if (reading === 1) {
+      return "\u8BFB\u5199\u5747\u7981\u6B62\uFF0C\u4FDD\u6301\u5185\u5BB9\u5E76\u9000\u51FA\u6570\u636E\u603B\u7EBF";
+    }
+    if (reading !== 0) {
+      return "\u8BFB\u63A7\u5236\u5C1A\u4E0D\u786E\u5B9A";
+    }
+    for (const pin of specification.data) {
+      if (readEndpoint(result, pinHole(chip, pin)) === "X") {
+        addIssue(report, "memory-state:" + chip.id, "warning", chip.id + " \u8BFB\u51FA\u6570\u636E\u4E3A X\uFF0C\u8BF7\u68C0\u67E5\u8BE5\u5730\u5740\u662F\u5426\u5DF2\u5199\u5165\u3001\u5730\u5740\u63A7\u5236\u4E0E\u603B\u7EBF\u51B2\u7A81", chip.id);
+        break;
+      }
+    }
+    return "\u8BFB\u53D6\u6709\u6548\uFF0C\u7531 RAM \u9A71\u52A8\u6570\u636E\u603B\u7EBF";
+  }
   function issueAffectsChip(issue, chip, result) {
     if (issue.chipId === chip.id || issue.code.endsWith(":" + chip.id) || issue.code.startsWith("async-conflict:" + chip.id + ":")) {
       return true;
@@ -103741,6 +105243,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     for (const pin of model.outputs) {
       if (model.kind === "open-collector" || model.kind === "seven-segment") {
         continue;
+      }
+      if (model.memory) {
+        const selected = readEndpoint(result, pinHole(chip, model.memory.select));
+        const writing = readEndpoint(result, pinHole(chip, model.memory.write));
+        const reading = readEndpoint(result, pinHole(chip, model.memory.read));
+        if (selected === 1 || writing === 0 || reading === 1) {
+          continue;
+        }
       }
       const endpoint = pinHole(chip, pin);
       const node2 = nodeFor(result.topology, endpoint);
@@ -103781,6 +105291,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
           inspectOutputRails(chip, result, report);
           const uncertain = [];
           for (const pin of model.inputs) {
+            if (model.memory && model.bidirectional.includes(pin)) {
+              const selected = readEndpoint(result, pinHole(chip, model.memory.select));
+              const writing = readEndpoint(result, pinHole(chip, model.memory.write));
+              if (selected !== 0 || writing !== 0) {
+                continue;
+              }
+            }
             if (readEndpoint(result, pinHole(chip, pin)) === "X") {
               uncertain.push(String(pin));
             }
@@ -103788,7 +105305,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
           if (uncertain.length > 0) {
             addIssue(report, "input-unknown:" + chip.id, "warning", chip.id + " \u8F93\u5165\u811A " + uncertain.join("\u3001") + " \u4E3A X\uFF0C\u8BF7\u68C0\u67E5\u4E0A\u6E38\u8F93\u51FA\u3001\u521D\u59CB\u5316\u72B6\u6001\u6216\u7535\u5E73\u51B2\u7A81", chip.id);
           }
-          if (chip.model === "74LS273" || model.sequential) {
+          if (model.memory) {
+            detail = detail + "\uFF1B" + inspectMemory(chip, result, report);
+          } else if (chip.model === "74LS273" || model.sequential) {
             detail = detail + "\uFF1B" + inspectTiming(chip, result, report);
           } else {
             detail = detail + "\uFF1B\u7EC4\u5408\u903B\u8F91\u6309\u5F53\u524D\u8F93\u5165\u8BA1\u7B97";
@@ -103826,6 +105345,27 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var WORKSPACE_KEY = "breadboard-lab-workspace-v1";
   var READ_ONLY_KEY = "breadboard-lab-read-only";
   var CLEANUP_BACKUP_KEY = "sdu-breadboard-before-cleanup-v1";
+  function ensureRamExperiment(workspace2) {
+    for (const id of Object.keys(workspace2.projects)) {
+      if (id === RAM_EXPERIMENT_ID || workspace2.projects[id].name === RAM_EXPERIMENT_NAME) {
+        return false;
+      }
+    }
+    const projects = {};
+    const ids = Object.keys(workspace2.projects);
+    for (let index = 0; index < ids.length; index = index + 1) {
+      const id = ids[index];
+      projects[id] = workspace2.projects[id];
+      if (index === 0) {
+        projects[RAM_EXPERIMENT_ID] = ramPreset();
+      }
+    }
+    if (ids.length === 0) {
+      projects[RAM_EXPERIMENT_ID] = ramPreset();
+    }
+    workspace2.projects = projects;
+    return true;
+  }
   function isBlankExperiment(project) {
     if (project.chips.length > 0 || project.wires.length > 0 || project.pullUps.length > 0) {
       return false;
@@ -103905,7 +105445,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.8.3";
+  var APP_VERSION = "1.9.0";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/inspection-layout.mjs
@@ -104057,6 +105597,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   // src/logic-diagram.mjs
   var GATE_SYMBOLS = { xor: "=1", and: "&", or: "\u22651", nand: "&", not: "1" };
   var FUNCTION_SYMBOLS = {
+    "6116": "RAM 2K\xD78",
     "74LS273": "REG",
     "74LS283": "\u03A3",
     "74LS138": "DEC",
@@ -104167,7 +105708,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         signalPins.push(terminal);
       }
     }
-    if (model.gates) {
+    if (model.gates && !model.diagramSymbol) {
       let symbol = GATE_SYMBOLS[model.operation];
       if (!symbol) {
         symbol = "&";
@@ -104190,13 +105731,17 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         });
       }
     } else {
+      let functionSymbol = FUNCTION_SYMBOLS[chip.model];
+      if (model.diagramSymbol) {
+        functionSymbol = model.diagramSymbol;
+      }
       context.blocks.push({
         id: chip.id,
         chipId: chip.id,
         title: chip.id + " \xB7 " + chip.model,
         subtitle: model.title,
         symbol: "",
-        functionSymbol: FUNCTION_SYMBOLS[chip.model],
+        functionSymbol,
         inverted: false,
         terminals: signalPins,
         powerPins
@@ -105806,7 +107351,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const searchText = element("chip-search").value.trim();
     const query = searchText.toUpperCase();
     let count = 0;
-    for (const model in CHIP_MODELS) {
+    for (const model of sortedChipNames()) {
       if (!model.includes(query)) {
         continue;
       }
@@ -107247,7 +108792,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       container.append(createQuickInput(bit));
     }
     lastInputCount = count;
-    fadeContent(container);
   }
   function setLedState(led, name, value) {
     led.classList.toggle("on", value === 1);
@@ -107601,8 +109145,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       if (savedWorkspace) {
         workspace = validateWorkspace(JSON.parse(savedWorkspace));
         const beforeCleanup = JSON.stringify(workspace);
+        const centered = centerSavedPresets(workspace);
         removedCount = cleanWorkspace(workspace).length;
-        if (removedCount > 0) {
+        if (removedCount > 0 || centered) {
           localStorage.setItem(CLEANUP_BACKUP_KEY, beforeCleanup);
           localStorage.setItem(WORKSPACE_KEY, JSON.stringify(workspace));
         }
@@ -107626,6 +109171,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       activeExperiment = newExperimentId();
       keepExperiment(workspace, activeExperiment, state.project);
     }
+    ensureRamExperiment(workspace);
     savedExperiments = copyProject(workspace);
     bindEvents();
     createPalette();

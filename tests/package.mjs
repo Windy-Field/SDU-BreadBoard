@@ -141,7 +141,7 @@ async function testOfflinePackage() {
         const pageSource = fs.readFileSync(path.join(packageRoot, "index.html"), "utf8");
         assert.ok(pageSource.includes('<span id="app-version">v' + APP_VERSION + "</span>"));
         assert.ok(pageSource.includes('src="application.js?v=' + APP_VERSION + '"'));
-        for (const required of ["index.html", "application.js", "assets/favicon.png", "assets/favicon.ico", "assets/pinouts/sn74ls273.png", "vendor/lucide.min.js", "vendor/elkjs.LICENSE", "styles/app.css", "styles/logic-diagram.css", "LICENSE", "START-HERE.md"]) {
+        for (const required of ["index.html", "application.js", "assets/favicon.png", "assets/favicon.ico", "assets/pinouts/sn74ls273.png", "assets/pinouts/document/6116-1.png", "assets/pinouts/document/74ls244-1.png", "examples/ram-expansion.json", "docs/ram-wiring.md", "vendor/lucide.min.js", "vendor/elkjs.LICENSE", "styles/app.css", "styles/logic-diagram.css", "LICENSE", "START-HERE.md"]) {
             assert.ok(fs.existsSync(path.join(packageRoot, required)), "离线包缺少文件：" + required);
         }
         for (const excluded of ["node_modules", ".git", "reports", "src", "tests"]) {

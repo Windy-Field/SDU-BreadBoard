@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import { complementPreset } from "../src/presets.mjs";
 import { emptyProject, endpointPosition, BOARD } from "../src/board.mjs";
 import { CHIP_MODELS } from "../src/chips.mjs";
+import { sortedChipNames } from "../src/catalog.mjs";
 import originalPreset from "./fixtures/complement-original.json" with { type: "json" };
 import { wirePoints, wireDisplayPaths } from "../src/geometry.mjs";
 import { routeWires } from "../src/routing.mjs";
@@ -161,6 +162,11 @@ async function testDirectPlacement(page) {
         assert.equal(project.chips[0].model, model);
         assert.equal(project.chips[0].column, 20);
         assert.equal(await page.locator("#pinned-chip").isVisible(), true);
+        if (model === "6116" || model === "74LS244") {
+            const image = page.locator("#pinned-chip .chip-reference img");
+            await image.waitFor({ state: "visible" });
+            assert.equal(await image.evaluate(referenceImageLoaded), true, model + " 课件图片未加载");
+        }
         assert.equal(await page.locator("#tool-select").getAttribute("aria-pressed"), "true");
         await page.locator("#undo").click();
         assert.equal((await exportedProject(page)).chips.length, 0);
@@ -178,6 +184,30 @@ async function testDirectPlacement(page) {
     await page.locator("#tool-place").click();
     assert.equal(await page.locator("#tool-place").getAttribute("aria-pressed"), "true");
     await page.keyboard.press("Escape");
+}
+
+// 读取课件原图是否加载成功，损坏或缺失的图片不会通过检查
+function referenceImageLoaded(image) {
+    return image.complete && image.naturalWidth > 0;
+}
+
+// 读取型号按钮的显示顺序，同时检查完整列表与搜索后的相对顺序
+function readLibraryNames() {
+    const names = [];
+    for (const button of document.querySelectorAll("#chip-library .chip-option")) {
+        names.push(button.dataset.model);
+    }
+    return names;
+}
+
+// 确认列表按系列和数字排列，搜索不会打乱已有顺序
+async function testLibraryOrder(page) {
+    const expected = ["6116", "74LS00", "74LS03", "74LS04", "74LS08", "74LS20", "74LS32", "74LS48", "74LS74", "74LS85", "74LS86", "74LS112", "74LS125", "74LS138", "74LS139", "74LS151", "74LS153", "74LS160", "74LS161", "74LS194", "74LS244", "74LS273", "74LS283", "CD4011", "CD4027"];
+    assert.deepEqual(sortedChipNames(), expected);
+    assert.deepEqual(await page.evaluate(readLibraryNames), expected);
+    await page.locator("#chip-search").fill("74ls1");
+    assert.deepEqual(await page.evaluate(readLibraryNames), ["74LS112", "74LS125", "74LS138", "74LS139", "74LS151", "74LS153", "74LS160", "74LS161", "74LS194"]);
+    await page.locator("#chip-search").fill("");
 }
 
 // 从导线列表选择两根导线，使用真实的 Ctrl 点击保留多选
@@ -262,7 +292,8 @@ async function testRoutingToast(page) {
     await page.waitForFunction(routingFinished);
     await waitingToast.waitFor({ state: "detached" });
     const toasts = page.locator("#toast-region .toast");
-    await toasts.filter({ hasText: "走线已整理" }).waitFor();
+    const completed = toasts.filter({ hasText: "走线已整理" });
+    await completed.last().waitFor();
 }
 
 // 导入成功后通过实验标题确认页面已切换，不依赖不存在的提示文字
@@ -647,6 +678,7 @@ async function main() {
         await page.goto(URL);
         await page.waitForSelector(".chip-option");
         await page.waitForTimeout(250);
+        await testLibraryOrder(page);
         await testAngleWiring(browser);
         await testGeneralDiagnostics(page);
         const headings = page.locator("h1");
@@ -753,7 +785,7 @@ async function main() {
         await page.evaluate(seedWorkspace, old);
         await page.reload();
         await page.waitForSelector(".chip-option");
-        assert.equal(await page.locator("#experiment-picker option").count(), 2);
+        assert.equal(await page.locator("#experiment-picker option").count(), 3);
         await testBatchColors(page);
         await page.locator("#read-only-toggle").check();
         for (const model of ["74LS273", "74LS283", "74LS86", "74LS00", "74LS08", "74LS32", "74LS04"]) {
@@ -774,7 +806,7 @@ async function main() {
         await testConcurrentChipInformation(browser);
         await testChipReferenceWarnings(page);
         assert.deepEqual(errors, []);
-        console.log("交互验证通过：23种芯片放置、独立保存、多选改色、拖动端点、通用走线整理与撤销、确认按钮悬停对比度、只读保护");
+        console.log("交互验证通过：全部芯片放置、独立保存、多选改色、拖动端点、通用走线整理与撤销、确认按钮悬停对比度、只读保护");
         await page.locator("#save-project").click();
     } finally {
         await browser.close();

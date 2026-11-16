@@ -1,5 +1,15 @@
 // 新增芯片资料直接取自用户提供的芯片合集，与独立测试引脚表对应
 export const DOCUMENT_REFERENCES = {
+    "6116": {
+        image: "assets/pinouts/document/6116-1.png",
+        logicImage: "assets/pinouts/document/6116-2.jpeg",
+        summary: "依据第三次实验课件第6页：6116为2K×8静态RAM，24脚接+5V，12脚接地。A0～A10选择片内地址，D0～D7为双向数据脚。CE′、OE′、WE′均低有效。写入时CE′=0、WE′=0；读取时CE′=0、WE′=1、OE′=0，其余确定的禁止条件下数据输出为高阻。上电内容未知，断电后丢失。应先结束写入，再关闭74LS244，避免误写"
+    },
+    "74LS244": {
+        image: "assets/pinouts/document/74ls244-1.png",
+        logicImage: "assets/pinouts/document/74ls244-1.png",
+        summary: "依据第三次实验课件第7页：八路同相三态缓冲器，分为两组，每组四路，分别由1脚和19脚低有效使能控制。使能为0时输出跟随本组输入，使能为1时本组输出全部进入高阻态。数据只从A端流向Y端，两组独立。20脚接+5V，10脚接地"
+    },
     "74LS03": {
         "image": "assets/pinouts/document/74ls03-1.png",
         "logicImage": "assets/pinouts/document/74ls03-2.png",

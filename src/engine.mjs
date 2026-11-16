@@ -2,6 +2,7 @@ import { CHIP_MODELS, evaluateAdder, logicGate } from "./chips.mjs";
 import { baseNode, pinHole, IO_LIMIT } from "./board.mjs";
 import { evaluateExtra } from "./chip-logic.mjs";
 import { createChipState, updateChipState, stateOutputs } from "./chip-state.mjs";
+import { createMemory, memoryOutputs, updateMemory } from "./chip-memory.mjs";
 
 // 单次组合逻辑传播的最大轮数，防止反馈振荡无限计算
 const MAX_SETTLE_PASSES = 96;
@@ -136,6 +137,9 @@ function chipOutputs(chip, pins, registers, devices) {
     if (chip.model === "74LS283") {
         return evaluateAdder(pins);
     }
+    if (model.memory) {
+        return memoryOutputs(model.memory, pins, devices[chip.id]);
+    }
     if (model.sequential) {
         return stateOutputs(model, pins, devices[chip.id]);
     }
@@ -166,12 +170,10 @@ function collectDrivers(project, topology, values, registers, pulses, devices, p
         for (const chip of project.chips) {
             const pins = readPins(chip, topology, values);
             const model = CHIP_MODELS[chip.model];
-            // 双向脚的输入只读取外部驱动，避免把自己的 RBO 下拉当成永久灭灯输入
+            // 双向脚只读取外部驱动，避免将芯片自己的输出当成输入
             if (model.bidirectional && chipPowered(chip, pins)) {
                 for (const pin of model.bidirectional) {
                     const node = nodeFor(topology, pinHole(chip, pin));
-                    // BI/RBO 开路时由芯片内部弱上拉保持高电平
-                    addDriver(drivers, node, 1, chip.id + "-" + pin + "-bias", "pull-up");
                     const external = [];
                     const source = chip.id + "-" + pin;
                     const entries = previousDrivers[node] || [];
@@ -180,7 +182,11 @@ function collectDrivers(project, topology, values, registers, pulses, devices, p
                             external.push(driver);
                         }
                     }
-                    external.push({ value: 1, kind: "pull-up" });
+                    // 只有 74LS48 的 BI/RBO 内置弱上拉，RAM 数据脚没有这个电路
+                    if (model.kind === "seven-segment") {
+                        addDriver(drivers, node, 1, chip.id + "-" + pin + "-bias", "pull-up");
+                        external.push({ value: 1, kind: "pull-up" });
+                    }
                     pins[pin] = resolveDrivers(external);
                 }
             }
@@ -188,7 +194,7 @@ function collectDrivers(project, topology, values, registers, pulses, devices, p
             for (const pin in outputs) {
                 const hole = pinHole(chip, Number(pin));
                 let kind = "push-pull";
-                if (model.kind === "open-collector" || (model.bidirectional && model.bidirectional.includes(Number(pin)))) {
+                if (model.kind === "open-collector" || (model.kind === "seven-segment" && Number(pin) === 4)) {
                     kind = "open-collector";
                 }
                 // 74LS48 段输出的高电平来自内部约 2kΩ 上拉，不是推挽强驱动
@@ -335,7 +341,15 @@ function diagnose(project, result) {
             continue;
         }
         const missing = [];
-        for (const pin of CHIP_MODELS[chip.model].inputs) {
+        const model = CHIP_MODELS[chip.model];
+        for (const pin of model.inputs) {
+            if (model.memory && model.bidirectional.includes(pin)) {
+                const selected = pins[model.memory.select];
+                const writing = pins[model.memory.write];
+                if (selected !== 0 || writing !== 0) {
+                    continue;
+                }
+            }
             if (pins[pin] === "Z") {
                 missing.push(String(pin));
             }
@@ -343,7 +357,6 @@ function diagnose(project, result) {
         if (missing.length > 0) {
             issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " 输入悬空：第 " + missing.join("、") + " 脚" });
         }
-        const model = CHIP_MODELS[chip.model];
         if (model.channels) {
             let active = 0;
             if (model.activeHigh) {
@@ -379,6 +392,9 @@ export function simulate(project, runtime) {
         if (model.sequential && !Object.hasOwn(runtime.devices, chip.id)) {
             runtime.devices[chip.id] = createChipState(model);
         }
+        if (model.memory && !Object.hasOwn(runtime.devices, chip.id)) {
+            runtime.devices[chip.id] = createMemory(model.memory);
+        }
     }
     let settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
     let complete = false;
@@ -389,6 +405,12 @@ export function simulate(project, runtime) {
             if (model.sequential) {
                 const pins = readPins(chip, topology, settled.values);
                 const updated = updateChipState(model, pins, runtime.devices[chip.id], project.power && chipPowered(chip, pins));
+                changed = changed || updated;
+            }
+            if (model.memory) {
+                const pins = readPins(chip, topology, settled.values);
+                const powered = project.power && chipPowered(chip, pins);
+                const updated = updateMemory(model.memory, pins, runtime.devices[chip.id], powered);
                 changed = changed || updated;
             }
         }

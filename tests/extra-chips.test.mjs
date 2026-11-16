@@ -43,8 +43,8 @@ function readNumber(outputs, order) {
 // 对照从 DOCX 独立提取的引脚表，而不是用实现本身生成期望值
 function testDocumentPins() {
     const source = JSON.parse(fs.readFileSync(new URL("./fixtures/chip-reference.json", import.meta.url), "utf8"));
-    assert.equal(Object.keys(EXTRA_CHIPS).length, 16);
-    assert.equal(Object.keys(CHIP_MODELS).length, 23);
+    assert.equal(Object.keys(EXTRA_CHIPS).length, 18);
+    assert.equal(Object.keys(CHIP_MODELS).length, 25);
     for (const name of Object.keys(source)) {
         const model = CHIP_MODELS[name];
         assert.equal(model.count, source[name].count, name);
@@ -420,7 +420,7 @@ function testWiredIntegration() {
         }
         const result = runWired(harness, pins);
         assert.ok(result.stable, name + " 必须稳定");
-        if (!model.sequential) {
+        if (!model.sequential && !model.memory) {
             const expected = evaluateExtra(model, pins);
             for (const pin of model.outputs) {
                 let value = expected[pin];

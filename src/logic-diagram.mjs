@@ -6,6 +6,7 @@ import { IO_LIMIT, pinHole, portHole, endpointLabel } from "./board.mjs";
 const GATE_SYMBOLS = { xor: "=1", and: "&", or: "≥1", nand: "&", not: "1" };
 // 复杂芯片方框内标出功能，物理脚名继续从原芯片模型读取
 const FUNCTION_SYMBOLS = {
+    "6116": "RAM 2K×8",
     "74LS273": "REG",
     "74LS283": "Σ",
     "74LS138": "DEC",
@@ -128,7 +129,8 @@ function collectChipBlocks(context, chip) {
             signalPins.push(terminal);
         }
     }
-    if (model.gates) {
+    // 244的四路门共用使能脚，整片显示可避免同一物理脚重复进入图纸
+    if (model.gates && !model.diagramSymbol) {
         let symbol = GATE_SYMBOLS[model.operation];
         if (!symbol) {
             symbol = "&";
@@ -152,13 +154,17 @@ function collectChipBlocks(context, chip) {
             });
         }
     } else {
+        let functionSymbol = FUNCTION_SYMBOLS[chip.model];
+        if (model.diagramSymbol) {
+            functionSymbol = model.diagramSymbol;
+        }
         context.blocks.push({
             id: chip.id,
             chipId: chip.id,
             title: chip.id + " · " + chip.model,
             subtitle: model.title,
             symbol: "",
-            functionSymbol: FUNCTION_SYMBOLS[chip.model],
+            functionSymbol: functionSymbol,
             inverted: false,
             terminals: signalPins,
             powerPins: powerPins

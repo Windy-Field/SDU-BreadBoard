@@ -16,7 +16,9 @@
 
 网页版存档与桌面版分开，迁移时先在网页导出 JSON，再在桌面版导入。关闭有未保存更改的窗口时会询问，卸载默认保留应用数据
 
-开发时运行 `npm run desktop`，构建两个 Windows 程序运行 `npm run desktop:package`，产物位于 `releases/desktop/`，可使用 `npm run test:desktop` 检查真实桌面入口
+双击项目根目录的 `package-desktop.cmd`，即可一次生成安装版和免安装版，产物位于 `releases/desktop/`。入口会自动进入项目目录，成功或失败都会保留窗口显示结果，不自动上传 GitHub
+
+桌面打包需要 Node.js LTS，首次使用源码时先在项目目录运行 `npm ci` 安装依赖。开发时运行 `npm run desktop`，命令行打包仍可使用 `npm run desktop:package`，可使用 `npm run test:desktop` 检查真实桌面入口
 
 发行版启动约 15 秒后自动检查 GitHub 正式版，运行期间每小时检查一次。安装版自动下载新版本，完成后提示重启安装；有未保存实验时仍可返回保存。免安装版自动检查并提示打开下载页，不自动覆盖正在运行的程序
 

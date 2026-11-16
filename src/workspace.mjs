@@ -1,10 +1,34 @@
 import { copyProject, GENERAL_NOTES, PROJECT_DEFAULTS } from "./board.mjs";
 import { validateProject } from "./storage.mjs";
+import { ramPreset, RAM_EXPERIMENT_ID, RAM_EXPERIMENT_NAME } from "./ram-preset.mjs";
 
 // 本地列表、只读设置和清理前备份的存储键，修改前需安排旧数据迁移
 export const WORKSPACE_KEY = "breadboard-lab-workspace-v1";
 export const READ_ONLY_KEY = "breadboard-lab-read-only";
 export const CLEANUP_BACKUP_KEY = "sdu-breadboard-before-cleanup-v1";
+
+// 升级时补入RAM实验并放在第二项，已有同名实验或固定编号的用户改动优先保留
+export function ensureRamExperiment(workspace) {
+    for (const id of Object.keys(workspace.projects)) {
+        if (id === RAM_EXPERIMENT_ID || workspace.projects[id].name === RAM_EXPERIMENT_NAME) {
+            return false;
+        }
+    }
+    const projects = {};
+    const ids = Object.keys(workspace.projects);
+    for (let index = 0; index < ids.length; index = index + 1) {
+        const id = ids[index];
+        projects[id] = workspace.projects[id];
+        if (index === 0) {
+            projects[RAM_EXPERIMENT_ID] = ramPreset();
+        }
+    }
+    if (ids.length === 0) {
+        projects[RAM_EXPERIMENT_ID] = ramPreset();
+    }
+    workspace.projects = projects;
+    return true;
+}
 
 // 判断实验是否仍为空白，名称变化不影响判断，已填写的备注和输入会保留
 export function isBlankExperiment(project) {

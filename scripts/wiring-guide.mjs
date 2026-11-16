@@ -3,9 +3,11 @@ import { complementPreset, COMPLEMENT_NOTES } from "../src/presets.mjs";
 import { baseNode, pinHole, portHole, IO_LIMIT } from "../src/board.mjs";
 import { CHIP_MODELS } from "../src/chips.mjs";
 import { wirePoints } from "../src/geometry.mjs";
+import { ramPreset, RAM_NOTES } from "../src/ram-preset.mjs";
 
 // 接线文档的输出位置和颜色名称，只影响说明文本
 const GUIDE_OUTPUT = "docs/complement-wiring.md";
+const RAM_GUIDE_OUTPUT = "docs/ram-wiring.md";
 const COLOR_NAMES = { "#dc3545": "红色", "#46515f": "深灰", "#16845b": "绿色", "#8b55c5": "紫色", "#1976d2": "蓝色", "#d68a0b": "黄色", "#0d939d": "青色", "#d44f93": "粉色", "#e26c2b": "橙色" };
 
 // 将物理孔关联到同列芯片引脚，方便读者从端点表核对脚号
@@ -52,4 +54,21 @@ export function writeWiringGuide() {
     }
     lines.push("", "## 文件与验证", "", "标准示例文件为 [complement-adder.json](../examples/complement-adder.json)。当你确认左侧的“整理走线”操作后，程序会在保留起点和终点的前提下调整拐角、重叠和间距，整个操作支持撤销", "", "`npm run route:preset` 用于重新生成固定路径，`npm run build` 用于同步运行文件、JSON 和本文档。`npm test` 使用了优化前的独立端点记录作对照，并穷举 4096 种加减组合", "");
     fs.writeFileSync(GUIDE_OUTPUT, lines.join("\n"));
+}
+
+// 从RAM示例生成操作说明和逐线接线表，与导出的实验文件保持一致
+export function writeRamGuide() {
+    const project = ramPreset();
+    const lines = [RAM_NOTES.trim(), "", "## 芯片位置", "", "芯片均缺口朝左，跨接E/F沟槽。板块从上到下编号1～4", "", "| 编号 | 型号 | 板块 | 起始列 |", "| --- | --- | --- | --- |"];
+    for (const chip of project.chips) {
+        lines.push("| " + chip.id + " | " + chip.model + " | " + (chip.section + 1) + " | " + chip.column + " |");
+    }
+    lines.push("", "## 逐线核对", "", "| 导线 | 起点 | 起点对应引脚 | 终点 | 终点对应引脚 | 颜色 |", "| --- | --- | --- | --- | --- | --- |");
+    for (const wire of project.wires) {
+        const first = pinDescription(project, wire.from);
+        const second = pinDescription(project, wire.to);
+        lines.push("| " + wire.id + " | " + wire.from + " | " + first + " | " + wire.to + " | " + second + " | " + COLOR_NAMES[wire.color] + " |");
+    }
+    lines.push("", "标准实验文件：[ram-expansion.json](../examples/ram-expansion.json)。运行 `npm run build` 同步运行页面、实验文件和本说明", "");
+    fs.writeFileSync(RAM_GUIDE_OUTPUT, lines.join("\n"));
 }

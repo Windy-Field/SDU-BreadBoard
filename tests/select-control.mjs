@@ -194,7 +194,7 @@ async function main() {
         assert.equal(await page.locator("#experiment-picker-option-0").evaluate(readSelectionStyle), "none");
         await page.waitForTimeout(180);
         await page.screenshot({ path: path.join(SCREENSHOTS, "dropdown-desktop.png"), fullPage: true });
-        await page.locator("#experiment-picker-option-1").click();
+        await page.locator("#experiment-picker-option-2").click();
         assert.equal(await page.locator("#experiment-picker").inputValue(), "sample-1");
         assert.match(await trigger.textContent(), /完整长名称/);
         await trigger.focus();

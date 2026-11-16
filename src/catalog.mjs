@@ -15,3 +15,21 @@ export const CHIP_REFERENCES = {
 for (const model of Object.keys(DOCUMENT_REFERENCES)) {
     CHIP_REFERENCES[model] = DOCUMENT_REFERENCES[model];
 }
+
+// 先比较型号系列，再比较末尾数字，让74LS系列按器件编号自然排列
+function compareChipNames(first, second) {
+    const firstFamily = first.replace(/[0-9]+$/, "");
+    const secondFamily = second.replace(/[0-9]+$/, "");
+    const familyOrder = firstFamily.localeCompare(secondFamily, "en");
+    if (familyOrder !== 0) {
+        return familyOrder;
+    }
+    return first.localeCompare(second, "en", { numeric: true });
+}
+
+// 返回排序后的型号列表，不改变芯片模型的登记顺序
+export function sortedChipNames() {
+    const names = Object.keys(CHIP_REFERENCES);
+    names.sort(compareChipNames);
+    return names;
+}

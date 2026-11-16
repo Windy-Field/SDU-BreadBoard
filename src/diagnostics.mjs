@@ -120,6 +120,39 @@ function inspectTiming(chip, result, report) {
     return details.join("；");
 }
 
+// 说明 RAM 的读写模式，数据脚只在写入时按输入检查
+function inspectMemory(chip, result, report) {
+    const specification = CHIP_MODELS[chip.model].memory;
+    const selected = readEndpoint(result, pinHole(chip, specification.select));
+    const writing = readEndpoint(result, pinHole(chip, specification.write));
+    const reading = readEndpoint(result, pinHole(chip, specification.read));
+    if (selected === 1) {
+        return "片选无效，数据输出为高阻";
+    }
+    if (selected !== 0) {
+        return "片选电平尚不确定";
+    }
+    if (writing === 0) {
+        return "写入有效，请先结束写入再断开数据缓冲器";
+    }
+    if (writing !== 1) {
+        return "写控制尚不确定，存储内容可能被改写";
+    }
+    if (reading === 1) {
+        return "读写均禁止，保持内容并退出数据总线";
+    }
+    if (reading !== 0) {
+        return "读控制尚不确定";
+    }
+    for (const pin of specification.data) {
+        if (readEndpoint(result, pinHole(chip, pin)) === "X") {
+            addIssue(report, "memory-state:" + chip.id, "warning", chip.id + " 读出数据为 X，请检查该地址是否已写入、地址控制与总线冲突", chip.id);
+            break;
+        }
+    }
+    return "读取有效，由 RAM 驱动数据总线";
+}
+
 // 根据连通关系找出某个问题影响的芯片，不依赖当前输出恰好为高或低
 function issueAffectsChip(issue, chip, result) {
     if (issue.chipId === chip.id || issue.code.endsWith(":" + chip.id) || issue.code.startsWith("async-conflict:" + chip.id + ":")) {
@@ -146,6 +179,14 @@ function inspectOutputRails(chip, result, report) {
     for (const pin of model.outputs) {
         if (model.kind === "open-collector" || model.kind === "seven-segment") {
             continue;
+        }
+        if (model.memory) {
+            const selected = readEndpoint(result, pinHole(chip, model.memory.select));
+            const writing = readEndpoint(result, pinHole(chip, model.memory.write));
+            const reading = readEndpoint(result, pinHole(chip, model.memory.read));
+            if (selected === 1 || writing === 0 || reading === 1) {
+                continue;
+            }
         }
         const endpoint = pinHole(chip, pin);
         const node = nodeFor(result.topology, endpoint);
@@ -189,6 +230,13 @@ export function inspectCircuit(project, result) {
                 inspectOutputRails(chip, result, report);
                 const uncertain = [];
                 for (const pin of model.inputs) {
+                    if (model.memory && model.bidirectional.includes(pin)) {
+                        const selected = readEndpoint(result, pinHole(chip, model.memory.select));
+                        const writing = readEndpoint(result, pinHole(chip, model.memory.write));
+                        if (selected !== 0 || writing !== 0) {
+                            continue;
+                        }
+                    }
                     if (readEndpoint(result, pinHole(chip, pin)) === "X") {
                         uncertain.push(String(pin));
                     }
@@ -196,7 +244,9 @@ export function inspectCircuit(project, result) {
                 if (uncertain.length > 0) {
                     addIssue(report, "input-unknown:" + chip.id, "warning", chip.id + " 输入脚 " + uncertain.join("、") + " 为 X，请检查上游输出、初始化状态或电平冲突", chip.id);
                 }
-                if (chip.model === "74LS273" || model.sequential) {
+                if (model.memory) {
+                    detail = detail + "；" + inspectMemory(chip, result, report);
+                } else if (chip.model === "74LS273" || model.sequential) {
                     detail = detail + "；" + inspectTiming(chip, result, report);
                 } else {
                     detail = detail + "；组合逻辑按当前输入计算";

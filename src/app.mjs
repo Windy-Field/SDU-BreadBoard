@@ -4,6 +4,7 @@ import { showToast, dismissToast } from "./toast.mjs";
 import { refreshSelect, cleanSelectPanels } from "./select-control.mjs";
 import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board.mjs";
 import { CHIP_MODELS } from "./chips.mjs";
+import { centerSavedPresets } from "./preset-layout.mjs";
 import { createRuntime, readEndpoint, simulate } from "./engine.mjs";
 import { complementPreset, isComplementPreset, COMPLEMENT_RESET_INPUT } from "./presets.mjs";
 import { routeWires, routeNewWire } from "./routing.mjs";
@@ -14,8 +15,8 @@ import { LIMITS, STORAGE_KEY, validateProject } from "./storage.mjs";
 import { MOTION, tween, fadeContent } from "./motion.mjs";
 import { markdownFragment } from "./notes.mjs";
 import { inspectCircuit } from "./diagnostics.mjs";
-import { CHIP_REFERENCES } from "./catalog.mjs";
-import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace } from "./workspace.mjs";
+import { CHIP_REFERENCES, sortedChipNames } from "./catalog.mjs";
+import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace, ensureRamExperiment } from "./workspace.mjs";
 import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
 import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./inspection-layout.mjs";
 import { openLogicDiagram, bindLogicDiagram } from "./logic-diagram-view.mjs";
@@ -593,7 +594,7 @@ function renderLibrary() {
     const searchText = element("chip-search").value.trim();
     const query = searchText.toUpperCase();
     let count = 0;
-    for (const model in CHIP_MODELS) {
+    for (const model of sortedChipNames()) {
         if (!model.includes(query)) {
             continue;
         }
@@ -2219,7 +2220,6 @@ function ensureInputControls(count) {
         container.append(createQuickInput(bit));
     }
     lastInputCount = count;
-    fadeContent(container);
 }
 
 // 更新输入和输出灯的语义状态，仅确认为 1 时点亮
@@ -2610,8 +2610,9 @@ function start() {
         if (savedWorkspace) {
             workspace = validateWorkspace(JSON.parse(savedWorkspace));
             const beforeCleanup = JSON.stringify(workspace);
+            const centered = centerSavedPresets(workspace);
             removedCount = cleanWorkspace(workspace).length;
-            if (removedCount > 0) {
+            if (removedCount > 0 || centered) {
                 localStorage.setItem(CLEANUP_BACKUP_KEY, beforeCleanup);
                 localStorage.setItem(WORKSPACE_KEY, JSON.stringify(workspace));
             }
@@ -2635,6 +2636,7 @@ function start() {
         activeExperiment = newExperimentId();
         keepExperiment(workspace, activeExperiment, state.project);
     }
+    ensureRamExperiment(workspace);
     savedExperiments = copyProject(workspace);
     bindEvents();
     createPalette();

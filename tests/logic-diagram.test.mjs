@@ -192,7 +192,7 @@ test("逻辑连接图按真实连通关系显示补码电路端点", testComplem
 test("逻辑图不会改变电路或仿真状态", testReadOnlyDiagram);
 test("自动布局保留真实网络且所有线段正交", testPhysicalNetworks);
 test("空白实验、板内直连和裸导线正确显示", testDirectAndLooseWires);
-test("全部23种芯片的逻辑图脚位完整", testEveryChipPins);
+test("全部芯片的逻辑图脚位完整", testEveryChipPins);
 test("多驱动网络保留所有真实输出", testConflictingOutputs);
 test("紧凑逻辑符号减少示例转角并保留外置引脚", testSimplerDiagram);
 test("与或非异或及三态门使用正确的矩形符号", testRectangularSymbols);

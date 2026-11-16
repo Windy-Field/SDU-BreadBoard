@@ -1,7 +1,8 @@
 import * as esbuild from "esbuild";
 import fs from "node:fs";
 import { complementPreset } from "../src/presets.mjs";
-import { writeWiringGuide } from "./wiring-guide.mjs";
+import { ramPreset } from "../src/ram-preset.mjs";
+import { writeWiringGuide, writeRamGuide } from "./wiring-guide.mjs";
 import { APP_VERSION } from "../src/version.mjs";
 
 // 离线脚本的构建目标与输出路径，修改入口时在这里统一调整
@@ -16,6 +17,7 @@ const BUILD_OPTIONS = {
 };
 // 示例文件的输出目录、文件名与 JSON 缩进
 const EXAMPLE_OUTPUT = { directory: "examples", filename: "examples/complement-adder.json", indent: 2 };
+const RAM_EXAMPLE_OUTPUT = "examples/ram-expansion.json";
 // 页面版本与脚本缓存标记随发布版本同步，加载脚本前也显示正确版本
 const PAGE_OUTPUT = "index.html";
 
@@ -51,7 +53,9 @@ async function buildApplication() {
     updatePageVersion();
     fs.mkdirSync(EXAMPLE_OUTPUT.directory, { recursive: true });
     fs.writeFileSync(EXAMPLE_OUTPUT.filename, JSON.stringify(complementPreset(), null, EXAMPLE_OUTPUT.indent));
+    fs.writeFileSync(RAM_EXAMPLE_OUTPUT, JSON.stringify(ramPreset(), null, EXAMPLE_OUTPUT.indent));
     writeWiringGuide();
+    writeRamGuide();
 }
 
 await buildApplication();

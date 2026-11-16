@@ -528,7 +528,7 @@ function testCounterCascade() {
 }
 
 test("九种门芯片逐门全部二值输入", testAllGateModels);
-test("23种芯片逐脚分类与门脚号完整", testPinRoles);
+test("全部芯片逐脚分类与门脚号完整", testPinRoles);
 test("多路门输出相互独立", testIndependentGateOutputs);
 test("加法器进位的未知输入抑制", testUnknownCarry);
 test("全加器64种已知未知输入组合", testAllCarryUnknowns);
@@ -536,7 +536,7 @@ test("74LS48全部字形与128种控制组合", testAllSegmentControls);
 test("JK未知状态恢复与未知时钟保持", testSequentialUnknowns);
 test("计数器4096种装载使能和非法BCD状态", testAllCounterControls);
 test("共同时钟两级触发器同时采样", testSharedClock);
-test("23种芯片供电与断电输出", testEveryChipPower);
+test("全部芯片供电与断电输出", testEveryChipPower);
 test("74LS273全部256种数据与时钟保持", testFullRegister);
 test("74LS48内部上拉与灭零恢复", testSegmentDrive);
 test("未接电源的74LS48内部上拉不驱动节点", testUnpoweredSegmentBias);
