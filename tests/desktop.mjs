@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { DESKTOP_SETTINGS } from "../desktop/settings.mjs";
 import { APP_VERSION } from "../src/version.mjs";
+import { plainReleaseNotes } from "../desktop/release-notes.mjs";
 
 // 每次测试使用独立存档目录，可用环境变量切换为已打包的可执行文件
 const ROOT = process.cwd();
@@ -163,6 +164,10 @@ async function main() {
         assert.equal(renderer.requireType, "undefined");
         assert.equal(renderer.processType, "undefined");
         assert.equal(renderer.origin, DESKTOP_SETTINGS.scheme + "://" + DESKTOP_SETTINGS.host);
+        const releaseHtml = "<h2>更新内容</h2><ul><li>新增 <strong>RAM</strong></li><li>修复 &amp; 优化</li></ul><script>window.releaseExecuted = true</script><img src='https://example.invalid/image.png'>";
+        const releaseText = await page.evaluate(plainReleaseNotes, releaseHtml);
+        assert.equal(releaseText, "更新内容\n新增 RAM\n修复 & 优化");
+        assert.equal(await page.evaluate(releaseScriptExecuted), false);
         assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
         await page.locator("[data-bit='0']").click();
         await page.locator("#pulse-negative").click();
@@ -219,6 +224,11 @@ async function main() {
         }
         removeTestDirectory(temporary);
     }
+}
+
+// 发布说明只转为文本，不允许其中的脚本进入实验页面执行
+function releaseScriptExecuted() {
+    return window.releaseExecuted === true;
 }
 
 await main();

@@ -17,7 +17,7 @@
     "desktop": "electron .",
     "desktop:package": "npm run build && electron-builder --config electron-builder.json --win --x64 --publish never",
     "test:desktop": "node tests/desktop.mjs",
-    "test:updates": "node --test tests/updates.test.mjs tests/window-load.test.mjs",
+    "test:updates": "node --test tests/updates.test.mjs tests/window-load.test.mjs tests/release-notes.test.mjs",
     "test:desktop-launcher": "node tests/desktop-launcher.mjs"
   },
   "devDependencies": {

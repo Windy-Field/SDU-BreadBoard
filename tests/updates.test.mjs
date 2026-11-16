@@ -36,13 +36,14 @@ function updateFixture(portable) {
         state.errors.push(error.message);
     }
     // 免安装版只提供下载入口，不调用安装接口
-    async function offerPortable(version, address) {
-        state.portableOffers.push({ version: version, address: address });
+    async function offerPortable(version, address, releaseNotes) {
+        state.portableOffers.push({ version: version, address: address, releaseNotes: releaseNotes });
     }
     // 保存安装回调，模拟用户先选择稍后再手动确认
-    async function offerInstall(version, install) {
+    async function offerInstall(version, install, releaseNotes) {
         state.version = version;
         state.install = install;
+        state.releaseNotes = releaseNotes;
     }
     updater.setFeedURL = setFeedURL;
     updater.checkForUpdates = checkForUpdates;
@@ -73,9 +74,10 @@ async function testInstalledUpdates() {
     fixture.updater.emit("update-available", { version: "9.0.0" });
     await state.timers[1].callback();
     assert.equal(state.checks, 1);
-    fixture.updater.emit("update-downloaded", { version: "9.0.0" });
+    fixture.updater.emit("update-downloaded", { version: "9.0.0", releaseNotes: "<p>新增实验</p>" });
     assert.equal(state.installs, 0);
     assert.equal(state.version, "9.0.0");
+    assert.equal(state.releaseNotes, "<p>新增实验</p>");
     state.install();
     assert.equal(state.installs, 1);
     fixture.controller.stop();
@@ -96,9 +98,10 @@ async function testPortableAndRetry() {
     state.failure = false;
     await state.timers[1].callback();
     assert.equal(state.checks, 2);
-    fixture.updater.emit("update-available", { version: "9.0.0" });
+    fixture.updater.emit("update-available", { version: "9.0.0", releaseNotes: "<p>免安装版更新</p>" });
     fixture.updater.emit("update-available", { version: "9.0.0" });
     assert.equal(state.portableOffers.length, 1);
+    assert.equal(state.portableOffers[0].releaseNotes, "<p>免安装版更新</p>");
     assert.equal(state.installs, 0);
     fixture.controller.stop();
 }

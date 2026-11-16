@@ -40,7 +40,7 @@ export function startUpdates(updater, services) {
             return;
         }
         promptedVersion = info.version;
-        services.offerPortable(info.version, UPDATE_SETTINGS.releasePage).catch(updateError);
+        services.offerPortable(info.version, UPDATE_SETTINGS.releasePage, info.releaseNotes).catch(updateError);
     }
 
     // 下载完成后只提示一次，由桌面入口先检查未保存实验再安装
@@ -50,7 +50,7 @@ export function startUpdates(updater, services) {
         if (stopped) {
             return;
         }
-        services.offerInstall(info.version, installDownloaded).catch(updateError);
+        services.offerInstall(info.version, installDownloaded, info.releaseNotes).catch(updateError);
     }
 
     // 仅在用户确认且窗口已通过未保存检查后调用标准安装流程

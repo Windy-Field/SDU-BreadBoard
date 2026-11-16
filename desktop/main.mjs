@@ -3,7 +3,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { DESKTOP_SETTINGS } from "./settings.mjs";
 import updaterPackage from "electron-updater";
-import { startUpdates } from "./updates.mjs";
+import { startUpdates, UPDATE_SETTINGS } from "./updates.mjs";
+import { updateDialogDetail, selectReleaseNotes, plainReleaseNotes } from "./release-notes.mjs";
 import { loadDesktopPage } from "./window-load.mjs";
 
 // 桌面程序与网页入口保持相同目录关系，安装后仍从应用内部读取资源
@@ -169,16 +170,38 @@ function logUpdateError(error) {
     console.warn("更新检查暂未完成：", error.message);
 }
 
+// 获取弹窗说明，接口不可用时用浏览器原生解析器整理更新库提供的备用正文
+async function readUpdateDetail(version, introduction, releaseNotes) {
+    // 延迟到网络失败后再整理备用说明，避免正常请求时额外操作主页面
+    async function readFallback() {
+        if (!mainWindow || mainWindow.isDestroyed()) {
+            return "";
+        }
+        const source = selectReleaseNotes(version, releaseNotes);
+        if (source === "") {
+            return "";
+        }
+        const script = "(" + plainReleaseNotes.toString() + ")(" + JSON.stringify(source) + ")";
+        return mainWindow.webContents.executeJavaScript(script);
+    }
+    return updateDialogDetail(version, introduction, UPDATE_SETTINGS, net.fetch, logUpdateError, readFallback);
+}
+
 // 免安装版发现新版本时提供发布页，用户可选择下载安装版以获得自动安装能力
-async function offerPortableUpdate(version, address) {
+async function offerPortableUpdate(version, address, releaseNotes) {
     if (!mainWindow) {
+        return;
+    }
+    const introduction = "免安装版需手动替换程序，安装版支持自动下载和重启安装，实验存档会保留";
+    const detail = await readUpdateDetail(version, introduction, releaseNotes);
+    if (!mainWindow || mainWindow.isDestroyed()) {
         return;
     }
     const result = await dialog.showMessageBox(mainWindow, {
         type: "info",
         title: "发现新版本",
         message: "SDU 面包板 " + version + " 已发布",
-        detail: "免安装版需手动替换程序，安装版支持自动下载和重启安装，实验存档会保留",
+        detail: detail,
         buttons: ["稍后", "打开下载页"],
         defaultId: 1,
         cancelId: 0
@@ -189,15 +212,20 @@ async function offerPortableUpdate(version, address) {
 }
 
 // 提示更新已下载，关闭窗口前仍会经过原有未保存检查，取消离开则不启动安装器
-async function offerUpdateInstall(version, install) {
+async function offerUpdateInstall(version, install, releaseNotes) {
     if (!mainWindow) {
+        return;
+    }
+    const introduction = "重启后安装更新，实验存档会保留；如有未保存内容，下一步可返回保存";
+    const detail = await readUpdateDetail(version, introduction, releaseNotes);
+    if (!mainWindow || mainWindow.isDestroyed()) {
         return;
     }
     const result = await dialog.showMessageBox(mainWindow, {
         type: "info",
         title: "更新已准备好",
         message: "SDU 面包板 " + version + " 已下载完成",
-        detail: "重启后安装更新，实验存档会保留；如有未保存内容，下一步可返回保存",
+        detail: detail,
         buttons: ["稍后", "重启安装"],
         defaultId: 1,
         cancelId: 0
