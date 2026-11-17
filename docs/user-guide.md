@@ -90,7 +90,7 @@ npm run test:ui
 
 项目代码使用普通命名函数、循环和中文说明。`vendor` 保存第三方依赖，`application.js` 由构建程序生成。修改功能时，请编辑 `src/` 中对应源码，再重新构建
 
-`src/geometry.mjs` 负责导线路径与命中，`src/routing.mjs` 负责布线，`src/dom.mjs` 提供页面节点函数，`src/chip-reference-view.mjs` 展示芯片资料，`src/toast.mjs` 管理提示和计时。界面交互与可访问性由界面代码维护，样式和动效分别位于 `styles/` 和 `src/motion.mjs`
+`src/board/geometry.mjs` 负责导线路径与命中，`src/board/routing.mjs` 负责布线，`src/ui/dom.mjs` 提供页面节点函数，`src/ui/chip-reference-view.mjs` 展示芯片资料，`src/ui/toast.mjs` 管理提示和计时。界面交互与可访问性由界面代码维护，样式和动效分别位于 `styles/` 和 `src/ui/motion.mjs`
 
 运行 `npm run route:preset` 可为示例重新生成固定路径，再运行 `npm run build` 更新运行脚本、示例 JSON 和接线说明。路径测试会将 61 根导线与原始示例逐项比较，核对端点、线色和芯片位置，并检查路径是否穿过芯片外框
 

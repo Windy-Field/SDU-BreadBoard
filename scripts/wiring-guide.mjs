@@ -1,9 +1,9 @@
 import fs from "node:fs";
-import { complementPreset, COMPLEMENT_NOTES } from "../src/presets.mjs";
-import { baseNode, pinHole, portHole, IO_LIMIT } from "../src/board.mjs";
-import { CHIP_MODELS } from "../src/chips.mjs";
-import { wirePoints } from "../src/geometry.mjs";
-import { ramPreset, RAM_NOTES } from "../src/ram-preset.mjs";
+import { complementPreset, COMPLEMENT_NOTES } from "../src/experiments/presets.mjs";
+import { baseNode, pinHole, portHole, IO_LIMIT } from "../src/board/board.mjs";
+import { CHIP_MODELS } from "../src/chips/chips.mjs";
+import { wirePoints } from "../src/board/geometry.mjs";
+import { ramPreset, RAM_NOTES } from "../src/experiments/ram-preset.mjs";
 
 // 接线文档的输出位置和颜色名称，只影响说明文本
 const GUIDE_OUTPUT = "docs/complement-wiring.md";

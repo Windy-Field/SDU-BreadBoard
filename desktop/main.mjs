@@ -2,7 +2,6 @@ import { app, BrowserWindow, Menu, dialog, shell, protocol, net } from "electron
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { DESKTOP_SETTINGS } from "./settings.mjs";
-import updaterPackage from "electron-updater";
 import { startUpdates, UPDATE_SETTINGS } from "./updates.mjs";
 import { updateDialogDetail, selectReleaseNotes, plainReleaseNotes } from "./release-notes.mjs";
 import { loadDesktopPage } from "./window-load.mjs";
@@ -16,6 +15,7 @@ const ASSET_ROOT = path.join(PROJECT_ROOT, "assets");
 let mainWindow = null;
 let pendingUpdateInstall = null;
 let updates = null;
+let stopping = false;
 
 // 把固定应用地址映射到包内文件，校验路径后返回真实文件名，升级不改变网页存储来源
 function bundledPath(address) {
@@ -237,10 +237,15 @@ async function offerUpdateInstall(version, install, releaseNotes) {
 }
 
 // 仅发行版开启网络更新，测试与开发入口不访问 GitHub
-function initializeUpdates() {
+async function initializeUpdates() {
     if (!app.isPackaged || app.commandLine.hasSwitch("test-desktop")) {
         return;
     }
+    const updaterModule = await import("electron-updater");
+    if (stopping) {
+        return;
+    }
+    const updaterPackage = updaterModule.default;
     updates = startUpdates(updaterPackage.autoUpdater, {
         portable: Boolean(process.env.PORTABLE_EXECUTABLE_FILE),
         log: logUpdateError,
@@ -255,10 +260,16 @@ function initializeUpdates() {
 
 // 最后退出时停止更新定时器，不留下后台检查任务
 function stopDesktopUpdates() {
+    stopping = true;
     if (updates) {
         updates.stop();
         updates = null;
     }
+}
+
+// 页面已完成首次加载后再准备更新库，网络检查仍按原配置延迟执行
+function prepareUpdates() {
+    initializeUpdates().catch(logUpdateError);
 }
 
 // 创建独立桌面窗口，网页只能访问浏览器能力，不直接访问 Node.js 或系统接口
@@ -277,6 +288,7 @@ function createMainWindow() {
     mainWindow.webContents.setWindowOpenHandler(handleNewWindow);
     mainWindow.webContents.on("will-navigate", preventMainNavigation);
     mainWindow.webContents.on("will-prevent-unload", confirmUnsavedExit);
+    mainWindow.webContents.once("did-finish-load", prepareUpdates);
     mainWindow.on("closed", clearMainWindow);
     loadDesktopPage(mainWindow, ENTRY_URL, reportDesktopError);
 }
@@ -316,7 +328,6 @@ function startDesktop() {
     app.on("activate", activateApplication);
     app.on("window-all-closed", quitAfterWindowsClosed);
     app.on("will-quit", stopDesktopUpdates);
-    initializeUpdates();
 }
 
 app.setName(DESKTOP_SETTINGS.name);

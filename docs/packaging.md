@@ -18,6 +18,14 @@
 
 双击项目根目录的 `package-desktop.cmd`，即可一次生成安装版和免安装版，产物位于 `releases/desktop/`。入口会自动进入项目目录，成功或失败都会保留窗口显示结果，不自动上传 GitHub
 
+1.9.1 起，便携版使用更快解压的构建配置，仍可只发送一个EXE。便携程序每次启动仍需解压运行环境，因此启动速度通常慢于安装版，具体耗时受磁盘和安全软件影响，不会跳过系统安全检查
+
+首屏只载入实验操作需要的脚本；首次生成逻辑图或接线时，再加载 `vendor/elk.bundled.js` 或 `vendor/routing-runtime.js`。这两个文件会自动加入网页包和桌面包，不依赖网络
+
+可运行 `npm run test:startup` 测量桌面入口启动速度。通过 `SDU_STARTUP_EXECUTABLE` 指定解包后的桌面EXE或便携EXE，通过 `SDU_STARTUP_REPORT` 指定JSON报告路径，`SDU_STARTUP_RUNS` 可调整测试次数。测试每次建立独立临时存档，默认统计三次从创建进程到芯片库和输入按钮就绪的中位数，就绪后验证一次加法并保存。不代表清空系统缓存后的冷启动
+
+本机三次测量中位数：1.9.0 桌面主程序为1995毫秒、便携版为18108毫秒；1.9.1 分别为1445毫秒和8860毫秒。报告保存在本地 `reports/startup-*-before.json` 与 `reports/startup-*-after.json`，不同电脑的实际启动时间会不同
+
 桌面打包需要 Node.js LTS，首次使用源码时先在项目目录运行 `npm ci` 安装依赖。开发时运行 `npm run desktop`，命令行打包仍可使用 `npm run desktop:package`，可使用 `npm run test:desktop` 检查真实桌面入口
 
 发行版启动约 15 秒后自动检查 GitHub 正式版，运行期间每小时检查一次。安装版自动下载新版本，完成后提示重启安装；有未保存实验时仍可返回保存。免安装版自动检查并提示打开下载页，不自动覆盖正在运行的程序

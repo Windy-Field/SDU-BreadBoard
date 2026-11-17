@@ -56,10 +56,10 @@ elkjs 随运行脚本打包，断网和双击打开本地页面均可使用，�
 
 | 模块 | 职责 |
 | --- | --- |
-| `src/logic-diagram.mjs` | 复用仿真连通规则，提取真实网络、门单元和引脚方向 |
-| `src/logic-diagram-layout.mjs` | 将逻辑模型转换成 ELK 图，返回位置、正交路径和分支点 |
-| `src/logic-diagram-view.mjs` | 绘制图形，处理缩放、网络核对和 SVG 导出 |
-| `src/viewport-pan.mjs` | 面包板与逻辑图共用的鼠标平移，统一拖动阈值、鼠标捕获及结束后的点击处理 |
+| `src/diagram/logic-diagram.mjs` | 复用仿真连通规则，提取真实网络、门单元和引脚方向 |
+| `src/diagram/logic-diagram-layout.mjs` | 将逻辑模型转换成 ELK 图，返回位置、正交路径和分支点 |
+| `src/diagram/logic-diagram-view.mjs` | 绘制图形，处理缩放、网络核对和 SVG 导出 |
+| `src/ui/viewport-pan.mjs` | 面包板与逻辑图共用的鼠标平移，统一拖动阈值、鼠标捕获及结束后的点击处理 |
 | `styles/logic-diagram.css` | 控制图纸线色、字体、窗口与响应式布局 |
 
 逻辑测试核对所有布局边的真实网络归属、23 种芯片的脚位、直连端口、裸导线、多驱动节点和只读行为

@@ -1,12 +1,12 @@
 import fs from "node:fs";
-import { complementPreset } from "../src/presets.mjs";
-import { routeWires } from "../src/routing.mjs";
-import { ramPreset } from "../src/ram-preset.mjs";
-import { endpointPosition } from "../src/board.mjs";
+import { complementPreset } from "../src/experiments/presets.mjs";
+import { routeWires } from "../src/board/routing.mjs";
+import { ramPreset } from "../src/experiments/ram-preset.mjs";
+import { endpointPosition } from "../src/board/board.mjs";
 
 // 示例路径数据的输出位置与 JSON 缩进
-const ROUTE_OUTPUT = { filename: "src/preset-routes.json", indent: 2 };
-const RAM_ROUTE_OUTPUT = "src/ram-routes.json";
+const ROUTE_OUTPUT = { filename: "src/experiments/preset-routes.json", indent: 2 };
+const RAM_ROUTE_OUTPUT = "src/experiments/ram-routes.json";
 // 横跨两片RAM的长线按上下分组，每组依次分配9像素间距
 const RAM_UPPER_WIRES = ["W53", "W57", "W61", "W65", "W69", "W72", "W74"];
 const RAM_LOWER_WIRES = ["W29", "W31", "W33", "W35", "W41", "W45", "W49"];

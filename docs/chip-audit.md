@@ -93,4 +93,4 @@
 - [TI SN74LS03](https://www.ti.com/lit/ds/symlink/sn74ls03.pdf)、[TI CD4011B](https://www.ti.com/lit/ds/symlink/cd4011b.pdf)、[TI SN74LS74A](https://www.ti.com/lit/ds/symlink/sn74ls74a.pdf)、[TI SN74LS112A](https://www.ti.com/lit/ds/symlink/sn74ls112a.pdf)
 - 原有七种型号的原厂来源见[芯片资料说明](chip-references.md)
 
-你可以运行 `npm test` 复现逻辑检查，其中 `tests/chip-audit.test.mjs` 补充了本次核查的专项回归。运行 `npm run test:ui` 可以检查操作界面
+你可以运行 `npm test` 复现逻辑检查，其中 `tests/unit/chip-audit.test.mjs` 补充了本次核查的专项回归。运行 `npm run test:ui` 可以检查操作界面

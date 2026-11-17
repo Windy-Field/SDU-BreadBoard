@@ -41,7 +41,8 @@
     "deleteAppDataOnUninstall": false
   },
   "portable": {
-    "artifactName": "SDU-BreadBoard-${version}-Portable-x64.exe"
+    "artifactName": "SDU-BreadBoard-${version}-Portable-x64.exe",
+    "useZip": true
   },
   "publish": {
     "provider": "github",

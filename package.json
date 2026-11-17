@@ -1,6 +1,6 @@
 {
   "name": "sdu-breadboard",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "private": true,
   "type": "module",
   "main": "desktop/main.mjs",
@@ -9,16 +9,17 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "lint": "node tests/style.mjs",
-    "test": "node --test tests/engine.test.mjs tests/extra-chips.test.mjs tests/memory.test.mjs tests/preset-routes.test.mjs tests/chip-audit.test.mjs tests/diagnostics.test.mjs tests/wire-angle.test.mjs tests/logic-diagram.test.mjs tests/selection.test.mjs",
+    "test": "node --test tests/unit/engine.test.mjs tests/unit/extra-chips.test.mjs tests/unit/memory.test.mjs tests/unit/preset-routes.test.mjs tests/unit/chip-audit.test.mjs tests/unit/diagnostics.test.mjs tests/unit/wire-angle.test.mjs tests/unit/logic-diagram.test.mjs tests/unit/selection.test.mjs",
     "route:preset": "node scripts/route-preset.mjs",
-    "test:ui": "node tests/browser.mjs && node tests/interaction.mjs && node tests/select-control.mjs && node tests/board-ui.mjs && node tests/logic-diagram-browser.mjs && node tests/selection-browser.mjs && node tests/ram-browser.mjs",
+    "test:ui": "node tests/browser/browser.mjs && node tests/browser/interaction.mjs && node tests/browser/select-control.mjs && node tests/browser/board-ui.mjs && node tests/browser/logic-diagram-browser.mjs && node tests/browser/selection-browser.mjs && node tests/browser/ram-browser.mjs && node tests/browser/runtime-loading.mjs",
     "package": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1",
     "test:package": "node tests/package.mjs",
     "desktop": "electron .",
     "desktop:package": "npm run build && electron-builder --config electron-builder.json --win --x64 --publish never",
-    "test:desktop": "node tests/desktop.mjs",
-    "test:updates": "node --test tests/updates.test.mjs tests/window-load.test.mjs tests/release-notes.test.mjs",
-    "test:desktop-launcher": "node tests/desktop-launcher.mjs"
+    "test:desktop": "node tests/desktop/desktop.mjs",
+    "test:startup": "node tests/desktop/startup.mjs",
+    "test:updates": "node --test tests/desktop/updates.test.mjs tests/desktop/window-load.test.mjs tests/desktop/release-notes.test.mjs",
+    "test:desktop-launcher": "node tests/desktop/desktop-launcher.mjs"
   },
   "devDependencies": {
     "acorn": "^8.15.0",

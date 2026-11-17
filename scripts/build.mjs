@@ -1,7 +1,7 @@
 import * as esbuild from "esbuild";
 import fs from "node:fs";
-import { complementPreset } from "../src/presets.mjs";
-import { ramPreset } from "../src/ram-preset.mjs";
+import { complementPreset } from "../src/experiments/presets.mjs";
+import { ramPreset } from "../src/experiments/ram-preset.mjs";
 import { writeWiringGuide, writeRamGuide } from "./wiring-guide.mjs";
 import { APP_VERSION } from "../src/version.mjs";
 
@@ -10,6 +10,18 @@ const BUILD_OPTIONS = {
     entryPoints: ["src/app.mjs"],
     bundle: true,
     outfile: "application.js",
+    format: "iife",
+    target: "es2020",
+    minify: false,
+    external: ["libavoid-js", "elkjs/lib/elk.bundled.js"],
+    legalComments: "eof"
+};
+// 重型引擎独立为普通浏览器脚本，保持file协议离线兼容，不使用模块拆包
+const ROUTING_BUILD_OPTIONS = {
+    entryPoints: ["src/board/routing-browser.mjs"],
+    bundle: true,
+    outfile: "vendor/routing-runtime.js",
+    globalName: "BreadboardRouting",
     format: "iife",
     target: "es2020",
     minify: false,
@@ -44,11 +56,13 @@ function prepareRoutingRuntime() {
     fs.writeFileSync("vendor/libavoid-wasm.mjs", source);
     fs.copyFileSync("node_modules/libavoid-js/LICENSE", "vendor/libavoid.LICENSE");
     fs.copyFileSync("node_modules/elkjs/LICENSE.md", "vendor/elkjs.LICENSE");
+    fs.copyFileSync("node_modules/elkjs/lib/elk.bundled.js", "vendor/elk.bundled.js");
 }
 
 // 把界面和本地依赖合成普通脚本，让页面双击后也可以离线运行
 async function buildApplication() {
     prepareRoutingRuntime();
+    await esbuild.build(ROUTING_BUILD_OPTIONS);
     await esbuild.build(BUILD_OPTIONS);
     updatePageVersion();
     fs.mkdirSync(EXAMPLE_OUTPUT.directory, { recursive: true });

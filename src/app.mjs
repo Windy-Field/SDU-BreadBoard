@@ -1,28 +1,27 @@
-import { element, node, icon, refreshIcons } from "./dom.mjs";
-import { appendChipReference } from "./chip-reference-view.mjs";
-import { showToast, dismissToast } from "./toast.mjs";
-import { refreshSelect, cleanSelectPanels } from "./select-control.mjs";
-import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board.mjs";
-import { CHIP_MODELS } from "./chips.mjs";
-import { centerSavedPresets } from "./preset-layout.mjs";
-import { createRuntime, readEndpoint, simulate } from "./engine.mjs";
-import { complementPreset, isComplementPreset, COMPLEMENT_RESET_INPUT } from "./presets.mjs";
-import { routeWires, routeNewWire } from "./routing.mjs";
-import { initializeRouting } from "./routing-runtime.mjs";
-import { DRAW, allEndpoints, renderBoard } from "./render.mjs";
-import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint, chipBounds, wireDisplayPaths } from "./geometry.mjs";
-import { LIMITS, STORAGE_KEY, validateProject } from "./storage.mjs";
-import { MOTION, tween, fadeContent } from "./motion.mjs";
-import { markdownFragment } from "./notes.mjs";
-import { inspectCircuit } from "./diagnostics.mjs";
-import { CHIP_REFERENCES, sortedChipNames } from "./catalog.mjs";
-import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace, ensureRamExperiment } from "./workspace.mjs";
+import { element, node, icon, refreshIcons } from "./ui/dom.mjs";
+import { appendChipReference } from "./ui/chip-reference-view.mjs";
+import { showToast, dismissToast } from "./ui/toast.mjs";
+import { refreshSelect, cleanSelectPanels } from "./ui/select-control.mjs";
+import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board/board.mjs";
+import { CHIP_MODELS } from "./chips/chips.mjs";
+import { centerSavedPresets } from "./experiments/preset-layout.mjs";
+import { createRuntime, readEndpoint, simulate } from "./simulation/engine.mjs";
+import { complementPreset, isComplementPreset, COMPLEMENT_RESET_INPUT } from "./experiments/presets.mjs";
+import { routeWires, routeNewWire } from "./board/routing.mjs";
+import { DRAW, allEndpoints, renderBoard } from "./board/render.mjs";
+import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint, chipBounds, wireDisplayPaths } from "./board/geometry.mjs";
+import { LIMITS, STORAGE_KEY, validateProject } from "./storage/storage.mjs";
+import { MOTION, tween, fadeContent } from "./ui/motion.mjs";
+import { markdownFragment } from "./ui/notes.mjs";
+import { inspectCircuit } from "./simulation/diagnostics.mjs";
+import { CHIP_REFERENCES, sortedChipNames } from "./chips/catalog.mjs";
+import { WORKSPACE_KEY, READ_ONLY_KEY, CLEANUP_BACKUP_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, cleanWorkspace, ensureRamExperiment } from "./storage/workspace.mjs";
 import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
-import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./inspection-layout.mjs";
-import { openLogicDiagram, bindLogicDiagram } from "./logic-diagram-view.mjs";
-import { bindViewportPan } from "./viewport-pan.mjs";
-import { bindViewportSelection } from "./viewport-selection.mjs";
-import { rectanglesIntersect, pathIntersectsRectangle } from "./selection-geometry.mjs";
+import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./ui/inspection-layout.mjs";
+import { openLogicDiagram, bindLogicDiagram } from "./diagram/logic-diagram-view.mjs";
+import { bindViewportPan } from "./ui/viewport-pan.mjs";
+import { bindViewportSelection } from "./ui/viewport-selection.mjs";
+import { rectanglesIntersect, pathIntersectsRectangle } from "./ui/selection-geometry.mjs";
 
 // 界面操作参数：时长单位为毫秒，编辑距离为画布逻辑像素
 const SETTINGS = {
@@ -2652,18 +2651,12 @@ function start() {
     refreshIcons();
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);
-    initializeRouting().catch(reportRoutingLoadError);
     if (loadError !== "") {
         toast(loadError, "warning");
     }
     if (removedCount > 0) {
         toast("已整理 " + removedCount + " 份重复空白或补码实验，整理前的列表已备份", "info");
     }
-}
-
-// 引擎初始化失败时保留原实验，用户仍可以查看、保存和导出
-function reportRoutingLoadError() {
-    toast("布线引擎加载失败，请检查离线包是否完整并刷新页面", "warning");
 }
 
 start();
