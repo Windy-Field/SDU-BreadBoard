@@ -71,7 +71,10 @@
             </div>
             <div class="board-footer"><span id="pointer-status">面包板</span><span id="circuit-count">5 片芯片 · 61 根导线</span></div>
             <section class="io-strip" aria-label="实验操作">
-                <div class="io-settings"><label>输入位数<input id="input-count" type="number" min="1" max="24" value="8"></label><label>输出位数<input id="output-count" type="number" min="1" max="24" value="8"></label></div>
+                <div class="io-settings">
+                    <img class="university-logo" src="assets/branding/sdu-logo-red.png" alt="山东大学" width="375" height="106" draggable="false">
+                    <div class="io-settings-fields"><label>输入位数<input id="input-count" type="number" min="1" max="24" value="8"></label><label>输出位数<input id="output-count" type="number" min="1" max="24" value="8"></label></div>
+                </div>
                 <div class="result-block"><span id="output-label" class="field-label">输出 L5…L0</span><output id="binary-result">XX XXXX</output><span id="result-meaning" class="result-meaning">等待清零</span><div id="output-leds" class="io-leds"></div></div>
                 <div class="input-block"><span id="input-label" class="field-label">输入 K4…K0</span><div id="quick-switches" class="quick-switches"></div><span id="input-decimal" class="input-decimal">0</span></div>
                 <div class="operation-block"><button id="pulse-positive" class="button pulse-button" data-pulse="P+" aria-label="P正单脉冲"><i data-lucide="activity" aria-hidden="true"></i>P+ 单脉冲</button><button id="pulse-negative" class="button pulse-button" data-pulse="P-" aria-label="P负单脉冲"><i data-lucide="activity" aria-hidden="true"></i>P− 单脉冲</button></div>

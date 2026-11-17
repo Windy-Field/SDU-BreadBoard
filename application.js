@@ -13735,6 +13735,40 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       setLedState(led, name, readEndpoint(state.result, name));
     }
   }
+  function updateIoLayout() {
+    const strip = document.querySelector(".io-strip");
+    const input = document.querySelector(".input-block");
+    const switches = element("quick-switches");
+    const buttons = switches.querySelectorAll(".quick-input");
+    if (buttons.length === 0) {
+      return;
+    }
+    const stripStyle = getComputedStyle(strip);
+    const switchStyle = getComputedStyle(switches);
+    const inputStyle = getComputedStyle(input);
+    const pulseStyle = getComputedStyle(document.querySelector(".operation-block"));
+    const paddingStart = Number.parseFloat(stripStyle.paddingInlineStart);
+    const paddingEnd = Number.parseFloat(stripStyle.paddingInlineEnd);
+    const groupGap = Number.parseFloat(stripStyle.columnGap);
+    const switchGap = Number.parseFloat(switchStyle.columnGap);
+    const numberGap = Number.parseFloat(inputStyle.columnGap);
+    const pulseGap = Number.parseFloat(pulseStyle.columnGap);
+    let switchWidth = 0;
+    for (const button of buttons) {
+      switchWidth = switchWidth + button.getBoundingClientRect().width;
+    }
+    switchWidth = switchWidth + (buttons.length - 1) * switchGap;
+    const numberWidth = element("input-decimal").getBoundingClientRect().width;
+    const inputWidth = switchWidth + numberGap + numberWidth;
+    const settingsWidth = document.querySelector(".io-settings").getBoundingClientRect().width;
+    const outputWidth = document.querySelector(".result-block").getBoundingClientRect().width;
+    const positiveWidth = element("pulse-positive").getBoundingClientRect().width;
+    const negativeWidth = element("pulse-negative").getBoundingClientRect().width;
+    const pulseWidth = positiveWidth + negativeWidth + pulseGap;
+    const requiredWidth = settingsWidth + outputWidth + inputWidth + pulseWidth + groupGap * 3;
+    const availableWidth = strip.clientWidth - paddingStart - paddingEnd;
+    strip.classList.toggle("pulses-stacked", requiredWidth > availableWidth);
+  }
   function renderIo() {
     const inputCount = state.project.inputCount;
     const outputCount = state.project.outputCount;
@@ -13779,6 +13813,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       meaning = String(number);
     }
     element("result-meaning").textContent = meaning;
+    updateIoLayout();
   }
   function changeIoCount(event) {
     if (editingLocked()) {
@@ -14102,6 +14137,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     render();
     const inspectionObserver = new ResizeObserver(applyInspectionSizes);
     inspectionObserver.observe(element("inspection-stack"));
+    const ioObserver = new ResizeObserver(updateIoLayout);
+    ioObserver.observe(document.querySelector(".io-strip"));
     refreshIcons();
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);

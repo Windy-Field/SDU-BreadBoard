@@ -2249,6 +2249,42 @@ function renderOutputLeds(count) {
     }
 }
 
+// 先给输入开关留出单排宽度，空间不足时把脉冲按钮叠起来，再由样式换行开关
+function updateIoLayout() {
+    const strip = document.querySelector(".io-strip");
+    const input = document.querySelector(".input-block");
+    const switches = element("quick-switches");
+    const buttons = switches.querySelectorAll(".quick-input");
+    if (buttons.length === 0) {
+        return;
+    }
+    const stripStyle = getComputedStyle(strip);
+    const switchStyle = getComputedStyle(switches);
+    const inputStyle = getComputedStyle(input);
+    const pulseStyle = getComputedStyle(document.querySelector(".operation-block"));
+    const paddingStart = Number.parseFloat(stripStyle.paddingInlineStart);
+    const paddingEnd = Number.parseFloat(stripStyle.paddingInlineEnd);
+    const groupGap = Number.parseFloat(stripStyle.columnGap);
+    const switchGap = Number.parseFloat(switchStyle.columnGap);
+    const numberGap = Number.parseFloat(inputStyle.columnGap);
+    const pulseGap = Number.parseFloat(pulseStyle.columnGap);
+    let switchWidth = 0;
+    for (const button of buttons) {
+        switchWidth = switchWidth + button.getBoundingClientRect().width;
+    }
+    switchWidth = switchWidth + (buttons.length - 1) * switchGap;
+    const numberWidth = element("input-decimal").getBoundingClientRect().width;
+    const inputWidth = switchWidth + numberGap + numberWidth;
+    const settingsWidth = document.querySelector(".io-settings").getBoundingClientRect().width;
+    const outputWidth = document.querySelector(".result-block").getBoundingClientRect().width;
+    const positiveWidth = element("pulse-positive").getBoundingClientRect().width;
+    const negativeWidth = element("pulse-negative").getBoundingClientRect().width;
+    const pulseWidth = positiveWidth + negativeWidth + pulseGap;
+    const requiredWidth = settingsWidth + outputWidth + inputWidth + pulseWidth + groupGap * 3;
+    const availableWidth = strip.clientWidth - paddingStart - paddingEnd;
+    strip.classList.toggle("pulses-stacked", requiredWidth > availableWidth);
+}
+
 // 按用户选择的位数读取端口电平，显示电路实际输出
 function renderIo() {
     const inputCount = state.project.inputCount;
@@ -2294,6 +2330,7 @@ function renderIo() {
         meaning = String(number);
     }
     element("result-meaning").textContent = meaning;
+    updateIoLayout();
 }
 
 // 更新输入输出的显示位数，物理板仍保留全部 24 个输入和输出端口
@@ -2648,6 +2685,8 @@ function start() {
     render();
     const inspectionObserver = new ResizeObserver(applyInspectionSizes);
     inspectionObserver.observe(element("inspection-stack"));
+    const ioObserver = new ResizeObserver(updateIoLayout);
+    ioObserver.observe(document.querySelector(".io-strip"));
     refreshIcons();
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);
