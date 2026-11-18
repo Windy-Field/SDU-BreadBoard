@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
-import fs from "node:fs";
+import { readImageDownload } from "../helpers/downloads.mjs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { BOARD, emptyProject } from "../../src/board/board.mjs";
@@ -34,11 +34,8 @@ async function boardPoint(page, horizontal, vertical) {
 
 // 读取导出内容，检查选择操作没有改动电路或输入状态
 async function exportedProject(page) {
-    const waiting = page.waitForEvent("download");
-    await page.locator("#export-project").click();
-    const download = await waiting;
-    const filename = await download.path();
-    return JSON.parse(fs.readFileSync(filename, "utf8"));
+    const content = await readImageDownload(page, "#export-project", "json", "breadboard-circuit.json");
+    return JSON.parse(content.toString("utf8"));
 }
 
 // 使用简单的两芯片一导线电路验证替换、追加、只读、空框与取消

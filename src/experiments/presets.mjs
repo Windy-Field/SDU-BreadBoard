@@ -34,11 +34,13 @@ const SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], 
 const FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
 const REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
 // 新载入示例的端口显示数量，包含清零控制与溢出指示
-const PRESET_PORT_COUNT = 7;
+const COMPLEMENT_PORT_COUNT = 7;
+// 实验标题也用于识别可去重的补码副本
+export const COMPLEMENT_NAME = "双符号位补码运算器";
 // 示例低电平清零端口，启动初始化与示例接线共用
 export const COMPLEMENT_RESET_INPUT = 6;
 // 示例备注模板，与构建生成的接线文档共用
-export const COMPLEMENT_NOTES = `# 双符号位补码运算器
+export const COMPLEMENT_NOTES = `# ${COMPLEMENT_NAME}
 
 ## 功能
 
@@ -99,10 +101,10 @@ K、L、P 信号直接连到了对应的面包板列，输入输出板用作信�
 // 创建已接好的双符号位补码运算器，电气端点与显示路径分别维护
 export function complementPreset() {
     const project = emptyProject();
-    project.inputCount = PRESET_PORT_COUNT;
-    project.outputCount = PRESET_PORT_COUNT;
+    project.inputCount = COMPLEMENT_PORT_COUNT;
+    project.outputCount = COMPLEMENT_PORT_COUNT;
     project.notes = COMPLEMENT_NOTES;
-    project.name = "双符号位补码运算器";
+    project.name = COMPLEMENT_NAME;
     project.chips = structuredClone(PRESET_CHIPS);
     const usage = {};
     let power = "VCC";

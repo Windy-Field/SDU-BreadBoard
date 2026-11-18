@@ -11,6 +11,7 @@ export const CHIP_MODELS = {
         labels: ["", "CLR̅", "Q0", "D0", "D1", "Q1", "Q2", "D2", "D3", "Q3", "GND", "CLK", "Q4", "D4", "D5", "Q5", "Q6", "D6", "D7", "Q7", "VCC"],
         inputs: [1, 3, 4, 7, 8, 11, 13, 14, 17, 18],
         outputs: [2, 5, 6, 9, 12, 15, 16, 19],
+        controls: { clock: 11, reset: 1 },
         data: [3, 4, 7, 8, 13, 14, 17, 18]
     },
     "74LS283": {

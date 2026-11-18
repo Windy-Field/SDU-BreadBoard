@@ -51,6 +51,5 @@
     --dur-notice: 180ms;
     --dur-dialog: 200ms;
     /* 页面浮层顺序，数值越大越靠前 */
-    --z-tooltip: 60;
     --z-toast: 50;
 }

@@ -1,0 +1,46 @@
+/* 固定事件列宽，标签与图线不会因电平字符改变位置 */
+.timing-panel { --timing-label: 112px; --timing-divider: color-mix(in oklch, var(--color-muted) 65%, var(--color-rule)); overflow-x: hidden; }
+.timing-panel h2 { font-size: 14px; }
+.timing-panel h3 { font-size: 12px; }
+.timing-header, .timing-chart-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.timing-header > span, .timing-chart-heading > span, .timing-key, .timing-panel > label { color: var(--color-muted); font-size: 11px; }
+.timing-header > span { text-align: right; }
+.timing-header > .timing-recording { color: var(--color-error); }
+.timing-recording::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; vertical-align: 1px; }
+.timing-controls, .timing-picker { display: flex; gap: 6px; align-items: center; }
+.timing-controls { margin: 12px 0 16px; }
+.timing-controls .button { flex: 1; white-space: nowrap; }
+.timing-picker { margin-top: 5px; }
+.timing-picker select { flex: 1; min-width: 0; font-size: 12px; }
+.timing-picker .icon-button, .timing-controls .icon-button { width: 35px; height: 35px; flex: 0 0 35px; }
+.timing-signals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; list-style: none; margin: 7px 0 16px; padding: 0; }
+.timing-signals li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 0; border-bottom: 1px solid var(--color-muted-surface); font: 11px var(--font-mono); }
+.timing-signals li > span { min-width: 0; }
+.timing-signals .icon-button { width: 26px; height: 26px; flex-basis: 26px; }
+.timing-chart { margin-top: 6px; min-height: 72px; overflow-x: auto; scroll-padding-inline-start: var(--timing-label); border: 1px solid var(--color-rule); border-radius: var(--radius-control); background: var(--color-paper); }
+.timing-chart-heading > span { margin-inline-start: auto; text-align: right; }
+.timing-chart-heading .icon-button { width: 30px; height: 30px; flex-basis: 30px; }
+.timing-lanes, .timing-events { width: max-content; }
+.timing-lane, .timing-events { display: flex; }
+.timing-events, .timing-lane:not(:last-child) { border-bottom: 1px solid var(--timing-divider); }
+.timing-lane-label { position: sticky; inset-inline-start: 0; z-index: 1; flex: 0 0 var(--timing-label); width: var(--timing-label); align-content: center; padding: 0 6px; white-space: nowrap; font: 11px var(--font-mono); background: var(--color-surface); border-inline-end: 1px solid var(--timing-divider); }
+.timing-lane-heading { display: flex; align-items: center; gap: 4px; padding-inline-end: 0; }
+.timing-lane-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.timing-level-scale { display: block; flex: none; fill: var(--color-ink); }
+.timing-level-scale line { stroke: var(--timing-divider); }
+.timing-lane > svg { display: block; flex: none; color: var(--color-accent); }
+.timing-wave-line { fill: none; stroke: currentColor; stroke-width: 2; }
+.timing-wave-grid { fill: none; stroke: var(--timing-divider); stroke-dasharray: 4 3; }
+.timing-wave-x { color: var(--color-warning); stroke-dasharray: 3 3; }
+.timing-wave-z { color: var(--color-muted); stroke-dasharray: 1 3; }
+.timing-wave-value { fill: currentColor; font: 10px var(--font-mono); }
+.timing-wave-selected { fill: var(--color-accent-soft); }
+.timing-event { width: var(--timing-step); flex: 0 0 var(--timing-step); height: 32px; padding: 0; border: 0; border-inline-end: 1px solid var(--timing-divider); border-radius: 0; font: 11px var(--font-mono); }
+.timing-event[aria-pressed="true"] { color: var(--color-accent); background: var(--color-accent-soft); }
+.timing-event:focus-visible { outline-offset: -3px; }
+.timing-empty { padding: 20px 10px; text-align: center; color: var(--color-muted); font-size: 12px; }
+.timing-key { margin: 6px 0 14px; }
+.timing-detail h3 { margin-bottom: 5px; }
+.timing-detail .pin-table th:first-child { width: 42%; }
+.timing-detail .pin-table tbody th { color: var(--color-ink); }
+.timing-value-changed { background: var(--color-accent-soft); }

@@ -59,18 +59,28 @@ function nextJk(first, second, previous) {
     return logicGate("or", setPart, keepPart);
 }
 
+// 返回当前边沿应采样的值，D 触发器直接取输入，JK 根据旧值计算
+function sampleFlipFlop(channel, pins, previous) {
+    if (channel.data) {
+        return logicValue(pins[channel.data]);
+    }
+    return nextJk(pins[channel.first], pins[channel.second], previous);
+}
+
 // 更新双触发器；异步端优先，两端同时有效时保持资料规定的双高输出
 function updateFlipFlops(model, pins, state) {
     const bits = [];
     const inverted = [];
+    let active = 0;
+    if (model.activeHigh) {
+        active = 1;
+    }
     for (let index = 0; index < model.channels.length; index = index + 1) {
         const channel = model.channels[index];
-        let active = 0;
-        if (model.activeHigh) {
-            active = 1;
-        }
         const reset = logicValue(pins[channel.reset]);
         const set = logicValue(pins[channel.set]);
+        const previousClock = state.clocks[index];
+        const clock = pins[channel.clock];
         let value = state.bits[index];
         let inverse = state.inverted[index];
         if (reset === active && set === active) {
@@ -89,17 +99,10 @@ function updateFlipFlops(model, pins, state) {
             if (value === inverse) {
                 value = "X";
             }
-            if (hasEdge(state.clocks[index], pins[channel.clock], model.edge)) {
-                if (channel.data) {
-                    value = logicValue(pins[channel.data]);
-                } else {
-                    value = nextJk(pins[channel.first], pins[channel.second], value);
-                }
-            } else if (uncertainEdge(state.clocks[index], pins[channel.clock], model.edge)) {
-                let sampled = logicValue(pins[channel.data]);
-                if (!channel.data) {
-                    sampled = nextJk(pins[channel.first], pins[channel.second], value);
-                }
+            if (hasEdge(previousClock, clock, model.edge)) {
+                value = sampleFlipFlop(channel, pins, value);
+            } else if (uncertainEdge(previousClock, clock, model.edge)) {
+                const sampled = sampleFlipFlop(channel, pins, value);
                 if (sampled !== value) {
                     value = "X";
                 }
@@ -108,7 +111,7 @@ function updateFlipFlops(model, pins, state) {
         }
         bits.push(value);
         inverted.push(inverse);
-        state.clocks[index] = logicValue(pins[channel.clock]);
+        state.clocks[index] = logicValue(clock);
     }
     state.bits = bits;
     state.inverted = inverted;
@@ -138,61 +141,85 @@ function numberBits(number) {
     return bits;
 }
 
-// 更新计数器，低有效异步清零优先，同步置数优先于计数使能
-function updateCounter(model, pins, state) {
-    const edge = hasEdge(state.clocks[0], pins[2], "rising");
-    if (pins[1] === 0) {
-        state.bits = [0, 0, 0, 0];
-    } else if (pins[1] !== 1) {
-        state.bits = unknownBits(4);
-    } else if (edge) {
-        if (pins[9] === 0) {
-            state.bits = numberBits(readNumber(pins, [3, 4, 5, 6]));
-        } else if (pins[9] !== 1) {
-            state.bits = unknownBits(4);
-        } else {
-            const enable = andValues([pins[7], pins[10]]);
-            if (enable === 1) {
-                const current = storedNumber(state.bits);
-                if (current === "X") {
-                    state.bits = unknownBits(4);
-                } else if (model.modulus === 10) {
-                    state.bits = numberBits(DECADE_NEXT[current]);
-                } else {
-                    state.bits = numberBits((current + 1) & 15);
-                }
-            } else if (enable === "X") {
-                state.bits = unknownBits(4);
-            }
-        }
-    } else if (uncertainEdge(state.clocks[0], pins[2], "rising") && !(pins[9] === 1 && (pins[7] === 0 || pins[10] === 0))) {
-        state.bits = unknownBits(4);
+// 在确定的计数器上升沿上选择装载、保持或计数，返回新的四位输出
+function clockedCounterBits(model, pins, bits) {
+    const controls = model.controls;
+    const load = pins[controls.load];
+    if (load === 0) {
+        const number = readNumber(pins, controls.data);
+        return numberBits(number);
     }
-    state.clocks[0] = logicValue(pins[2]);
+    if (load !== 1) {
+        return unknownBits(4);
+    }
+    const enable = andValues([pins[controls.enable[0]], pins[controls.enable[1]]]);
+    if (enable === 0) {
+        return bits;
+    }
+    const number = storedNumber(bits);
+    if (enable === "X" || number === "X") {
+        return unknownBits(4);
+    }
+    if (model.modulus === 10) {
+        return numberBits(DECADE_NEXT[number]);
+    }
+    return numberBits((number + 1) % model.modulus);
+}
+
+// 更新计数器，异步清零优先；时钟不确定但能明确保持时不丢弃旧值
+function updateCounter(model, pins, state) {
+    const controls = model.controls;
+    const reset = pins[controls.reset];
+    const clock = pins[controls.clock];
+    const previousClock = state.clocks[0];
+    if (reset === 0) {
+        state.bits = [0, 0, 0, 0];
+    } else if (reset !== 1) {
+        state.bits = unknownBits(4);
+    } else if (hasEdge(previousClock, clock, "rising")) {
+        state.bits = clockedCounterBits(model, pins, state.bits);
+    } else if (uncertainEdge(previousClock, clock, "rising")) {
+        const disabled = pins[controls.enable[0]] === 0 || pins[controls.enable[1]] === 0;
+        const holds = pins[controls.load] === 1 && disabled;
+        if (!holds) {
+            state.bits = unknownBits(4);
+        }
+    }
+    state.clocks[0] = logicValue(clock);
 }
 
 // 更新双向移位寄存器，数组按 QA、QB、QC、QD 顺序保存
-function updateShift(pins, state) {
-    if (pins[1] === 0) {
+function updateShift(model, pins, state) {
+    const controls = model.controls;
+    const reset = pins[controls.reset];
+    const clock = pins[controls.clock];
+    const previousClock = state.clocks[0];
+    const mode = readNumber(pins, controls.mode);
+    if (reset === 0) {
         state.bits = [0, 0, 0, 0];
-    } else if (pins[1] !== 1) {
+    } else if (reset !== 1) {
         state.bits = unknownBits(4);
-    } else if (hasEdge(state.clocks[0], pins[2], "rising")) {
-        const mode = readNumber(pins, [9, 10]);
+    } else if (hasEdge(previousClock, clock, "rising")) {
         const previous = state.bits;
         if (mode === 1) {
-            state.bits = [logicValue(pins[3]), previous[0], previous[1], previous[2]];
+            const serial = logicValue(pins[controls.right]);
+            state.bits = [serial, previous[0], previous[1], previous[2]];
         } else if (mode === 2) {
-            state.bits = [previous[1], previous[2], previous[3], logicValue(pins[11])];
+            const serial = logicValue(pins[controls.left]);
+            state.bits = [previous[1], previous[2], previous[3], serial];
         } else if (mode === 3) {
-            state.bits = [logicValue(pins[4]), logicValue(pins[5]), logicValue(pins[6]), logicValue(pins[7])];
+            const bits = [];
+            for (const pin of controls.data) {
+                bits.push(logicValue(pins[pin]));
+            }
+            state.bits = bits;
         } else if (mode === "X") {
             state.bits = unknownBits(4);
         }
-    } else if (uncertainEdge(state.clocks[0], pins[2], "rising") && !(pins[9] === 0 && pins[10] === 0)) {
+    } else if (mode !== 0 && uncertainEdge(previousClock, clock, "rising")) {
         state.bits = unknownBits(4);
     }
-    state.clocks[0] = logicValue(pins[2]);
+    state.clocks[0] = logicValue(clock);
 }
 
 // 根据稳定输入更新一种新增时序芯片，返回输出是否改变
@@ -207,7 +234,7 @@ export function updateChipState(model, pins, state, powered) {
     } else if (model.sequential === "counter") {
         updateCounter(model, pins, state);
     } else if (model.sequential === "shift") {
-        updateShift(pins, state);
+        updateShift(model, pins, state);
     }
     return before !== JSON.stringify([state.bits, state.inverted]);
 }
@@ -234,7 +261,9 @@ export function stateOutputs(model, pins, state) {
                     terminal = 1;
                 }
             }
-            outputs[15] = logicGate("and", terminal, pins[10]);
+            const controls = model.controls;
+            const carryEnable = pins[controls.enable[1]];
+            outputs[controls.carry] = logicGate("and", terminal, carryEnable);
         }
     }
     return outputs;

@@ -124,25 +124,28 @@ function compare(pins, outputs) {
 }
 
 // 译码七段输出，位序为 a、b、c、d、e、f、g；4 脚只下拉或释放
-function sevenSegment(pins, outputs) {
+function sevenSegment(model, pins, outputs) {
     const number = readNumber(pins, [7, 1, 2, 6]);
+    const controls = model.controls;
+    const lampTest = pins[controls.lampTest];
+    const blanking = pins[controls.blanking];
     // 原厂功能表允许 RBI 开路，只有明确的低电平才要求灭零
-    let rippleBlank = pins[5];
+    let rippleBlank = pins[controls.rippleBlanking];
     if (rippleBlank === "Z") {
         rippleBlank = 1;
     }
-    const blankZero = number === 0 && rippleBlank === 0 && pins[3] === 1;
-    outputs[4] = "Z";
+    const blankZero = number === 0 && rippleBlank === 0 && lampTest === 1;
+    outputs[controls.blanking] = "Z";
     if (blankZero) {
-        outputs[4] = 0;
+        outputs[controls.blanking] = 0;
     }
     for (let index = 0; index < SEGMENT_PINS.length; index = index + 1) {
         let value = "X";
-        if (pins[4] === 0 || blankZero) {
+        if (blanking === 0 || blankZero) {
             value = 0;
-        } else if (pins[3] === 0 && pins[4] === 1) {
+        } else if (lampTest === 0 && blanking === 1) {
             value = 1;
-        } else if (pins[3] === 1 && pins[4] === 1 && number !== "X") {
+        } else if (lampTest === 1 && blanking === 1 && number !== "X") {
             if (number !== 0 || rippleBlank === 1) {
                 value = Number(SEGMENT_PATTERNS[number][index]);
             }
@@ -191,7 +194,7 @@ export function evaluateExtra(model, pins) {
     } else if (model.kind === "comparator") {
         compare(pins, outputs);
     } else if (model.kind === "seven-segment") {
-        sevenSegment(pins, outputs);
+        sevenSegment(model, pins, outputs);
     }
     return outputs;
 }

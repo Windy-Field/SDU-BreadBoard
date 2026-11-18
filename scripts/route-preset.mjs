@@ -30,18 +30,20 @@ function spaceRamWires(project, routes, names, direction) {
 
 // 构建时使用与界面相同的整理算法，生成可离线加载的示例路径
 async function main() {
+    const useRamPreset = process.argv[2] === "ram";
     let project = complementPreset();
     let filename = ROUTE_OUTPUT.filename;
-    if (process.argv[2] === "ram") {
+    if (useRamPreset) {
         project = ramPreset();
         filename = RAM_ROUTE_OUTPUT;
     }
     const routes = await routeWires(project);
-    if (process.argv[2] === "ram") {
+    if (useRamPreset) {
         spaceRamWires(project, routes, RAM_UPPER_WIRES, -1);
         spaceRamWires(project, routes, RAM_LOWER_WIRES, 1);
     }
-    fs.writeFileSync(filename, JSON.stringify(routes, null, ROUTE_OUTPUT.indent));
+    const content = JSON.stringify(routes, null, ROUTE_OUTPUT.indent);
+    fs.writeFileSync(filename, content);
     console.log("已为 " + project.wires.length + " 根示例导线生成固定路径");
 }
 

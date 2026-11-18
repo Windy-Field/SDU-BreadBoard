@@ -1,11 +1,74 @@
 import { copyProject, GENERAL_NOTES, PROJECT_DEFAULTS } from "../board/board.mjs";
-import { validateProject } from "./storage.mjs";
+import { STORAGE_KEY, validateProject } from "./storage.mjs";
 import { ramPreset, RAM_EXPERIMENT_ID, RAM_EXPERIMENT_NAME } from "../experiments/ram-preset.mjs";
+import { COMPLEMENT_NAME, complementPreset, isComplementPreset } from "../experiments/presets.mjs";
+import { centerSavedPresets } from "../experiments/preset-layout.mjs";
 
 // 本地列表、只读设置和清理前备份的存储键，修改前需安排旧数据迁移
 export const WORKSPACE_KEY = "breadboard-lab-workspace-v1";
 export const READ_ONLY_KEY = "breadboard-lab-read-only";
 export const CLEANUP_BACKUP_KEY = "sdu-breadboard-before-cleanup-v1";
+// 多实验文件的格式版本和编号规则与接线布局版本分别维护
+const WORKSPACE_VERSION = 1;
+const EXPERIMENT_ID_PATTERN = /^[a-zA-Z0-9-]{1,80}$/;
+
+// 建立空的实验列表，调用方可通过 keepExperiment 加入当前实验
+function emptyWorkspace() {
+    return { version: WORKSPACE_VERSION, activeId: "", projects: {} };
+}
+
+// 迁移已保存的实验，写回前先备份原列表，并返回删除的重复项数量
+function migrateSavedWorkspace(workspace, storage) {
+    const beforeCleanup = JSON.stringify(workspace);
+    const centered = centerSavedPresets(workspace);
+    const removed = cleanWorkspace(workspace);
+    if (centered || removed.length > 0) {
+        storage.setItem(CLEANUP_BACKUP_KEY, beforeCleanup);
+        storage.setItem(WORKSPACE_KEY, JSON.stringify(workspace));
+    }
+    return removed.length;
+}
+
+// 从窗口的本地存储恢复工作区，返回启动所需的实验、设置和提示
+export function loadWorkspace(storageOwner) {
+    let workspace = emptyWorkspace();
+    let project = null;
+    let readOnly = false;
+    let warning = "";
+    let removedCount = 0;
+    let initializePreset = false;
+    try {
+        // 获取存储对象本身也可能失败，和读写失败一起使用默认实验
+        const storage = storageOwner.localStorage;
+        readOnly = storage.getItem(READ_ONLY_KEY) === "true";
+        const savedWorkspace = storage.getItem(WORKSPACE_KEY);
+        const savedProject = storage.getItem(STORAGE_KEY);
+        if (savedWorkspace) {
+            workspace = validateWorkspace(JSON.parse(savedWorkspace));
+            removedCount = migrateSavedWorkspace(workspace, storage);
+            project = copyProject(workspace.projects[workspace.activeId]);
+        } else if (savedProject) {
+            project = validateProject(JSON.parse(savedProject));
+        }
+    } catch (error) {
+        warning = "本地电路无法恢复，已打开示例。原文件可重新导入";
+    }
+    if (!project) {
+        project = complementPreset();
+        initializePreset = true;
+        keepExperiment(workspace, newExperimentId(), project);
+    } else {
+        if (workspace.activeId === "") {
+            keepExperiment(workspace, newExperimentId(), project);
+        }
+        initializePreset = project.power && isComplementPreset(project);
+    }
+    ensureRamExperiment(workspace);
+    return {
+        workspace: workspace, project: project, readOnly: readOnly, warning: warning,
+        removedCount: removedCount, initializePreset: initializePreset
+    };
+}
 
 // 升级时补入RAM实验并放在第二项，已有同名实验或固定编号的用户改动优先保留
 export function ensureRamExperiment(workspace) {
@@ -35,7 +98,10 @@ export function isBlankExperiment(project) {
     if (project.chips.length > 0 || project.wires.length > 0 || project.pullUps.length > 0) {
         return false;
     }
-    if (project.notes !== GENERAL_NOTES || project.inputCount !== PROJECT_DEFAULTS.inputCount || project.outputCount !== PROJECT_DEFAULTS.outputCount || project.power !== PROJECT_DEFAULTS.power) {
+    if (project.notes !== GENERAL_NOTES || project.power !== PROJECT_DEFAULTS.power) {
+        return false;
+    }
+    if (project.inputCount !== PROJECT_DEFAULTS.inputCount || project.outputCount !== PROJECT_DEFAULTS.outputCount) {
         return false;
     }
     for (const value of project.switches) {
@@ -67,7 +133,7 @@ export function cleanWorkspace(workspace) {
     }
     for (const id of ids) {
         const project = workspace.projects[id];
-        if (!isBlankExperiment(project) && project.name !== "双符号位补码运算器") {
+        if (!isBlankExperiment(project) && project.name !== COMPLEMENT_NAME) {
             continue;
         }
         const signature = JSON.stringify(project);
@@ -94,12 +160,13 @@ export function keepExperiment(workspace, id, project) {
 
 // 校验已保存的实验列表，逐一恢复电路结构
 export function validateWorkspace(value) {
-    if (!value || value.version !== 1 || typeof value.activeId !== "string" || !value.projects || typeof value.projects !== "object") {
+    if (!value || value.version !== WORKSPACE_VERSION || typeof value.activeId !== "string" || !value.projects || typeof value.projects !== "object") {
         throw new Error("本地实验列表格式不正确，请导入你保存的实验文件");
     }
-    const workspace = { version: 1, activeId: value.activeId, projects: {} };
+    const workspace = emptyWorkspace();
+    workspace.activeId = value.activeId;
     for (const id of Object.keys(value.projects)) {
-        if (!/^[a-zA-Z0-9-]{1,80}$/.test(id)) {
+        if (!EXPERIMENT_ID_PATTERN.test(id)) {
             throw new Error("实验编号格式不正确，请检查保存文件");
         }
         workspace.projects[id] = validateProject(value.projects[id]);

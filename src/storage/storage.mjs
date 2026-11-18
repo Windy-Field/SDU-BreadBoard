@@ -1,4 +1,4 @@
-import { emptyProject, placementError, validEndpoint, isPhysicalHole, portHole, baseNode, pinHole, IO_LIMIT, NOTES_LIMIT, WIRING_VERSION } from "../board/board.mjs";
+import { emptyProject, placementError, validEndpoint, isPhysicalHole, portHole, baseNode, pinHole, IO_LIMIT, validIoCount, NOTES_LIMIT, WIRING_VERSION } from "../board/board.mjs";
 import { CHIP_MODELS } from "../chips/chips.mjs";
 import { COMPLEMENT_NOTES } from "../experiments/presets.mjs";
 
@@ -14,13 +14,17 @@ export const LIMITS = {
 };
 // 兼容旧文件的坐标范围，不随可见画布高度变化
 const FILE_BOUNDS = { width: 1300, height: 1280 };
-// 旧补码文件至少显示七个端口，包含清零输入与溢出输出
+// 旧补码文件需保留清零输入和溢出输出，不随新示例的默认显示变化
 const LEGACY_COMPLEMENT_PORT_COUNT = 7;
 
 // 判断转折点能否写入实验文件，编辑和导入都使用相同的坐标范围
 export function validWireBend(bend) {
-    return Boolean(bend && Number.isFinite(bend.x) && Number.isFinite(bend.y) &&
-        bend.x >= 0 && bend.x <= FILE_BOUNDS.width && bend.y >= 0 && bend.y <= FILE_BOUNDS.height);
+    if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y)) {
+        return false;
+    }
+    const fitsWidth = bend.x >= 0 && bend.x <= FILE_BOUNDS.width;
+    const fitsHeight = bend.y >= 0 && bend.y <= FILE_BOUNDS.height;
+    return fitsWidth && fitsHeight;
 }
 
 // 无版本旧文件的板载端口独立，版本 2 的第四块上下五孔也尚未桥接
@@ -130,7 +134,7 @@ function validateProjectHeader(value) {
 function restoreProjectSettings(value, project) {
     // 旧文件的显示位数继续保留，补码示例的控制端和溢出端也一并显示
     if (value.inputCount !== undefined || value.outputCount !== undefined) {
-        if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
+        if (!validIoCount(value.inputCount) || !validIoCount(value.outputCount)) {
             throw new Error("输入和输出显示位数必须为 1～" + IO_LIMIT);
         }
         project.inputCount = value.inputCount;

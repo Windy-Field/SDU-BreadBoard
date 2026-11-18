@@ -1,11 +1,13 @@
 import { _electron as electron } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { setTimeout as delay } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
 import { DESKTOP_SETTINGS } from "../../desktop/settings.mjs";
 import { APP_VERSION } from "../../src/version.mjs";
 import { plainReleaseNotes } from "../../desktop/release-notes.mjs";
+import { pngDimensions } from "../helpers/downloads.mjs";
 
 // 每次测试使用独立存档目录，可用环境变量切换为已打包的可执行文件
 const ROOT = process.cwd();
@@ -69,28 +71,22 @@ function diagramReady() {
         document.querySelectorAll("#logic-diagram .logic-edge").length > 0;
 }
 
-// 测试下载时直接指定临时保存路径，正式应用仍使用系统保存窗口
-function saveNextDownload(application, filename) {
-    const window = application.BrowserWindow.getAllWindows()[0];
-    // Electron 下载从会话通知完成，不依赖普通网页的下载事件
-    function waitDownload(resolve) {
-        // 测试监听在下载开始时覆盖路径，不修改页面的导出实现
-        function setDownloadPath(event, item) {
-            item.setSavePath(filename);
-            // 返回实际完成状态，失败或取消都不能当作成功
-            function downloadFinished(downloadEvent, state) {
-                resolve(state);
-            }
-            item.once("done", downloadFinished);
-        }
-        window.webContents.session.once("will-download", setDownloadPath);
+// 在主进程替换系统窗口的人工选择，记录真实调用使用的标题与格式
+function setSaveChoice(application, filename) {
+    globalThis.desktopSaveOptions = null;
+    // 空路径模拟取消，其他路径模拟系统返回的完整文件名
+    function selectPath(window, options) {
+        globalThis.desktopSaveOptions = options;
+        globalThis.desktopSaveOwner = window.id;
+        return { canceled: filename === "", filePath: filename };
     }
-    globalThis.desktopDownload = new Promise(waitDownload);
+    application.dialog.showSaveDialog = selectPath;
 }
 
-// 等待主进程登记的下载结束，成功状态应为 completed
-function completedDownload() {
-    return globalThis.desktopDownload;
+// 返回主进程收到的保存窗口选项，核对它确实附属于主窗口
+function readSaveOptions(application) {
+    const mainWindow = application.BrowserWindow.getAllWindows()[0];
+    return { options: globalThis.desktopSaveOptions, owner: globalThis.desktopSaveOwner === mainWindow.id };
 }
 
 // 用浏览器实际看到的文件判断下载是否完成，不能把空文件当作成功
@@ -98,12 +94,45 @@ function downloadReady(filename) {
     return fs.existsSync(filename) && fs.statSync(filename).size > 0;
 }
 
-// 下载完成事件由主进程提供，文件写入完成后才返回测试结果
-async function exportDesktopFile(application, page, button, filename) {
-    await application.evaluate(saveNextDownload, filename);
+// 触发导出并等待真实文件写完，验证没有打开网页格式弹窗
+async function exportDesktopFile(application, page, button, filename, extensions) {
+    await application.evaluate(setSaveChoice, filename);
     await page.locator(button).click();
-    assert.equal(await application.evaluate(completedDownload), "completed");
+    const deadline = Date.now() + 10000;
+    while (!downloadReady(filename) && Date.now() < deadline) {
+        await delay(50);
+    }
     assert.equal(downloadReady(filename), true);
+    assert.equal(await page.locator("#export-dialog").isVisible(), false);
+    const request = await application.evaluate(readSaveOptions);
+    assert.equal(request.owner, true);
+    const actual = [];
+    for (const filter of request.options.filters) {
+        actual.push(filter.extensions[0]);
+    }
+    assert.deepEqual(actual, extensions);
+}
+
+// 检查顶部电路和右上角接线图都直接使用系统保存选项，并按扩展名编码
+async function testDesktopExports(application, page, directory) {
+    const exported = path.join(directory, "desktop-circuit.json");
+    await exportDesktopFile(application, page, "#export-project", exported, ["json", "png", "jpg"]);
+    const project = JSON.parse(fs.readFileSync(exported, "utf8"));
+    assert.equal(project.switches[0], 1);
+    assert.equal(project.chips.length, 5);
+
+    const circuitImage = path.join(directory, "desktop-circuit.PNG");
+    await exportDesktopFile(application, page, "#export-project", circuitImage, ["json", "png", "jpg"]);
+    const dimensions = pngDimensions(fs.readFileSync(circuitImage));
+    const canvas = page.locator("#board-canvas");
+    const width = Number(await canvas.getAttribute("width"));
+    const height = Number(await canvas.getAttribute("height"));
+    assert.deepEqual(dimensions, { width: width, height: height });
+
+    const wiring = path.join(directory, "desktop-wiring.jpeg");
+    await exportDesktopFile(application, page, "#export-image", wiring, ["png", "jpg"]);
+    const jpeg = fs.readFileSync(wiring);
+    assert.equal(jpeg.toString("hex", 0, 3), "ffd8ff");
 }
 
 // 记录脚本错误，桌面入口与页面错误都必须可见
@@ -184,17 +213,13 @@ async function main() {
         await page.locator("#pulse-negative").click();
         assert.equal(await page.locator("#binary-result").textContent(), "000 0001");
         await page.locator("#save-project").click();
-        const exported = path.join(temporary, "desktop-circuit.json");
-        await exportDesktopFile(application, page, "#export-project", exported);
-        const project = JSON.parse(fs.readFileSync(exported, "utf8"));
-        assert.equal(project.switches[0], 1);
-        assert.equal(project.chips.length, 5);
+        await testDesktopExports(application, page, temporary);
 
         await page.locator("#view-logic-diagram").click();
         await page.waitForFunction(diagramReady);
         assert.ok(await page.locator(".logic-wire").count() > 30);
         const diagram = path.join(temporary, "desktop-logic.svg");
-        await exportDesktopFile(application, page, "#logic-export", diagram);
+        await exportDesktopFile(application, page, "#logic-export", diagram, ["svg", "png"]);
         assert.match(fs.readFileSync(diagram, "utf8"), /viewBox=/);
         await page.locator("#close-logic-diagram").click();
 

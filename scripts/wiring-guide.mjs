@@ -12,19 +12,20 @@ const COLOR_NAMES = { "#dc3545": "红色", "#46515f": "深灰", "#16845b": "绿�
 
 // 将物理孔关联到同列芯片引脚，方便读者从端点表核对脚号
 function pinDescription(project, endpoint) {
+    const endpointNode = baseNode(endpoint);
     const signals = ["GND", "VCC", "P+", "P-"];
     for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
         signals.push("K" + bit, "L" + bit);
     }
     for (const signal of signals) {
-        if (baseNode(portHole(signal)) === baseNode(endpoint)) {
+        if (baseNode(portHole(signal)) === endpointNode) {
             return signal + " 对应列";
         }
     }
     for (const chip of project.chips) {
         const model = CHIP_MODELS[chip.model];
         for (let pin = 1; pin <= model.count; pin = pin + 1) {
-            if (baseNode(pinHole(chip, pin)) === baseNode(endpoint)) {
+            if (baseNode(pinHole(chip, pin)) === endpointNode) {
                 return chip.id + "-" + pin + "（" + model.labels[pin] + "）";
             }
         }
@@ -32,17 +33,33 @@ function pinDescription(project, endpoint) {
     return endpoint;
 }
 
+// 把两份实验共用的芯片位置表写入文档，板块编号从 1 开始
+function appendChipTable(lines, project, description) {
+    lines.push("", "## 芯片位置", "", description, "", "| 编号 | 型号 | 板块 | 起始列 |", "| --- | --- | --- | --- |");
+    for (const chip of project.chips) {
+        const section = chip.section + 1;
+        lines.push("| " + chip.id + " | " + chip.model + " | " + section + " | " + chip.column + " |");
+    }
+}
+
+// 两份接线表都按真实孔位反查引脚，避免实物端口和文档端口不一致
+function appendWireTable(lines, project) {
+    lines.push("", "| 导线 | 起点 | 起点对应引脚 | 终点 | 终点对应引脚 | 颜色 |", "| --- | --- | --- | --- | --- | --- |");
+    for (const wire of project.wires) {
+        const first = pinDescription(project, wire.from);
+        const second = pinDescription(project, wire.to);
+        const color = COLOR_NAMES[wire.color];
+        lines.push("| " + wire.id + " | " + wire.from + " | " + first + " | " + wire.to + " | " + second + " | " + color + " |");
+    }
+}
+
 // 从运行时示例生成接线表和折线坐标，文档与 JSON 共用同一份端点和路径
 export function writeWiringGuide() {
     const project = complementPreset();
-    const lines = [COMPLEMENT_NOTES.trim(), "", "## 芯片位置", "", "示例中的芯片缺口均朝左，跨接在 E/F 沟槽两侧，板块序号从上到下为 1～4", "", "| 编号 | 型号 | 板块 | 起始列 |", "| --- | --- | --- | --- |"];
-    for (const chip of project.chips) {
-        lines.push("| " + chip.id + " | " + chip.model + " | " + (chip.section + 1) + " | " + chip.column + " |");
-    }
-    lines.push("", "## 逐线核对", "", "B1:G:24 表示第 2 块面包板 G 行第 24 列，同列 A～E 相通、F～J 相通。下表列出了每根导线的端点、对应引脚和颜色，你可以按编号逐项核对", "", "| 导线 | 起点 | 起点对应引脚 | 终点 | 终点对应引脚 | 颜色 |", "| --- | --- | --- | --- | --- | --- |");
-    for (const wire of project.wires) {
-        lines.push("| " + wire.id + " | " + wire.from + " | " + pinDescription(project, wire.from) + " | " + wire.to + " | " + pinDescription(project, wire.to) + " | " + COLOR_NAMES[wire.color] + " |");
-    }
+    const lines = [COMPLEMENT_NOTES.trim()];
+    appendChipTable(lines, project, "示例中的芯片缺口均朝左，跨接在 E/F 沟槽两侧，板块序号从上到下为 1～4");
+    lines.push("", "## 逐线核对", "", "B1:G:24 表示第 2 块面包板 G 行第 24 列，同列 A～E 相通、F～J 相通。下表列出了每根导线的端点、对应引脚和颜色，你可以按编号逐项核对");
+    appendWireTable(lines, project);
     lines.push("", "## 路径坐标", "", "坐标以画布逻辑像素为单位，左上角为原点。每行列出了起点、全部转折点和终点。电气连接取决于导线两端的插孔，途经其他插孔或交叉处时保持绝缘", "", "| 导线 | 折线路径（x, y） |", "| --- | --- |");
     for (let index = 0; index < project.wires.length; index = index + 1) {
         const wire = project.wires[index];
@@ -59,16 +76,10 @@ export function writeWiringGuide() {
 // 从RAM示例生成操作说明和逐线接线表，与导出的实验文件保持一致
 export function writeRamGuide() {
     const project = ramPreset();
-    const lines = [RAM_NOTES.trim(), "", "## 芯片位置", "", "芯片均缺口朝左，跨接E/F沟槽。板块从上到下编号1～4", "", "| 编号 | 型号 | 板块 | 起始列 |", "| --- | --- | --- | --- |"];
-    for (const chip of project.chips) {
-        lines.push("| " + chip.id + " | " + chip.model + " | " + (chip.section + 1) + " | " + chip.column + " |");
-    }
-    lines.push("", "## 逐线核对", "", "| 导线 | 起点 | 起点对应引脚 | 终点 | 终点对应引脚 | 颜色 |", "| --- | --- | --- | --- | --- | --- |");
-    for (const wire of project.wires) {
-        const first = pinDescription(project, wire.from);
-        const second = pinDescription(project, wire.to);
-        lines.push("| " + wire.id + " | " + wire.from + " | " + first + " | " + wire.to + " | " + second + " | " + COLOR_NAMES[wire.color] + " |");
-    }
+    const lines = [RAM_NOTES.trim()];
+    appendChipTable(lines, project, "芯片均缺口朝左，跨接E/F沟槽。板块从上到下编号1～4");
+    lines.push("", "## 逐线核对");
+    appendWireTable(lines, project);
     lines.push("", "标准实验文件：[ram-expansion.json](../examples/ram-expansion.json)。运行 `npm run build` 同步运行页面、实验文件和本说明", "");
     fs.writeFileSync(RAM_GUIDE_OUTPUT, lines.join("\n"));
 }

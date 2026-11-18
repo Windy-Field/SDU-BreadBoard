@@ -7,6 +7,7 @@ $DefaultOutputFolder = 'releases'
 $PackagePrefix = 'SDU-BreadBoard-v'
 $CompressionLevel = 'Optimal'
 $DuplicateSuffixLength = 8
+$VersionPattern = '^\d+\.\d+\.\d+$'
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 # 需要放入离线包的运行文件和资料目录
@@ -27,24 +28,52 @@ function Confirm-ChildPath {
     }
 }
 
-# 收集运行文件并生成 ZIP，自动清理本次打包使用的临时目录
-function New-OfflinePackage {
+# 读取并校验项目版本，打包文件名沿用 package.json 中的版本号
+function Read-PackageVersion {
     $metadataPath = Join-Path $ProjectRoot 'package.json'
     $metadataText = Get-Content -LiteralPath $metadataPath -Raw -Encoding UTF8
     $metadata = ConvertFrom-Json -InputObject $metadataText
     $version = [string]$metadata.version
-    if ($version -notmatch '^\d+\.\d+\.\d+$') {
+    if ($version -notmatch $VersionPattern) {
         throw '版本号格式应为数字，例如 1.0.5'
     }
+    return $version
+}
 
+# 在复制文件前发现缺项，避免留下看似成功但打不开的离线包
+function Confirm-PackageFiles {
     foreach ($name in $PackageFiles) {
         $source = Join-Path $ProjectRoot $name
         if (!(Test-Path -LiteralPath $source)) {
             throw ('缺少运行文件：' + $name + '。请下载完整的项目文件')
         }
     }
+}
 
-    $output = $OutputDirectory
+# 生成输出 ZIP 路径，遇到同名包时保留旧文件并为新包添加后缀
+function Get-OfflineArchivePath {
+    param(
+        [string]$Directory,
+        [string]$PackageName
+    )
+    $archive = Join-Path $Directory ($PackageName + '-offline.zip')
+    Confirm-ChildPath -TargetPath $archive -ParentPath $Directory
+    if (Test-Path -LiteralPath $archive) {
+        $identifier = [System.Guid]::NewGuid()
+        $identifierText = $identifier.ToString('N')
+        $suffix = $identifierText.Substring(0, $DuplicateSuffixLength)
+        $archive = Join-Path $Directory ($PackageName + '-offline-' + $suffix + '.zip')
+        Confirm-ChildPath -TargetPath $archive -ParentPath $Directory
+    }
+    return $archive
+}
+
+# 在指定目录生成离线 ZIP，结束后只清理本次打包的临时目录
+function New-OfflinePackage {
+    param([string]$Directory)
+    $version = Read-PackageVersion
+    Confirm-PackageFiles
+    $output = $Directory
     if ($output -eq '') {
         $output = Join-Path $ProjectRoot $DefaultOutputFolder
     }
@@ -56,15 +85,7 @@ function New-OfflinePackage {
     Confirm-ChildPath -TargetPath $temporaryRoot -ParentPath $output
     $packageName = $PackagePrefix + $version
     $packageRoot = Join-Path $temporaryRoot $packageName
-    $archive = Join-Path $output ($packageName + '-offline.zip')
-    Confirm-ChildPath -TargetPath $archive -ParentPath $output
-    if (Test-Path -LiteralPath $archive) {
-        $identifier = [System.Guid]::NewGuid()
-        $identifierText = $identifier.ToString('N')
-        $suffix = $identifierText.Substring(0, $DuplicateSuffixLength)
-        $archive = Join-Path $output ($packageName + '-offline-' + $suffix + '.zip')
-        Confirm-ChildPath -TargetPath $archive -ParentPath $output
-    }
+    $archive = Get-OfflineArchivePath -Directory $output -PackageName $packageName
 
     try {
         New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
@@ -89,4 +110,4 @@ function New-OfflinePackage {
     }
 }
 
-New-OfflinePackage
+New-OfflinePackage -Directory $OutputDirectory

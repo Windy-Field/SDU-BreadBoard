@@ -10,7 +10,7 @@
     <meta name="author" content="Octorange/Windy-Field">
     <link rel="stylesheet" href="styles/app.css">
     <script src="vendor/lucide.min.js" defer></script>
-    <script src="application.js?v=1.9.2" defer></script>
+    <script src="application.js?v=1.10.0" defer></script>
 </head>
 <body>
     <header class="app-header">
@@ -22,7 +22,7 @@
             <button class="icon-button" id="quick-delete" data-tip="删除选中对象或当前实验" aria-label="快捷删除"><i data-lucide="trash-2"></i></button>
             <button class="icon-button" id="new-project" data-tip="新建空电路" aria-label="新建空电路"><i data-lucide="file-plus-2"></i></button>
             <button class="icon-button" id="import-project" data-tip="导入电路" aria-label="导入电路"><i data-lucide="folder-open"></i></button>
-            <button class="icon-button" id="export-project" data-tip="导出电路" aria-label="导出电路"><i data-lucide="download"></i></button>
+            <button class="icon-button" id="export-project" type="button" data-tip="导出电路" aria-label="导出电路" aria-haspopup="dialog"><i data-lucide="download" aria-hidden="true"></i></button>
             <button class="icon-button" id="help-button" data-tip="实验说明" aria-label="实验说明"><i data-lucide="circle-help"></i></button>
             <label class="power-control"><input type="checkbox" id="power-toggle" checked><span class="power-dot"></span>电源</label>
         </div>
@@ -62,7 +62,7 @@
                     <output id="zoom-label">100%</output>
                     <button id="zoom-in" class="icon-button" data-tip="放大" aria-label="放大"><i data-lucide="plus"></i></button>
                     <button id="fit-board" class="icon-button" data-tip="适应宽度" aria-label="适应宽度"><i data-lucide="scan"></i></button>
-                    <button id="export-image" class="icon-button" data-tip="导出接线图片" aria-label="导出接线图片"><i data-lucide="camera"></i></button>
+                    <button id="export-image" type="button" class="icon-button" data-tip="导出接线图片" aria-label="导出接线图片" aria-haspopup="dialog"><i data-lucide="camera" aria-hidden="true"></i></button>
                 </div>
             </div>
             <div class="board-status"><span><span class="status-dot"></span><span id="simulation-status">电路就绪</span></span><label><input type="checkbox" id="show-internals">内部连通</label><label><input type="checkbox" id="show-levels">节点电平</label><span class="rail-note">右侧：GND │ +5V</span></div>
@@ -81,7 +81,13 @@
             </section>
         </section>
         <aside class="inspector" aria-label="电路检查">
-            <div class="inspector-tabs" role="tablist" aria-label="检查面板"><button id="tab-inspect" role="tab" aria-selected="true" class="active">检查</button><button id="tab-wires" role="tab" aria-selected="false">导线 <span id="wire-count">61</span></button><button id="tab-diagnostics" role="tab" aria-selected="false">诊断 <span id="issue-count">0</span></button><button id="tab-notes" role="tab" aria-selected="false">备注</button></div>
+            <div class="inspector-tabs" role="tablist" aria-label="检查面板">
+                <button id="tab-inspect" role="tab" aria-selected="true" class="active">对象</button>
+                <button id="tab-timing" role="tab" aria-selected="false" aria-controls="timing-panel">时序</button>
+                <button id="tab-wires" role="tab" aria-selected="false">导线 <span id="wire-count">61</span></button>
+                <button id="tab-diagnostics" role="tab" aria-selected="false">诊断 <span id="issue-count">0</span></button>
+                <button id="tab-notes" role="tab" aria-selected="false">备注</button>
+            </div>
             <div id="inspection-stack" class="inspection-stack">
                 <section id="pinned-chip" class="pinned-chip" aria-label="固定芯片引脚信息" hidden></section>
                 <div id="inspection-divider" hidden></div>
@@ -89,19 +95,47 @@
             </div>
             <div id="wires-panel" role="tabpanel" class="inspector-content" hidden></div>
             <div id="diagnostics-panel" role="tabpanel" class="inspector-content" hidden></div>
+            <section id="timing-panel" role="tabpanel" aria-labelledby="tab-timing" class="inspector-content timing-panel" hidden>
+                <div class="timing-header"><h2>数字时序</h2><span id="timing-status" role="status"></span></div>
+                <div class="timing-controls">
+                    <button id="timing-start" type="button" class="button primary"><i data-lucide="play" aria-hidden="true"></i><span id="timing-start-label">开始</span></button>
+                    <button id="timing-stop" type="button" class="button"><i data-lucide="square" aria-hidden="true"></i>停止</button>
+                    <button id="timing-clear" type="button" class="icon-button" aria-label="清除记录" data-tip="清除记录"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+                </div>
+                <label for="timing-signal">监测信号 <span id="timing-signal-count"></span></label>
+                <div class="timing-picker">
+                    <select id="timing-signal"></select>
+                    <button id="timing-add" type="button" class="icon-button" aria-label="添加信号" data-tip="添加信号"><i data-lucide="plus" aria-hidden="true"></i></button>
+                </div>
+                <ul id="timing-signals" class="timing-signals"></ul>
+                <div class="timing-chart-heading">
+                    <h3>波形</h3><span>事件序号（非实物时间）</span>
+                    <button id="timing-export" type="button" class="icon-button" aria-label="导出波形" data-tip="导出波形" aria-haspopup="dialog" disabled><i data-lucide="download" aria-hidden="true"></i></button>
+                </div>
+                <div id="timing-chart" class="timing-chart" tabindex="0" aria-label="波形图，可水平滚动">
+                    <div id="timing-events" class="timing-events" role="group" aria-label="波形事件"></div>
+                    <div id="timing-lanes" class="timing-lanes" aria-hidden="true"></div>
+                    <p id="timing-empty" class="timing-empty">暂无波形</p>
+                </div>
+                <p class="timing-key">0 低 · 1 高 · X 未知 · Z 高阻</p>
+                <section id="timing-detail" class="timing-detail" aria-label="边沿详情" hidden>
+                    <h3 id="timing-event-title" aria-live="polite"></h3>
+                    <table class="pin-table"><thead><tr><th scope="col">信号</th><th scope="col">变化前</th><th scope="col">变化后</th><th scope="col">边沿</th></tr></thead><tbody id="timing-values"></tbody></table>
+                </section>
+            </section>
             <div id="notes-panel" role="tabpanel" class="inspector-content notes-panel" hidden><div class="notes-heading"><h2>电路备注</h2><div class="segmented" role="group" aria-label="备注视图"><button id="notes-preview-button" class="icon-button selected" aria-label="预览备注" aria-pressed="true" data-tip="预览"><i data-lucide="eye"></i></button><button id="notes-edit-button" class="icon-button" aria-label="编辑Markdown备注" aria-pressed="false" data-tip="编辑 Markdown"><i data-lucide="square-pen"></i></button></div></div><label id="notes-editor-label" for="notes-editor" hidden>Markdown 备注</label><textarea id="notes-editor" maxlength="50000" spellcheck="false" hidden></textarea><article id="notes-preview" class="markdown"></article><span id="notes-status" class="notes-status">备注随电路保存</span></div>
             <section class="terminal-connect"><h2>按孔位接线</h2><label>起点<input id="from-endpoint" placeholder="B3:J:49"></label><label>终点<input id="to-endpoint" placeholder="B1:G:4"></label><button id="connect-endpoints" class="button"><i data-lucide="link-2" aria-hidden="true"></i>连接</button></section>
         </aside>
     </main>
-    <footer class="app-footer"><span class="release-info"><span id="app-version">v1.9.2</span><time id="current-time"></time></span><span id="action-status" role="status">就绪</span><span>0 低电平 · 1 高电平 · X 未知 · Z 悬空</span></footer>
+    <footer class="app-footer"><span class="release-info"><span id="app-version">v1.10.0</span><time id="current-time"></time></span><span id="action-status" role="status">就绪</span><span>0 低电平 · 1 高电平 · X 未知 · Z 悬空</span></footer>
     <div id="toast-region" class="toast-region" aria-label="操作提示" aria-live="polite"></div>
     <input type="file" id="import-file" accept=".json,application/json" hidden>
     <dialog id="confirm-dialog" aria-labelledby="confirm-title"><div class="dialog-heading"><h2 id="confirm-title">确认删除</h2></div><p id="confirm-message" class="dialog-body"></p><div class="dialog-actions"><button id="confirm-cancel" class="button">取消</button><button id="confirm-accept" class="button danger">确认删除</button></div></dialog>
     <dialog id="switch-dialog" aria-labelledby="switch-title" aria-describedby="switch-message">
-        <div class="dialog-heading"><h2 id="switch-title">保存当前实验？</h2></div>
-        <p id="switch-message" class="dialog-body"></p>
+        <div class="dialog-heading"><h2 id="switch-title">切换前保存实验？</h2></div>
+        <p id="switch-message" class="dialog-body" aria-live="polite"></p>
         <div class="dialog-actions">
-            <button id="switch-cancel" class="button" autofocus>取消</button>
+            <button id="switch-cancel" class="button" autofocus>取消切换</button>
             <button id="switch-without-saving" class="button">不保存并切换</button>
             <button id="switch-save" class="button primary">保存并切换</button>
         </div>
@@ -113,12 +147,12 @@
             <p>点击器件库中的芯片后，你可以查看功能和引脚图，同时进入放置模式。接着点击面包板即可放置，芯片缺口朝左，跨 E/F 沟槽。再次点击同一型号或按 Esc 可以取消放置。接线时依次选择起点和终点，点击空白可增加转折点，每个孔只插一根线</p>
             <p>同列 A～E 相通，F～J 相通。第四块的输入与脉冲对应列以固定细线桥接上下五孔组，其余列分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通。输入输出板没有接线孔，输出只接最上块 A～E，输入和脉冲接第四块对应列的 A～J</p>
             <p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。按住鼠标左键拖动可平移画布，拖动时显示抓握小手；选择模式下，已选导线的端点和转折点仍用于调整接线。你也可以使用工具栏的缩放和适应宽度按钮</p>
-            <p>选中芯片后可查看引脚图、脚号、电平和位置。点击图钉可同时固定多份资料，拖动分隔条或点击方向按钮可调整上下空间；资料只在“检查”页显示，未固定资料在取消选择后关闭。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p>
+            <p>选中芯片后可查看引脚图、脚号、电平和位置。点击图钉可同时固定多份资料，拖动分隔条或点击方向按钮可调整上下空间；资料只在“对象”页显示，未固定资料在取消选择后关闭。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p>
             <p>标题旁的“只读”开关保护接线和备注，你仍可以调整输入、发脉冲、查看资料和导出实验。左侧“诊断电路”检查当前电路的供电、短路、驱动冲突、悬空输入与时序状态，不会发出脉冲或改变接线；“整理走线”在确认后调整路径，不改端点、线色和备注，也可以撤销</p>
             <p>补码示例中，K0～K3 是数值位，K4 是符号位，K5 为 0 时加、1 时减。你把 K6 切到 0 再切回 1 即可清零。按住 P− 后松开，寄存器在恢复上升沿保存结果。L5、L4 是两个符号位，L6 指示溢出，所有 LED 均在已知高电平时点亮</p>
             <p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。导入、重新打开或结构撤销后，你需要给寄存器重新清零。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件</p>
-            <p>切换有改动的实验前会询问是否保存。不保存并切换时，草稿只保留在本次会话里。导入整份备份后，第一次保存也会写入这份备份</p>
-            <p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 请求删除选中对象，Ctrl+S 保存当前实验和待写入的备份。你可以按住 Ctrl 多选器件和导线，在选择模式下拖动导线端点或转折点。面包板与逻辑图均支持右键按住拖动框选，Ctrl 加框选追加选择，Escape 取消选框；逻辑图还可 Ctrl 加左键增减网络选择。自动保存默认关闭；切换有改动的实验前会询问是否保存，关闭或刷新页面时也会提示有未保存内容</p>
+            <p>自动保存默认关闭。选择“不保存并切换”会放弃当前改动；从未保存的实验会从列表中移除。关闭或刷新前，仍会提醒你有未保存的内容。导入整份备份后，第一次保存也会写入仍在列表中的备份实验。</p>
+            <p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 请求删除选中对象，Ctrl+S 保存当前实验和待写入的备份。你可以按住 Ctrl 多选器件和导线，在选择模式下拖动导线端点或转折点。面包板与逻辑图均支持右键按住拖动框选，Ctrl 加框选追加选择，Escape 取消选框；逻辑图还可 Ctrl 加左键增减网络选择。</p>
         </div>
     </dialog>
     <dialog id="logic-diagram-dialog" class="logic-diagram-dialog" aria-labelledby="logic-diagram-title" aria-busy="false">
@@ -132,10 +166,11 @@
             <output id="logic-zoom-label">100%</output>
             <button id="logic-zoom-in" class="icon-button" aria-label="放大逻辑图" data-tip="放大"><i data-lucide="plus" aria-hidden="true"></i></button>
             <button id="logic-fit" class="icon-button" aria-label="逻辑图适应宽度" data-tip="适应宽度"><i data-lucide="scan" aria-hidden="true"></i></button>
-            <button id="logic-export" class="icon-button" aria-label="导出逻辑图 SVG" data-tip="导出 SVG"><i data-lucide="download" aria-hidden="true"></i></button>
+            <button id="logic-export" type="button" class="icon-button" aria-label="导出逻辑图" data-tip="导出逻辑图" aria-haspopup="dialog" disabled><i data-lucide="download" aria-hidden="true"></i></button>
         </div>
         <div class="logic-diagram-content">
             <p id="logic-diagram-summary" class="inspection-meta" role="status"></p>
+            <p id="logic-export-error" class="inspection-meta" role="alert" hidden></p>
             <div id="logic-diagram-scroll" class="logic-diagram-scroll" tabindex="0" aria-label="逻辑图画布">
                 <svg id="logic-diagram" xmlns="http://www.w3.org/2000/svg"></svg>
             </div>
@@ -145,5 +180,19 @@
             </div>
         </div>
     </dialog>
+    <dialog id="export-dialog" aria-labelledby="export-title">
+        <div class="dialog-heading"><h2 id="export-title"></h2></div>
+        <form id="export-form">
+            <div class="dialog-body export-field">
+                <label for="export-format">文件格式</label>
+                <select id="export-format" autofocus required></select>
+            </div>
+            <div class="dialog-actions">
+                <button id="export-cancel" type="button" class="button">取消</button>
+                <button id="export-confirm" type="submit" class="button primary"><i data-lucide="download" aria-hidden="true"></i>导出</button>
+            </div>
+        </form>
+    </dialog>
+    <div id="workbench-tooltip" class="workbench-tooltip" role="tooltip" popover="manual"></div>
 </body>
 </html>

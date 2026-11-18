@@ -3,11 +3,6 @@ import { CHIP_REFERENCES } from "../chips/catalog.mjs";
 import { pinHole, endpointLabel } from "../board/board.mjs";
 import { nodeFor, readEndpoint } from "./engine.mjs";
 
-// 时钟和控制脚属于芯片固定规格，不用输入名字猜测电平的有效极性
-const REGISTER_CONTROLS = { clock: 11, reset: 1 };
-const COUNTER_CONTROLS = { clock: 2, reset: 1, load: 9, enable: [7, 10] };
-const SHIFT_CONTROLS = { clock: 2, reset: 1, mode: [9, 10] };
-
 // 把芯片脚号与真实孔位一起写出，方便从诊断定位接线
 function pinDescription(chip, pin) {
     return "第 " + pin + " 脚 " + CHIP_MODELS[chip.model].labels[pin] + "（" + endpointLabel(pinHole(chip, pin)) + "）";
@@ -45,79 +40,97 @@ function inspectStoredState(chip, result, report) {
     }
 }
 
-// 说明时序芯片当前控制状态，同时检查时钟与未知控制
-function inspectTiming(chip, result, report) {
+// 按触发器的通道顺序说明置位、复位或等待的时钟边沿
+function inspectFlipFlops(chip, result, report) {
     const model = CHIP_MODELS[chip.model];
     const details = [];
-    if (model.channels) {
-        let active = 0;
-        if (model.activeHigh) {
-            active = 1;
-        }
-        for (let index = 0; index < model.channels.length; index = index + 1) {
-            const channel = model.channels[index];
-            const reset = readEndpoint(result, pinHole(chip, channel.reset));
-            const set = readEndpoint(result, pinHole(chip, channel.set));
-            const prefix = "第 " + (index + 1) + " 路";
-            if (reset === active && set === active) {
-                details.push(prefix + "置位和复位同时有效");
-            } else if (reset === active) {
-                details.push(prefix + "异步复位有效");
-            } else if (set === active) {
-                details.push(prefix + "异步置位有效");
-            } else {
-                inspectClock(chip, channel.clock, result, report);
-                let edge = "上升沿";
-                if (model.edge === "falling") {
-                    edge = "下降沿";
-                }
-                details.push(prefix + "等待" + edge + "采样");
-            }
-        }
-    } else {
-        let controls = REGISTER_CONTROLS;
-        if (model.sequential === "counter") {
-            controls = COUNTER_CONTROLS;
-        } else if (model.sequential === "shift") {
-            controls = SHIFT_CONTROLS;
-        }
-        const reset = readEndpoint(result, pinHole(chip, controls.reset));
-        if (reset === 0) {
-            details.push("异步清零有效，输出保持为 0");
+    let active = 0;
+    if (model.activeHigh) {
+        active = 1;
+    }
+    let edge = "上升沿";
+    if (model.edge === "falling") {
+        edge = "下降沿";
+    }
+    for (let index = 0; index < model.channels.length; index = index + 1) {
+        const channel = model.channels[index];
+        const reset = readEndpoint(result, pinHole(chip, channel.reset));
+        const set = readEndpoint(result, pinHole(chip, channel.set));
+        const prefix = "第 " + (index + 1) + " 路";
+        if (reset === active && set === active) {
+            details.push(prefix + "置位和复位同时有效");
+        } else if (reset === active) {
+            details.push(prefix + "异步复位有效");
+        } else if (set === active) {
+            details.push(prefix + "异步置位有效");
         } else {
-            inspectClock(chip, controls.clock, result, report);
-            if (model.sequential === "counter") {
-                const load = readEndpoint(result, pinHole(chip, controls.load));
-                const firstEnable = readEndpoint(result, pinHole(chip, controls.enable[0]));
-                const secondEnable = readEndpoint(result, pinHole(chip, controls.enable[1]));
-                if (load === 0) {
-                    details.push("等待上升沿并行置数");
-                } else if (load === 1 && (firstEnable === 0 || secondEnable === 0)) {
-                    details.push("计数禁止，保持原值");
-                } else {
-                    if (load === 1 && firstEnable === 1 && secondEnable === 1) {
-                        details.push("等待上升沿计数");
-                    } else {
-                        details.push("置数或计数使能尚不确定");
-                    }
-                }
-            } else if (model.sequential === "shift") {
-                const first = readEndpoint(result, pinHole(chip, controls.mode[0]));
-                const second = readEndpoint(result, pinHole(chip, controls.mode[1]));
-                if (first === 0 && second === 0) {
-                    details.push("保持模式，不进行移位");
-                } else if ((first !== 0 && first !== 1) || (second !== 0 && second !== 1)) {
-                    details.push("移位模式尚不确定");
-                } else {
-                    details.push("等待上升沿移位或并行置数");
-                }
-            } else {
-                details.push("等待上升沿保存数据");
-            }
+            inspectClock(chip, channel.clock, result, report);
+            details.push(prefix + "等待" + edge + "采样");
         }
     }
-    inspectStoredState(chip, result, report);
     return details.join("；");
+}
+
+// 根据装载和两路使能说明计数器将在下一个有效边沿做什么
+function describeCounter(chip, controls, result) {
+    const load = readEndpoint(result, pinHole(chip, controls.load));
+    if (load === 0) {
+        return "等待上升沿并行置数";
+    }
+    const first = readEndpoint(result, pinHole(chip, controls.enable[0]));
+    const second = readEndpoint(result, pinHole(chip, controls.enable[1]));
+    if (load === 1 && (first === 0 || second === 0)) {
+        return "计数禁止，保持原值";
+    }
+    if (load === 1 && first === 1 && second === 1) {
+        return "等待上升沿计数";
+    }
+    return "置数或计数使能尚不确定";
+}
+
+// 读取移位寄存器的两路模式脚，区分保持、有效操作和未知组合
+function describeShift(chip, controls, result) {
+    const first = readEndpoint(result, pinHole(chip, controls.mode[0]));
+    const second = readEndpoint(result, pinHole(chip, controls.mode[1]));
+    if (first === 0 && second === 0) {
+        return "保持模式，不进行移位";
+    }
+    const firstKnown = first === 0 || first === 1;
+    const secondKnown = second === 0 || second === 1;
+    if (!firstKnown || !secondKnown) {
+        return "移位模式尚不确定";
+    }
+    return "等待上升沿移位或并行置数";
+}
+
+// 检查共用时钟与清零脚的器件，优先说明异步清零状态
+function inspectClockedChip(chip, model, result, report) {
+    const controls = model.controls;
+    const reset = readEndpoint(result, pinHole(chip, controls.reset));
+    if (reset === 0) {
+        return "异步清零有效，输出保持为 0";
+    }
+    inspectClock(chip, controls.clock, result, report);
+    if (model.sequential === "counter") {
+        return describeCounter(chip, controls, result);
+    }
+    if (model.sequential === "shift") {
+        return describeShift(chip, controls, result);
+    }
+    return "等待上升沿保存数据";
+}
+
+// 先说明各控制端的作用，再检查寄存器是否已经获得确定输出
+function inspectTiming(chip, result, report) {
+    const model = CHIP_MODELS[chip.model];
+    let detail;
+    if (model.channels) {
+        detail = inspectFlipFlops(chip, result, report);
+    } else {
+        detail = inspectClockedChip(chip, model, result, report);
+    }
+    inspectStoredState(chip, result, report);
+    return detail;
 }
 
 // 说明 RAM 的读写模式，数据脚只在写入时按输入检查
@@ -198,6 +211,107 @@ function inspectOutputRails(chip, result, report) {
     }
 }
 
+// 检查当前参与工作的输入，只在明确写入时检查 RAM 的双向数据脚
+function inspectUnknownInputs(chip, model, result, report) {
+    const uncertain = [];
+    for (const pin of model.inputs) {
+        if (model.memory && model.bidirectional.includes(pin)) {
+            const selected = readEndpoint(result, pinHole(chip, model.memory.select));
+            const writing = readEndpoint(result, pinHole(chip, model.memory.write));
+            if (selected !== 0 || writing !== 0) {
+                continue;
+            }
+        }
+        if (readEndpoint(result, pinHole(chip, pin)) === "X") {
+            uncertain.push(String(pin));
+        }
+    }
+    if (uncertain.length > 0) {
+        const pins = uncertain.join("、");
+        const message = chip.id + " 输入脚 " + pins + " 为 X，请检查上游输出、初始化状态或电平冲突";
+        addIssue(report, "input-unknown:" + chip.id, "warning", message, chip.id);
+    }
+}
+
+// 开集电极输出释放后仍为高阻时，提示检查是否缺少上拉
+function inspectCollectorOutputs(chip, model, result, report) {
+    if (model.kind !== "open-collector") {
+        return;
+    }
+    for (const pin of model.outputs) {
+        if (readEndpoint(result, pinHole(chip, pin)) === "Z") {
+            const description = pinDescription(chip, pin);
+            const message = chip.id + " OC 输出无上拉：" + description + "，释放时为 Z，可连接上拉电阻";
+            addIssue(report, "oc-floating:" + chip.id + ":" + pin, "warning", message, chip.id);
+        }
+    }
+}
+
+// 已正常供电时检查引脚并返回芯片当前的工作模式说明
+function inspectPoweredChip(chip, model, result, report) {
+    inspectOutputRails(chip, result, report);
+    inspectUnknownInputs(chip, model, result, report);
+    let detail = "组合逻辑按当前输入计算";
+    if (model.memory) {
+        detail = inspectMemory(chip, result, report);
+    } else if (chip.model === "74LS273" || model.sequential) {
+        detail = inspectTiming(chip, result, report);
+    }
+    inspectCollectorOutputs(chip, model, result, report);
+    return detail;
+}
+
+// 汇总可能影响这片芯片的问题，错误优先于警告
+function applyChipSeverity(summary, chip, result, issues) {
+    for (const issue of issues) {
+        if (!issueAffectsChip(issue, chip, result)) {
+            continue;
+        }
+        if (issue.severity === "error") {
+            summary.severity = "error";
+            summary.status = "存在工作异常";
+            return;
+        }
+        if (summary.severity !== "error") {
+            summary.severity = "warning";
+            summary.status = "需要检查";
+        }
+    }
+}
+
+// 汇总一片芯片的供电、工作模式及封装资料提示
+function inspectChip(chip, result, report) {
+    const summary = {
+        id: chip.id, model: chip.model, status: "未上电", severity: "info",
+        detail: "电源已关闭，暂不进行工作状态判断"
+    };
+    if (report.power) {
+        const model = CHIP_MODELS[chip.model];
+        const power = readEndpoint(result, pinHole(chip, model.power));
+        const ground = readEndpoint(result, pinHole(chip, model.ground));
+        const supply = pinDescription(chip, model.power) + "=" + power;
+        const referenceGround = pinDescription(chip, model.ground) + "=" + ground;
+        summary.detail = supply + "；" + referenceGround;
+        if (power !== 1 || ground !== 0) {
+            summary.status = "供电异常";
+            summary.severity = "error";
+            const message = chip.id + " 电源不正确：" + summary.detail + "，请检查电源脚和地脚的接线";
+            addIssue(report, "power:" + chip.id, "error", message, chip.id);
+        } else {
+            summary.status = "当前条件正常";
+            summary.severity = "success";
+            const purpose = inspectPoweredChip(chip, model, result, report);
+            summary.detail = summary.detail + "；" + purpose;
+        }
+        applyChipSeverity(summary, chip, result, report.issues);
+    }
+    const reference = CHIP_REFERENCES[chip.model];
+    if (reference.pinWarning) {
+        summary.detail = summary.detail + "；" + reference.pinWarning;
+    }
+    return summary;
+}
+
 // 生成通用诊断报告，只读当前仿真结果，不改变输入、不发时钟、不修改电路
 export function inspectCircuit(project, result) {
     const report = { issues: [], chips: [], power: project.power, stable: result.stable };
@@ -205,77 +319,16 @@ export function inspectCircuit(project, result) {
         report.issues.push({ code: issue.code, severity: issue.severity, message: issue.message, chipId: "" });
     }
     // 静态短接不依赖通电，关电时也应提醒再上电前排查
-    if (nodeFor(result.topology, "VCC") === nodeFor(result.topology, "GND")) {
+    const power = nodeFor(result.topology, "VCC");
+    const ground = nodeFor(result.topology, "GND");
+    if (power === ground) {
         addIssue(report, "power-short", "error", "+5V 与 GND 被导线短接，请先断开短接再上电", "");
     }
     if (!result.stable) {
         addIssue(report, "unstable", "error", "电路未达到稳定状态，请检查组合逻辑反馈", "");
     }
     for (const chip of project.chips) {
-        const model = CHIP_MODELS[chip.model];
-        const power = readEndpoint(result, pinHole(chip, model.power));
-        const ground = readEndpoint(result, pinHole(chip, model.ground));
-        let detail = "电源已关闭，暂不进行工作状态判断";
-        let status = "未上电";
-        let severity = "info";
-        if (project.power) {
-            detail = pinDescription(chip, model.power) + "=" + power + "；" + pinDescription(chip, model.ground) + "=" + ground;
-            if (power !== 1 || ground !== 0) {
-                status = "供电异常";
-                severity = "error";
-                addIssue(report, "power:" + chip.id, "error", chip.id + " 电源不正确：" + detail + "，请检查电源脚和地脚的接线", chip.id);
-            } else {
-                status = "当前条件正常";
-                severity = "success";
-                inspectOutputRails(chip, result, report);
-                const uncertain = [];
-                for (const pin of model.inputs) {
-                    if (model.memory && model.bidirectional.includes(pin)) {
-                        const selected = readEndpoint(result, pinHole(chip, model.memory.select));
-                        const writing = readEndpoint(result, pinHole(chip, model.memory.write));
-                        if (selected !== 0 || writing !== 0) {
-                            continue;
-                        }
-                    }
-                    if (readEndpoint(result, pinHole(chip, pin)) === "X") {
-                        uncertain.push(String(pin));
-                    }
-                }
-                if (uncertain.length > 0) {
-                    addIssue(report, "input-unknown:" + chip.id, "warning", chip.id + " 输入脚 " + uncertain.join("、") + " 为 X，请检查上游输出、初始化状态或电平冲突", chip.id);
-                }
-                if (model.memory) {
-                    detail = detail + "；" + inspectMemory(chip, result, report);
-                } else if (chip.model === "74LS273" || model.sequential) {
-                    detail = detail + "；" + inspectTiming(chip, result, report);
-                } else {
-                    detail = detail + "；组合逻辑按当前输入计算";
-                }
-                if (model.kind === "open-collector") {
-                    for (const pin of model.outputs) {
-                        if (readEndpoint(result, pinHole(chip, pin)) === "Z") {
-                            addIssue(report, "oc-floating:" + chip.id + ":" + pin, "warning", chip.id + " OC 输出无上拉：" + pinDescription(chip, pin) + "，释放时为 Z，可连接上拉电阻", chip.id);
-                        }
-                    }
-                }
-            }
-            for (const issue of report.issues) {
-                if (issueAffectsChip(issue, chip, result)) {
-                    if (issue.severity === "error") {
-                        severity = "error";
-                        status = "存在工作异常";
-                    } else if (severity !== "error") {
-                        severity = "warning";
-                        status = "需要检查";
-                    }
-                }
-            }
-        }
-        const reference = CHIP_REFERENCES[chip.model];
-        if (reference.pinWarning) {
-            detail = detail + "；" + reference.pinWarning;
-        }
-        report.chips.push({ id: chip.id, model: chip.model, status: status, severity: severity, detail: detail });
+        report.chips.push(inspectChip(chip, result, report));
     }
     return report;
 }

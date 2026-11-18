@@ -37,6 +37,8 @@
   var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 
   // src/ui/dom.mjs
+  var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+  var DOWNLOAD_RELEASE_DELAY = 1e3;
   function element(id) {
     return document.getElementById(id);
   }
@@ -47,6 +49,28 @@
       result.className = className;
     }
     return result;
+  }
+  function svgElement(parent, name, attributes, text2 = "") {
+    const shape = document.createElementNS(SVG_NAMESPACE, name);
+    for (const key of Object.keys(attributes)) {
+      shape.setAttribute(key, String(attributes[key]));
+    }
+    if (text2 !== "") {
+      shape.textContent = text2;
+    }
+    parent.append(shape);
+    return shape;
+  }
+  function revokeDownload(url) {
+    URL.revokeObjectURL(url);
+  }
+  function downloadFile(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const anchor2 = document.createElement("a");
+    anchor2.href = url;
+    anchor2.download = name;
+    anchor2.click();
+    window.setTimeout(revokeDownload.bind(null, url), DOWNLOAD_RELEASE_DELAY);
   }
   function icon(name) {
     const result = document.createElement("i");
@@ -224,9 +248,19 @@
 
   // src/ui/motion.mjs
   var MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
+  var WHEEL_ZOOM = { sensitivity: 15e-4, linePixels: 16 };
   var transitions = /* @__PURE__ */ new Map();
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   var frame = 0;
+  function wheelZoomFactor(event, viewport) {
+    let pixels = event.deltaY;
+    if (event.deltaMode === 1) {
+      pixels = pixels * WHEEL_ZOOM.linePixels;
+    } else if (event.deltaMode === 2) {
+      pixels = pixels * viewport.clientHeight;
+    }
+    return Math.exp(-pixels * WHEEL_ZOOM.sensitivity);
+  }
   function easing(progress) {
     const remaining = 1 - progress;
     return 1 - remaining * remaining * remaining;
@@ -283,8 +317,8 @@
     item.classList.add("leaving");
     item.inert = true;
     item.setAttribute("aria-hidden", "true");
-    const timer = window.setTimeout(detachToast.bind(null, id), MOTION.toastDuration);
-    item.dataset.timer = String(timer);
+    const timer2 = window.setTimeout(detachToast.bind(null, id), MOTION.toastDuration);
+    item.dataset.timer = String(timer2);
   }
   function detachToast(id) {
     const item = element(id);
@@ -308,8 +342,8 @@
     if (item.dataset.persistent === "true" || item.matches(":hover") || item.contains(document.activeElement)) {
       return;
     }
-    const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
-    item.dataset.timer = String(timer);
+    const timer2 = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
+    item.dataset.timer = String(timer2);
   }
   function pauseToast(event) {
     const item = event.currentTarget;
@@ -431,15 +465,15 @@
     const left = Math.max(SELECT_LAYOUT.margin, Math.min(bounds.left, window.innerWidth - width - SELECT_LAYOUT.margin));
     const below = window.innerHeight - bounds.bottom - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
     const above = bounds.top - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
-    let available = below;
+    let available2 = below;
     const upward = below < Math.min(SELECT_LAYOUT.upwardThreshold, above);
     control.panel.dataset.direction = "down";
     if (upward) {
-      available = above;
+      available2 = above;
       control.panel.dataset.direction = "up";
     }
     control.panel.style.width = width + "px";
-    control.panel.style.maxHeight = Math.max(SELECT_LAYOUT.minimumHeight, Math.min(SELECT_LAYOUT.maximumHeight, available)) + "px";
+    control.panel.style.maxHeight = Math.max(SELECT_LAYOUT.minimumHeight, Math.min(SELECT_LAYOUT.maximumHeight, available2)) + "px";
     control.panel.style.left = left + "px";
     control.panel.style.top = "0px";
     let top = bounds.bottom + SELECT_LAYOUT.gap;
@@ -1635,6 +1669,7 @@
   _Display3vlWithRegex_regex = /* @__PURE__ */ new WeakMap();
 
   // src/chips/extra-chips.mjs
+  var COUNTER_CONTROLS = { clock: 2, reset: 1, load: 9, enable: [7, 10], data: [3, 4, 5, 6], carry: 15 };
   var EXTRA_CHIPS = {
     "6116": {
       title: "2K\xD78 \u9759\u6001RAM",
@@ -1769,6 +1804,7 @@
       inputs: [1, 2, 3, 4, 5, 6, 7],
       outputs: [13, 12, 11, 10, 9, 15, 14, 4],
       bidirectional: [4],
+      controls: { lampTest: 3, blanking: 4, rippleBlanking: 5 },
       kind: "seven-segment"
     },
     "74LS74": {
@@ -1826,6 +1862,7 @@
       inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
       outputs: [14, 13, 12, 11, 15],
       sequential: "counter",
+      controls: COUNTER_CONTROLS,
       modulus: 10
     },
     "74LS161": {
@@ -1837,6 +1874,7 @@
       inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
       outputs: [14, 13, 12, 11, 15],
       sequential: "counter",
+      controls: COUNTER_CONTROLS,
       modulus: 16
     },
     "74LS194": {
@@ -1847,6 +1885,7 @@
       labels: ["", "CLR\u2032", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"],
       inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11],
       outputs: [12, 13, 14, 15],
+      controls: { clock: 2, reset: 1, mode: [9, 10], right: 3, left: 11, data: [4, 5, 6, 7] },
       sequential: "shift"
     }
   };
@@ -1861,6 +1900,7 @@
       labels: ["", "CLR\u0305", "Q0", "D0", "D1", "Q1", "Q2", "D2", "D3", "Q3", "GND", "CLK", "Q4", "D4", "D5", "Q5", "Q6", "D6", "D7", "Q7", "VCC"],
       inputs: [1, 3, 4, 7, 8, 11, 13, 14, 17, 18],
       outputs: [2, 5, 6, 9, 12, 15, 16, 19],
+      controls: { clock: 11, reset: 1 },
       data: [3, 4, 7, 8, 13, 14, 17, 18]
     },
     "74LS283": {
@@ -2020,6 +2060,9 @@
   var WIRING_VERSION = 3;
   var GENERAL_NOTES = "# \u7535\u8DEF\u8BF4\u660E\n\n## \u529F\u80FD\n\n\u586B\u5199\u8FD9\u4E2A\u7535\u8DEF\u7684\u7528\u9014\n\n## \u8F93\u5165\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| K0 | \u5F85\u586B\u5199 |\n\n## \u8F93\u51FA\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| L0 | \u5F85\u586B\u5199 |\n\n## \u64CD\u4F5C\u6B65\u9AA4\n\n1. \u68C0\u67E5\u4F9B\u7535\u548C\u63A5\u7EBF\n2. \u8BBE\u7F6E\u8F93\u5165\uFF0C\u89C2\u5BDF\u8F93\u51FA\n";
   var WIRE_COLORS = ["#dc3545", "#1976d2", "#16845b", "#d68a0b", "#8b55c5", "#0d939d", "#d44f93", "#46515f", "#93a619", "#e26c2b", "#8494a7", "#65483d"];
+  function validIoCount(count) {
+    return Number.isInteger(count) && count >= 1 && count <= IO_LIMIT;
+  }
   function columnX(column) {
     return BOARD.startX + (column - 1) * BOARD.pitch;
   }
@@ -2250,6 +2293,2210 @@
   }
   function copyProject(project) {
     return structuredClone(project);
+  }
+
+  // src/chips/chip-logic.mjs
+  var SEGMENT_PATTERNS = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "0011111", "1110000", "1111111", "1110011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
+  var SEGMENT_PINS = [13, 12, 11, 10, 9, 15, 14];
+  var COMPARE_FIRST = [15, 14, 12, 10];
+  var COMPARE_SECOND = [1, 13, 11, 9];
+  function logicValue(value) {
+    if (value === 0 || value === 1) {
+      return value;
+    }
+    return "X";
+  }
+  function andValues(values) {
+    let result = 1;
+    for (const value of values) {
+      result = logicGate("and", result, value);
+    }
+    return result;
+  }
+  function readNumber(pins, order) {
+    let result = 0;
+    for (let bit = 0; bit < order.length; bit = bit + 1) {
+      const value = logicValue(pins[order[bit]]);
+      if (value === "X") {
+        return "X";
+      }
+      result = result + value * 2 ** bit;
+    }
+    return result;
+  }
+  function possibleAddresses(pins, order) {
+    const possible = [];
+    for (let number = 0; number < 2 ** order.length; number = number + 1) {
+      let matches = true;
+      for (let bit = 0; bit < order.length; bit = bit + 1) {
+        const value = logicValue(pins[order[bit]]);
+        if (value !== "X" && value !== (number >> bit & 1)) {
+          matches = false;
+        }
+      }
+      if (matches) {
+        possible.push(number);
+      }
+    }
+    return possible;
+  }
+  function commonValue(values) {
+    const first = values[0];
+    for (const value of values) {
+      if (value !== first) {
+        return "X";
+      }
+    }
+    return first;
+  }
+  function decode(pins, addressPins, enable, outputPins, outputs) {
+    const addresses = possibleAddresses(pins, addressPins);
+    for (let index = 0; index < outputPins.length; index = index + 1) {
+      const candidates = [];
+      for (const address of addresses) {
+        let match = 0;
+        if (address === index) {
+          match = 1;
+        }
+        const active = logicGate("and", enable, match);
+        candidates.push(logicGate("not", active, 0));
+      }
+      outputs[outputPins[index]] = commonValue(candidates);
+    }
+  }
+  function multiplex(pins, addressPins, dataPins, enable) {
+    const candidates = [];
+    for (const address of possibleAddresses(pins, addressPins)) {
+      candidates.push(logicValue(pins[dataPins[address]]));
+    }
+    return logicGate("and", enable, commonValue(candidates));
+  }
+  function compare(pins, outputs) {
+    outputs[5] = "X";
+    outputs[6] = "X";
+    outputs[7] = "X";
+    for (let bit = 0; bit < COMPARE_FIRST.length; bit = bit + 1) {
+      const first = logicValue(pins[COMPARE_FIRST[bit]]);
+      const second = logicValue(pins[COMPARE_SECOND[bit]]);
+      if (first === "X" || second === "X") {
+        return;
+      }
+      if (first !== second) {
+        outputs[5] = 0;
+        outputs[6] = 0;
+        outputs[7] = 0;
+        if (first > second) {
+          outputs[5] = 1;
+        } else {
+          outputs[7] = 1;
+        }
+        return;
+      }
+    }
+    outputs[6] = logicValue(pins[3]);
+    const notEqual = logicGate("not", pins[3], 0);
+    const notLess = logicGate("not", pins[2], 0);
+    const notGreater = logicGate("not", pins[4], 0);
+    outputs[5] = logicGate("and", notEqual, notLess);
+    outputs[7] = logicGate("and", notEqual, notGreater);
+  }
+  function sevenSegment(model, pins, outputs) {
+    const number = readNumber(pins, [7, 1, 2, 6]);
+    const controls2 = model.controls;
+    const lampTest = pins[controls2.lampTest];
+    const blanking = pins[controls2.blanking];
+    let rippleBlank = pins[controls2.rippleBlanking];
+    if (rippleBlank === "Z") {
+      rippleBlank = 1;
+    }
+    const blankZero = number === 0 && rippleBlank === 0 && lampTest === 1;
+    outputs[controls2.blanking] = "Z";
+    if (blankZero) {
+      outputs[controls2.blanking] = 0;
+    }
+    for (let index = 0; index < SEGMENT_PINS.length; index = index + 1) {
+      let value = "X";
+      if (blanking === 0 || blankZero) {
+        value = 0;
+      } else if (lampTest === 0 && blanking === 1) {
+        value = 1;
+      } else if (lampTest === 1 && blanking === 1 && number !== "X") {
+        if (number !== 0 || rippleBlank === 1) {
+          value = Number(SEGMENT_PATTERNS[number][index]);
+        }
+      }
+      outputs[SEGMENT_PINS[index]] = value;
+    }
+  }
+  function evaluateExtra(model, pins) {
+    const outputs = {};
+    if (model.kind === "cmos-nand" || model.kind === "open-collector" || model.kind === "nand4" || model.kind === "tristate") {
+      for (const gate of model.gates) {
+        const outputPin = gate[gate.length - 1];
+        let value = "X";
+        if (model.kind === "tristate") {
+          if (pins[gate[0]] === 1) {
+            value = "Z";
+          } else if (pins[gate[0]] === 0) {
+            value = logicValue(pins[gate[1]]);
+          }
+        } else {
+          const inputs = [];
+          for (let index = 0; index < gate.length - 1; index = index + 1) {
+            inputs.push(pins[gate[index]]);
+          }
+          value = logicGate("not", andValues(inputs), 0);
+          if (model.kind === "open-collector" && value === 1) {
+            value = "Z";
+          }
+        }
+        outputs[outputPin] = value;
+      }
+    } else if (model.kind === "decoder8") {
+      const enable = andValues([pins[6], logicGate("not", pins[4], 0), logicGate("not", pins[5], 0)]);
+      decode(pins, [1, 2, 3], enable, model.outputs, outputs);
+    } else if (model.kind === "dual-decoder") {
+      decode(pins, [2, 3], logicGate("not", pins[1], 0), [4, 5, 6, 7], outputs);
+      decode(pins, [14, 13], logicGate("not", pins[15], 0), [12, 11, 10, 9], outputs);
+    } else if (model.kind === "mux8") {
+      outputs[5] = multiplex(pins, [11, 10, 9], [4, 3, 2, 1, 15, 14, 13, 12], logicGate("not", pins[7], 0));
+      outputs[6] = logicGate("not", outputs[5], 0);
+    } else if (model.kind === "dual-mux") {
+      outputs[7] = multiplex(pins, [14, 2], [6, 5, 4, 3], logicGate("not", pins[1], 0));
+      outputs[9] = multiplex(pins, [14, 2], [10, 11, 12, 13], logicGate("not", pins[15], 0));
+    } else if (model.kind === "comparator") {
+      compare(pins, outputs);
+    } else if (model.kind === "seven-segment") {
+      sevenSegment(model, pins, outputs);
+    }
+    return outputs;
+  }
+
+  // src/chips/chip-state.mjs
+  var DECADE_NEXT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 4, 13, 4, 15, 0];
+  function unknownBits(count) {
+    const bits = [];
+    for (let index = 0; index < count; index = index + 1) {
+      bits.push("X");
+    }
+    return bits;
+  }
+  function createChipState(model) {
+    let count = 4;
+    if (model.sequential === "flipflop") {
+      count = 2;
+    }
+    const clocks = unknownBits(count);
+    return { bits: unknownBits(count), inverted: unknownBits(count), clocks };
+  }
+  function hasEdge(previous, current, edge) {
+    if (edge === "falling") {
+      return previous === 1 && current === 0;
+    }
+    return previous === 0 && current === 1;
+  }
+  function uncertainEdge(previous, current, edge) {
+    const first = logicValue(previous);
+    const last = logicValue(current);
+    if (first !== "X" && last !== "X") {
+      return false;
+    }
+    if (edge === "falling") {
+      return first !== 0 && last !== 1;
+    }
+    return first !== 1 && last !== 0;
+  }
+  function nextJk(first, second, previous) {
+    if (first === 1 && second === 0) {
+      return 1;
+    }
+    if (first === 0 && second === 1) {
+      return 0;
+    }
+    const previousInverse = logicGate("not", previous, 0);
+    const secondInverse = logicGate("not", second, 0);
+    const setPart = logicGate("and", first, previousInverse);
+    const keepPart = logicGate("and", secondInverse, previous);
+    return logicGate("or", setPart, keepPart);
+  }
+  function sampleFlipFlop(channel, pins, previous) {
+    if (channel.data) {
+      return logicValue(pins[channel.data]);
+    }
+    return nextJk(pins[channel.first], pins[channel.second], previous);
+  }
+  function updateFlipFlops(model, pins, state2) {
+    const bits = [];
+    const inverted = [];
+    let active = 0;
+    if (model.activeHigh) {
+      active = 1;
+    }
+    for (let index = 0; index < model.channels.length; index = index + 1) {
+      const channel = model.channels[index];
+      const reset = logicValue(pins[channel.reset]);
+      const set = logicValue(pins[channel.set]);
+      const previousClock = state2.clocks[index];
+      const clock = pins[channel.clock];
+      let value = state2.bits[index];
+      let inverse = state2.inverted[index];
+      if (reset === active && set === active) {
+        value = 1;
+        inverse = 1;
+      } else if (reset === active) {
+        value = 0;
+        inverse = 1;
+      } else if (set === active) {
+        value = 1;
+        inverse = 0;
+      } else if (reset === "X" || set === "X") {
+        value = "X";
+        inverse = "X";
+      } else {
+        if (value === inverse) {
+          value = "X";
+        }
+        if (hasEdge(previousClock, clock, model.edge)) {
+          value = sampleFlipFlop(channel, pins, value);
+        } else if (uncertainEdge(previousClock, clock, model.edge)) {
+          const sampled = sampleFlipFlop(channel, pins, value);
+          if (sampled !== value) {
+            value = "X";
+          }
+        }
+        inverse = logicGate("not", value, 0);
+      }
+      bits.push(value);
+      inverted.push(inverse);
+      state2.clocks[index] = logicValue(clock);
+    }
+    state2.bits = bits;
+    state2.inverted = inverted;
+  }
+  function storedNumber(bits) {
+    let value = 0;
+    for (let bit = 0; bit < bits.length; bit = bit + 1) {
+      if (bits[bit] !== 0 && bits[bit] !== 1) {
+        return "X";
+      }
+      value = value + bits[bit] * 2 ** bit;
+    }
+    return value;
+  }
+  function numberBits(number) {
+    if (number === "X") {
+      return unknownBits(4);
+    }
+    const bits = [];
+    for (let bit = 0; bit < 4; bit = bit + 1) {
+      bits.push(number >> bit & 1);
+    }
+    return bits;
+  }
+  function clockedCounterBits(model, pins, bits) {
+    const controls2 = model.controls;
+    const load = pins[controls2.load];
+    if (load === 0) {
+      const number2 = readNumber(pins, controls2.data);
+      return numberBits(number2);
+    }
+    if (load !== 1) {
+      return unknownBits(4);
+    }
+    const enable = andValues([pins[controls2.enable[0]], pins[controls2.enable[1]]]);
+    if (enable === 0) {
+      return bits;
+    }
+    const number = storedNumber(bits);
+    if (enable === "X" || number === "X") {
+      return unknownBits(4);
+    }
+    if (model.modulus === 10) {
+      return numberBits(DECADE_NEXT[number]);
+    }
+    return numberBits((number + 1) % model.modulus);
+  }
+  function updateCounter(model, pins, state2) {
+    const controls2 = model.controls;
+    const reset = pins[controls2.reset];
+    const clock = pins[controls2.clock];
+    const previousClock = state2.clocks[0];
+    if (reset === 0) {
+      state2.bits = [0, 0, 0, 0];
+    } else if (reset !== 1) {
+      state2.bits = unknownBits(4);
+    } else if (hasEdge(previousClock, clock, "rising")) {
+      state2.bits = clockedCounterBits(model, pins, state2.bits);
+    } else if (uncertainEdge(previousClock, clock, "rising")) {
+      const disabled = pins[controls2.enable[0]] === 0 || pins[controls2.enable[1]] === 0;
+      const holds = pins[controls2.load] === 1 && disabled;
+      if (!holds) {
+        state2.bits = unknownBits(4);
+      }
+    }
+    state2.clocks[0] = logicValue(clock);
+  }
+  function updateShift(model, pins, state2) {
+    const controls2 = model.controls;
+    const reset = pins[controls2.reset];
+    const clock = pins[controls2.clock];
+    const previousClock = state2.clocks[0];
+    const mode = readNumber(pins, controls2.mode);
+    if (reset === 0) {
+      state2.bits = [0, 0, 0, 0];
+    } else if (reset !== 1) {
+      state2.bits = unknownBits(4);
+    } else if (hasEdge(previousClock, clock, "rising")) {
+      const previous = state2.bits;
+      if (mode === 1) {
+        const serial = logicValue(pins[controls2.right]);
+        state2.bits = [serial, previous[0], previous[1], previous[2]];
+      } else if (mode === 2) {
+        const serial = logicValue(pins[controls2.left]);
+        state2.bits = [previous[1], previous[2], previous[3], serial];
+      } else if (mode === 3) {
+        const bits = [];
+        for (const pin of controls2.data) {
+          bits.push(logicValue(pins[pin]));
+        }
+        state2.bits = bits;
+      } else if (mode === "X") {
+        state2.bits = unknownBits(4);
+      }
+    } else if (mode !== 0 && uncertainEdge(previousClock, clock, "rising")) {
+      state2.bits = unknownBits(4);
+    }
+    state2.clocks[0] = logicValue(clock);
+  }
+  function updateChipState(model, pins, state2, powered) {
+    const before = JSON.stringify([state2.bits, state2.inverted]);
+    if (!powered) {
+      state2.bits = unknownBits(state2.bits.length);
+      state2.inverted = unknownBits(state2.inverted.length);
+      state2.clocks = unknownBits(state2.clocks.length);
+    } else if (model.sequential === "flipflop") {
+      updateFlipFlops(model, pins, state2);
+    } else if (model.sequential === "counter") {
+      updateCounter(model, pins, state2);
+    } else if (model.sequential === "shift") {
+      updateShift(model, pins, state2);
+    }
+    return before !== JSON.stringify([state2.bits, state2.inverted]);
+  }
+  function stateOutputs(model, pins, state2) {
+    const outputs = {};
+    if (model.sequential === "flipflop") {
+      for (let index = 0; index < model.channels.length; index = index + 1) {
+        const channel = model.channels[index];
+        outputs[channel.output] = state2.bits[index];
+        outputs[channel.inverted] = state2.inverted[index];
+      }
+    } else {
+      for (let bit = 0; bit < 4; bit = bit + 1) {
+        outputs[model.outputs[bit]] = state2.bits[bit];
+      }
+      if (model.sequential === "counter") {
+        const number = storedNumber(state2.bits);
+        let terminal = "X";
+        if (number !== "X") {
+          terminal = 0;
+          if (number === model.modulus - 1) {
+            terminal = 1;
+          }
+        }
+        const controls2 = model.controls;
+        const carryEnable = pins[controls2.enable[1]];
+        outputs[controls2.carry] = logicGate("and", terminal, carryEnable);
+      }
+    }
+    return outputs;
+  }
+
+  // src/chips/chip-memory.mjs
+  function createMemory(specification) {
+    const words = [];
+    for (let address = 0; address < specification.words; address = address + 1) {
+      const bits = [];
+      for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
+        bits.push("X");
+      }
+      words.push(bits);
+    }
+    return { words, powered: false };
+  }
+  function matchesAddress(specification, pins, address) {
+    for (let bit = 0; bit < specification.address.length; bit = bit + 1) {
+      const value = logicValue(pins[specification.address[bit]]);
+      const expected = address >> bit & 1;
+      if (value !== "X" && value !== expected) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function readMemoryBit(specification, pins, state2, bit) {
+    const address = readNumber(pins, specification.address);
+    if (address !== "X") {
+      return state2.words[address][bit];
+    }
+    let value;
+    for (let candidate = 0; candidate < specification.words; candidate = candidate + 1) {
+      if (matchesAddress(specification, pins, candidate)) {
+        const stored = state2.words[candidate][bit];
+        if (value === void 0) {
+          value = stored;
+        } else if (value !== stored) {
+          return "X";
+        }
+      }
+    }
+    return value;
+  }
+  function memoryOutputs(specification, pins, state2) {
+    const outputs = {};
+    const selected = pins[specification.select];
+    const reading = pins[specification.read];
+    const writing = pins[specification.write];
+    for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
+      let value = "X";
+      if (selected === 1 || reading === 1 || writing === 0) {
+        value = "Z";
+      } else if (selected === 0 && reading === 0 && writing === 1) {
+        value = readMemoryBit(specification, pins, state2, bit);
+      }
+      outputs[specification.data[bit]] = value;
+    }
+    return outputs;
+  }
+  function writeMemoryWord(specification, pins, state2, address, certain) {
+    let changed = false;
+    const word = state2.words[address];
+    for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
+      let value = logicValue(pins[specification.data[bit]]);
+      if (!certain && word[bit] !== value) {
+        value = "X";
+      }
+      if (word[bit] !== value) {
+        word[bit] = value;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  function updateMemory(specification, pins, state2, powered) {
+    if (!powered) {
+      if (state2.powered) {
+        const cleared = createMemory(specification);
+        state2.words = cleared.words;
+      }
+      state2.powered = false;
+      return false;
+    }
+    state2.powered = true;
+    const selected = pins[specification.select];
+    const writing = pins[specification.write];
+    if (selected === 1 || writing === 1) {
+      return false;
+    }
+    const address = readNumber(pins, specification.address);
+    const certain = selected === 0 && writing === 0 && address !== "X";
+    if (certain) {
+      return writeMemoryWord(specification, pins, state2, address, true);
+    }
+    let changed = false;
+    for (let candidate = 0; candidate < specification.words; candidate = candidate + 1) {
+      if (matchesAddress(specification, pins, candidate)) {
+        const updated = writeMemoryWord(specification, pins, state2, candidate, false);
+        changed = changed || updated;
+      }
+    }
+    return changed;
+  }
+
+  // src/simulation/engine.mjs
+  var MAX_SETTLE_PASSES = 96;
+  var MAX_SEQUENTIAL_PASSES = 12;
+  function buildTopology(project) {
+    const parents = {};
+    for (const wire of project.wires) {
+      const first = baseNode(wire.from);
+      const second = baseNode(wire.to);
+      ensureNode(parents, first);
+      ensureNode(parents, second);
+      const firstRoot = findRoot(parents, first);
+      const secondRoot = findRoot(parents, second);
+      parents[secondRoot] = firstRoot;
+    }
+    return parents;
+  }
+  function ensureNode(parents, name) {
+    if (!Object.hasOwn(parents, name)) {
+      parents[name] = name;
+    }
+  }
+  function findRoot(parents, name) {
+    ensureNode(parents, name);
+    let root = name;
+    while (parents[root] !== root) {
+      root = parents[root];
+    }
+    return root;
+  }
+  function nodeFor(topology, endpoint) {
+    return findRoot(topology, baseNode(endpoint));
+  }
+  function addDriver(drivers, node2, value, source, kind = "push-pull") {
+    if (value === "Z") {
+      return;
+    }
+    if (!Object.hasOwn(drivers, node2)) {
+      drivers[node2] = [];
+    }
+    drivers[node2].push({ value, source, kind });
+  }
+  function resolveDrivers(drivers) {
+    if (!drivers || drivers.length === 0) {
+      return "Z";
+    }
+    let result = "Z";
+    let pullUp = false;
+    for (const driver of drivers) {
+      if (driver.kind === "pull-up") {
+        pullUp = true;
+        continue;
+      }
+      if (result === "Z") {
+        result = driver.value;
+      } else if (driver.value === "X" || driver.value !== result) {
+        result = "X";
+      }
+    }
+    if (result === "Z" && pullUp) {
+      return 1;
+    }
+    return result;
+  }
+  function readEndpoint(result, endpoint) {
+    const node2 = nodeFor(result.topology, endpoint);
+    if (!Object.hasOwn(result.values, node2)) {
+      return "Z";
+    }
+    return result.values[node2];
+  }
+  function readPins(chip, topology, values) {
+    const pins = {};
+    const model = CHIP_MODELS[chip.model];
+    for (let pin = 1; pin <= model.count; pin = pin + 1) {
+      const hole = pinHole(chip, pin);
+      const node2 = nodeFor(topology, hole);
+      pins[pin] = "Z";
+      if (Object.hasOwn(values, node2)) {
+        pins[pin] = values[node2];
+      }
+    }
+    return pins;
+  }
+  function chipPowered(chip, pins) {
+    const model = CHIP_MODELS[chip.model];
+    return pins[model.power] === 1 && pins[model.ground] === 0;
+  }
+  function initialRegister() {
+    const bits = [];
+    for (let index = 0; index < 8; index = index + 1) {
+      bits.push("X");
+    }
+    return { bits, clock: "X" };
+  }
+  function chipOutputs(chip, pins, registers, devices) {
+    const model = CHIP_MODELS[chip.model];
+    const outputs = {};
+    if (!chipPowered(chip, pins)) {
+      return outputs;
+    }
+    if (chip.model === "74LS273") {
+      const register = registers[chip.id];
+      for (let bit = 0; bit < 8; bit = bit + 1) {
+        outputs[model.outputs[bit]] = register.bits[bit];
+      }
+      return outputs;
+    }
+    if (chip.model === "74LS283") {
+      return evaluateAdder(pins);
+    }
+    if (model.memory) {
+      return memoryOutputs(model.memory, pins, devices[chip.id]);
+    }
+    if (model.sequential) {
+      return stateOutputs(model, pins, devices[chip.id]);
+    }
+    if (model.kind) {
+      return evaluateExtra(model, pins);
+    }
+    for (const gate of model.gates) {
+      outputs[gate[2]] = logicGate(model.operation, pins[gate[0]], pins[gate[1]]);
+    }
+    return outputs;
+  }
+  function addBoardDrivers(project, topology, pulses, drivers) {
+    addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
+    addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      const name = "K" + index;
+      addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
+    }
+    addDriver(drivers, nodeFor(topology, "P+"), pulses.positive, "P+");
+    addDriver(drivers, nodeFor(topology, "P-"), pulses.negative, "P\u2212");
+    if (project.pullUps) {
+      for (const endpoint of project.pullUps) {
+        addDriver(drivers, nodeFor(topology, endpoint), 1, "\u4E0A\u62C9 " + endpoint, "pull-up");
+      }
+    }
+  }
+  function readBidirectionalPins(chip, pins, topology, drivers, previousDrivers) {
+    const model = CHIP_MODELS[chip.model];
+    if (!model.bidirectional || !chipPowered(chip, pins)) {
+      return;
+    }
+    for (const pin of model.bidirectional) {
+      const node2 = nodeFor(topology, pinHole(chip, pin));
+      const external = [];
+      const source = chip.id + "-" + pin;
+      const entries2 = previousDrivers[node2];
+      if (entries2) {
+        for (const driver of entries2) {
+          if (driver.source !== source) {
+            external.push(driver);
+          }
+        }
+      }
+      if (model.kind === "seven-segment") {
+        addDriver(drivers, node2, 1, source + "-bias", "pull-up");
+        external.push({ value: 1, kind: "pull-up" });
+      }
+      pins[pin] = resolveDrivers(external);
+    }
+  }
+  function outputDriverKind(model, pin, value) {
+    if (model.kind === "open-collector") {
+      return "open-collector";
+    }
+    if (model.kind === "seven-segment") {
+      if (pin !== model.controls.blanking && value === 1) {
+        return "pull-up";
+      }
+      return "open-collector";
+    }
+    return "push-pull";
+  }
+  function collectDrivers(project, topology, values, runtime, previousDrivers) {
+    const drivers = {};
+    if (!project.power) {
+      return drivers;
+    }
+    addBoardDrivers(project, topology, runtime.pulses, drivers);
+    for (const chip of project.chips) {
+      const pins = readPins(chip, topology, values);
+      readBidirectionalPins(chip, pins, topology, drivers, previousDrivers);
+      const outputs = chipOutputs(chip, pins, runtime.registers, runtime.devices);
+      const model = CHIP_MODELS[chip.model];
+      for (const pin in outputs) {
+        const pinNumber = Number(pin);
+        const hole = pinHole(chip, pinNumber);
+        const kind = outputDriverKind(model, pinNumber, outputs[pin]);
+        addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin, kind);
+      }
+    }
+    return drivers;
+  }
+  function driverValues(drivers) {
+    const values = {};
+    for (const name in drivers) {
+      values[name] = resolveDrivers(drivers[name]);
+    }
+    return values;
+  }
+  function sameValues(first, second) {
+    const names = Object.keys(first);
+    if (names.length !== Object.keys(second).length) {
+      return false;
+    }
+    for (const name of names) {
+      if (first[name] !== second[name]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function topologySignature(project) {
+    const connections = [];
+    for (const wire of project.wires) {
+      connections.push([wire.from, wire.to]);
+    }
+    const chips = [];
+    for (const chip of project.chips) {
+      chips.push([chip.id, chip.model, chip.section, chip.column]);
+    }
+    return JSON.stringify([connections, chips, project.pullUps]);
+  }
+  function settle(project, topology, runtime, previous) {
+    let values = {};
+    let drivers = {};
+    if (previous && previous.stable) {
+      values = previous.values;
+      drivers = previous.drivers;
+    }
+    for (let pass = 0; pass < MAX_SETTLE_PASSES; pass = pass + 1) {
+      drivers = collectDrivers(project, topology, values, runtime, drivers);
+      const next = driverValues(drivers);
+      if (pass > 0 && sameValues(values, next)) {
+        return { values: next, drivers, stable: true };
+      }
+      values = next;
+    }
+    for (const name in values) {
+      values[name] = "X";
+    }
+    return { values, drivers, stable: false };
+  }
+  function updateRegisters(project, topology, values, registers) {
+    let changed = false;
+    for (const chip of project.chips) {
+      if (chip.model !== "74LS273") {
+        continue;
+      }
+      const register = registers[chip.id];
+      const model = CHIP_MODELS[chip.model];
+      const pins = readPins(chip, topology, values);
+      const powered = project.power && chipPowered(chip, pins);
+      const reset = pins[model.controls.reset];
+      const clock = pins[model.controls.clock];
+      const rising = register.clock === 0 && clock === 1;
+      const previousHigh = register.clock === 1;
+      const uncertainRise = clock !== 0 && !previousHigh;
+      const nextBits = [];
+      for (let bit = 0; bit < model.data.length; bit = bit + 1) {
+        let value = register.bits[bit];
+        if (!powered) {
+          value = "X";
+        } else if (reset === 0) {
+          value = 0;
+        } else if (reset !== 1) {
+          value = "X";
+        } else if (rising) {
+          value = pins[model.data[bit]];
+          if (value !== 0 && value !== 1) {
+            value = "X";
+          }
+        } else if (uncertainRise) {
+          value = "X";
+        }
+        nextBits.push(value);
+        if (value !== register.bits[bit]) {
+          changed = true;
+        }
+      }
+      register.bits = nextBits;
+      register.clock = clock;
+    }
+    return changed;
+  }
+  function describeDriverConflict(drivers) {
+    const sources = [];
+    let pushPull = false;
+    let high = false;
+    let low = false;
+    for (const driver of drivers) {
+      if (driver.kind === "pull-up") {
+        continue;
+      }
+      sources.push(driver.source);
+      if (driver.kind === "push-pull") {
+        pushPull = true;
+      }
+      if (driver.value === 1) {
+        high = true;
+      } else if (driver.value === 0) {
+        low = true;
+      }
+    }
+    if (sources.length < 2 || !pushPull) {
+      return "";
+    }
+    const names = sources.join("\u3001");
+    if (high && low) {
+      return "\u9AD8\u4F4E\u7535\u5E73\u51B2\u7A81\uFF1A" + names + "\uFF0C\u6B64\u8282\u70B9\u7ED3\u679C\u4E3A X";
+    }
+    return "\u591A\u4E2A\u9A71\u52A8\u6E90\u8FDE\u63A5\u5230\u540C\u4E00\u8282\u70B9\uFF1A" + names;
+  }
+  function floatingInputs(model, pins) {
+    const missing = [];
+    for (const pin of model.inputs) {
+      if (pins[pin] !== "Z") {
+        continue;
+      }
+      if (model.kind === "seven-segment" && pin === model.controls.rippleBlanking) {
+        continue;
+      }
+      if (model.memory && model.bidirectional.includes(pin)) {
+        const selected = pins[model.memory.select];
+        const writing = pins[model.memory.write];
+        if (selected !== 0 || writing !== 0) {
+          continue;
+        }
+      }
+      missing.push(String(pin));
+    }
+    return missing;
+  }
+  function diagnoseChip(chip, result, issues) {
+    const pins = readPins(chip, result.topology, result.values);
+    if (!chipPowered(chip, pins)) {
+      issues.push({ code: "power:" + chip.id, severity: "error", message: chip.id + " \u7535\u6E90\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5 VCC \u548C GND" });
+      return;
+    }
+    const model = CHIP_MODELS[chip.model];
+    const missing = floatingInputs(model, pins);
+    if (missing.length > 0) {
+      const pinList = missing.join("\u3001");
+      issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " \u8F93\u5165\u60AC\u7A7A\uFF1A\u7B2C " + pinList + " \u811A" });
+    }
+    if (!model.channels) {
+      return;
+    }
+    let active = 0;
+    if (model.activeHigh) {
+      active = 1;
+    }
+    for (let index = 0; index < model.channels.length; index = index + 1) {
+      const channel = model.channels[index];
+      if (pins[channel.set] === active && pins[channel.reset] === active) {
+        const channelName = chip.id + " \u7B2C " + (index + 1) + " \u8DEF";
+        const message = channelName + "\u7F6E\u4F4D\u548C\u590D\u4F4D\u540C\u65F6\u6709\u6548\uFF0C\u4E24\u4E2A\u8F93\u51FA\u5747\u4E3A 1\uFF0C\u540C\u65F6\u91CA\u653E\u540E\u7684\u72B6\u6001\u4E0D\u786E\u5B9A";
+        issues.push({ code: "async-conflict:" + chip.id + ":" + index, severity: "warning", message });
+      }
+    }
+  }
+  function diagnose(project, result) {
+    const issues = [];
+    if (!project.power) {
+      return issues;
+    }
+    const power = nodeFor(result.topology, "VCC");
+    const ground = nodeFor(result.topology, "GND");
+    if (power === ground) {
+      issues.push({ code: "power-short", severity: "error", message: "+5V \u4E0E GND \u88AB\u5BFC\u7EBF\u77ED\u63A5\uFF0C\u8BF7\u65AD\u5F00\u5BF9\u5E94\u8FDE\u7EBF" });
+    }
+    for (const node2 in result.drivers) {
+      const message = describeDriverConflict(result.drivers[node2]);
+      if (message !== "") {
+        issues.push({ code: "drivers:" + node2, severity: "error", message });
+      }
+    }
+    for (const chip of project.chips) {
+      diagnoseChip(chip, result, issues);
+    }
+    if (!result.stable) {
+      issues.push({ code: "unstable", severity: "error", message: "\u7535\u8DEF\u672A\u8FBE\u5230\u7A33\u5B9A\u72B6\u6001\uFF0C\u8BF7\u68C0\u67E5\u7EC4\u5408\u903B\u8F91\u53CD\u9988" });
+    }
+    return issues;
+  }
+  function createRuntime() {
+    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, feedback: null };
+  }
+  function simulate(project, runtime) {
+    const topology = buildTopology(project);
+    for (const chip of project.chips) {
+      if (chip.model === "74LS273" && !Object.hasOwn(runtime.registers, chip.id)) {
+        runtime.registers[chip.id] = initialRegister();
+      }
+      const model = CHIP_MODELS[chip.model];
+      if (model.sequential && !Object.hasOwn(runtime.devices, chip.id)) {
+        runtime.devices[chip.id] = createChipState(model);
+      }
+      if (model.memory && !Object.hasOwn(runtime.devices, chip.id)) {
+        runtime.devices[chip.id] = createMemory(model.memory);
+      }
+    }
+    const signature = topologySignature(project);
+    let previous = null;
+    if (project.power && runtime.feedback && runtime.feedback.signature === signature) {
+      previous = runtime.feedback.settled;
+    }
+    let settled = settle(project, topology, runtime, previous);
+    let complete = false;
+    for (let pass = 0; pass < MAX_SEQUENTIAL_PASSES; pass = pass + 1) {
+      let changed = updateRegisters(project, topology, settled.values, runtime.registers);
+      for (const chip of project.chips) {
+        const model = CHIP_MODELS[chip.model];
+        if (model.sequential) {
+          const pins = readPins(chip, topology, settled.values);
+          const updated = updateChipState(model, pins, runtime.devices[chip.id], project.power && chipPowered(chip, pins));
+          changed = changed || updated;
+        }
+        if (model.memory) {
+          const pins = readPins(chip, topology, settled.values);
+          const powered = project.power && chipPowered(chip, pins);
+          const updated = updateMemory(model.memory, pins, runtime.devices[chip.id], powered);
+          changed = changed || updated;
+        }
+      }
+      if (!changed) {
+        complete = true;
+        break;
+      }
+      settled = settle(project, topology, runtime, settled);
+    }
+    const result = { signature, topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
+    runtime.feedback = null;
+    if (project.power && result.stable) {
+      runtime.feedback = { signature, settled };
+    }
+    result.issues = diagnose(project, result);
+    return result;
+  }
+
+  // src/simulation/timing-trace.mjs
+  var TRACE_LIMITS = { signals: 8, changes: 200 };
+  var BOARD_SIGNALS = ["P+", "P-"];
+  var DEFAULT_SIGNALS = [
+    { label: "P-", endpoint: "P-", group: "\u8109\u51B2" },
+    { label: "K0", endpoint: "K0", group: "\u8F93\u5165 K" },
+    { label: "L0", endpoint: "L0", group: "\u8F93\u51FA L" }
+  ];
+  function createTimingTrace() {
+    return {
+      signals: DEFAULT_SIGNALS.slice(),
+      samples: [],
+      recording: false,
+      notice: "\u5C1A\u672A\u8BB0\u5F55",
+      revision: 0
+    };
+  }
+  function availableTimingSignals(project) {
+    const signals = [];
+    for (const name of BOARD_SIGNALS) {
+      signals.push({ label: name, endpoint: name, group: "\u8109\u51B2" });
+    }
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      signals.push({ label: "K" + bit, endpoint: "K" + bit, group: "\u8F93\u5165 K" });
+    }
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      signals.push({ label: "L" + bit, endpoint: "L" + bit, group: "\u8F93\u51FA L" });
+    }
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      for (let pin = 1; pin <= model.count; pin = pin + 1) {
+        if (model.labels[pin] === "NC" || pin === model.power || pin === model.ground) {
+          continue;
+        }
+        let label2 = chip.id + " \xB7 " + pin + "\u811A";
+        if (model.labels[pin] !== "") {
+          label2 = label2 + " " + model.labels[pin];
+        }
+        signals.push({ label: label2, endpoint: pinHole(chip, pin), group: chip.id + " \xB7 " + chip.model });
+      }
+    }
+    return signals;
+  }
+  function readTimingSnapshot(trace, result) {
+    const values = {};
+    for (const signal of trace.signals) {
+      values[signal.endpoint] = readEndpoint(result, signal.endpoint);
+    }
+    return values;
+  }
+  function addTimingSignal(trace, signal) {
+    if (trace.recording || trace.signals.length >= TRACE_LIMITS.signals) {
+      return false;
+    }
+    for (const current of trace.signals) {
+      if (current.endpoint === signal.endpoint) {
+        return false;
+      }
+    }
+    trace.signals = trace.signals.concat(signal);
+    clearTimingTrace(trace, "\u4FE1\u53F7\u5DF2\u66F4\u6539\uFF0C\u539F\u8BB0\u5F55\u5DF2\u6E05\u9664");
+    return true;
+  }
+  function removeTimingSignal(trace, endpoint) {
+    if (trace.recording) {
+      return false;
+    }
+    const kept = [];
+    for (const signal of trace.signals) {
+      if (signal.endpoint !== endpoint) {
+        kept.push(signal);
+      }
+    }
+    if (kept.length === trace.signals.length) {
+      return false;
+    }
+    trace.signals = kept;
+    clearTimingTrace(trace, "\u4FE1\u53F7\u5DF2\u66F4\u6539\uFF0C\u539F\u8BB0\u5F55\u5DF2\u6E05\u9664");
+    return true;
+  }
+  function resetTimingCircuit(trace, project, notice) {
+    const available2 = availableTimingSignals(project);
+    const kept = [];
+    for (const signal of trace.signals) {
+      for (const candidate of available2) {
+        if (candidate.endpoint === signal.endpoint && candidate.label === signal.label && candidate.group === signal.group) {
+          kept.push(signal);
+          break;
+        }
+      }
+    }
+    trace.signals = kept;
+    clearTimingTrace(trace, notice);
+  }
+  function startTimingTrace(trace, result) {
+    if (trace.recording || trace.signals.length === 0) {
+      return false;
+    }
+    trace.samples = [];
+    trace.recording = true;
+    trace.notice = "\u6B63\u5728\u8BB0\u5F55";
+    const values = readTimingSnapshot(trace, result);
+    appendTimingSample(trace, values, "\u521D\u59CB\u7535\u5E73");
+    return true;
+  }
+  function stopTimingTrace(trace) {
+    trace.recording = false;
+    trace.notice = "\u8BB0\u5F55\u5DF2\u505C\u6B62";
+    trace.revision = trace.revision + 1;
+  }
+  function clearTimingTrace(trace, notice = "\u5C1A\u672A\u8BB0\u5F55") {
+    const hadSamples = trace.samples.length > 0;
+    trace.recording = false;
+    trace.samples = [];
+    trace.notice = "\u5C1A\u672A\u8BB0\u5F55";
+    if (hadSamples) {
+      trace.notice = notice;
+    }
+    trace.revision = trace.revision + 1;
+  }
+  function appendTimingSample(trace, values, action) {
+    const sample = { values, action };
+    trace.samples.push(sample);
+    trace.revision = trace.revision + 1;
+  }
+  function captureTimingTrace(trace, result, action) {
+    if (!trace.recording || trace.samples.length === 0) {
+      return;
+    }
+    const previous = trace.samples[trace.samples.length - 1];
+    const currentValues = readTimingSnapshot(trace, result);
+    let changed = false;
+    for (const signal of trace.signals) {
+      const previousValue = previous.values[signal.endpoint];
+      const currentValue = currentValues[signal.endpoint];
+      if (previousValue !== currentValue) {
+        changed = true;
+        break;
+      }
+    }
+    if (!changed) {
+      return;
+    }
+    appendTimingSample(trace, currentValues, action);
+    if (trace.samples.length - 1 >= TRACE_LIMITS.changes) {
+      trace.recording = false;
+      trace.notice = "\u672C\u8F6E\u8BB0\u5F55\u5DF2\u8FBE\u5230 " + TRACE_LIMITS.changes + " \u6B21\u53D8\u5316\u4E0A\u9650";
+    }
+  }
+  function timingEdge(previous, current) {
+    if (previous === 0 && current === 1) {
+      return "\u2191";
+    }
+    if (previous === 1 && current === 0) {
+      return "\u2193";
+    }
+    return "";
+  }
+
+  // src/ui/image-export.mjs
+  var RASTER = { scale: 2, maxSide: 16384, maxPixels: 16e6 };
+  var IMAGE_TYPES = { png: "image/png", jpg: "image/jpeg", svg: "image/svg+xml" };
+  var JPG_QUALITY = 0.95;
+  var SVG_PROPERTIES = [
+    "fill",
+    "stroke",
+    "stroke-width",
+    "stroke-dasharray",
+    "stroke-linecap",
+    "stroke-linejoin",
+    "font-family",
+    "font-size",
+    "font-weight",
+    "text-anchor",
+    "dominant-baseline",
+    "opacity",
+    "paint-order"
+  ];
+  function createExportPalette() {
+    const canvas2 = document.createElement("canvas");
+    canvas2.width = 1;
+    canvas2.height = 1;
+    const context = canvas2.getContext("2d", { willReadFrequently: true });
+    return { context, colors: /* @__PURE__ */ new Map() };
+  }
+  function exportPaint(palette, color) {
+    if (color === "none") {
+      return color;
+    }
+    if (!palette.colors.has(color)) {
+      const context = palette.context;
+      context.clearRect(0, 0, 1, 1);
+      context.fillStyle = color;
+      context.fillRect(0, 0, 1, 1);
+      const pixel = context.getImageData(0, 0, 1, 1).data;
+      const channels = pixel[0] + ", " + pixel[1] + ", " + pixel[2];
+      let paint = "rgb(" + channels + ")";
+      if (pixel[3] === 0) {
+        paint = "none";
+      } else if (pixel[3] < 255) {
+        const alpha = pixel[3] / 255;
+        paint = "rgba(" + channels + ", " + alpha + ")";
+      }
+      palette.colors.set(color, paint);
+    }
+    return palette.colors.get(color);
+  }
+  function copyShapeStyle(source, copy, palette) {
+    const style = getComputedStyle(source);
+    for (const property of SVG_PROPERTIES) {
+      let value = style.getPropertyValue(property);
+      if (property === "fill" || property === "stroke") {
+        if (value.toLowerCase() === "currentcolor") {
+          value = style.color;
+        }
+        value = exportPaint(palette, value);
+      }
+      copy.setAttribute(property, value);
+    }
+    copy.removeAttribute("tabindex");
+    copy.removeAttribute("role");
+  }
+  function copyStyledSvg(source, palette) {
+    const copy = source.cloneNode(true);
+    copy.removeAttribute("style");
+    copyShapeStyle(source, copy, palette);
+    const originals = source.querySelectorAll("*");
+    const copies = copy.querySelectorAll("*");
+    for (let index = 0; index < originals.length; index = index + 1) {
+      copyShapeStyle(originals[index], copies[index], palette);
+    }
+    return copy;
+  }
+  async function rasterizeSvg(file, width, height) {
+    const areaScale = Math.sqrt(RASTER.maxPixels / (width * height));
+    const sideScale = RASTER.maxSide / Math.max(width, height);
+    const scale = Math.min(RASTER.scale, areaScale, sideScale);
+    const canvas2 = document.createElement("canvas");
+    canvas2.width = Math.max(1, Math.floor(width * scale));
+    canvas2.height = Math.max(1, Math.floor(height * scale));
+    const address = URL.createObjectURL(file);
+    try {
+      const image = new Image();
+      image.src = address;
+      await image.decode();
+      const context = canvas2.getContext("2d");
+      context.drawImage(image, 0, 0, canvas2.width, canvas2.height);
+      return canvas2;
+    } finally {
+      URL.revokeObjectURL(address);
+    }
+  }
+  function encodeCanvas(canvas2, type) {
+    function encode(resolve, reject) {
+      function receive(blob) {
+        if (!blob || blob.type !== type) {
+          reject(new Error("\u6D4F\u89C8\u5668\u65E0\u6CD5\u751F\u6210\u6240\u9009\u56FE\u7247\u683C\u5F0F"));
+          return;
+        }
+        resolve(blob);
+      }
+      canvas2.toBlob(receive, type, JPG_QUALITY);
+    }
+    return new Promise(encode);
+  }
+  async function encodeCanvasImage(canvas2, format) {
+    let source = canvas2;
+    if (format === "jpg") {
+      source = document.createElement("canvas");
+      source.width = canvas2.width;
+      source.height = canvas2.height;
+      const context = source.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, source.width, source.height);
+      context.drawImage(canvas2, 0, 0);
+    }
+    return encodeCanvas(source, IMAGE_TYPES[format]);
+  }
+  async function encodeSvgImage(svg2, format) {
+    const serializer = new XMLSerializer();
+    const text2 = serializer.serializeToString(svg2);
+    const file = new Blob([text2], { type: IMAGE_TYPES.svg + ";charset=utf-8" });
+    if (format === "svg") {
+      return file;
+    }
+    const width = Number(svg2.getAttribute("width"));
+    const height = Number(svg2.getAttribute("height"));
+    const canvas2 = await rasterizeSvg(file, width, height);
+    return encodeCanvasImage(canvas2, format);
+  }
+
+  // src/ui/timing-export.mjs
+  var SHEET = { margin: 12, titleHeight: 28, axisHeight: 24, footerHeight: 24, labelWidth: 168, minWidth: 376 };
+  function csvRow(values) {
+    const fields = [];
+    for (const value of values) {
+      const text2 = String(value);
+      if (/[",\r\n]/.test(text2)) {
+        const escaped = text2.replaceAll('"', '""');
+        fields.push('"' + escaped + '"');
+      } else {
+        fields.push(text2);
+      }
+    }
+    return fields.join(",");
+  }
+  function createTimingCsv(trace) {
+    const headers = ["\u4E8B\u4EF6\u5E8F\u53F7", "\u64CD\u4F5C"];
+    for (const signal of trace.signals) {
+      headers.push(signal.label);
+    }
+    const rows = [csvRow(headers)];
+    for (let index = 0; index < trace.samples.length; index = index + 1) {
+      const sample = trace.samples[index];
+      const row = [index, sample.action];
+      for (const signal of trace.signals) {
+        row.push(sample.values[signal.endpoint]);
+      }
+      rows.push(csvRow(row));
+    }
+    const content = rows.join("\r\n") + "\r\n";
+    return new Blob(["\uFEFF", content], { type: "text/csv;charset=utf-8" });
+  }
+  function sheetStyle(lanes, palette) {
+    const style = getComputedStyle(lanes);
+    const firstLane = lanes.firstElementChild;
+    const grid = firstLane.querySelector(".timing-wave-grid");
+    const gridStyle = getComputedStyle(grid);
+    return {
+      ink: exportPaint(palette, style.getPropertyValue("--color-ink").trim()),
+      background: exportPaint(palette, style.getPropertyValue("--color-surface").trim()),
+      divider: exportPaint(palette, gridStyle.stroke),
+      font: style.getPropertyValue("--font-mono").trim()
+    };
+  }
+  function placeSvg(sheet, source, horizontal, vertical, palette) {
+    const copy = copyStyledSvg(source, palette);
+    copy.setAttribute("x", String(horizontal));
+    copy.setAttribute("y", String(vertical));
+    const selection = copy.querySelector(".timing-wave-selected");
+    if (selection) {
+      selection.remove();
+    }
+    sheet.append(copy);
+  }
+  function drawSheetLanes(sheet, lanes, trace, size, palette, style) {
+    const bodyTop = SHEET.margin + SHEET.titleHeight + SHEET.axisHeight;
+    for (let index = 0; index < trace.signals.length; index = index + 1) {
+      const lane = lanes.children[index];
+      const top = bodyTop + index * size.rowHeight;
+      const middle = top + size.rowHeight / 2;
+      const wave = lane.querySelector(":scope > svg");
+      const levelScale = lane.querySelector(".timing-level-scale");
+      const scaleWidth = Number(levelScale.getAttribute("width"));
+      svgElement(sheet, "text", {
+        x: SHEET.margin,
+        y: middle,
+        "dominant-baseline": "central",
+        "font-size": 11
+      }, trace.signals[index].label);
+      placeSvg(sheet, levelScale, size.waveStart - scaleWidth, top, palette);
+      placeSvg(sheet, wave, size.waveStart, top, palette);
+      const rowEnd = top + size.rowHeight;
+      svgElement(sheet, "line", {
+        x1: SHEET.margin,
+        y1: rowEnd,
+        x2: size.waveEnd,
+        y2: rowEnd,
+        stroke: style.divider
+      });
+    }
+  }
+  function buildTimingSheet(lanes, trace) {
+    const firstWave = lanes.querySelector(".timing-lane > svg");
+    const waveWidth = Number(firstWave.getAttribute("width"));
+    const rowHeight = Number(firstWave.getAttribute("height"));
+    const waveStart = SHEET.margin + SHEET.labelWidth;
+    const waveEnd = waveStart + waveWidth;
+    const width = Math.max(SHEET.minWidth, waveEnd + SHEET.margin);
+    const bodyTop = SHEET.margin + SHEET.titleHeight + SHEET.axisHeight;
+    const bodyBottom = bodyTop + trace.signals.length * rowHeight;
+    const height = bodyBottom + SHEET.footerHeight + SHEET.margin;
+    const palette = createExportPalette();
+    const style = sheetStyle(lanes, palette);
+    const sheet = document.createElementNS(SVG_NAMESPACE, "svg");
+    sheet.setAttribute("xmlns", SVG_NAMESPACE);
+    sheet.setAttribute("width", String(width));
+    sheet.setAttribute("height", String(height));
+    sheet.setAttribute("viewBox", "0 0 " + width + " " + height);
+    sheet.setAttribute("font-family", style.font);
+    sheet.setAttribute("fill", style.ink);
+    svgElement(sheet, "title", {}, "\u6570\u5B57\u65F6\u5E8F\u6CE2\u5F62");
+    svgElement(sheet, "rect", { width, height, fill: style.background });
+    svgElement(sheet, "text", { x: SHEET.margin, y: SHEET.margin + 15, "font-size": 15, "font-weight": 600 }, "\u6570\u5B57\u65F6\u5E8F\u6CE2\u5F62");
+    const axisLabelHeight = bodyTop - 7;
+    svgElement(sheet, "text", { x: SHEET.margin, y: axisLabelHeight, "font-size": 11 }, "\u4E8B\u4EF6\u5E8F\u53F7\uFF08\u975E\u5B9E\u7269\u65F6\u95F4\uFF09");
+    const step = waveWidth / trace.samples.length;
+    for (let index = 0; index < trace.samples.length; index = index + 1) {
+      const center = waveStart + (index + 0.5) * step;
+      svgElement(sheet, "text", { x: center, y: axisLabelHeight, "font-size": 11, "text-anchor": "middle" }, String(index));
+    }
+    const size = { rowHeight, waveStart, waveEnd };
+    drawSheetLanes(sheet, lanes, trace, size, palette, style);
+    svgElement(sheet, "line", { x1: SHEET.margin, y1: bodyTop, x2: waveEnd, y2: bodyTop, stroke: style.divider });
+    svgElement(sheet, "line", { x1: waveStart, y1: bodyTop, x2: waveStart, y2: bodyBottom, stroke: style.divider });
+    svgElement(sheet, "text", { x: SHEET.margin, y: bodyBottom + 19, "font-size": 11 }, "0 \u4F4E\u7535\u5E73 \xB7 1 \u9AD8\u7535\u5E73 \xB7 X \u672A\u77E5 \xB7 Z \u9AD8\u963B");
+    return sheet;
+  }
+  function encodeTimingTrace(lanes, trace, format) {
+    if (trace.samples.length === 0) {
+      throw new Error("\u5C1A\u672A\u5F55\u5236\u6CE2\u5F62");
+    }
+    if (format === "csv") {
+      return createTimingCsv(trace);
+    }
+    const sheet = buildTimingSheet(lanes, trace);
+    return encodeSvgImage(sheet, format);
+  }
+
+  // desktop/export-formats.mjs
+  var EXPORT_FILES = {
+    circuit: { title: "\u5BFC\u51FA\u7535\u8DEF", name: "breadboard-circuit", formats: ["json", "png", "jpg"] },
+    board: { title: "\u5BFC\u51FA\u63A5\u7EBF\u56FE", name: "breadboard-wiring", formats: ["png", "jpg"] },
+    logic: { title: "\u5BFC\u51FA\u903B\u8F91\u56FE", name: "breadboard-logic", formats: ["svg", "png"] },
+    timing: { title: "\u5BFC\u51FA\u6CE2\u5F62", name: "breadboard-timing", formats: ["svg", "png", "csv"] }
+  };
+  var EXPORT_FORMATS = {
+    json: { label: "JSON \u7535\u8DEF\u5B58\u6863\uFF08\u53EF\u91CD\u65B0\u5BFC\u5165\uFF09", mime: "application/json", extensions: ["json"] },
+    png: { label: "PNG \u56FE\u7247", mime: "image/png", extensions: ["png"] },
+    jpg: { label: "JPEG \u56FE\u7247", mime: "image/jpeg", extensions: ["jpg", "jpeg"] },
+    svg: { label: "SVG \u77E2\u91CF\u56FE", mime: "image/svg+xml", extensions: ["svg"] },
+    csv: { label: "CSV \u65F6\u5E8F\u6570\u636E", mime: "text/csv", extensions: ["csv"] }
+  };
+  function exportFormatForName(filename, formats) {
+    const extensionStart = filename.lastIndexOf(".") + 1;
+    if (extensionStart > 0) {
+      const extension = filename.slice(extensionStart).toLowerCase();
+      for (const format of formats) {
+        if (EXPORT_FORMATS[format].extensions.includes(extension)) {
+          return format;
+        }
+      }
+    }
+    return "";
+  }
+
+  // src/ui/export-dialog.mjs
+  var pendingExport = null;
+  var saving = false;
+  function openDownloadDialog(file, createFile) {
+    const dialog = element("export-dialog");
+    if (dialog.open) {
+      return;
+    }
+    element("export-title").textContent = file.title;
+    const picker = element("export-format");
+    picker.replaceChildren();
+    for (const format of file.formats) {
+      const option = node("option", format.toUpperCase(), "");
+      option.value = format;
+      picker.append(option);
+    }
+    pendingExport = { file, createFile };
+    dialog.showModal();
+  }
+  function cancelExport() {
+    pendingExport = null;
+    element("export-dialog").close();
+  }
+  async function downloadExport(file, format, createFile) {
+    const blob = await createFile(format);
+    downloadFile(blob, file.name + "." + format);
+  }
+  async function saveDesktopExport(bridge, kind, createFile) {
+    const selected = await bridge.choose(kind);
+    if (!selected) {
+      return;
+    }
+    let content;
+    try {
+      const blob = await createFile(selected.format);
+      content = await blob.arrayBuffer();
+    } catch (error) {
+      await bridge.discard(selected.ticket);
+      throw error;
+    }
+    await bridge.write(selected.ticket, content);
+  }
+  function browserFileTypes(formats) {
+    const types = [];
+    for (const format of formats) {
+      const entry = EXPORT_FORMATS[format];
+      const extensions = [];
+      for (const extension of entry.extensions) {
+        extensions.push("." + extension);
+      }
+      const accept = {};
+      accept[entry.mime] = extensions;
+      types.push({ description: entry.label, accept });
+    }
+    return types;
+  }
+  async function saveBrowserExport(file, createFile) {
+    const defaultFormat = file.formats[0];
+    let handle;
+    try {
+      handle = await window.showSaveFilePicker({
+        suggestedName: file.name + "." + defaultFormat,
+        types: browserFileTypes(file.formats),
+        excludeAcceptAllOption: true
+      });
+    } catch (error) {
+      if (error.name === "SecurityError") {
+        return false;
+      }
+      throw error;
+    }
+    const format = exportFormatForName(handle.name, file.formats);
+    if (!format) {
+      throw new Error("\u6587\u4EF6\u6269\u5C55\u540D\u4E0E\u652F\u6301\u7684\u683C\u5F0F\u4E0D\u5339\u914D");
+    }
+    const content = await createFile(format);
+    const output = await handle.createWritable();
+    await output.write(content);
+    await output.close();
+    return true;
+  }
+  function reportExportError(error) {
+    const message = "\u5BFC\u51FA\u5931\u8D25\uFF1A" + error.message;
+    if (element("logic-diagram-dialog").open) {
+      const notice = element("logic-export-error");
+      notice.textContent = message;
+      notice.hidden = false;
+    } else {
+      showToast(message, "error");
+    }
+  }
+  async function requestExport(kind, createFile) {
+    if (saving) {
+      return;
+    }
+    const file = EXPORT_FILES[kind];
+    const bridge = window.breadboardExport;
+    saving = true;
+    element("logic-export-error").hidden = true;
+    try {
+      if (bridge) {
+        await saveDesktopExport(bridge, kind, createFile);
+      } else if (typeof window.showSaveFilePicker === "function") {
+        const supported = await saveBrowserExport(file, createFile);
+        if (!supported) {
+          openDownloadDialog(file, createFile);
+        }
+      } else {
+        openDownloadDialog(file, createFile);
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        reportExportError(error);
+      }
+    } finally {
+      saving = false;
+    }
+  }
+  async function confirmExport(event) {
+    event.preventDefault();
+    const request = pendingExport;
+    const format = element("export-format").value;
+    cancelExport();
+    if (request && request.file.formats.includes(format)) {
+      try {
+        await downloadExport(request.file, format, request.createFile);
+      } catch (error) {
+        reportExportError(error);
+      }
+    }
+  }
+  function bindExportDialog() {
+    element("export-form").addEventListener("submit", confirmExport);
+    element("export-cancel").addEventListener("click", cancelExport);
+    element("export-dialog").addEventListener("cancel", cancelExport);
+  }
+  function bindFileExport(buttonId, kind, createFile) {
+    const button = element(buttonId);
+    const open = requestExport.bind(null, kind, createFile);
+    button.addEventListener("click", open);
+  }
+
+  // src/ui/timing-panel.mjs
+  var WAVE = { step: 44, height: 32, high: 8, low: 24, middle: 16, scaleWidth: 20, tickLength: 6, valueOffset: 16, valueHeight: 13 };
+  var available = [];
+  var renderedTrace = null;
+  var renderedRevision = -1;
+  var renderedSignature = null;
+  var renderedSignals = null;
+  var selectedEvent = -1;
+  var followLatest = true;
+  function watchedEndpoints(trace) {
+    const endpoints2 = /* @__PURE__ */ new Set();
+    for (const signal of trace.signals) {
+      endpoints2.add(signal.endpoint);
+    }
+    return endpoints2;
+  }
+  function renderSignalPicker(trace) {
+    const picker = element("timing-signal");
+    const previous = picker.value;
+    const groups = /* @__PURE__ */ new Map();
+    const watched = watchedEndpoints(trace);
+    picker.replaceChildren();
+    for (const signal of available) {
+      if (watched.has(signal.endpoint)) {
+        continue;
+      }
+      let group = groups.get(signal.group);
+      if (!group) {
+        group = document.createElement("optgroup");
+        group.label = signal.group;
+        groups.set(signal.group, group);
+        picker.append(group);
+      }
+      const option = node("option", signal.label, "");
+      option.value = signal.endpoint;
+      option.selected = signal.endpoint === previous;
+      group.append(option);
+    }
+  }
+  function renderSignals(trace) {
+    const list = element("timing-signals");
+    list.replaceChildren();
+    for (const signal of trace.signals) {
+      const item = node("li", "", "");
+      const button = node("button", "", "icon-button");
+      const label2 = "\u79FB\u9664 " + signal.label;
+      button.type = "button";
+      button.dataset.endpoint = signal.endpoint;
+      button.setAttribute("aria-label", label2);
+      button.title = label2;
+      button.append(icon("x"));
+      item.append(node("span", signal.label, ""), button);
+      list.append(item);
+    }
+    element("timing-signal-count").textContent = trace.signals.length + " / " + TRACE_LIMITS.signals;
+    refreshIcons();
+  }
+  function waveHeight(value) {
+    if (value === 1) {
+      return WAVE.high;
+    }
+    if (value === 0) {
+      return WAVE.low;
+    }
+    return WAVE.middle;
+  }
+  function drawLaneLabel(row, signal) {
+    const column = node("div", "", "timing-lane-label timing-lane-heading");
+    const label2 = node("span", signal.label, "timing-lane-name");
+    label2.title = signal.label;
+    column.append(label2);
+    row.append(column);
+    const scale = svgElement(column, "svg", { width: WAVE.scaleWidth, height: WAVE.height, class: "timing-level-scale" });
+    const tickStart = WAVE.scaleWidth - WAVE.tickLength;
+    const textCenter = tickStart / 2;
+    for (const level of [1, 0]) {
+      const height = waveHeight(level);
+      svgElement(scale, "text", { x: textCenter, y: height, "dominant-baseline": "central", "text-anchor": "middle" }, String(level));
+      svgElement(scale, "line", { x1: tickStart, y1: height, x2: WAVE.scaleWidth, y2: height });
+    }
+  }
+  function drawSignalLane(container, trace, signal) {
+    const row = node("div", "", "timing-lane");
+    drawLaneLabel(row, signal);
+    container.append(row);
+    const width = trace.samples.length * WAVE.step;
+    const svg2 = svgElement(row, "svg", { width, height: WAVE.height });
+    svgElement(svg2, "rect", { width: WAVE.step, height: WAVE.height, class: "timing-wave-selected" });
+    const paths = { grid: "", digital: "", X: "", Z: "" };
+    let previous = null;
+    for (let index = 0; index < trace.samples.length; index = index + 1) {
+      const position = index * WAVE.step;
+      const value = trace.samples[index].values[signal.endpoint];
+      const height = waveHeight(value);
+      if (index > 0) {
+        paths.grid = paths.grid + "M" + position + " 0V" + WAVE.height;
+      }
+      const segment = "M" + position + " " + height + "h" + WAVE.step;
+      if (value === "X" || value === "Z") {
+        paths[value] = paths[value] + segment;
+        const valuePosition = position + WAVE.valueOffset;
+        svgElement(svg2, "text", { x: valuePosition, y: WAVE.valueHeight, class: "timing-wave-value" }, value);
+      } else {
+        paths.digital = paths.digital + segment;
+        if (timingEdge(previous, value) !== "") {
+          paths.digital = paths.digital + "M" + position + " " + waveHeight(previous) + "V" + height;
+        }
+      }
+      previous = value;
+    }
+    svgElement(svg2, "path", { d: paths.grid, class: "timing-wave-grid" });
+    svgElement(svg2, "path", { d: paths.digital, class: "timing-wave-line" });
+    svgElement(svg2, "path", { d: paths.X, class: "timing-wave-line timing-wave-x" });
+    svgElement(svg2, "path", { d: paths.Z, class: "timing-wave-line timing-wave-z" });
+  }
+  function eventMark(trace, index) {
+    if (index === 0) {
+      return "";
+    }
+    const before = trace.samples[index - 1].values;
+    const after = trace.samples[index].values;
+    let rising = "";
+    let falling = "";
+    for (const signal of trace.signals) {
+      const edge = timingEdge(before[signal.endpoint], after[signal.endpoint]);
+      if (edge === "\u2191") {
+        rising = edge;
+      } else if (edge === "\u2193") {
+        falling = edge;
+      }
+    }
+    return rising + falling;
+  }
+  function showEvent(trace) {
+    const detail = element("timing-detail");
+    const sample = trace.samples[selectedEvent];
+    detail.hidden = !sample;
+    if (!sample) {
+      return;
+    }
+    const offset = selectedEvent * WAVE.step;
+    for (const mark of element("timing-lanes").querySelectorAll(".timing-wave-selected")) {
+      mark.setAttribute("x", String(offset));
+    }
+    for (const button of element("timing-events").querySelectorAll("button")) {
+      const active = Number(button.dataset.event) === selectedEvent;
+      button.setAttribute("aria-pressed", String(active));
+      button.tabIndex = -1;
+      if (active) {
+        button.tabIndex = 0;
+      }
+    }
+    element("timing-event-title").textContent = "#" + selectedEvent + " \xB7 " + sample.action;
+    const values = element("timing-values");
+    values.replaceChildren();
+    for (const signal of trace.signals) {
+      const after = sample.values[signal.endpoint];
+      let before = "\u2014";
+      if (selectedEvent > 0) {
+        before = trace.samples[selectedEvent - 1].values[signal.endpoint];
+      }
+      const row = document.createElement("tr");
+      const name = node("th", signal.label, "");
+      name.scope = "row";
+      let edge = timingEdge(before, after);
+      if (edge === "") {
+        edge = "\u2014";
+      }
+      row.append(name, node("td", String(before), ""), node("td", String(after), ""), node("td", edge, ""));
+      if (selectedEvent > 0 && before !== after) {
+        row.classList.add("timing-value-changed");
+      }
+      values.append(row);
+    }
+  }
+  function renderWave(trace) {
+    const chart = element("timing-chart");
+    const lanes = element("timing-lanes");
+    const events = element("timing-events");
+    const focused = events.contains(document.activeElement);
+    const count = trace.samples.length;
+    element("timing-empty").hidden = count > 0;
+    lanes.replaceChildren();
+    events.replaceChildren();
+    if (count === 0) {
+      selectedEvent = -1;
+      followLatest = true;
+      showEvent(trace);
+      return;
+    }
+    for (const signal of trace.signals) {
+      drawSignalLane(lanes, trace, signal);
+    }
+    events.append(node("span", "\u5E8F\u53F7", "timing-lane-label"));
+    for (let index = 0; index < count; index = index + 1) {
+      const label2 = eventMark(trace, index);
+      const button = node("button", index + label2, "timing-event");
+      button.type = "button";
+      button.dataset.event = String(index);
+      const description = "\u4E8B\u4EF6 " + index + "\uFF1A" + trace.samples[index].action;
+      button.title = description;
+      button.setAttribute("aria-label", description);
+      events.append(button);
+    }
+    if (followLatest || selectedEvent < 0 || selectedEvent >= count) {
+      selectedEvent = count - 1;
+      chart.scrollLeft = chart.scrollWidth;
+    }
+    showEvent(trace);
+    if (focused) {
+      const selected = events.querySelector("[tabindex='0']");
+      selected.focus({ preventScroll: true });
+    }
+  }
+  function renderTimingPanel(state2) {
+    const trace = state2.timing;
+    const signature = state2.result.signature;
+    const circuitChanged = trace !== renderedTrace || signature !== renderedSignature;
+    if (circuitChanged) {
+      available = availableTimingSignals(state2.project);
+    }
+    if (circuitChanged || trace.signals !== renderedSignals) {
+      renderSignalPicker(trace);
+      renderSignals(trace);
+      renderedSignals = trace.signals;
+    }
+    if (!circuitChanged && trace.revision === renderedRevision) {
+      return;
+    }
+    renderedTrace = trace;
+    renderedSignature = signature;
+    renderedRevision = trace.revision;
+    const picker = element("timing-signal");
+    picker.disabled = trace.recording || trace.signals.length >= TRACE_LIMITS.signals || picker.options.length === 0;
+    element("timing-add").disabled = picker.disabled;
+    element("timing-start").disabled = trace.recording || trace.signals.length === 0;
+    const startLabel = element("timing-start-label");
+    startLabel.textContent = "\u5F00\u59CB";
+    if (!trace.recording && trace.samples.length > 0) {
+      startLabel.textContent = "\u91CD\u65B0\u8BB0\u5F55";
+    }
+    element("timing-stop").disabled = !trace.recording;
+    element("timing-clear").disabled = trace.recording || trace.samples.length === 0;
+    element("timing-export").disabled = trace.samples.length === 0;
+    for (const button of element("timing-signals").querySelectorAll("button")) {
+      button.disabled = trace.recording;
+    }
+    const status = element("timing-status");
+    status.textContent = trace.notice;
+    status.classList.toggle("timing-recording", trace.recording);
+    renderWave(trace);
+  }
+  function addSignal(state2) {
+    const picker = element("timing-signal");
+    for (const signal of available) {
+      if (signal.endpoint === picker.value && addTimingSignal(state2.timing, signal)) {
+        renderTimingPanel(state2);
+        return;
+      }
+    }
+  }
+  function removeSignal(state2, event) {
+    const button = event.target.closest("button[data-endpoint]");
+    if (button && removeTimingSignal(state2.timing, button.dataset.endpoint)) {
+      renderTimingPanel(state2);
+      element("timing-signal").focus();
+    }
+  }
+  function startRecording(state2) {
+    if (startTimingTrace(state2.timing, state2.result)) {
+      followLatest = true;
+      renderTimingPanel(state2);
+      element("timing-stop").focus();
+    }
+  }
+  function stopRecording(state2) {
+    stopTimingTrace(state2.timing);
+    renderTimingPanel(state2);
+    element("timing-start").focus();
+  }
+  function clearRecording(state2) {
+    clearTimingTrace(state2.timing);
+    renderTimingPanel(state2);
+    element("timing-start").focus();
+  }
+  function createTimingFile(state2, format) {
+    const lanes = element("timing-lanes");
+    return encodeTimingTrace(lanes, state2.timing, format);
+  }
+  function clickWave(state2, event) {
+    const button = event.target.closest(".timing-event");
+    const svg2 = event.target.closest(".timing-lane > svg");
+    let index = -1;
+    if (button) {
+      index = Number(button.dataset.event);
+    } else if (svg2) {
+      const bounds = svg2.getBoundingClientRect();
+      index = Math.floor((event.clientX - bounds.left) / WAVE.step);
+    }
+    if (index >= 0 && index < state2.timing.samples.length) {
+      followLatest = false;
+      selectedEvent = index;
+      showEvent(state2.timing);
+    }
+  }
+  function moveEvent(state2, event) {
+    const button = event.target.closest(".timing-event");
+    if (!button) {
+      return;
+    }
+    const last = state2.timing.samples.length - 1;
+    let index = Number(button.dataset.event);
+    if (event.key === "ArrowLeft") {
+      index = Math.max(0, index - 1);
+    } else if (event.key === "ArrowRight") {
+      index = Math.min(last, index + 1);
+    } else if (event.key === "Home") {
+      index = 0;
+    } else if (event.key === "End") {
+      index = last;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    followLatest = false;
+    selectedEvent = index;
+    showEvent(state2.timing);
+    const selected = element("timing-events").querySelector("[tabindex='0']");
+    selected.focus();
+  }
+  function bindTimingPanel(state2) {
+    element("timing-panel").style.setProperty("--timing-step", WAVE.step + "px");
+    element("timing-add").addEventListener("click", addSignal.bind(null, state2));
+    element("timing-signals").addEventListener("click", removeSignal.bind(null, state2));
+    element("timing-start").addEventListener("click", startRecording.bind(null, state2));
+    element("timing-stop").addEventListener("click", stopRecording.bind(null, state2));
+    element("timing-clear").addEventListener("click", clearRecording.bind(null, state2));
+    const createFile = createTimingFile.bind(null, state2);
+    bindFileExport("timing-export", "timing", createFile);
+    element("timing-chart").addEventListener("click", clickWave.bind(null, state2));
+    element("timing-events").addEventListener("keydown", moveEvent.bind(null, state2));
+  }
+
+  // src/ui/board-io.mjs
+  var BINARY_GROUP_SIZE = 4;
+  function createInputControl(bit, onToggle) {
+    const name = "K" + bit;
+    const wrapper = node("div", "", "quick-input");
+    const label2 = node("span", name, "quick-port-label");
+    const led = node("span", "", "io-led");
+    led.dataset.inputLed = String(bit);
+    led.setAttribute("role", "img");
+    const button = node("button", "0", "bit-button");
+    button.dataset.bit = String(bit);
+    button.setAttribute("aria-label", "\u5207\u6362 " + name);
+    button.addEventListener("click", onToggle.bind(null, bit));
+    wrapper.append(label2, led, button);
+    return wrapper;
+  }
+  function ensureInputControls(count, onToggle) {
+    const container = element("quick-switches");
+    if (container.children.length === count) {
+      return;
+    }
+    container.replaceChildren();
+    for (let bit = count - 1; bit >= 0; bit = bit - 1) {
+      container.append(createInputControl(bit, onToggle));
+    }
+  }
+  function setLedState(led, name, value) {
+    const text2 = name + "\uFF1A" + value;
+    led.classList.toggle("on", value === 1);
+    led.dataset.value = String(value);
+    led.setAttribute("aria-label", text2);
+    led.title = text2;
+  }
+  function renderInputs(project, result, onToggle) {
+    const count = project.inputCount;
+    ensureInputControls(count, onToggle);
+    const switches = element("quick-switches");
+    let number = 0;
+    for (const button of switches.querySelectorAll("button")) {
+      const bit = Number(button.dataset.bit);
+      const value = project.switches[bit];
+      button.textContent = String(value);
+      button.setAttribute("aria-pressed", String(value === 1));
+      const led = button.parentElement.querySelector(".io-led");
+      const name = "K" + bit;
+      setLedState(led, name, readEndpoint(result, name));
+      number = number * 2 + value;
+    }
+    element("input-decimal").textContent = String(number);
+    element("input-label").textContent = "\u8F93\u5165 K" + (count - 1) + "\u2026K0";
+  }
+  function renderOutputLeds(count, result) {
+    const container = element("output-leds");
+    if (container.children.length !== count) {
+      container.replaceChildren();
+      for (let bit = count - 1; bit >= 0; bit = bit - 1) {
+        const wrapper = node("div", "", "output-port");
+        const led = node("span", "", "io-led");
+        led.dataset.outputLed = String(bit);
+        led.setAttribute("role", "img");
+        wrapper.append(led, node("span", "L" + bit, "quick-port-label"));
+        container.append(wrapper);
+      }
+    }
+    for (const led of container.querySelectorAll("[data-output-led]")) {
+      const name = "L" + led.dataset.outputLed;
+      setLedState(led, name, readEndpoint(result, name));
+    }
+  }
+  function renderOutputs(project, result) {
+    const count = project.outputCount;
+    let binary = "";
+    let known = true;
+    let number = 0;
+    for (let bit = count - 1; bit >= 0; bit = bit - 1) {
+      const value = readEndpoint(result, "L" + bit);
+      binary = binary + String(value);
+      if (bit > 0 && bit % BINARY_GROUP_SIZE === 0) {
+        binary = binary + " ";
+      }
+      if (value !== 0 && value !== 1) {
+        known = false;
+      } else {
+        number = number * 2 + value;
+      }
+    }
+    element("output-label").textContent = "\u8F93\u51FA L" + (count - 1) + "\u2026L0";
+    const display = element("binary-result");
+    display.textContent = binary;
+    display.classList.add("general-binary");
+    renderOutputLeds(count, result);
+    let meaning = "\u672A\u77E5 / \u60AC\u7A7A";
+    if (!project.power) {
+      meaning = "\u7535\u6E90\u5173\u95ED";
+    } else if (known) {
+      meaning = String(number);
+    }
+    element("result-meaning").textContent = meaning;
+  }
+  function inputRowWidth(switches, buttons) {
+    const switchStyle = getComputedStyle(switches);
+    const input = document.querySelector(".input-block");
+    const inputStyle = getComputedStyle(input);
+    const switchGap = Number.parseFloat(switchStyle.columnGap);
+    const numberGap = Number.parseFloat(inputStyle.columnGap);
+    let width = (buttons.length - 1) * switchGap;
+    for (const button of buttons) {
+      width = width + button.getBoundingClientRect().width;
+    }
+    const number = element("input-decimal");
+    const numberWidth = number.getBoundingClientRect().width;
+    return width + numberGap + numberWidth;
+  }
+  function updateIoLayout() {
+    const switches = element("quick-switches");
+    const buttons = switches.querySelectorAll(".quick-input");
+    if (buttons.length === 0) {
+      return;
+    }
+    const strip = document.querySelector(".io-strip");
+    const stripStyle = getComputedStyle(strip);
+    const paddingStart = Number.parseFloat(stripStyle.paddingInlineStart);
+    const paddingEnd = Number.parseFloat(stripStyle.paddingInlineEnd);
+    const groupGap = Number.parseFloat(stripStyle.columnGap);
+    const inputWidth = inputRowWidth(switches, buttons);
+    const settings = document.querySelector(".io-settings");
+    const settingsWidth = settings.getBoundingClientRect().width;
+    const output = document.querySelector(".result-block");
+    const outputWidth = output.getBoundingClientRect().width;
+    const pulseGroup = document.querySelector(".operation-block");
+    const pulseStyle = getComputedStyle(pulseGroup);
+    const pulseGap = Number.parseFloat(pulseStyle.columnGap);
+    const positive = element("pulse-positive");
+    const negative = element("pulse-negative");
+    const positiveWidth = positive.getBoundingClientRect().width;
+    const negativeWidth = negative.getBoundingClientRect().width;
+    const pulseWidth = positiveWidth + negativeWidth + pulseGap;
+    const requiredWidth = settingsWidth + outputWidth + inputWidth + pulseWidth + groupGap * 3;
+    const availableWidth = strip.clientWidth - paddingStart - paddingEnd;
+    strip.classList.toggle("pulses-stacked", requiredWidth > availableWidth);
+  }
+  function renderBoardIo(project, result, onToggle) {
+    renderInputs(project, result, onToggle);
+    element("input-count").value = String(project.inputCount);
+    element("output-count").value = String(project.outputCount);
+    renderOutputs(project, result);
+    updateIoLayout();
+  }
+
+  // src/ui/tooltip.mjs
+  var TOOLTIP = { showDelay: 800, leaveDelay: 150, gap: 8, edge: 8 };
+  var tip = null;
+  var anchor = null;
+  var timer = 0;
+  var describedAnchor = null;
+  var previousDescription = null;
+  function tooltipAnchor(target) {
+    if (!(target instanceof Element)) {
+      return null;
+    }
+    return target.closest("[data-tip]");
+  }
+  function stopTimer2() {
+    window.clearTimeout(timer);
+    timer = 0;
+  }
+  function hideTooltip() {
+    stopTimer2();
+    if (tip.matches(":popover-open")) {
+      tip.hidePopover();
+    }
+    if (describedAnchor) {
+      if (previousDescription === null) {
+        describedAnchor.removeAttribute("aria-describedby");
+      } else {
+        describedAnchor.setAttribute("aria-describedby", previousDescription);
+      }
+    }
+    describedAnchor = null;
+    previousDescription = null;
+    anchor = null;
+  }
+  function positionTooltip(trigger) {
+    const bounds = trigger.getBoundingClientRect();
+    const size = tip.getBoundingClientRect();
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const centered = bounds.left + (bounds.width - size.width) / 2;
+    const rightLimit = viewportWidth - TOOLTIP.edge - size.width;
+    const left = Math.max(TOOLTIP.edge, Math.min(centered, rightLimit));
+    const below = bounds.bottom + TOOLTIP.gap;
+    const above = bounds.top - TOOLTIP.gap - size.height;
+    const bottomLimit = viewportHeight - TOOLTIP.edge - size.height;
+    let top = below;
+    if (below > bottomLimit && above >= TOOLTIP.edge) {
+      top = above;
+    }
+    top = Math.max(TOOLTIP.edge, Math.min(top, bottomLimit));
+    tip.style.left = left + "px";
+    tip.style.top = top + "px";
+  }
+  function showTooltip() {
+    stopTimer2();
+    if (!anchor || !anchor.isConnected || anchor.getClientRects().length === 0) {
+      hideTooltip();
+      return;
+    }
+    let host = anchor.closest("dialog[open]");
+    if (!host) {
+      host = document.body;
+    }
+    host.append(tip);
+    tip.textContent = anchor.dataset.tip;
+    tip.showPopover();
+    positionTooltip(anchor);
+    describedAnchor = anchor;
+    previousDescription = anchor.getAttribute("aria-describedby");
+    let description = tip.id;
+    if (previousDescription) {
+      description = previousDescription + " " + description;
+    }
+    anchor.setAttribute("aria-describedby", description);
+  }
+  function enterTooltip(event) {
+    if (event.pointerType !== "mouse") {
+      return;
+    }
+    if (tip.contains(event.target)) {
+      stopTimer2();
+      return;
+    }
+    const trigger = tooltipAnchor(event.target);
+    if (!trigger) {
+      return;
+    }
+    if (trigger === anchor) {
+      if (tip.matches(":popover-open")) {
+        stopTimer2();
+      }
+      return;
+    }
+    hideTooltip();
+    anchor = trigger;
+    timer = window.setTimeout(showTooltip, TOOLTIP.showDelay);
+  }
+  function leaveTooltip(event) {
+    if (!anchor || event.pointerType !== "mouse") {
+      return;
+    }
+    const fromTip = tip.contains(event.target);
+    if (!fromTip && tooltipAnchor(event.target) !== anchor) {
+      return;
+    }
+    if (anchor.contains(event.relatedTarget) || tip.contains(event.relatedTarget)) {
+      return;
+    }
+    if (!tip.matches(":popover-open")) {
+      hideTooltip();
+      return;
+    }
+    const focus = document.activeElement;
+    const keyboardFocus = focus && anchor.contains(focus) && focus.matches(":focus-visible");
+    if (!keyboardFocus) {
+      stopTimer2();
+      timer = window.setTimeout(hideTooltip, TOOLTIP.leaveDelay);
+    }
+  }
+  function focusTooltip(event) {
+    const trigger = tooltipAnchor(event.target);
+    if (!trigger || !event.target.matches(":focus-visible")) {
+      return;
+    }
+    if (trigger !== anchor || !tip.matches(":popover-open")) {
+      hideTooltip();
+      anchor = trigger;
+      showTooltip();
+    }
+  }
+  function blurTooltip(event) {
+    if (anchor && anchor.contains(event.target) && !anchor.contains(event.relatedTarget)) {
+      hideTooltip();
+    }
+  }
+  function dismissTooltip(event) {
+    if (event.key !== "Escape" || !anchor) {
+      return;
+    }
+    if (tip.matches(":popover-open")) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+    hideTooltip();
+  }
+  function closeDialogTooltip(event) {
+    if (anchor && event.target.contains(anchor)) {
+      hideTooltip();
+    }
+  }
+  function bindTooltips() {
+    tip = element("workbench-tooltip");
+    tip.style.setProperty("--tooltip-edge", TOOLTIP.edge + "px");
+    document.addEventListener("pointerover", enterTooltip);
+    document.addEventListener("pointerout", leaveTooltip);
+    document.addEventListener("pointerdown", hideTooltip, true);
+    document.addEventListener("focusin", focusTooltip);
+    document.addEventListener("focusout", blurTooltip);
+    document.addEventListener("keydown", dismissTooltip, true);
+    document.addEventListener("close", closeDialogTooltip, true);
+    window.addEventListener("scroll", hideTooltip, true);
+    window.addEventListener("resize", hideTooltip);
+    window.addEventListener("blur", hideTooltip);
   }
 
   // src/experiments/preset-wiring.mjs
@@ -3113,9 +5360,10 @@
   var SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
   var FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
   var REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
-  var PRESET_PORT_COUNT = 7;
+  var COMPLEMENT_PORT_COUNT = 7;
+  var COMPLEMENT_NAME = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
   var COMPLEMENT_RESET_INPUT = 6;
-  var COMPLEMENT_NOTES = `# \u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668
+  var COMPLEMENT_NOTES = `# ${COMPLEMENT_NAME}
 
 ## \u529F\u80FD
 
@@ -3174,10 +5422,10 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
 `;
   function complementPreset() {
     const project = emptyProject();
-    project.inputCount = PRESET_PORT_COUNT;
-    project.outputCount = PRESET_PORT_COUNT;
+    project.inputCount = COMPLEMENT_PORT_COUNT;
+    project.outputCount = COMPLEMENT_PORT_COUNT;
     project.notes = COMPLEMENT_NOTES;
-    project.name = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
+    project.name = COMPLEMENT_NAME;
     project.chips = structuredClone(PRESET_CHIPS);
     const usage = {};
     let power = "VCC";
@@ -3274,2410 +5522,6 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       wires.set(key, count - 1);
     }
     return true;
-  }
-
-  // src/experiments/ram-routes.json
-  var ram_routes_default = {
-    W1: [
-      {
-        x: 1242,
-        y: 405.3599999999995
-      },
-      {
-        x: 252,
-        y: 405.3599999999995
-      }
-    ],
-    W2: [
-      {
-        x: 1210,
-        y: 495.28571428571416
-      },
-      {
-        x: 450,
-        y: 495.28571428571416
-      }
-    ],
-    W3: [
-      {
-        x: 252,
-        y: 396.3599999999995
-      },
-      {
-        x: 774,
-        y: 396.3599999999995
-      }
-    ],
-    W4: [
-      {
-        x: 450,
-        y: 514.4857142857142
-      },
-      {
-        x: 972,
-        y: 514.4857142857142
-      }
-    ],
-    W5: [
-      {
-        x: 774,
-        y: 402.3599999999995
-      },
-      {
-        x: 748.0000001799999,
-        y: 402.3599999999995
-      },
-      {
-        x: 748.0000001799999,
-        y: 646.00000015
-      },
-      {
-        x: 792,
-        y: 646.00000015
-      }
-    ],
-    W6: [
-      {
-        x: 973.9999999800001,
-        y: 506
-      },
-      {
-        x: 973.9999999800001,
-        y: 726
-      },
-      {
-        x: 954,
-        y: 726
-      }
-    ],
-    W7: [
-      {
-        x: 792,
-        y: 652.00000015
-      },
-      {
-        x: 288,
-        y: 652.00000015
-      }
-    ],
-    W8: [
-      {
-        x: 951,
-        y: 756
-      },
-      {
-        x: 951,
-        y: 743.9999998499999
-      },
-      {
-        x: 414,
-        y: 743.9999998499999
-      }
-    ],
-    W9: [
-      {
-        x: 414,
-        y: 757.1999998499999
-      },
-      {
-        x: 428,
-        y: 757.1999998499999
-      },
-      {
-        x: 428,
-        y: 495.28571428571416
-      },
-      {
-        x: 306,
-        y: 495.28571428571416
-      }
-    ],
-    W10: [
-      {
-        x: 306,
-        y: 491
-      }
-    ],
-    W11: [
-      {
-        x: 288,
-        y: 491
-      }
-    ],
-    W12: [
-      {
-        x: 270,
-        y: 491
-      }
-    ],
-    W13: [
-      {
-        x: 238,
-        y: 506
-      },
-      {
-        x: 238,
-        y: 417.3599999999995
-      },
-      {
-        x: 270,
-        y: 417.3599999999995
-      }
-    ],
-    W14: [
-      {
-        x: 270,
-        y: 399.3599999999995
-      },
-      {
-        x: 288,
-        y: 399.3599999999995
-      }
-    ],
-    W15: [
-      {
-        x: 288,
-        y: 399.3599999999995
-      },
-      {
-        x: 342,
-        y: 399.3599999999995
-      }
-    ],
-    W16: [
-      {
-        x: 342,
-        y: 399.3599999999995
-      },
-      {
-        x: 594.1698113207547,
-        y: 399.3599999999995
-      },
-      {
-        x: 594.1698113207547,
-        y: 480.8857142857142
-      },
-      {
-        x: 828,
-        y: 480.8857142857142
-      }
-    ],
-    W17: [
-      {
-        x: 828,
-        y: 500.0857142857142
-      },
-      {
-        x: 810,
-        y: 500.0857142857142
-      }
-    ],
-    W18: [
-      {
-        x: 810,
-        y: 500.0857142857142
-      },
-      {
-        x: 792,
-        y: 500.0857142857142
-      }
-    ],
-    W19: [
-      {
-        x: 792,
-        y: 500.0857142857142
-      },
-      {
-        x: 774,
-        y: 500.0857142857142
-      }
-    ],
-    W20: [
-      {
-        x: 760,
-        y: 506
-      },
-      {
-        x: 760,
-        y: 414.3599999999995
-      },
-      {
-        x: 792,
-        y: 414.3599999999995
-      }
-    ],
-    W21: [
-      {
-        x: 792,
-        y: 402.3599999999995
-      },
-      {
-        x: 810,
-        y: 402.3599999999995
-      }
-    ],
-    W22: [
-      {
-        x: 810,
-        y: 402.3599999999995
-      },
-      {
-        x: 864,
-        y: 402.3599999999995
-      }
-    ],
-    W23: [
-      {
-        x: 864,
-        y: 399.3599999999995
-      },
-      {
-        x: 618.1698113207547,
-        y: 399.3599999999995
-      },
-      {
-        x: 618.1698113207547,
-        y: 751.1999998499999
-      },
-      {
-        x: 306,
-        y: 751.1999998499999
-      }
-    ],
-    W24: [
-      {
-        x: 306,
-        y: 760.79999985
-      },
-      {
-        x: 324,
-        y: 760.79999985
-      }
-    ],
-    W25: [
-      {
-        x: 324,
-        y: 760.79999985
-      },
-      {
-        x: 342,
-        y: 760.79999985
-      }
-    ],
-    W26: [
-      {
-        x: 342,
-        y: 760.79999985
-      },
-      {
-        x: 360,
-        y: 760.79999985
-      }
-    ],
-    W27: [
-      {
-        x: 274,
-        y: 646
-      },
-      {
-        x: 274,
-        y: 754.79999985
-      },
-      {
-        x: 378,
-        y: 754.79999985
-      }
-    ],
-    W28: [
-      {
-        x: 666,
-        y: 490.48571428571415
-      },
-      {
-        x: 378,
-        y: 490.48571428571415
-      }
-    ],
-    W29: [
-      {
-        x: 378,
-        y: 545
-      },
-      {
-        x: 900,
-        y: 545
-      }
-    ],
-    W30: [
-      {
-        x: 630.1698113207547,
-        y: 1036
-      },
-      {
-        x: 630.1698113207547,
-        y: 485.6857142857142
-      },
-      {
-        x: 360,
-        y: 485.6857142857142
-      }
-    ],
-    W31: [
-      {
-        x: 360,
-        y: 554
-      },
-      {
-        x: 882,
-        y: 554
-      }
-    ],
-    W32: [
-      {
-        x: 594,
-        y: 480.8857142857142
-      },
-      {
-        x: 342,
-        y: 480.8857142857142
-      }
-    ],
-    W33: [
-      {
-        x: 342,
-        y: 563
-      },
-      {
-        x: 864,
-        y: 563
-      }
-    ],
-    W34: [
-      {
-        x: 558,
-        y: 476.0857142857142
-      },
-      {
-        x: 324,
-        y: 476.0857142857142
-      }
-    ],
-    W35: [
-      {
-        x: 324,
-        y: 572
-      },
-      {
-        x: 846,
-        y: 572
-      }
-    ],
-    W36: [
-      {
-        x: 522,
-        y: 747.5999998499999
-      },
-      {
-        x: 288,
-        y: 747.5999998499999
-      }
-    ],
-    W37: [
-      {
-        x: 232.00000006,
-        y: 661
-      },
-      {
-        x: 232.00000006,
-        y: 414.3599999999995
-      },
-      {
-        x: 360,
-        y: 414.3599999999995
-      }
-    ],
-    W38: [
-      {
-        x: 324,
-        y: 646.00000015
-      },
-      {
-        x: 624.1698113207547,
-        y: 646.00000015
-      },
-      {
-        x: 624.1698113207547,
-        y: 411.3599999999995
-      },
-      {
-        x: 882,
-        y: 411.3599999999995
-      }
-    ],
-    W39: [
-      {
-        x: 957,
-        y: 1036
-      },
-      {
-        x: 957,
-        y: 740.39999985
-      },
-      {
-        x: 810,
-        y: 740.39999985
-      }
-    ],
-    W40: [
-      {
-        x: 828,
-        y: 649
-      },
-      {
-        x: 918,
-        y: 649
-      }
-    ],
-    W41: [
-      {
-        x: 918,
-        y: 581
-      },
-      {
-        x: 396,
-        y: 581
-      }
-    ],
-    W42: [
-      {
-        x: 396,
-        y: 500.0857142857142
-      },
-      {
-        x: 600.1698113207547,
-        y: 500.0857142857142
-      },
-      {
-        x: 600.1698113207547,
-        y: 110
-      },
-      {
-        x: 954,
-        y: 110
-      }
-    ],
-    W43: [
-      {
-        x: 915,
-        y: 1036
-      },
-      {
-        x: 915,
-        y: 749.9999998499999
-      },
-      {
-        x: 846,
-        y: 749.9999998499999
-      }
-    ],
-    W44: [
-      {
-        x: 864,
-        y: 655
-      },
-      {
-        x: 936,
-        y: 655
-      }
-    ],
-    W45: [
-      {
-        x: 936,
-        y: 590
-      },
-      {
-        x: 414,
-        y: 590
-      }
-    ],
-    W46: [
-      {
-        x: 414,
-        y: 504.8857142857142
-      },
-      {
-        x: 606.1698113207547,
-        y: 504.8857142857142
-      },
-      {
-        x: 606.1698113207547,
-        y: 116
-      }
-    ],
-    W47: [
-      {
-        x: 882,
-        y: 888.5
-      }
-    ],
-    W48: [
-      {
-        x: 954,
-        y: 661
-      }
-    ],
-    W49: [
-      {
-        x: 954,
-        y: 599
-      },
-      {
-        x: 432,
-        y: 599
-      }
-    ],
-    W50: [
-      {
-        x: 432,
-        y: 509.6857142857142
-      },
-      {
-        x: 612.1698113207547,
-        y: 509.6857142857142
-      },
-      {
-        x: 612.1698113207547,
-        y: 122
-      },
-      {
-        x: 882,
-        y: 122
-      }
-    ],
-    W51: [
-      {
-        x: 846,
-        y: 1033.0000000000002
-      },
-      {
-        x: 921,
-        y: 1033.0000000000002
-      },
-      {
-        x: 921,
-        y: 741
-      }
-    ],
-    W52: [
-      {
-        x: 936,
-        y: 667
-      },
-      {
-        x: 1003.99999964,
-        y: 667
-      },
-      {
-        x: 1003.99999964,
-        y: 417.3599999999995
-      },
-      {
-        x: 972,
-        y: 417.3599999999995
-      }
-    ],
-    W53: [
-      {
-        x: 972,
-        y: 357
-      },
-      {
-        x: 450,
-        y: 357
-      }
-    ],
-    W54: [
-      {
-        x: 450,
-        y: 393.3599999999995
-      },
-      {
-        x: 846,
-        y: 393.3599999999995
-      }
-    ],
-    W55: [
-      {
-        x: 810,
-        y: 1039.0000000000002
-      },
-      {
-        x: 968,
-        y: 1039.0000000000002
-      },
-      {
-        x: 968,
-        y: 673
-      },
-      {
-        x: 954,
-        y: 673
-      }
-    ],
-    W56: [
-      {
-        x: 936,
-        y: 736.79999985
-      },
-      {
-        x: 997.99999964,
-        y: 736.79999985
-      },
-      {
-        x: 997.99999964,
-        y: 414.3599999999995
-      },
-      {
-        x: 954,
-        y: 414.3599999999995
-      }
-    ],
-    W57: [
-      {
-        x: 954,
-        y: 348
-      },
-      {
-        x: 432,
-        y: 348
-      }
-    ],
-    W58: [
-      {
-        x: 432,
-        y: 390.3599999999995
-      },
-      {
-        x: 810,
-        y: 390.3599999999995
-      }
-    ],
-    W59: [
-      {
-        x: 772.0000000200001,
-        y: 1036
-      },
-      {
-        x: 772.0000000200001,
-        y: 670.00000015
-      },
-      {
-        x: 918,
-        y: 670.00000015
-      }
-    ],
-    W60: [
-      {
-        x: 900,
-        y: 733.1999998499999
-      },
-      {
-        x: 991.99999964,
-        y: 733.1999998499999
-      },
-      {
-        x: 991.99999964,
-        y: 411.3599999999995
-      },
-      {
-        x: 936,
-        y: 411.3599999999995
-      }
-    ],
-    W61: [
-      {
-        x: 936,
-        y: 339
-      },
-      {
-        x: 414,
-        y: 339
-      }
-    ],
-    W62: [
-      {
-        x: 414,
-        y: 387.3599999999995
-      },
-      {
-        x: 774,
-        y: 387.3599999999995
-      }
-    ],
-    W63: [
-      {
-        x: 738,
-        y: 664.00000015
-      },
-      {
-        x: 882,
-        y: 664.00000015
-      }
-    ],
-    W64: [
-      {
-        x: 864,
-        y: 729.5999998499999
-      },
-      {
-        x: 986,
-        y: 729.5999998499999
-      },
-      {
-        x: 986,
-        y: 408.3599999999995
-      },
-      {
-        x: 918,
-        y: 408.3599999999995
-      }
-    ],
-    W65: [
-      {
-        x: 918,
-        y: 330
-      },
-      {
-        x: 396,
-        y: 330
-      }
-    ],
-    W66: [
-      {
-        x: 396,
-        y: 384.3599999999995
-      },
-      {
-        x: 738,
-        y: 384.3599999999995
-      }
-    ],
-    W67: [
-      {
-        x: 702,
-        y: 658.00000015
-      },
-      {
-        x: 846,
-        y: 658.00000015
-      }
-    ],
-    W68: [
-      {
-        x: 828,
-        y: 736.79999985
-      },
-      {
-        x: 754.0000001799999,
-        y: 736.79999985
-      },
-      {
-        x: 754.0000001799999,
-        y: 408.3599999999995
-      },
-      {
-        x: 900,
-        y: 408.3599999999995
-      }
-    ],
-    W69: [
-      {
-        x: 900,
-        y: 321
-      },
-      {
-        x: 378,
-        y: 321
-      }
-    ],
-    W70: [
-      {
-        x: 378,
-        y: 381.3599999999995
-      },
-      {
-        x: 702,
-        y: 381.3599999999995
-      }
-    ],
-    W71: [
-      {
-        x: 486,
-        y: 408.3599999999995
-      },
-      {
-        x: 306,
-        y: 408.3599999999995
-      }
-    ],
-    W72: [
-      {
-        x: 306,
-        y: 312
-      },
-      {
-        x: 828,
-        y: 312
-      }
-    ],
-    W73: [
-      {
-        x: 450,
-        y: 1033.0000000000002
-      },
-      {
-        x: 464,
-        y: 1033.0000000000002
-      },
-      {
-        x: 464,
-        y: 411.3599999999995
-      },
-      {
-        x: 324,
-        y: 411.3599999999995
-      }
-    ],
-    W74: [
-      {
-        x: 324,
-        y: 303
-      },
-      {
-        x: 846,
-        y: 303
-      }
-    ],
-    W75: [
-      {
-        x: 414,
-        y: 1039.0000000000002
-      },
-      {
-        x: 792,
-        y: 1039.0000000000002
-      }
-    ],
-    W76: [
-      {
-        x: 778,
-        y: 756
-      },
-      {
-        x: 778,
-        y: 676
-      },
-      {
-        x: 810,
-        y: 676
-      }
-    ]
-  };
-
-  // src/experiments/ram-preset.mjs
-  var RAM_CHIPS = [
-    { id: "U1", model: "6116", section: 1, column: 10 },
-    { id: "U2", model: "6116", section: 1, column: 39 },
-    { id: "U3", model: "74LS244", section: 2, column: 40 },
-    { id: "U4", model: "74LS138", section: 2, column: 12 }
-  ];
-  var RAM_COLORS = {
-    power: WIRE_COLORS[0],
-    ground: WIRE_COLORS[7],
-    dataInput: WIRE_COLORS[2],
-    dataBus: WIRE_COLORS[1],
-    address: WIRE_COLORS[3],
-    select: WIRE_COLORS[5],
-    control: WIRE_COLORS[4]
-  };
-  var RAM_INPUTS = { dataStart: 0, addressStart: 8, bank: 12, write: 13, read: 14, isolate: 15, count: 16 };
-  var RAM_EXPERIMENT_ID = "ram-expansion-example";
-  var RAM_EXPERIMENT_NAME = "\u5B9E\u9A8C\u4E09 RAM\u5B57\u6269\u5C55";
-  var RAM_OUTER_WIRES = ["W29", "W31", "W33", "W35", "W41", "W45", "W49", "W53", "W57", "W61", "W65", "W69", "W72", "W74"];
-  var PREVIOUS_RAM_NOTES = `# \u5B9E\u9A8C\u4E09 RAM\u5B57\u6269\u5C55
-
-## \u5B9E\u9A8C\u76EE\u6807
-
-\u4F7F\u7528\u4E24\u72476116\uFF08\u54042K\xD78\uFF09\u548C74LS138\u7EC4\u62104K\xD78\u5B58\u50A8\u5668\uFF0C74LS244\u9694\u79BB\u6570\u636E\u5F00\u5173\u4E0E\u5171\u4EAB\u6570\u636E\u603B\u7EBF\u3002\u63A5\u7EBF\u4F9D\u636E\u7B2C\u4E09\u6B21\u5B9E\u9A8C\u8BFE\u4EF6\u7B2C4\uFF5E8\u9875
-
-## \u5668\u4EF6\u4E0E\u5730\u5740
-
-| \u5668\u4EF6 | \u4F5C\u7528 | \u5B8C\u6574\u5730\u5740\u8303\u56F4 |
-| --- | --- | --- |
-| U1 6116 | \u7B2C1\u7247RAM\uFF0CA11=0\u65F6\u9009\u4E2D | 000H\uFF5E7FFH |
-| U2 6116 | \u7B2C2\u7247RAM\uFF0CA11=1\u65F6\u9009\u4E2D | 800H\uFF5EFFFH |
-| U3 74LS244 | \u4E24\u7EC4\u56DB\u8DEF\u7F13\u51B2\u5668\uFF0C\u5171\u540C\u63A7\u5236\u516B\u4F4D\u6570\u636E\u8F93\u5165 | \u5355\u5411\u8F93\u5165\u603B\u7EBF |
-| U4 74LS138 | A\u8F93\u5165\u63A5A11\uFF0CB/C\u63A5\u5730\uFF0CY0\u2032/Y1\u2032\u5206\u522B\u9009\u4E2DU1/U2 | \u4E24\u7247\u4E0D\u4F1A\u540C\u65F6\u9009\u4E2D |
-
-\u6309\u8BFE\u4EF6\u5141\u8BB8\u7684\u7B80\u5316\u65B9\u5F0F\uFF0CA4\uFF5EA10\u63A5\u5730\uFF0CA0\uFF5EA3\u7531\u5F00\u5173\u8BBE\u7F6E\uFF0CA11\u72EC\u7ACB\u9009\u7247\u3002\u53EF\u64CD\u4F5C\u5730\u5740\u4E3A000H\uFF5E00FH\u53CA800H\uFF5E80FH\uFF0C\u6BCF\u7247RAM\u7684\u5B8C\u6574\u5BB9\u91CF\u4ECD\u4E3A2K\xD78
-
-## \u5F00\u5173\u548C\u6307\u793A\u706F
-
-| \u7AEF\u53E3 | \u4F5C\u7528 |
-| --- | --- |
-| K7\uFF5EK0 | \u5199\u5165\u6570\u636ED7\uFF5ED0\uFF0CK0\u4E3A\u6700\u4F4E\u4F4D |
-| K11\uFF5EK8 | \u7247\u5185\u5730\u5740A3\uFF5EA0\uFF0CK8\u4E3A\u6700\u4F4E\u4F4D |
-| K12 | A11\uFF0C0\u9009U1\uFF0C1\u9009U2 |
-| K13 | WE\u2032\uFF0C0\u5141\u8BB8\u5199\u5165\uFF0C1\u7ED3\u675F\u5199\u5165 |
-| K14 | OE\u2032\uFF0C0\u5141\u8BB8\u8BFB\u51FA\uFF0C1\u5173\u95EDRAM\u8BFB\u8F93\u51FA |
-| K15 | 244\u4F7F\u80FD\uFF0C0\u63A5\u5165\u6570\u636E\u5F00\u5173\uFF0C1\u9694\u79BB\u5F00\u5173 |
-| L7\uFF5EL0 | \u5171\u4EAB\u6570\u636E\u603B\u7EBF\uFF0C\u8BFB\u53D6\u65F6\u663E\u793ARAM\u5185\u5BB9 |
-
-\u9ED8\u8BA4K13\u3001K14\u3001K15\u5747\u4E3A1\uFF0C\u8BFB\u5199\u548C\u6570\u636E\u8F93\u5165\u5747\u5173\u95ED\uFF0C\u603B\u7EBF\u663E\u793AZ\u5C5E\u4E8E\u6B63\u5E38\u72B6\u6001\u3002\u5199\u5165\u65F6\u6307\u793A\u706F\u663E\u793A\u5F00\u5173\u6570\u636E\uFF0C\u5FC5\u987B\u5207\u5230\u8BFB\u53D6\u72B6\u6001\u624D\u80FD\u786E\u8BA4RAM\u4FDD\u5B58\u4E86\u5185\u5BB9
-
-## \u5199\u5165\u6B65\u9AA4
-
-1. \u4FDD\u6301K13=1\u3001K14=1\u3001K15=1\uFF0C\u8BBE\u7F6EK12\u9009\u7247\u548CK11\uFF5EK8\u5730\u5740
-2. \u7528K7\uFF5EK0\u8BBE\u7F6E\u516B\u4F4D\u6570\u636E\uFF0C\u8BBE\u7F6EK15=0\uFF0C\u8BA9244\u9A71\u52A8\u6570\u636E\u603B\u7EBF
-3. \u8BBE\u7F6EK13=0\u5199\u5165\uFF0C\u4FDD\u6301\u5730\u5740\u548C\u6570\u636E\u7A33\u5B9A\uFF0C\u518D\u8BBE\u7F6EK13=1\u7ED3\u675F\u5199\u5165
-4. \u8BBE\u7F6EK15=1\u9694\u79BB\u6570\u636E\u5F00\u5173\u3002\u66F4\u6362\u5730\u5740\u524D\u5FC5\u987B\u786E\u8BA4K13=1
-
-## \u8BFB\u53D6\u6B65\u9AA4
-
-1. \u4FDD\u6301K13=1\u3001K15=1\uFF0C\u8BBE\u7F6EK12\u548CK11\uFF5EK8\u9009\u62E9\u5730\u5740
-2. \u8BBE\u7F6EK14=0\uFF0C\u4ECEL7\uFF5EL0\u8BFB\u53D6\u6570\u636E
-3. \u4E0B\u4E00\u6B21\u5199\u5165\u524D\u5148\u8BBE\u7F6EK14=1\uFF0C\u907F\u514DRAM\u4E0E244\u540C\u65F6\u9A71\u52A8\u603B\u7EBF
-
-## \u8BFE\u4EF6\u9A8C\u6536
-
-\u5148\u5B8C\u6210\u4EE5\u4E0B\u56DB\u6B21\u5199\u5165\uFF0C\u518D\u96C6\u4E2D\u8BFB\u53D6\u6838\u5BF9\uFF0C\u8BFB\u53D6\u65F6\u53EA\u6539\u53D8\u5730\u5740\u548C\u9009\u7247\uFF0C\u4E0D\u91CD\u65B0\u5199\u5165
-
-| K12 | K11\uFF5EK8 | \u5B8C\u6574\u5730\u5740 | \u5199\u5165\u5E76\u9884\u671F\u8BFB\u51FA\u7684\u6570\u636E |
-| --- | --- | --- | --- |
-| 0 | 1010 | 00AH | 01010101 |
-| 0 | 0101 | 005H | 10101010 |
-| 1 | 1010 | 80AH | 11111111 |
-| 1 | 0101 | 805H | 00000000 |
-
-\u76F8\u540C\u7247\u5185\u5730\u5740\u5728\u4E0D\u540C\u82AF\u7247\u4E2D\u4FDD\u5B58\u4E0D\u540C\u5185\u5BB9\uFF0C\u624D\u80FD\u8BC1\u660E\u5B57\u6269\u5C55\u548C\u8BD1\u7801\u9009\u7247\u6B63\u786E
-
-## \u73B0\u8C61\u4E0E\u62A5\u544A
-
-\u8BB0\u5F55\u56DB\u4E2A\u5730\u5740\u7684\u5199\u5165\u5185\u5BB9\u3001\u5B9E\u9645\u8BFB\u51FA\u5185\u5BB9\u548C\u662F\u5426\u4E00\u81F4\uFF0C\u62A5\u544A\u5199\u660E\u4E24\u7247RAM\u5B8C\u6574\u5730\u5740\u8303\u56F4\u3001\u8BD1\u7801\u63A5\u6CD5\u4E0E\u8BFB\u5199\u987A\u5E8F\u3002\u5148\u7ED3\u675F\u5199\u5165\uFF0C\u518D\u9694\u79BB244\uFF0C\u5426\u5219\u60AC\u7A7A\u6570\u636E\u53EF\u80FD\u88AB\u5199\u5165RAM\u5E76\u53D8\u4E3AX\u3002RAM\u8BFB\u51FA\u5F00\u542F\u65F6\u53C8\u63A5\u5165244\u4F1A\u9020\u6210\u9A71\u52A8\u51B2\u7A81
-
-\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u636E\u5F00\u5173\uFF0C\u84DD\u8272\u4E3A\u5171\u4EAB\u6570\u636E\u603B\u7EBF\uFF0C\u9EC4\u8272\u4E3A\u5730\u5740\uFF0C\u9752\u8272\u4E3A\u7247\u9009\uFF0C\u7D2B\u8272\u4E3A\u8BFB\u5199\u4E0E\u9694\u79BB\u63A7\u5236\u3002\u4EA4\u53C9\u5BFC\u7EBF\u4FDD\u6301\u7EDD\u7F18\uFF0C\u7535\u6C14\u8FDE\u63A5\u7531\u5B9E\u9645\u63D2\u5B54\u51B3\u5B9A
-
-RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u7535\u3001\u5207\u6362\u5B9E\u9A8C\u3001\u91CD\u65B0\u52A0\u8F7D\u3001\u5BFC\u5165\u6216\u64A4\u9500\u540E\u9700\u8981\u91CD\u65B0\u5199\u5165\uFF0C\u5B58\u6863\u4FDD\u5B58\u63A5\u7EBF\u3001\u5F00\u5173\u548C\u5907\u6CE8\uFF0C\u4E0D\u4FDD\u5B58\u5DF2\u5199\u5165\u7684\u6570\u636E\u3002\u521D\u6B21\u8BFB\u53D6\u672A\u5199\u8FC7\u7684\u5730\u5740\u4F1A\u663E\u793AX\uFF0C\u4E0D\u80FD\u636E\u6B64\u5224\u65AD\u63A5\u7EBF\u9519\u8BEF
-`;
-  var RAM_NOTES = `# RAM \u5B57\u6269\u5C55\u64CD\u4F5C
-
-## \u5F00\u5173
-
-| \u7AEF\u53E3 | \u7528\u9014 |
-| --- | --- |
-| K7\uFF5EK0 | \u5199\u5165\u6570\u636E\uFF0C\u9AD8\u4F4D\u5728\u5DE6 |
-| K11\uFF5EK8 | \u7247\u5185\u5730\u5740\uFF0C\u9AD8\u4F4D\u5728\u5DE6 |
-| K12 | 0\u9009\u7B2C\u4E00\u7247\uFF0C1\u9009\u7B2C\u4E8C\u7247 |
-| K13 | 0\u5199\u5165\uFF0C1\u505C\u6B62\u5199\u5165 |
-| K14 | 0\u8BFB\u51FA\uFF0C1\u5173\u95ED\u8BFB\u51FA |
-| K15 | 0\u63A5\u5165\u6570\u636E\u5F00\u5173\uFF0C1\u9694\u79BB\u6570\u636E\u5F00\u5173 |
-| L7\uFF5EL0 | \u8BFB\u51FA\u7ED3\u679C |
-
-## \u5199\u5165
-
-1. \u6253\u5F00\u7535\u6E90\uFF0C\u5C06K13\u3001K14\u3001K15\u90FD\u8BBE\u4E3A1
-2. \u8BBE\u7F6EK12\u9009\u7247\u3001K11\uFF5EK8\u5730\u5740\u3001K7\uFF5EK0\u6570\u636E
-3. K15\u8BBE\u4E3A0\uFF0C\u63A5\u5165\u6570\u636E
-4. K13\u8BBE\u4E3A0\uFF0C\u518D\u8BBE\u56DE1\uFF0C\u5B8C\u6210\u5199\u5165
-5. K15\u8BBE\u56DE1\uFF0C\u9694\u79BB\u6570\u636E
-
-\u91CD\u590D\u6B65\u9AA42\uFF5E5\uFF0C\u5148\u5199\u5B8C\u4E0B\u9762\u56DB\u7EC4\u6570\u636E
-
-## \u9A8C\u6536\u6570\u636E
-
-| K12 | K11\uFF5EK8 | K7\uFF5EK0 |
-| --- | --- | --- |
-| 0 | 1010 | 01010101 |
-| 0 | 0101 | 10101010 |
-| 1 | 1010 | 11111111 |
-| 1 | 0101 | 00000000 |
-
-## \u8BFB\u53D6
-
-\u4FDD\u6301K13=1\u3001K15=1\uFF0C\u628AK14\u8BBE\u4E3A0\u3002\u53EA\u5207\u6362K12\u548CK11\uFF5EK8\uFF0C\u68C0\u67E5L7\uFF5EL0\u662F\u5426\u4E0E\u8868\u4E2D\u6570\u636E\u4E00\u81F4
-
-\u518D\u6B21\u5199\u5165\u524D\uFF0C\u5148\u628AK14\u8BBE\u56DE1\u3002\u4E0D\u9700\u8981\u4F7F\u7528P+\u6216P\u2212
-
-## \u63D0\u9192
-
-\u5148\u505C\u6B62\u5199\u5165\uFF0C\u518D\u9694\u79BB\u6570\u636E\u3002Z\u8868\u793A\u603B\u7EBF\u672A\u8F93\u51FA\uFF0C\u672A\u5199\u5165\u7684\u5730\u5740\u8BFB\u51FAX\u3002\u65AD\u7535\u3001\u5237\u65B0\u6216\u5207\u6362\u5B9E\u9A8C\u540E\u9700\u91CD\u65B0\u5199\u5165\uFF0C\u4FDD\u5B58\u5B58\u6863\u4E0D\u4FDD\u5B58RAM\u6570\u636E
-`;
-  function connectPower(project, usage) {
-    let power = "VCC";
-    let ground = "GND";
-    for (const chip of project.chips) {
-      const model = CHIP_MODELS[chip.model];
-      const powerPin = chip.id + "-" + model.power;
-      const groundPin = chip.id + "-" + model.ground;
-      connect(project, usage, power, powerPin, RAM_COLORS.power);
-      connect(project, usage, ground, groundPin, RAM_COLORS.ground);
-      power = powerPin;
-      ground = groundPin;
-    }
-    for (const id of ["U1", "U2"]) {
-      const memory = CHIP_MODELS["6116"].memory;
-      for (let bit = 4; bit < memory.address.length; bit = bit + 1) {
-        const pin = id + "-" + memory.address[bit];
-        connect(project, usage, ground, pin, RAM_COLORS.ground);
-        ground = pin;
-      }
-    }
-    for (const pin of [2, 3, 4, 5]) {
-      const endpoint = "U4-" + pin;
-      connect(project, usage, ground, endpoint, RAM_COLORS.ground);
-      ground = endpoint;
-    }
-    connect(project, usage, power, "U4-6", RAM_COLORS.power);
-  }
-  function connectAddresses(project, usage) {
-    const memory = CHIP_MODELS["6116"].memory;
-    for (let bit = 0; bit < 4; bit = bit + 1) {
-      const firstPin = "U1-" + memory.address[bit];
-      const secondPin = "U2-" + memory.address[bit];
-      const input = "K" + (RAM_INPUTS.addressStart + bit);
-      connect(project, usage, input, firstPin, RAM_COLORS.address);
-      connect(project, usage, firstPin, secondPin, RAM_COLORS.address);
-    }
-    connect(project, usage, "K" + RAM_INPUTS.bank, "U4-1", RAM_COLORS.address);
-    connect(project, usage, "U4-15", "U1-18", RAM_COLORS.select);
-    connect(project, usage, "U4-14", "U2-18", RAM_COLORS.select);
-  }
-  function connectData(project, usage) {
-    const memory = CHIP_MODELS["6116"].memory;
-    const buffer = CHIP_MODELS["74LS244"];
-    for (let bit = 0; bit < memory.data.length; bit = bit + 1) {
-      const gate = buffer.gates[bit];
-      const input = "K" + (RAM_INPUTS.dataStart + bit);
-      const firstPin = "U1-" + memory.data[bit];
-      const secondPin = "U2-" + memory.data[bit];
-      connect(project, usage, input, "U3-" + gate[1], RAM_COLORS.dataInput);
-      connect(project, usage, "U3-" + gate[2], secondPin, RAM_COLORS.dataBus);
-      connect(project, usage, secondPin, firstPin, RAM_COLORS.dataBus);
-      connect(project, usage, firstPin, "L" + bit, RAM_COLORS.dataBus);
-    }
-  }
-  function connectControls(project, usage) {
-    const memory = CHIP_MODELS["6116"].memory;
-    connect(project, usage, "K" + RAM_INPUTS.write, "U1-" + memory.write, RAM_COLORS.control);
-    connect(project, usage, "U1-" + memory.write, "U2-" + memory.write, RAM_COLORS.control);
-    connect(project, usage, "K" + RAM_INPUTS.read, "U1-" + memory.read, RAM_COLORS.control);
-    connect(project, usage, "U1-" + memory.read, "U2-" + memory.read, RAM_COLORS.control);
-    connect(project, usage, "K" + RAM_INPUTS.isolate, "U3-1", RAM_COLORS.control);
-    connect(project, usage, "U3-1", "U3-19", RAM_COLORS.control);
-  }
-  function outerHole(endpoint) {
-    const parts = endpoint.split(":");
-    if (parts[0] !== "B1") {
-      return endpoint;
-    }
-    if (parts[1] === "C" || parts[1] === "D") {
-      return parts[0] + ":A:" + parts[2];
-    }
-    if (parts[1] === "G" || parts[1] === "H") {
-      return parts[0] + ":J:" + parts[2];
-    }
-    return endpoint;
-  }
-  function ramPreset(useOuterHoles = true) {
-    const project = emptyProject();
-    project.name = RAM_EXPERIMENT_NAME;
-    project.notes = RAM_NOTES;
-    project.inputCount = RAM_INPUTS.count;
-    project.outputCount = 8;
-    project.chips = structuredClone(RAM_CHIPS);
-    const usage = {};
-    connectPower(project, usage);
-    connectAddresses(project, usage);
-    connectData(project, usage);
-    connectControls(project, usage);
-    project.switches[RAM_INPUTS.write] = 1;
-    project.switches[RAM_INPUTS.read] = 1;
-    project.switches[RAM_INPUTS.isolate] = 1;
-    for (const wire of project.wires) {
-      if (useOuterHoles && RAM_OUTER_WIRES.includes(wire.id)) {
-        wire.from = outerHole(wire.from);
-        wire.to = outerHole(wire.to);
-      }
-      if (Object.hasOwn(ram_routes_default, wire.id)) {
-        wire.bends = structuredClone(ram_routes_default[wire.id]);
-      }
-    }
-    return project;
-  }
-
-  // src/storage/storage.mjs
-  var STORAGE_KEY = "breadboard-lab-v1";
-  var LIMITS = {
-    chips: 40,
-    // 单个实验的芯片数量上限
-    wires: 800,
-    // 单个实验的导线及上拉节点数量上限
-    bends: 24,
-    // 每根导线的转折点数量上限
-    fileBytes: 2e6,
-    // 导入文件字节数上限
-    nameLength: 80
-    // 实验名称字符数上限
-  };
-  var FILE_BOUNDS = { width: 1300, height: 1280 };
-  var LEGACY_COMPLEMENT_PORT_COUNT = 7;
-  function validWireBend(bend) {
-    return Boolean(bend && Number.isFinite(bend.x) && Number.isFinite(bend.y) && bend.x >= 0 && bend.x <= FILE_BOUNDS.width && bend.y >= 0 && bend.y <= FILE_BOUNDS.height);
-  }
-  function legacyNode(name, wiringVersion) {
-    if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
-      return name;
-    }
-    return baseNode(name, 2);
-  }
-  function connectionRoot(parents, name) {
-    if (!parents.has(name)) {
-      parents.set(name, name);
-    }
-    let root = name;
-    while (parents.get(root) !== root) {
-      root = parents.get(root);
-    }
-    return root;
-  }
-  function verifyPortMigration(original, migrated) {
-    const before = /* @__PURE__ */ new Map();
-    const after = /* @__PURE__ */ new Map();
-    for (const wire of original.wires) {
-      const first = connectionRoot(before, legacyNode(wire.from, original.wiringVersion));
-      const last = connectionRoot(before, legacyNode(wire.to, original.wiringVersion));
-      before.set(last, first);
-    }
-    for (const wire of migrated.wires) {
-      const first = connectionRoot(after, baseNode(wire.from));
-      const last = connectionRoot(after, baseNode(wire.to));
-      after.set(last, first);
-    }
-    const terminals = ["P+", "P-", "VCC", "GND"];
-    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
-      terminals.push("K" + bit, "L" + bit);
-    }
-    for (const chip of migrated.chips) {
-      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-        terminals.push(pinHole(chip, pin));
-      }
-    }
-    const forward = /* @__PURE__ */ new Map();
-    const reverse = /* @__PURE__ */ new Map();
-    for (const name of terminals) {
-      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
-      const newGroup = connectionRoot(after, baseNode(name));
-      if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
-        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
-      }
-      forward.set(oldGroup, newGroup);
-      reverse.set(newGroup, oldGroup);
-    }
-  }
-  function migrateEndpoint(name, occupied2) {
-    if (isPhysicalHole(name)) {
-      return name;
-    }
-    const preferred = portHole(name);
-    if (preferred === "") {
-      throw new Error("\u65E0\u6CD5\u627E\u5230\u7AEF\u53E3\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5B54\uFF1A" + name);
-    }
-    const parts = preferred.split(":");
-    if (preferred.startsWith("R:")) {
-      for (let index = Number(parts[2]); index >= 0; index = index - 1) {
-        const hole = parts[0] + ":" + parts[1] + ":" + index;
-        if (!occupied2.has(hole)) {
-          occupied2.add(hole);
-          return hole;
-        }
-      }
-    } else {
-      let rows = "JIHGF";
-      if (parts[1] === "A") {
-        rows = "ABCDE";
-      }
-      for (const row of rows) {
-        const hole = parts[0] + ":" + row + ":" + parts[2];
-        if (!occupied2.has(hole)) {
-          occupied2.add(hole);
-          return hole;
-        }
-      }
-    }
-    throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
-  }
-  function validateProjectHeader(value) {
-    if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
-      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
-    }
-    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
-      throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
-    }
-    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
-      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
-    }
-  }
-  function restoreProjectSettings(value, project) {
-    if (value.inputCount !== void 0 || value.outputCount !== void 0) {
-      if (!Number.isInteger(value.inputCount) || !Number.isInteger(value.outputCount) || value.inputCount < 1 || value.inputCount > IO_LIMIT || value.outputCount < 1 || value.outputCount > IO_LIMIT) {
-        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
-      }
-      project.inputCount = value.inputCount;
-      project.outputCount = value.outputCount;
-    }
-    if (value.mode === "complement") {
-      project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
-      project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
-    }
-    if (value.notes === void 0 && value.mode === "complement") {
-      project.notes = COMPLEMENT_NOTES;
-    } else if (value.notes !== void 0) {
-      if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
-        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 " + NOTES_LIMIT + " \u4E2A\u5B57\u7B26");
-      }
-      project.notes = value.notes;
-    }
-    if (typeof value.name === "string") {
-      project.name = value.name.slice(0, LIMITS.nameLength);
-    }
-    project.power = value.power === true;
-  }
-  function restorePullUps(value, project) {
-    if (value.pullUps !== void 0) {
-      if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
-        throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
-      }
-      const seen = /* @__PURE__ */ new Set();
-      for (const endpoint of value.pullUps) {
-        if (!validEndpoint(endpoint) || seen.has(endpoint)) {
-          throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-        }
-        project.pullUps.push(endpoint);
-        seen.add(endpoint);
-      }
-    }
-  }
-  function restoreChips(value, project) {
-    const identifiers = /* @__PURE__ */ new Set();
-    const occupied2 = /* @__PURE__ */ new Set();
-    for (const entry of value.chips) {
-      if (!entry || typeof entry.id !== "string" || !/^U[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-      }
-      const chip = { id: entry.id, model: entry.model, section: entry.section, column: entry.column };
-      const error = placementError(project.chips, chip, "");
-      if (error !== "") {
-        throw new Error(error);
-      }
-      identifiers.add(chip.id);
-      project.chips.push(chip);
-      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-        occupied2.add(pinHole(chip, pin));
-      }
-    }
-    return occupied2;
-  }
-  function restoreWires(value, project, occupied2) {
-    const identifiers = /* @__PURE__ */ new Set();
-    const reserved = new Set(occupied2);
-    for (const entry of value.wires) {
-      if (entry && isPhysicalHole(entry.from)) {
-        reserved.add(entry.from);
-      }
-      if (entry && isPhysicalHole(entry.to)) {
-        reserved.add(entry.to);
-      }
-    }
-    for (const entry of value.wires) {
-      if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-      }
-      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
-        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
-      }
-      if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
-        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5");
-      }
-      const bends = [];
-      for (const bend of entry.bends) {
-        if (!validWireBend(bend)) {
-          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
-        }
-        bends.push({ x: bend.x, y: bend.y });
-      }
-      const from = migrateEndpoint(entry.from, reserved);
-      const to = migrateEndpoint(entry.to, reserved);
-      if (from !== entry.from || to !== entry.to) {
-        bends.length = 0;
-      }
-      const wire = { id: entry.id, from, to, color: entry.color, bends };
-      if (entry.angle !== void 0 && entry.angle !== 45) {
-        throw new Error("\u5BFC\u7EBF\u89D2\u5EA6\u8BBE\u7F6E\u4E0D\u6B63\u786E");
-      }
-      if (entry.angle === 45) {
-        wire.angle = 45;
-      }
-      project.wires.push(wire);
-      occupied2.add(entry.from);
-      occupied2.add(entry.to);
-      identifiers.add(entry.id);
-    }
-  }
-  function restoreSwitches(value, project) {
-    for (let index = 0; index < IO_LIMIT; index = index + 1) {
-      if (value.switches[index] !== 0 && value.switches[index] !== 1) {
-        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
-      }
-      project.switches[index] = value.switches[index];
-    }
-  }
-  function validateProject(value) {
-    validateProjectHeader(value);
-    const project = emptyProject();
-    restoreProjectSettings(value, project);
-    restorePullUps(value, project);
-    const occupied2 = restoreChips(value, project);
-    restoreWires(value, project, occupied2);
-    restoreSwitches(value, project);
-    if (value.wiringVersion !== WIRING_VERSION) {
-      verifyPortMigration(value, project);
-    }
-    return project;
-  }
-
-  // src/experiments/preset-layout.mjs
-  var PREVIOUS_LAYOUTS = [
-    { create: complementPreset, columns: [24, 16, 39, 3, 44], ram: false },
-    { create: ramPreset, columns: [8, 35, 35, 12], ram: true }
-  ];
-  function previousEndpoint(endpoint, reference, columns) {
-    for (let index = 0; index < reference.chips.length; index = index + 1) {
-      const chip = reference.chips[index];
-      const model = CHIP_MODELS[chip.model];
-      for (let pin = 1; pin <= model.count; pin = pin + 1) {
-        if (baseNode(endpoint) === baseNode(pinHole(chip, pin))) {
-          const parts = endpoint.split(":");
-          const column = Number(parts[2]) + columns[index] - chip.column;
-          return parts[0] + ":" + parts[1] + ":" + column;
-        }
-      }
-    }
-    return endpoint;
-  }
-  function matchesPreviousLayout(project, reference, columns) {
-    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length || project.pullUps.length !== 0) {
-      return false;
-    }
-    for (let index = 0; index < reference.chips.length; index = index + 1) {
-      const expected = reference.chips[index];
-      const actual = project.chips[index];
-      if (actual.id !== expected.id || actual.model !== expected.model || actual.section !== expected.section || actual.column !== columns[index]) {
-        return false;
-      }
-    }
-    for (let index = 0; index < reference.wires.length; index = index + 1) {
-      const expected = reference.wires[index];
-      const actual = project.wires[index];
-      const from = previousEndpoint(expected.from, reference, columns);
-      const to = previousEndpoint(expected.to, reference, columns);
-      if (actual.id !== expected.id || actual.from !== from || actual.to !== to) {
-        return false;
-      }
-    }
-    return true;
-  }
-  function centerSavedPresets(workspace2) {
-    let changed = false;
-    for (const id of Object.keys(workspace2.projects)) {
-      const project = workspace2.projects[id];
-      if (project.notes === PREVIOUS_RAM_NOTES) {
-        project.notes = RAM_NOTES;
-        changed = true;
-      }
-      for (const layout of PREVIOUS_LAYOUTS) {
-        const reference = layout.create();
-        let previous = reference;
-        if (layout.ram) {
-          previous = ramPreset(false);
-        }
-        if (!matchesPreviousLayout(project, previous, layout.columns)) {
-          continue;
-        }
-        const updated = copyProject(project);
-        updated.chips = copyProject(reference.chips);
-        for (let index = 0; index < updated.wires.length; index = index + 1) {
-          const wire = updated.wires[index];
-          const expected = reference.wires[index];
-          wire.from = expected.from;
-          wire.to = expected.to;
-          wire.bends = copyProject(expected.bends);
-          delete wire.angle;
-        }
-        workspace2.projects[id] = updated;
-        changed = true;
-      }
-      const rerouted = separateSavedRamWires(workspace2.projects[id]);
-      if (rerouted) {
-        workspace2.projects[id] = rerouted;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  function separateSavedRamWires(project) {
-    const previous = ramPreset(false);
-    const current = ramPreset();
-    if (project.chips.length !== current.chips.length || project.wires.length !== current.wires.length) {
-      return null;
-    }
-    for (let index = 0; index < current.chips.length; index = index + 1) {
-      const expected = current.chips[index];
-      const actual = project.chips[index];
-      if (actual.id !== expected.id || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
-        return null;
-      }
-    }
-    const updated = copyProject(project);
-    let changed = false;
-    for (let index = 0; index < current.wires.length; index = index + 1) {
-      const wire = updated.wires[index];
-      const oldWire = previous.wires[index];
-      const newWire = current.wires[index];
-      if (wire.id !== oldWire.id) {
-        return null;
-      }
-      if (baseNode(wire.from) !== baseNode(oldWire.from) || baseNode(wire.to) !== baseNode(oldWire.to)) {
-        return null;
-      }
-      if (!RAM_OUTER_WIRES.includes(wire.id)) {
-        continue;
-      }
-      if (wire.from === newWire.from && wire.to === newWire.to) {
-        continue;
-      }
-      if (wire.from !== oldWire.from || wire.to !== oldWire.to) {
-        return null;
-      }
-      wire.from = newWire.from;
-      wire.to = newWire.to;
-      wire.bends = copyProject(newWire.bends);
-      delete wire.angle;
-      changed = true;
-    }
-    if (!changed) {
-      return null;
-    }
-    try {
-      validateProject(updated);
-    } catch (error) {
-      return null;
-    }
-    return updated;
-  }
-
-  // src/chips/chip-logic.mjs
-  var SEGMENT_PATTERNS = ["1111110", "0110000", "1101101", "1111001", "0110011", "1011011", "0011111", "1110000", "1111111", "1110011", "0001101", "0011001", "0100011", "1001011", "0001111", "0000000"];
-  var SEGMENT_PINS = [13, 12, 11, 10, 9, 15, 14];
-  var COMPARE_FIRST = [15, 14, 12, 10];
-  var COMPARE_SECOND = [1, 13, 11, 9];
-  function logicValue(value) {
-    if (value === 0 || value === 1) {
-      return value;
-    }
-    return "X";
-  }
-  function andValues(values) {
-    let result = 1;
-    for (const value of values) {
-      result = logicGate("and", result, value);
-    }
-    return result;
-  }
-  function readNumber(pins, order) {
-    let result = 0;
-    for (let bit = 0; bit < order.length; bit = bit + 1) {
-      const value = logicValue(pins[order[bit]]);
-      if (value === "X") {
-        return "X";
-      }
-      result = result + value * 2 ** bit;
-    }
-    return result;
-  }
-  function possibleAddresses(pins, order) {
-    const possible = [];
-    for (let number = 0; number < 2 ** order.length; number = number + 1) {
-      let matches = true;
-      for (let bit = 0; bit < order.length; bit = bit + 1) {
-        const value = logicValue(pins[order[bit]]);
-        if (value !== "X" && value !== (number >> bit & 1)) {
-          matches = false;
-        }
-      }
-      if (matches) {
-        possible.push(number);
-      }
-    }
-    return possible;
-  }
-  function commonValue(values) {
-    const first = values[0];
-    for (const value of values) {
-      if (value !== first) {
-        return "X";
-      }
-    }
-    return first;
-  }
-  function decode(pins, addressPins, enable, outputPins, outputs) {
-    const addresses = possibleAddresses(pins, addressPins);
-    for (let index = 0; index < outputPins.length; index = index + 1) {
-      const candidates = [];
-      for (const address of addresses) {
-        let match = 0;
-        if (address === index) {
-          match = 1;
-        }
-        const active = logicGate("and", enable, match);
-        candidates.push(logicGate("not", active, 0));
-      }
-      outputs[outputPins[index]] = commonValue(candidates);
-    }
-  }
-  function multiplex(pins, addressPins, dataPins, enable) {
-    const candidates = [];
-    for (const address of possibleAddresses(pins, addressPins)) {
-      candidates.push(logicValue(pins[dataPins[address]]));
-    }
-    return logicGate("and", enable, commonValue(candidates));
-  }
-  function compare(pins, outputs) {
-    outputs[5] = "X";
-    outputs[6] = "X";
-    outputs[7] = "X";
-    for (let bit = 0; bit < COMPARE_FIRST.length; bit = bit + 1) {
-      const first = logicValue(pins[COMPARE_FIRST[bit]]);
-      const second = logicValue(pins[COMPARE_SECOND[bit]]);
-      if (first === "X" || second === "X") {
-        return;
-      }
-      if (first !== second) {
-        outputs[5] = 0;
-        outputs[6] = 0;
-        outputs[7] = 0;
-        if (first > second) {
-          outputs[5] = 1;
-        } else {
-          outputs[7] = 1;
-        }
-        return;
-      }
-    }
-    outputs[6] = logicValue(pins[3]);
-    const notEqual = logicGate("not", pins[3], 0);
-    const notLess = logicGate("not", pins[2], 0);
-    const notGreater = logicGate("not", pins[4], 0);
-    outputs[5] = logicGate("and", notEqual, notLess);
-    outputs[7] = logicGate("and", notEqual, notGreater);
-  }
-  function sevenSegment(pins, outputs) {
-    const number = readNumber(pins, [7, 1, 2, 6]);
-    let rippleBlank = pins[5];
-    if (rippleBlank === "Z") {
-      rippleBlank = 1;
-    }
-    const blankZero = number === 0 && rippleBlank === 0 && pins[3] === 1;
-    outputs[4] = "Z";
-    if (blankZero) {
-      outputs[4] = 0;
-    }
-    for (let index = 0; index < SEGMENT_PINS.length; index = index + 1) {
-      let value = "X";
-      if (pins[4] === 0 || blankZero) {
-        value = 0;
-      } else if (pins[3] === 0 && pins[4] === 1) {
-        value = 1;
-      } else if (pins[3] === 1 && pins[4] === 1 && number !== "X") {
-        if (number !== 0 || rippleBlank === 1) {
-          value = Number(SEGMENT_PATTERNS[number][index]);
-        }
-      }
-      outputs[SEGMENT_PINS[index]] = value;
-    }
-  }
-  function evaluateExtra(model, pins) {
-    const outputs = {};
-    if (model.kind === "cmos-nand" || model.kind === "open-collector" || model.kind === "nand4" || model.kind === "tristate") {
-      for (const gate of model.gates) {
-        const outputPin = gate[gate.length - 1];
-        let value = "X";
-        if (model.kind === "tristate") {
-          if (pins[gate[0]] === 1) {
-            value = "Z";
-          } else if (pins[gate[0]] === 0) {
-            value = logicValue(pins[gate[1]]);
-          }
-        } else {
-          const inputs = [];
-          for (let index = 0; index < gate.length - 1; index = index + 1) {
-            inputs.push(pins[gate[index]]);
-          }
-          value = logicGate("not", andValues(inputs), 0);
-          if (model.kind === "open-collector" && value === 1) {
-            value = "Z";
-          }
-        }
-        outputs[outputPin] = value;
-      }
-    } else if (model.kind === "decoder8") {
-      const enable = andValues([pins[6], logicGate("not", pins[4], 0), logicGate("not", pins[5], 0)]);
-      decode(pins, [1, 2, 3], enable, model.outputs, outputs);
-    } else if (model.kind === "dual-decoder") {
-      decode(pins, [2, 3], logicGate("not", pins[1], 0), [4, 5, 6, 7], outputs);
-      decode(pins, [14, 13], logicGate("not", pins[15], 0), [12, 11, 10, 9], outputs);
-    } else if (model.kind === "mux8") {
-      outputs[5] = multiplex(pins, [11, 10, 9], [4, 3, 2, 1, 15, 14, 13, 12], logicGate("not", pins[7], 0));
-      outputs[6] = logicGate("not", outputs[5], 0);
-    } else if (model.kind === "dual-mux") {
-      outputs[7] = multiplex(pins, [14, 2], [6, 5, 4, 3], logicGate("not", pins[1], 0));
-      outputs[9] = multiplex(pins, [14, 2], [10, 11, 12, 13], logicGate("not", pins[15], 0));
-    } else if (model.kind === "comparator") {
-      compare(pins, outputs);
-    } else if (model.kind === "seven-segment") {
-      sevenSegment(pins, outputs);
-    }
-    return outputs;
-  }
-
-  // src/chips/chip-state.mjs
-  var DECADE_NEXT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 4, 13, 4, 15, 0];
-  function unknownBits(count) {
-    const bits = [];
-    for (let index = 0; index < count; index = index + 1) {
-      bits.push("X");
-    }
-    return bits;
-  }
-  function createChipState(model) {
-    let count = 4;
-    if (model.sequential === "flipflop") {
-      count = 2;
-    }
-    const clocks = unknownBits(count);
-    return { bits: unknownBits(count), inverted: unknownBits(count), clocks };
-  }
-  function hasEdge(previous, current, edge) {
-    if (edge === "falling") {
-      return previous === 1 && current === 0;
-    }
-    return previous === 0 && current === 1;
-  }
-  function uncertainEdge(previous, current, edge) {
-    const first = logicValue(previous);
-    const last = logicValue(current);
-    if (first !== "X" && last !== "X") {
-      return false;
-    }
-    if (edge === "falling") {
-      return first !== 0 && last !== 1;
-    }
-    return first !== 1 && last !== 0;
-  }
-  function nextJk(first, second, previous) {
-    if (first === 1 && second === 0) {
-      return 1;
-    }
-    if (first === 0 && second === 1) {
-      return 0;
-    }
-    const previousInverse = logicGate("not", previous, 0);
-    const secondInverse = logicGate("not", second, 0);
-    const setPart = logicGate("and", first, previousInverse);
-    const keepPart = logicGate("and", secondInverse, previous);
-    return logicGate("or", setPart, keepPart);
-  }
-  function updateFlipFlops(model, pins, state2) {
-    const bits = [];
-    const inverted = [];
-    for (let index = 0; index < model.channels.length; index = index + 1) {
-      const channel = model.channels[index];
-      let active = 0;
-      if (model.activeHigh) {
-        active = 1;
-      }
-      const reset = logicValue(pins[channel.reset]);
-      const set = logicValue(pins[channel.set]);
-      let value = state2.bits[index];
-      let inverse = state2.inverted[index];
-      if (reset === active && set === active) {
-        value = 1;
-        inverse = 1;
-      } else if (reset === active) {
-        value = 0;
-        inverse = 1;
-      } else if (set === active) {
-        value = 1;
-        inverse = 0;
-      } else if (reset === "X" || set === "X") {
-        value = "X";
-        inverse = "X";
-      } else {
-        if (value === inverse) {
-          value = "X";
-        }
-        if (hasEdge(state2.clocks[index], pins[channel.clock], model.edge)) {
-          if (channel.data) {
-            value = logicValue(pins[channel.data]);
-          } else {
-            value = nextJk(pins[channel.first], pins[channel.second], value);
-          }
-        } else if (uncertainEdge(state2.clocks[index], pins[channel.clock], model.edge)) {
-          let sampled = logicValue(pins[channel.data]);
-          if (!channel.data) {
-            sampled = nextJk(pins[channel.first], pins[channel.second], value);
-          }
-          if (sampled !== value) {
-            value = "X";
-          }
-        }
-        inverse = logicGate("not", value, 0);
-      }
-      bits.push(value);
-      inverted.push(inverse);
-      state2.clocks[index] = logicValue(pins[channel.clock]);
-    }
-    state2.bits = bits;
-    state2.inverted = inverted;
-  }
-  function storedNumber(bits) {
-    let value = 0;
-    for (let bit = 0; bit < bits.length; bit = bit + 1) {
-      if (bits[bit] !== 0 && bits[bit] !== 1) {
-        return "X";
-      }
-      value = value + bits[bit] * 2 ** bit;
-    }
-    return value;
-  }
-  function numberBits(number) {
-    if (number === "X") {
-      return unknownBits(4);
-    }
-    const bits = [];
-    for (let bit = 0; bit < 4; bit = bit + 1) {
-      bits.push(number >> bit & 1);
-    }
-    return bits;
-  }
-  function updateCounter(model, pins, state2) {
-    const edge = hasEdge(state2.clocks[0], pins[2], "rising");
-    if (pins[1] === 0) {
-      state2.bits = [0, 0, 0, 0];
-    } else if (pins[1] !== 1) {
-      state2.bits = unknownBits(4);
-    } else if (edge) {
-      if (pins[9] === 0) {
-        state2.bits = numberBits(readNumber(pins, [3, 4, 5, 6]));
-      } else if (pins[9] !== 1) {
-        state2.bits = unknownBits(4);
-      } else {
-        const enable = andValues([pins[7], pins[10]]);
-        if (enable === 1) {
-          const current = storedNumber(state2.bits);
-          if (current === "X") {
-            state2.bits = unknownBits(4);
-          } else if (model.modulus === 10) {
-            state2.bits = numberBits(DECADE_NEXT[current]);
-          } else {
-            state2.bits = numberBits(current + 1 & 15);
-          }
-        } else if (enable === "X") {
-          state2.bits = unknownBits(4);
-        }
-      }
-    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising") && !(pins[9] === 1 && (pins[7] === 0 || pins[10] === 0))) {
-      state2.bits = unknownBits(4);
-    }
-    state2.clocks[0] = logicValue(pins[2]);
-  }
-  function updateShift(pins, state2) {
-    if (pins[1] === 0) {
-      state2.bits = [0, 0, 0, 0];
-    } else if (pins[1] !== 1) {
-      state2.bits = unknownBits(4);
-    } else if (hasEdge(state2.clocks[0], pins[2], "rising")) {
-      const mode = readNumber(pins, [9, 10]);
-      const previous = state2.bits;
-      if (mode === 1) {
-        state2.bits = [logicValue(pins[3]), previous[0], previous[1], previous[2]];
-      } else if (mode === 2) {
-        state2.bits = [previous[1], previous[2], previous[3], logicValue(pins[11])];
-      } else if (mode === 3) {
-        state2.bits = [logicValue(pins[4]), logicValue(pins[5]), logicValue(pins[6]), logicValue(pins[7])];
-      } else if (mode === "X") {
-        state2.bits = unknownBits(4);
-      }
-    } else if (uncertainEdge(state2.clocks[0], pins[2], "rising") && !(pins[9] === 0 && pins[10] === 0)) {
-      state2.bits = unknownBits(4);
-    }
-    state2.clocks[0] = logicValue(pins[2]);
-  }
-  function updateChipState(model, pins, state2, powered) {
-    const before = JSON.stringify([state2.bits, state2.inverted]);
-    if (!powered) {
-      state2.bits = unknownBits(state2.bits.length);
-      state2.inverted = unknownBits(state2.inverted.length);
-      state2.clocks = unknownBits(state2.clocks.length);
-    } else if (model.sequential === "flipflop") {
-      updateFlipFlops(model, pins, state2);
-    } else if (model.sequential === "counter") {
-      updateCounter(model, pins, state2);
-    } else if (model.sequential === "shift") {
-      updateShift(pins, state2);
-    }
-    return before !== JSON.stringify([state2.bits, state2.inverted]);
-  }
-  function stateOutputs(model, pins, state2) {
-    const outputs = {};
-    if (model.sequential === "flipflop") {
-      for (let index = 0; index < model.channels.length; index = index + 1) {
-        const channel = model.channels[index];
-        outputs[channel.output] = state2.bits[index];
-        outputs[channel.inverted] = state2.inverted[index];
-      }
-    } else {
-      for (let bit = 0; bit < 4; bit = bit + 1) {
-        outputs[model.outputs[bit]] = state2.bits[bit];
-      }
-      if (model.sequential === "counter") {
-        const number = storedNumber(state2.bits);
-        let terminal = "X";
-        if (number !== "X") {
-          terminal = 0;
-          if (number === model.modulus - 1) {
-            terminal = 1;
-          }
-        }
-        outputs[15] = logicGate("and", terminal, pins[10]);
-      }
-    }
-    return outputs;
-  }
-
-  // src/chips/chip-memory.mjs
-  function createMemory(specification) {
-    const words = [];
-    for (let address = 0; address < specification.words; address = address + 1) {
-      const bits = [];
-      for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
-        bits.push("X");
-      }
-      words.push(bits);
-    }
-    return { words, powered: false };
-  }
-  function matchesAddress(specification, pins, address) {
-    for (let bit = 0; bit < specification.address.length; bit = bit + 1) {
-      const value = logicValue(pins[specification.address[bit]]);
-      const expected = address >> bit & 1;
-      if (value !== "X" && value !== expected) {
-        return false;
-      }
-    }
-    return true;
-  }
-  function readMemoryBit(specification, pins, state2, bit) {
-    const address = readNumber(pins, specification.address);
-    if (address !== "X") {
-      return state2.words[address][bit];
-    }
-    let value;
-    for (let candidate = 0; candidate < specification.words; candidate = candidate + 1) {
-      if (matchesAddress(specification, pins, candidate)) {
-        const stored = state2.words[candidate][bit];
-        if (value === void 0) {
-          value = stored;
-        } else if (value !== stored) {
-          return "X";
-        }
-      }
-    }
-    return value;
-  }
-  function memoryOutputs(specification, pins, state2) {
-    const outputs = {};
-    const selected = pins[specification.select];
-    const reading = pins[specification.read];
-    const writing = pins[specification.write];
-    for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
-      let value = "X";
-      if (selected === 1 || reading === 1 || writing === 0) {
-        value = "Z";
-      } else if (selected === 0 && reading === 0 && writing === 1) {
-        value = readMemoryBit(specification, pins, state2, bit);
-      }
-      outputs[specification.data[bit]] = value;
-    }
-    return outputs;
-  }
-  function writeMemoryWord(specification, pins, state2, address, certain) {
-    let changed = false;
-    const word = state2.words[address];
-    for (let bit = 0; bit < specification.data.length; bit = bit + 1) {
-      let value = logicValue(pins[specification.data[bit]]);
-      if (!certain && word[bit] !== value) {
-        value = "X";
-      }
-      if (word[bit] !== value) {
-        word[bit] = value;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  function updateMemory(specification, pins, state2, powered) {
-    if (!powered) {
-      if (state2.powered) {
-        const cleared = createMemory(specification);
-        state2.words = cleared.words;
-      }
-      state2.powered = false;
-      return false;
-    }
-    state2.powered = true;
-    const selected = pins[specification.select];
-    const writing = pins[specification.write];
-    if (selected === 1 || writing === 1) {
-      return false;
-    }
-    const address = readNumber(pins, specification.address);
-    const certain = selected === 0 && writing === 0 && address !== "X";
-    if (certain) {
-      return writeMemoryWord(specification, pins, state2, address, true);
-    }
-    let changed = false;
-    for (let candidate = 0; candidate < specification.words; candidate = candidate + 1) {
-      if (matchesAddress(specification, pins, candidate)) {
-        const updated = writeMemoryWord(specification, pins, state2, candidate, false);
-        changed = changed || updated;
-      }
-    }
-    return changed;
-  }
-
-  // src/simulation/engine.mjs
-  var MAX_SETTLE_PASSES = 96;
-  var MAX_SEQUENTIAL_PASSES = 12;
-  function buildTopology(project) {
-    const parents = {};
-    for (const wire of project.wires) {
-      const first = baseNode(wire.from);
-      const second = baseNode(wire.to);
-      ensureNode(parents, first);
-      ensureNode(parents, second);
-      const firstRoot = findRoot(parents, first);
-      const secondRoot = findRoot(parents, second);
-      parents[secondRoot] = firstRoot;
-    }
-    return parents;
-  }
-  function ensureNode(parents, name) {
-    if (!Object.hasOwn(parents, name)) {
-      parents[name] = name;
-    }
-  }
-  function findRoot(parents, name) {
-    ensureNode(parents, name);
-    let root = name;
-    while (parents[root] !== root) {
-      root = parents[root];
-    }
-    return root;
-  }
-  function nodeFor(topology, endpoint) {
-    return findRoot(topology, baseNode(endpoint));
-  }
-  function addDriver(drivers, node2, value, source, kind = "push-pull") {
-    if (value === "Z") {
-      return;
-    }
-    if (!Object.hasOwn(drivers, node2)) {
-      drivers[node2] = [];
-    }
-    drivers[node2].push({ value, source, kind });
-  }
-  function resolveDrivers(drivers) {
-    if (!drivers || drivers.length === 0) {
-      return "Z";
-    }
-    let result = "Z";
-    let pullUp = false;
-    for (const driver of drivers) {
-      if (driver.kind === "pull-up") {
-        pullUp = true;
-        continue;
-      }
-      if (result === "Z") {
-        result = driver.value;
-      } else if (driver.value === "X" || driver.value !== result) {
-        result = "X";
-      }
-    }
-    if (result === "Z" && pullUp) {
-      return 1;
-    }
-    return result;
-  }
-  function readEndpoint(result, endpoint) {
-    const node2 = nodeFor(result.topology, endpoint);
-    if (!Object.hasOwn(result.values, node2)) {
-      return "Z";
-    }
-    return result.values[node2];
-  }
-  function readPins(chip, topology, values) {
-    const pins = {};
-    const model = CHIP_MODELS[chip.model];
-    for (let pin = 1; pin <= model.count; pin = pin + 1) {
-      const hole = pinHole(chip, pin);
-      const node2 = nodeFor(topology, hole);
-      pins[pin] = "Z";
-      if (Object.hasOwn(values, node2)) {
-        pins[pin] = values[node2];
-      }
-    }
-    return pins;
-  }
-  function chipPowered(chip, pins) {
-    const model = CHIP_MODELS[chip.model];
-    return pins[model.power] === 1 && pins[model.ground] === 0;
-  }
-  function initialRegister() {
-    const bits = [];
-    for (let index = 0; index < 8; index = index + 1) {
-      bits.push("X");
-    }
-    return { bits, clock: "X" };
-  }
-  function chipOutputs(chip, pins, registers, devices) {
-    const model = CHIP_MODELS[chip.model];
-    const outputs = {};
-    if (!chipPowered(chip, pins)) {
-      return outputs;
-    }
-    if (chip.model === "74LS273") {
-      const register = registers[chip.id];
-      for (let bit = 0; bit < 8; bit = bit + 1) {
-        outputs[model.outputs[bit]] = register.bits[bit];
-      }
-      return outputs;
-    }
-    if (chip.model === "74LS283") {
-      return evaluateAdder(pins);
-    }
-    if (model.memory) {
-      return memoryOutputs(model.memory, pins, devices[chip.id]);
-    }
-    if (model.sequential) {
-      return stateOutputs(model, pins, devices[chip.id]);
-    }
-    if (model.kind) {
-      return evaluateExtra(model, pins);
-    }
-    for (const gate of model.gates) {
-      outputs[gate[2]] = logicGate(model.operation, pins[gate[0]], pins[gate[1]]);
-    }
-    return outputs;
-  }
-  function collectDrivers(project, topology, values, registers, pulses, devices, previousDrivers) {
-    const drivers = {};
-    if (project.power) {
-      addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
-      addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
-      for (let index = 0; index < IO_LIMIT; index = index + 1) {
-        const name = "K" + index;
-        addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
-      }
-      addDriver(drivers, nodeFor(topology, "P+"), pulses.positive, "P+");
-      addDriver(drivers, nodeFor(topology, "P-"), pulses.negative, "P\u2212");
-      for (const endpoint of project.pullUps || []) {
-        addDriver(drivers, nodeFor(topology, endpoint), 1, "\u4E0A\u62C9 " + endpoint, "pull-up");
-      }
-      for (const chip of project.chips) {
-        const pins = readPins(chip, topology, values);
-        const model = CHIP_MODELS[chip.model];
-        if (model.bidirectional && chipPowered(chip, pins)) {
-          for (const pin of model.bidirectional) {
-            const node2 = nodeFor(topology, pinHole(chip, pin));
-            const external = [];
-            const source = chip.id + "-" + pin;
-            const entries2 = previousDrivers[node2] || [];
-            for (const driver of entries2) {
-              if (driver.source !== source) {
-                external.push(driver);
-              }
-            }
-            if (model.kind === "seven-segment") {
-              addDriver(drivers, node2, 1, chip.id + "-" + pin + "-bias", "pull-up");
-              external.push({ value: 1, kind: "pull-up" });
-            }
-            pins[pin] = resolveDrivers(external);
-          }
-        }
-        const outputs = chipOutputs(chip, pins, registers, devices);
-        for (const pin in outputs) {
-          const hole = pinHole(chip, Number(pin));
-          let kind = "push-pull";
-          if (model.kind === "open-collector" || model.kind === "seven-segment" && Number(pin) === 4) {
-            kind = "open-collector";
-          }
-          if (model.kind === "seven-segment" && Number(pin) !== 4) {
-            kind = "open-collector";
-            if (outputs[pin] === 1) {
-              kind = "pull-up";
-            }
-          }
-          addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin, kind);
-        }
-      }
-    }
-    return drivers;
-  }
-  function driverValues(drivers) {
-    const values = {};
-    for (const name in drivers) {
-      values[name] = resolveDrivers(drivers[name]);
-    }
-    return values;
-  }
-  function sameValues(first, second) {
-    const names = Object.keys(first);
-    if (names.length !== Object.keys(second).length) {
-      return false;
-    }
-    for (const name of names) {
-      if (first[name] !== second[name]) {
-        return false;
-      }
-    }
-    return true;
-  }
-  function topologySignature(project) {
-    const connections = [];
-    for (const wire of project.wires) {
-      connections.push([wire.from, wire.to]);
-    }
-    const chips = [];
-    for (const chip of project.chips) {
-      chips.push([chip.id, chip.model, chip.section, chip.column]);
-    }
-    return JSON.stringify([connections, chips, project.pullUps]);
-  }
-  function settle(project, topology, runtime, previous) {
-    let values = {};
-    let drivers = {};
-    if (previous && previous.stable) {
-      values = previous.values;
-      drivers = previous.drivers;
-    }
-    for (let pass = 0; pass < MAX_SETTLE_PASSES; pass = pass + 1) {
-      drivers = collectDrivers(project, topology, values, runtime.registers, runtime.pulses, runtime.devices, drivers);
-      const next = driverValues(drivers);
-      if (pass > 0 && sameValues(values, next)) {
-        return { values: next, drivers, stable: true };
-      }
-      values = next;
-    }
-    for (const name in values) {
-      values[name] = "X";
-    }
-    return { values, drivers, stable: false };
-  }
-  function updateRegisters(project, topology, values, registers) {
-    let changed = false;
-    for (const chip of project.chips) {
-      if (chip.model !== "74LS273") {
-        continue;
-      }
-      const register = registers[chip.id];
-      const pins = readPins(chip, topology, values);
-      const powered = project.power && chipPowered(chip, pins);
-      const nextBits = [];
-      for (let bit = 0; bit < 8; bit = bit + 1) {
-        let value = register.bits[bit];
-        if (!powered) {
-          value = "X";
-        } else if (pins[1] === 0) {
-          value = 0;
-        } else if (pins[1] !== 1) {
-          value = "X";
-        } else if (register.clock === 0 && pins[11] === 1) {
-          value = pins[CHIP_MODELS[chip.model].data[bit]];
-          if (value !== 0 && value !== 1) {
-            value = "X";
-          }
-        } else if (register.clock === 0 && pins[11] !== 0 || register.clock !== 1 && register.clock !== 0 && pins[11] !== 0) {
-          value = "X";
-        }
-        nextBits.push(value);
-        if (value !== register.bits[bit]) {
-          changed = true;
-        }
-      }
-      register.bits = nextBits;
-      register.clock = pins[11];
-    }
-    return changed;
-  }
-  function diagnose(project, result) {
-    const issues = [];
-    if (!project.power) {
-      return issues;
-    }
-    if (nodeFor(result.topology, "VCC") === nodeFor(result.topology, "GND")) {
-      issues.push({ code: "power-short", severity: "error", message: "+5V \u4E0E GND \u88AB\u5BFC\u7EBF\u77ED\u63A5\uFF0C\u8BF7\u65AD\u5F00\u5BF9\u5E94\u8FDE\u7EBF" });
-    }
-    for (const node2 in result.drivers) {
-      const drivers = [];
-      let pushPull = 0;
-      for (const driver of result.drivers[node2]) {
-        if (driver.kind !== "pull-up") {
-          drivers.push(driver);
-          if (driver.kind === "push-pull") {
-            pushPull = pushPull + 1;
-          }
-        }
-      }
-      if (drivers.length > 1 && pushPull > 0) {
-        let sources = "";
-        let high = false;
-        let low = false;
-        for (const driver of drivers) {
-          if (sources !== "") {
-            sources = sources + "\u3001";
-          }
-          sources = sources + driver.source;
-          if (driver.value === 1) {
-            high = true;
-          }
-          if (driver.value === 0) {
-            low = true;
-          }
-        }
-        let message = "\u591A\u4E2A\u9A71\u52A8\u6E90\u8FDE\u63A5\u5230\u540C\u4E00\u8282\u70B9\uFF1A" + sources;
-        if (high && low) {
-          message = "\u9AD8\u4F4E\u7535\u5E73\u51B2\u7A81\uFF1A" + sources + "\uFF0C\u6B64\u8282\u70B9\u7ED3\u679C\u4E3A X";
-        }
-        issues.push({ code: "drivers:" + node2, severity: "error", message });
-      }
-    }
-    for (const chip of project.chips) {
-      const pins = readPins(chip, result.topology, result.values);
-      if (!chipPowered(chip, pins)) {
-        issues.push({ code: "power:" + chip.id, severity: "error", message: chip.id + " \u7535\u6E90\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5 VCC \u548C GND" });
-        continue;
-      }
-      const missing = [];
-      const model = CHIP_MODELS[chip.model];
-      for (const pin of model.inputs) {
-        if (model.kind === "seven-segment" && pin === 5) {
-          continue;
-        }
-        if (model.memory && model.bidirectional.includes(pin)) {
-          const selected = pins[model.memory.select];
-          const writing = pins[model.memory.write];
-          if (selected !== 0 || writing !== 0) {
-            continue;
-          }
-        }
-        if (pins[pin] === "Z") {
-          missing.push(String(pin));
-        }
-      }
-      if (missing.length > 0) {
-        issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " \u8F93\u5165\u60AC\u7A7A\uFF1A\u7B2C " + missing.join("\u3001") + " \u811A" });
-      }
-      if (model.channels) {
-        let active = 0;
-        if (model.activeHigh) {
-          active = 1;
-        }
-        for (let index = 0; index < model.channels.length; index = index + 1) {
-          const channel = model.channels[index];
-          if (pins[channel.set] === active && pins[channel.reset] === active) {
-            issues.push({ code: "async-conflict:" + chip.id + ":" + index, severity: "warning", message: chip.id + " \u7B2C " + (index + 1) + " \u8DEF\u7F6E\u4F4D\u548C\u590D\u4F4D\u540C\u65F6\u6709\u6548\uFF0C\u4E24\u4E2A\u8F93\u51FA\u5747\u4E3A 1\uFF0C\u540C\u65F6\u91CA\u653E\u540E\u7684\u72B6\u6001\u4E0D\u786E\u5B9A" });
-          }
-        }
-      }
-    }
-    if (!result.stable) {
-      issues.push({ code: "unstable", severity: "error", message: "\u7535\u8DEF\u672A\u8FBE\u5230\u7A33\u5B9A\u72B6\u6001\uFF0C\u8BF7\u68C0\u67E5\u7EC4\u5408\u903B\u8F91\u53CD\u9988" });
-    }
-    return issues;
-  }
-  function createRuntime() {
-    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, feedback: null };
-  }
-  function simulate(project, runtime) {
-    const topology = buildTopology(project);
-    for (const chip of project.chips) {
-      if (chip.model === "74LS273" && !Object.hasOwn(runtime.registers, chip.id)) {
-        runtime.registers[chip.id] = initialRegister();
-      }
-      const model = CHIP_MODELS[chip.model];
-      if (model.sequential && !Object.hasOwn(runtime.devices, chip.id)) {
-        runtime.devices[chip.id] = createChipState(model);
-      }
-      if (model.memory && !Object.hasOwn(runtime.devices, chip.id)) {
-        runtime.devices[chip.id] = createMemory(model.memory);
-      }
-    }
-    const signature = topologySignature(project);
-    let previous = null;
-    if (project.power && runtime.feedback && runtime.feedback.signature === signature) {
-      previous = runtime.feedback.settled;
-    }
-    let settled = settle(project, topology, runtime, previous);
-    let complete = false;
-    for (let pass = 0; pass < MAX_SEQUENTIAL_PASSES; pass = pass + 1) {
-      let changed = updateRegisters(project, topology, settled.values, runtime.registers);
-      for (const chip of project.chips) {
-        const model = CHIP_MODELS[chip.model];
-        if (model.sequential) {
-          const pins = readPins(chip, topology, settled.values);
-          const updated = updateChipState(model, pins, runtime.devices[chip.id], project.power && chipPowered(chip, pins));
-          changed = changed || updated;
-        }
-        if (model.memory) {
-          const pins = readPins(chip, topology, settled.values);
-          const powered = project.power && chipPowered(chip, pins);
-          const updated = updateMemory(model.memory, pins, runtime.devices[chip.id], powered);
-          changed = changed || updated;
-        }
-      }
-      if (!changed) {
-        complete = true;
-        break;
-      }
-      settled = settle(project, topology, runtime, settled);
-    }
-    const result = { topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
-    runtime.feedback = null;
-    if (project.power && result.stable) {
-      runtime.feedback = { signature, settled };
-    }
-    result.issues = diagnose(project, result);
-    return result;
   }
 
   // src/board/wire-path.mjs
@@ -5960,6 +5804,251 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       }
     }
     return null;
+  }
+
+  // src/storage/storage.mjs
+  var STORAGE_KEY = "breadboard-lab-v1";
+  var LIMITS = {
+    chips: 40,
+    // 单个实验的芯片数量上限
+    wires: 800,
+    // 单个实验的导线及上拉节点数量上限
+    bends: 24,
+    // 每根导线的转折点数量上限
+    fileBytes: 2e6,
+    // 导入文件字节数上限
+    nameLength: 80
+    // 实验名称字符数上限
+  };
+  var FILE_BOUNDS = { width: 1300, height: 1280 };
+  var LEGACY_COMPLEMENT_PORT_COUNT = 7;
+  function validWireBend(bend) {
+    if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y)) {
+      return false;
+    }
+    const fitsWidth = bend.x >= 0 && bend.x <= FILE_BOUNDS.width;
+    const fitsHeight = bend.y >= 0 && bend.y <= FILE_BOUNDS.height;
+    return fitsWidth && fitsHeight;
+  }
+  function legacyNode(name, wiringVersion) {
+    if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
+      return name;
+    }
+    return baseNode(name, 2);
+  }
+  function connectionRoot(parents, name) {
+    if (!parents.has(name)) {
+      parents.set(name, name);
+    }
+    let root = name;
+    while (parents.get(root) !== root) {
+      root = parents.get(root);
+    }
+    return root;
+  }
+  function verifyPortMigration(original, migrated) {
+    const before = /* @__PURE__ */ new Map();
+    const after = /* @__PURE__ */ new Map();
+    for (const wire of original.wires) {
+      const first = connectionRoot(before, legacyNode(wire.from, original.wiringVersion));
+      const last = connectionRoot(before, legacyNode(wire.to, original.wiringVersion));
+      before.set(last, first);
+    }
+    for (const wire of migrated.wires) {
+      const first = connectionRoot(after, baseNode(wire.from));
+      const last = connectionRoot(after, baseNode(wire.to));
+      after.set(last, first);
+    }
+    const terminals = ["P+", "P-", "VCC", "GND"];
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      terminals.push("K" + bit, "L" + bit);
+    }
+    for (const chip of migrated.chips) {
+      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
+        terminals.push(pinHole(chip, pin));
+      }
+    }
+    const forward = /* @__PURE__ */ new Map();
+    const reverse = /* @__PURE__ */ new Map();
+    for (const name of terminals) {
+      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
+      const newGroup = connectionRoot(after, baseNode(name));
+      if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
+        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
+      }
+      forward.set(oldGroup, newGroup);
+      reverse.set(newGroup, oldGroup);
+    }
+  }
+  function migrateEndpoint(name, occupied2) {
+    if (isPhysicalHole(name)) {
+      return name;
+    }
+    const preferred = portHole(name);
+    if (preferred === "") {
+      throw new Error("\u65E0\u6CD5\u627E\u5230\u7AEF\u53E3\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5B54\uFF1A" + name);
+    }
+    const parts = preferred.split(":");
+    if (preferred.startsWith("R:")) {
+      for (let index = Number(parts[2]); index >= 0; index = index - 1) {
+        const hole = parts[0] + ":" + parts[1] + ":" + index;
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    } else {
+      let rows = "JIHGF";
+      if (parts[1] === "A") {
+        rows = "ABCDE";
+      }
+      for (const row of rows) {
+        const hole = parts[0] + ":" + row + ":" + parts[2];
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    }
+    throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
+  }
+  function validateProjectHeader(value) {
+    if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
+      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
+    }
+    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
+      throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
+    }
+    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
+      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
+    }
+  }
+  function restoreProjectSettings(value, project) {
+    if (value.inputCount !== void 0 || value.outputCount !== void 0) {
+      if (!validIoCount(value.inputCount) || !validIoCount(value.outputCount)) {
+        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
+      }
+      project.inputCount = value.inputCount;
+      project.outputCount = value.outputCount;
+    }
+    if (value.mode === "complement") {
+      project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+      project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+    }
+    if (value.notes === void 0 && value.mode === "complement") {
+      project.notes = COMPLEMENT_NOTES;
+    } else if (value.notes !== void 0) {
+      if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
+        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 " + NOTES_LIMIT + " \u4E2A\u5B57\u7B26");
+      }
+      project.notes = value.notes;
+    }
+    if (typeof value.name === "string") {
+      project.name = value.name.slice(0, LIMITS.nameLength);
+    }
+    project.power = value.power === true;
+  }
+  function restorePullUps(value, project) {
+    if (value.pullUps !== void 0) {
+      if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
+        throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
+      }
+      const seen = /* @__PURE__ */ new Set();
+      for (const endpoint of value.pullUps) {
+        if (!validEndpoint(endpoint) || seen.has(endpoint)) {
+          throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+        }
+        project.pullUps.push(endpoint);
+        seen.add(endpoint);
+      }
+    }
+  }
+  function restoreChips(value, project) {
+    const identifiers = /* @__PURE__ */ new Set();
+    const occupied2 = /* @__PURE__ */ new Set();
+    for (const entry of value.chips) {
+      if (!entry || typeof entry.id !== "string" || !/^U[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
+        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+      }
+      const chip = { id: entry.id, model: entry.model, section: entry.section, column: entry.column };
+      const error = placementError(project.chips, chip, "");
+      if (error !== "") {
+        throw new Error(error);
+      }
+      identifiers.add(chip.id);
+      project.chips.push(chip);
+      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
+        occupied2.add(pinHole(chip, pin));
+      }
+    }
+    return occupied2;
+  }
+  function restoreWires(value, project, occupied2) {
+    const identifiers = /* @__PURE__ */ new Set();
+    const reserved = new Set(occupied2);
+    for (const entry of value.wires) {
+      if (entry && isPhysicalHole(entry.from)) {
+        reserved.add(entry.from);
+      }
+      if (entry && isPhysicalHole(entry.to)) {
+        reserved.add(entry.to);
+      }
+    }
+    for (const entry of value.wires) {
+      if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
+        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+      }
+      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
+        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
+      }
+      if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
+        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5");
+      }
+      const bends = [];
+      for (const bend of entry.bends) {
+        if (!validWireBend(bend)) {
+          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
+        }
+        bends.push({ x: bend.x, y: bend.y });
+      }
+      const from = migrateEndpoint(entry.from, reserved);
+      const to = migrateEndpoint(entry.to, reserved);
+      if (from !== entry.from || to !== entry.to) {
+        bends.length = 0;
+      }
+      const wire = { id: entry.id, from, to, color: entry.color, bends };
+      if (entry.angle !== void 0 && entry.angle !== 45) {
+        throw new Error("\u5BFC\u7EBF\u89D2\u5EA6\u8BBE\u7F6E\u4E0D\u6B63\u786E");
+      }
+      if (entry.angle === 45) {
+        wire.angle = 45;
+      }
+      project.wires.push(wire);
+      occupied2.add(entry.from);
+      occupied2.add(entry.to);
+      identifiers.add(entry.id);
+    }
+  }
+  function restoreSwitches(value, project) {
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      if (value.switches[index] !== 0 && value.switches[index] !== 1) {
+        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
+      }
+      project.switches[index] = value.switches[index];
+    }
+  }
+  function validateProject(value) {
+    validateProjectHeader(value);
+    const project = emptyProject();
+    restoreProjectSettings(value, project);
+    restorePullUps(value, project);
+    const occupied2 = restoreChips(value, project);
+    restoreWires(value, project, occupied2);
+    restoreSwitches(value, project);
+    if (value.wiringVersion !== WIRING_VERSION) {
+      verifyPortMigration(value, project);
+    }
+    return project;
   }
 
   // src/ui/runtime-scripts.mjs
@@ -9035,11 +9124,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const originalDocument = document2;
     const currentScript = originalDocument.currentScript;
     window2.DocumentFragment;
-    const HTMLTemplateElement = window2.HTMLTemplateElement, Node = window2.Node, Element = window2.Element, NodeFilter = window2.NodeFilter;
+    const HTMLTemplateElement = window2.HTMLTemplateElement, Node = window2.Node, Element2 = window2.Element, NodeFilter = window2.NodeFilter;
     window2.NamedNodeMap === void 0 && (window2.NamedNodeMap || window2.MozNamedAttrMap);
     window2.HTMLFormElement;
     const DOMParser = window2.DOMParser, trustedTypes = window2.trustedTypes;
-    const ElementPrototype = Element.prototype;
+    const ElementPrototype = Element2.prototype;
     const cloneNode = lookupGetter(ElementPrototype, "cloneNode");
     const remove = lookupGetter(ElementPrototype, "remove");
     const removeAttributeNode = lookupGetter(ElementPrototype, "removeAttributeNode");
@@ -10107,13 +10196,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function markdownFragment(source) {
     const parsed = x.parse(source, MARKDOWN_OPTIONS);
     const fragment = purify_default.sanitize(parsed, { ALLOWED_TAGS: MARKDOWN_TAGS, ALLOWED_ATTR: MARKDOWN_ATTRIBUTES, RETURN_DOM_FRAGMENT: true });
-    for (const anchor of fragment.querySelectorAll("a")) {
-      const href = anchor.getAttribute("href");
+    for (const anchor2 of fragment.querySelectorAll("a")) {
+      const href = anchor2.getAttribute("href");
       if (href && !LINK_PROTOCOLS.test(href)) {
-        anchor.removeAttribute("href");
+        anchor2.removeAttribute("href");
       }
-      anchor.setAttribute("target", "_blank");
-      anchor.setAttribute("rel", "noopener noreferrer");
+      anchor2.setAttribute("target", "_blank");
+      anchor2.setAttribute("rel", "noopener noreferrer");
     }
     for (const input of fragment.querySelectorAll("input")) {
       input.type = "checkbox";
@@ -10123,9 +10212,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/simulation/diagnostics.mjs
-  var REGISTER_CONTROLS = { clock: 11, reset: 1 };
-  var COUNTER_CONTROLS = { clock: 2, reset: 1, load: 9, enable: [7, 10] };
-  var SHIFT_CONTROLS = { clock: 2, reset: 1, mode: [9, 10] };
   function pinDescription(chip, pin) {
     return "\u7B2C " + pin + " \u811A " + CHIP_MODELS[chip.model].labels[pin] + "\uFF08" + endpointLabel(pinHole(chip, pin)) + "\uFF09";
   }
@@ -10155,78 +10241,88 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       addIssue(report, "state:" + chip.id, "warning", chip.id + " \u4FDD\u5B58\u503C\u5C1A\u4E0D\u786E\u5B9A\uFF0C\u8F93\u51FA\u811A " + unknown.join("\u3001") + " \u4E3A X\uFF0C\u8BF7\u5148\u6E05\u96F6\u3001\u7F6E\u6570\u6216\u63D0\u4F9B\u6EE1\u8DB3\u63A7\u5236\u6761\u4EF6\u7684\u6709\u6548\u65F6\u949F\u8FB9\u6CBF", chip.id);
     }
   }
-  function inspectTiming(chip, result, report) {
+  function inspectFlipFlops(chip, result, report) {
     const model = CHIP_MODELS[chip.model];
     const details = [];
-    if (model.channels) {
-      let active = 0;
-      if (model.activeHigh) {
-        active = 1;
-      }
-      for (let index = 0; index < model.channels.length; index = index + 1) {
-        const channel = model.channels[index];
-        const reset = readEndpoint(result, pinHole(chip, channel.reset));
-        const set = readEndpoint(result, pinHole(chip, channel.set));
-        const prefix = "\u7B2C " + (index + 1) + " \u8DEF";
-        if (reset === active && set === active) {
-          details.push(prefix + "\u7F6E\u4F4D\u548C\u590D\u4F4D\u540C\u65F6\u6709\u6548");
-        } else if (reset === active) {
-          details.push(prefix + "\u5F02\u6B65\u590D\u4F4D\u6709\u6548");
-        } else if (set === active) {
-          details.push(prefix + "\u5F02\u6B65\u7F6E\u4F4D\u6709\u6548");
-        } else {
-          inspectClock(chip, channel.clock, result, report);
-          let edge = "\u4E0A\u5347\u6CBF";
-          if (model.edge === "falling") {
-            edge = "\u4E0B\u964D\u6CBF";
-          }
-          details.push(prefix + "\u7B49\u5F85" + edge + "\u91C7\u6837");
-        }
-      }
-    } else {
-      let controls2 = REGISTER_CONTROLS;
-      if (model.sequential === "counter") {
-        controls2 = COUNTER_CONTROLS;
-      } else if (model.sequential === "shift") {
-        controls2 = SHIFT_CONTROLS;
-      }
-      const reset = readEndpoint(result, pinHole(chip, controls2.reset));
-      if (reset === 0) {
-        details.push("\u5F02\u6B65\u6E05\u96F6\u6709\u6548\uFF0C\u8F93\u51FA\u4FDD\u6301\u4E3A 0");
+    let active = 0;
+    if (model.activeHigh) {
+      active = 1;
+    }
+    let edge = "\u4E0A\u5347\u6CBF";
+    if (model.edge === "falling") {
+      edge = "\u4E0B\u964D\u6CBF";
+    }
+    for (let index = 0; index < model.channels.length; index = index + 1) {
+      const channel = model.channels[index];
+      const reset = readEndpoint(result, pinHole(chip, channel.reset));
+      const set = readEndpoint(result, pinHole(chip, channel.set));
+      const prefix = "\u7B2C " + (index + 1) + " \u8DEF";
+      if (reset === active && set === active) {
+        details.push(prefix + "\u7F6E\u4F4D\u548C\u590D\u4F4D\u540C\u65F6\u6709\u6548");
+      } else if (reset === active) {
+        details.push(prefix + "\u5F02\u6B65\u590D\u4F4D\u6709\u6548");
+      } else if (set === active) {
+        details.push(prefix + "\u5F02\u6B65\u7F6E\u4F4D\u6709\u6548");
       } else {
-        inspectClock(chip, controls2.clock, result, report);
-        if (model.sequential === "counter") {
-          const load = readEndpoint(result, pinHole(chip, controls2.load));
-          const firstEnable = readEndpoint(result, pinHole(chip, controls2.enable[0]));
-          const secondEnable = readEndpoint(result, pinHole(chip, controls2.enable[1]));
-          if (load === 0) {
-            details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u5E76\u884C\u7F6E\u6570");
-          } else if (load === 1 && (firstEnable === 0 || secondEnable === 0)) {
-            details.push("\u8BA1\u6570\u7981\u6B62\uFF0C\u4FDD\u6301\u539F\u503C");
-          } else {
-            if (load === 1 && firstEnable === 1 && secondEnable === 1) {
-              details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u8BA1\u6570");
-            } else {
-              details.push("\u7F6E\u6570\u6216\u8BA1\u6570\u4F7F\u80FD\u5C1A\u4E0D\u786E\u5B9A");
-            }
-          }
-        } else if (model.sequential === "shift") {
-          const first = readEndpoint(result, pinHole(chip, controls2.mode[0]));
-          const second = readEndpoint(result, pinHole(chip, controls2.mode[1]));
-          if (first === 0 && second === 0) {
-            details.push("\u4FDD\u6301\u6A21\u5F0F\uFF0C\u4E0D\u8FDB\u884C\u79FB\u4F4D");
-          } else if (first !== 0 && first !== 1 || second !== 0 && second !== 1) {
-            details.push("\u79FB\u4F4D\u6A21\u5F0F\u5C1A\u4E0D\u786E\u5B9A");
-          } else {
-            details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u79FB\u4F4D\u6216\u5E76\u884C\u7F6E\u6570");
-          }
-        } else {
-          details.push("\u7B49\u5F85\u4E0A\u5347\u6CBF\u4FDD\u5B58\u6570\u636E");
-        }
+        inspectClock(chip, channel.clock, result, report);
+        details.push(prefix + "\u7B49\u5F85" + edge + "\u91C7\u6837");
       }
     }
-    inspectStoredState(chip, result, report);
     return details.join("\uFF1B");
+  }
+  function describeCounter(chip, controls2, result) {
+    const load = readEndpoint(result, pinHole(chip, controls2.load));
+    if (load === 0) {
+      return "\u7B49\u5F85\u4E0A\u5347\u6CBF\u5E76\u884C\u7F6E\u6570";
+    }
+    const first = readEndpoint(result, pinHole(chip, controls2.enable[0]));
+    const second = readEndpoint(result, pinHole(chip, controls2.enable[1]));
+    if (load === 1 && (first === 0 || second === 0)) {
+      return "\u8BA1\u6570\u7981\u6B62\uFF0C\u4FDD\u6301\u539F\u503C";
+    }
+    if (load === 1 && first === 1 && second === 1) {
+      return "\u7B49\u5F85\u4E0A\u5347\u6CBF\u8BA1\u6570";
+    }
+    return "\u7F6E\u6570\u6216\u8BA1\u6570\u4F7F\u80FD\u5C1A\u4E0D\u786E\u5B9A";
+  }
+  function describeShift(chip, controls2, result) {
+    const first = readEndpoint(result, pinHole(chip, controls2.mode[0]));
+    const second = readEndpoint(result, pinHole(chip, controls2.mode[1]));
+    if (first === 0 && second === 0) {
+      return "\u4FDD\u6301\u6A21\u5F0F\uFF0C\u4E0D\u8FDB\u884C\u79FB\u4F4D";
+    }
+    const firstKnown = first === 0 || first === 1;
+    const secondKnown = second === 0 || second === 1;
+    if (!firstKnown || !secondKnown) {
+      return "\u79FB\u4F4D\u6A21\u5F0F\u5C1A\u4E0D\u786E\u5B9A";
+    }
+    return "\u7B49\u5F85\u4E0A\u5347\u6CBF\u79FB\u4F4D\u6216\u5E76\u884C\u7F6E\u6570";
+  }
+  function inspectClockedChip(chip, model, result, report) {
+    const controls2 = model.controls;
+    const reset = readEndpoint(result, pinHole(chip, controls2.reset));
+    if (reset === 0) {
+      return "\u5F02\u6B65\u6E05\u96F6\u6709\u6548\uFF0C\u8F93\u51FA\u4FDD\u6301\u4E3A 0";
+    }
+    inspectClock(chip, controls2.clock, result, report);
+    if (model.sequential === "counter") {
+      return describeCounter(chip, controls2, result);
+    }
+    if (model.sequential === "shift") {
+      return describeShift(chip, controls2, result);
+    }
+    return "\u7B49\u5F85\u4E0A\u5347\u6CBF\u4FDD\u5B58\u6570\u636E";
+  }
+  function inspectTiming(chip, result, report) {
+    const model = CHIP_MODELS[chip.model];
+    let detail;
+    if (model.channels) {
+      detail = inspectFlipFlops(chip, result, report);
+    } else {
+      detail = inspectClockedChip(chip, model, result, report);
+    }
+    inspectStoredState(chip, result, report);
+    return detail;
   }
   function inspectMemory(chip, result, report) {
     const specification = CHIP_MODELS[chip.model].memory;
@@ -10300,90 +10396,1449 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       }
     }
   }
+  function inspectUnknownInputs(chip, model, result, report) {
+    const uncertain = [];
+    for (const pin of model.inputs) {
+      if (model.memory && model.bidirectional.includes(pin)) {
+        const selected = readEndpoint(result, pinHole(chip, model.memory.select));
+        const writing = readEndpoint(result, pinHole(chip, model.memory.write));
+        if (selected !== 0 || writing !== 0) {
+          continue;
+        }
+      }
+      if (readEndpoint(result, pinHole(chip, pin)) === "X") {
+        uncertain.push(String(pin));
+      }
+    }
+    if (uncertain.length > 0) {
+      const pins = uncertain.join("\u3001");
+      const message = chip.id + " \u8F93\u5165\u811A " + pins + " \u4E3A X\uFF0C\u8BF7\u68C0\u67E5\u4E0A\u6E38\u8F93\u51FA\u3001\u521D\u59CB\u5316\u72B6\u6001\u6216\u7535\u5E73\u51B2\u7A81";
+      addIssue(report, "input-unknown:" + chip.id, "warning", message, chip.id);
+    }
+  }
+  function inspectCollectorOutputs(chip, model, result, report) {
+    if (model.kind !== "open-collector") {
+      return;
+    }
+    for (const pin of model.outputs) {
+      if (readEndpoint(result, pinHole(chip, pin)) === "Z") {
+        const description = pinDescription(chip, pin);
+        const message = chip.id + " OC \u8F93\u51FA\u65E0\u4E0A\u62C9\uFF1A" + description + "\uFF0C\u91CA\u653E\u65F6\u4E3A Z\uFF0C\u53EF\u8FDE\u63A5\u4E0A\u62C9\u7535\u963B";
+        addIssue(report, "oc-floating:" + chip.id + ":" + pin, "warning", message, chip.id);
+      }
+    }
+  }
+  function inspectPoweredChip(chip, model, result, report) {
+    inspectOutputRails(chip, result, report);
+    inspectUnknownInputs(chip, model, result, report);
+    let detail = "\u7EC4\u5408\u903B\u8F91\u6309\u5F53\u524D\u8F93\u5165\u8BA1\u7B97";
+    if (model.memory) {
+      detail = inspectMemory(chip, result, report);
+    } else if (chip.model === "74LS273" || model.sequential) {
+      detail = inspectTiming(chip, result, report);
+    }
+    inspectCollectorOutputs(chip, model, result, report);
+    return detail;
+  }
+  function applyChipSeverity(summary, chip, result, issues) {
+    for (const issue of issues) {
+      if (!issueAffectsChip(issue, chip, result)) {
+        continue;
+      }
+      if (issue.severity === "error") {
+        summary.severity = "error";
+        summary.status = "\u5B58\u5728\u5DE5\u4F5C\u5F02\u5E38";
+        return;
+      }
+      if (summary.severity !== "error") {
+        summary.severity = "warning";
+        summary.status = "\u9700\u8981\u68C0\u67E5";
+      }
+    }
+  }
+  function inspectChip(chip, result, report) {
+    const summary = {
+      id: chip.id,
+      model: chip.model,
+      status: "\u672A\u4E0A\u7535",
+      severity: "info",
+      detail: "\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u6682\u4E0D\u8FDB\u884C\u5DE5\u4F5C\u72B6\u6001\u5224\u65AD"
+    };
+    if (report.power) {
+      const model = CHIP_MODELS[chip.model];
+      const power = readEndpoint(result, pinHole(chip, model.power));
+      const ground = readEndpoint(result, pinHole(chip, model.ground));
+      const supply = pinDescription(chip, model.power) + "=" + power;
+      const referenceGround = pinDescription(chip, model.ground) + "=" + ground;
+      summary.detail = supply + "\uFF1B" + referenceGround;
+      if (power !== 1 || ground !== 0) {
+        summary.status = "\u4F9B\u7535\u5F02\u5E38";
+        summary.severity = "error";
+        const message = chip.id + " \u7535\u6E90\u4E0D\u6B63\u786E\uFF1A" + summary.detail + "\uFF0C\u8BF7\u68C0\u67E5\u7535\u6E90\u811A\u548C\u5730\u811A\u7684\u63A5\u7EBF";
+        addIssue(report, "power:" + chip.id, "error", message, chip.id);
+      } else {
+        summary.status = "\u5F53\u524D\u6761\u4EF6\u6B63\u5E38";
+        summary.severity = "success";
+        const purpose = inspectPoweredChip(chip, model, result, report);
+        summary.detail = summary.detail + "\uFF1B" + purpose;
+      }
+      applyChipSeverity(summary, chip, result, report.issues);
+    }
+    const reference = CHIP_REFERENCES[chip.model];
+    if (reference.pinWarning) {
+      summary.detail = summary.detail + "\uFF1B" + reference.pinWarning;
+    }
+    return summary;
+  }
   function inspectCircuit(project, result) {
     const report = { issues: [], chips: [], power: project.power, stable: result.stable };
     for (const issue of result.issues) {
       report.issues.push({ code: issue.code, severity: issue.severity, message: issue.message, chipId: "" });
     }
-    if (nodeFor(result.topology, "VCC") === nodeFor(result.topology, "GND")) {
+    const power = nodeFor(result.topology, "VCC");
+    const ground = nodeFor(result.topology, "GND");
+    if (power === ground) {
       addIssue(report, "power-short", "error", "+5V \u4E0E GND \u88AB\u5BFC\u7EBF\u77ED\u63A5\uFF0C\u8BF7\u5148\u65AD\u5F00\u77ED\u63A5\u518D\u4E0A\u7535", "");
     }
     if (!result.stable) {
       addIssue(report, "unstable", "error", "\u7535\u8DEF\u672A\u8FBE\u5230\u7A33\u5B9A\u72B6\u6001\uFF0C\u8BF7\u68C0\u67E5\u7EC4\u5408\u903B\u8F91\u53CD\u9988", "");
     }
     for (const chip of project.chips) {
-      const model = CHIP_MODELS[chip.model];
-      const power = readEndpoint(result, pinHole(chip, model.power));
-      const ground = readEndpoint(result, pinHole(chip, model.ground));
-      let detail = "\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u6682\u4E0D\u8FDB\u884C\u5DE5\u4F5C\u72B6\u6001\u5224\u65AD";
-      let status = "\u672A\u4E0A\u7535";
-      let severity = "info";
-      if (project.power) {
-        detail = pinDescription(chip, model.power) + "=" + power + "\uFF1B" + pinDescription(chip, model.ground) + "=" + ground;
-        if (power !== 1 || ground !== 0) {
-          status = "\u4F9B\u7535\u5F02\u5E38";
-          severity = "error";
-          addIssue(report, "power:" + chip.id, "error", chip.id + " \u7535\u6E90\u4E0D\u6B63\u786E\uFF1A" + detail + "\uFF0C\u8BF7\u68C0\u67E5\u7535\u6E90\u811A\u548C\u5730\u811A\u7684\u63A5\u7EBF", chip.id);
-        } else {
-          status = "\u5F53\u524D\u6761\u4EF6\u6B63\u5E38";
-          severity = "success";
-          inspectOutputRails(chip, result, report);
-          const uncertain = [];
-          for (const pin of model.inputs) {
-            if (model.memory && model.bidirectional.includes(pin)) {
-              const selected = readEndpoint(result, pinHole(chip, model.memory.select));
-              const writing = readEndpoint(result, pinHole(chip, model.memory.write));
-              if (selected !== 0 || writing !== 0) {
-                continue;
-              }
-            }
-            if (readEndpoint(result, pinHole(chip, pin)) === "X") {
-              uncertain.push(String(pin));
-            }
-          }
-          if (uncertain.length > 0) {
-            addIssue(report, "input-unknown:" + chip.id, "warning", chip.id + " \u8F93\u5165\u811A " + uncertain.join("\u3001") + " \u4E3A X\uFF0C\u8BF7\u68C0\u67E5\u4E0A\u6E38\u8F93\u51FA\u3001\u521D\u59CB\u5316\u72B6\u6001\u6216\u7535\u5E73\u51B2\u7A81", chip.id);
-          }
-          if (model.memory) {
-            detail = detail + "\uFF1B" + inspectMemory(chip, result, report);
-          } else if (chip.model === "74LS273" || model.sequential) {
-            detail = detail + "\uFF1B" + inspectTiming(chip, result, report);
-          } else {
-            detail = detail + "\uFF1B\u7EC4\u5408\u903B\u8F91\u6309\u5F53\u524D\u8F93\u5165\u8BA1\u7B97";
-          }
-          if (model.kind === "open-collector") {
-            for (const pin of model.outputs) {
-              if (readEndpoint(result, pinHole(chip, pin)) === "Z") {
-                addIssue(report, "oc-floating:" + chip.id + ":" + pin, "warning", chip.id + " OC \u8F93\u51FA\u65E0\u4E0A\u62C9\uFF1A" + pinDescription(chip, pin) + "\uFF0C\u91CA\u653E\u65F6\u4E3A Z\uFF0C\u53EF\u8FDE\u63A5\u4E0A\u62C9\u7535\u963B", chip.id);
-              }
-            }
-          }
-        }
-        for (const issue of report.issues) {
-          if (issueAffectsChip(issue, chip, result)) {
-            if (issue.severity === "error") {
-              severity = "error";
-              status = "\u5B58\u5728\u5DE5\u4F5C\u5F02\u5E38";
-            } else if (severity !== "error") {
-              severity = "warning";
-              status = "\u9700\u8981\u68C0\u67E5";
-            }
-          }
-        }
-      }
-      const reference = CHIP_REFERENCES[chip.model];
-      if (reference.pinWarning) {
-        detail = detail + "\uFF1B" + reference.pinWarning;
-      }
-      report.chips.push({ id: chip.id, model: chip.model, status, severity, detail });
+      report.chips.push(inspectChip(chip, result, report));
     }
     return report;
+  }
+
+  // src/experiments/ram-routes.json
+  var ram_routes_default = {
+    W1: [
+      {
+        x: 1242,
+        y: 405.3599999999995
+      },
+      {
+        x: 252,
+        y: 405.3599999999995
+      }
+    ],
+    W2: [
+      {
+        x: 1210,
+        y: 495.28571428571416
+      },
+      {
+        x: 450,
+        y: 495.28571428571416
+      }
+    ],
+    W3: [
+      {
+        x: 252,
+        y: 396.3599999999995
+      },
+      {
+        x: 774,
+        y: 396.3599999999995
+      }
+    ],
+    W4: [
+      {
+        x: 450,
+        y: 514.4857142857142
+      },
+      {
+        x: 972,
+        y: 514.4857142857142
+      }
+    ],
+    W5: [
+      {
+        x: 774,
+        y: 402.3599999999995
+      },
+      {
+        x: 748.0000001799999,
+        y: 402.3599999999995
+      },
+      {
+        x: 748.0000001799999,
+        y: 646.00000015
+      },
+      {
+        x: 792,
+        y: 646.00000015
+      }
+    ],
+    W6: [
+      {
+        x: 973.9999999800001,
+        y: 506
+      },
+      {
+        x: 973.9999999800001,
+        y: 726
+      },
+      {
+        x: 954,
+        y: 726
+      }
+    ],
+    W7: [
+      {
+        x: 792,
+        y: 652.00000015
+      },
+      {
+        x: 288,
+        y: 652.00000015
+      }
+    ],
+    W8: [
+      {
+        x: 951,
+        y: 756
+      },
+      {
+        x: 951,
+        y: 743.9999998499999
+      },
+      {
+        x: 414,
+        y: 743.9999998499999
+      }
+    ],
+    W9: [
+      {
+        x: 414,
+        y: 757.1999998499999
+      },
+      {
+        x: 428,
+        y: 757.1999998499999
+      },
+      {
+        x: 428,
+        y: 495.28571428571416
+      },
+      {
+        x: 306,
+        y: 495.28571428571416
+      }
+    ],
+    W10: [
+      {
+        x: 306,
+        y: 491
+      }
+    ],
+    W11: [
+      {
+        x: 288,
+        y: 491
+      }
+    ],
+    W12: [
+      {
+        x: 270,
+        y: 491
+      }
+    ],
+    W13: [
+      {
+        x: 238,
+        y: 506
+      },
+      {
+        x: 238,
+        y: 417.3599999999995
+      },
+      {
+        x: 270,
+        y: 417.3599999999995
+      }
+    ],
+    W14: [
+      {
+        x: 270,
+        y: 399.3599999999995
+      },
+      {
+        x: 288,
+        y: 399.3599999999995
+      }
+    ],
+    W15: [
+      {
+        x: 288,
+        y: 399.3599999999995
+      },
+      {
+        x: 342,
+        y: 399.3599999999995
+      }
+    ],
+    W16: [
+      {
+        x: 342,
+        y: 399.3599999999995
+      },
+      {
+        x: 594.1698113207547,
+        y: 399.3599999999995
+      },
+      {
+        x: 594.1698113207547,
+        y: 480.8857142857142
+      },
+      {
+        x: 828,
+        y: 480.8857142857142
+      }
+    ],
+    W17: [
+      {
+        x: 828,
+        y: 500.0857142857142
+      },
+      {
+        x: 810,
+        y: 500.0857142857142
+      }
+    ],
+    W18: [
+      {
+        x: 810,
+        y: 500.0857142857142
+      },
+      {
+        x: 792,
+        y: 500.0857142857142
+      }
+    ],
+    W19: [
+      {
+        x: 792,
+        y: 500.0857142857142
+      },
+      {
+        x: 774,
+        y: 500.0857142857142
+      }
+    ],
+    W20: [
+      {
+        x: 760,
+        y: 506
+      },
+      {
+        x: 760,
+        y: 414.3599999999995
+      },
+      {
+        x: 792,
+        y: 414.3599999999995
+      }
+    ],
+    W21: [
+      {
+        x: 792,
+        y: 402.3599999999995
+      },
+      {
+        x: 810,
+        y: 402.3599999999995
+      }
+    ],
+    W22: [
+      {
+        x: 810,
+        y: 402.3599999999995
+      },
+      {
+        x: 864,
+        y: 402.3599999999995
+      }
+    ],
+    W23: [
+      {
+        x: 864,
+        y: 399.3599999999995
+      },
+      {
+        x: 618.1698113207547,
+        y: 399.3599999999995
+      },
+      {
+        x: 618.1698113207547,
+        y: 751.1999998499999
+      },
+      {
+        x: 306,
+        y: 751.1999998499999
+      }
+    ],
+    W24: [
+      {
+        x: 306,
+        y: 760.79999985
+      },
+      {
+        x: 324,
+        y: 760.79999985
+      }
+    ],
+    W25: [
+      {
+        x: 324,
+        y: 760.79999985
+      },
+      {
+        x: 342,
+        y: 760.79999985
+      }
+    ],
+    W26: [
+      {
+        x: 342,
+        y: 760.79999985
+      },
+      {
+        x: 360,
+        y: 760.79999985
+      }
+    ],
+    W27: [
+      {
+        x: 274,
+        y: 646
+      },
+      {
+        x: 274,
+        y: 754.79999985
+      },
+      {
+        x: 378,
+        y: 754.79999985
+      }
+    ],
+    W28: [
+      {
+        x: 666,
+        y: 490.48571428571415
+      },
+      {
+        x: 378,
+        y: 490.48571428571415
+      }
+    ],
+    W29: [
+      {
+        x: 378,
+        y: 545
+      },
+      {
+        x: 900,
+        y: 545
+      }
+    ],
+    W30: [
+      {
+        x: 630.1698113207547,
+        y: 1036
+      },
+      {
+        x: 630.1698113207547,
+        y: 485.6857142857142
+      },
+      {
+        x: 360,
+        y: 485.6857142857142
+      }
+    ],
+    W31: [
+      {
+        x: 360,
+        y: 554
+      },
+      {
+        x: 882,
+        y: 554
+      }
+    ],
+    W32: [
+      {
+        x: 594,
+        y: 480.8857142857142
+      },
+      {
+        x: 342,
+        y: 480.8857142857142
+      }
+    ],
+    W33: [
+      {
+        x: 342,
+        y: 563
+      },
+      {
+        x: 864,
+        y: 563
+      }
+    ],
+    W34: [
+      {
+        x: 558,
+        y: 476.0857142857142
+      },
+      {
+        x: 324,
+        y: 476.0857142857142
+      }
+    ],
+    W35: [
+      {
+        x: 324,
+        y: 572
+      },
+      {
+        x: 846,
+        y: 572
+      }
+    ],
+    W36: [
+      {
+        x: 522,
+        y: 747.5999998499999
+      },
+      {
+        x: 288,
+        y: 747.5999998499999
+      }
+    ],
+    W37: [
+      {
+        x: 232.00000006,
+        y: 661
+      },
+      {
+        x: 232.00000006,
+        y: 414.3599999999995
+      },
+      {
+        x: 360,
+        y: 414.3599999999995
+      }
+    ],
+    W38: [
+      {
+        x: 324,
+        y: 646.00000015
+      },
+      {
+        x: 624.1698113207547,
+        y: 646.00000015
+      },
+      {
+        x: 624.1698113207547,
+        y: 411.3599999999995
+      },
+      {
+        x: 882,
+        y: 411.3599999999995
+      }
+    ],
+    W39: [
+      {
+        x: 957,
+        y: 1036
+      },
+      {
+        x: 957,
+        y: 740.39999985
+      },
+      {
+        x: 810,
+        y: 740.39999985
+      }
+    ],
+    W40: [
+      {
+        x: 828,
+        y: 649
+      },
+      {
+        x: 918,
+        y: 649
+      }
+    ],
+    W41: [
+      {
+        x: 918,
+        y: 581
+      },
+      {
+        x: 396,
+        y: 581
+      }
+    ],
+    W42: [
+      {
+        x: 396,
+        y: 500.0857142857142
+      },
+      {
+        x: 600.1698113207547,
+        y: 500.0857142857142
+      },
+      {
+        x: 600.1698113207547,
+        y: 110
+      },
+      {
+        x: 954,
+        y: 110
+      }
+    ],
+    W43: [
+      {
+        x: 915,
+        y: 1036
+      },
+      {
+        x: 915,
+        y: 749.9999998499999
+      },
+      {
+        x: 846,
+        y: 749.9999998499999
+      }
+    ],
+    W44: [
+      {
+        x: 864,
+        y: 655
+      },
+      {
+        x: 936,
+        y: 655
+      }
+    ],
+    W45: [
+      {
+        x: 936,
+        y: 590
+      },
+      {
+        x: 414,
+        y: 590
+      }
+    ],
+    W46: [
+      {
+        x: 414,
+        y: 504.8857142857142
+      },
+      {
+        x: 606.1698113207547,
+        y: 504.8857142857142
+      },
+      {
+        x: 606.1698113207547,
+        y: 116
+      }
+    ],
+    W47: [
+      {
+        x: 882,
+        y: 888.5
+      }
+    ],
+    W48: [
+      {
+        x: 954,
+        y: 661
+      }
+    ],
+    W49: [
+      {
+        x: 954,
+        y: 599
+      },
+      {
+        x: 432,
+        y: 599
+      }
+    ],
+    W50: [
+      {
+        x: 432,
+        y: 509.6857142857142
+      },
+      {
+        x: 612.1698113207547,
+        y: 509.6857142857142
+      },
+      {
+        x: 612.1698113207547,
+        y: 122
+      },
+      {
+        x: 882,
+        y: 122
+      }
+    ],
+    W51: [
+      {
+        x: 846,
+        y: 1033.0000000000002
+      },
+      {
+        x: 921,
+        y: 1033.0000000000002
+      },
+      {
+        x: 921,
+        y: 741
+      }
+    ],
+    W52: [
+      {
+        x: 936,
+        y: 667
+      },
+      {
+        x: 1003.99999964,
+        y: 667
+      },
+      {
+        x: 1003.99999964,
+        y: 417.3599999999995
+      },
+      {
+        x: 972,
+        y: 417.3599999999995
+      }
+    ],
+    W53: [
+      {
+        x: 972,
+        y: 357
+      },
+      {
+        x: 450,
+        y: 357
+      }
+    ],
+    W54: [
+      {
+        x: 450,
+        y: 393.3599999999995
+      },
+      {
+        x: 846,
+        y: 393.3599999999995
+      }
+    ],
+    W55: [
+      {
+        x: 810,
+        y: 1039.0000000000002
+      },
+      {
+        x: 968,
+        y: 1039.0000000000002
+      },
+      {
+        x: 968,
+        y: 673
+      },
+      {
+        x: 954,
+        y: 673
+      }
+    ],
+    W56: [
+      {
+        x: 936,
+        y: 736.79999985
+      },
+      {
+        x: 997.99999964,
+        y: 736.79999985
+      },
+      {
+        x: 997.99999964,
+        y: 414.3599999999995
+      },
+      {
+        x: 954,
+        y: 414.3599999999995
+      }
+    ],
+    W57: [
+      {
+        x: 954,
+        y: 348
+      },
+      {
+        x: 432,
+        y: 348
+      }
+    ],
+    W58: [
+      {
+        x: 432,
+        y: 390.3599999999995
+      },
+      {
+        x: 810,
+        y: 390.3599999999995
+      }
+    ],
+    W59: [
+      {
+        x: 772.0000000200001,
+        y: 1036
+      },
+      {
+        x: 772.0000000200001,
+        y: 670.00000015
+      },
+      {
+        x: 918,
+        y: 670.00000015
+      }
+    ],
+    W60: [
+      {
+        x: 900,
+        y: 733.1999998499999
+      },
+      {
+        x: 991.99999964,
+        y: 733.1999998499999
+      },
+      {
+        x: 991.99999964,
+        y: 411.3599999999995
+      },
+      {
+        x: 936,
+        y: 411.3599999999995
+      }
+    ],
+    W61: [
+      {
+        x: 936,
+        y: 339
+      },
+      {
+        x: 414,
+        y: 339
+      }
+    ],
+    W62: [
+      {
+        x: 414,
+        y: 387.3599999999995
+      },
+      {
+        x: 774,
+        y: 387.3599999999995
+      }
+    ],
+    W63: [
+      {
+        x: 738,
+        y: 664.00000015
+      },
+      {
+        x: 882,
+        y: 664.00000015
+      }
+    ],
+    W64: [
+      {
+        x: 864,
+        y: 729.5999998499999
+      },
+      {
+        x: 986,
+        y: 729.5999998499999
+      },
+      {
+        x: 986,
+        y: 408.3599999999995
+      },
+      {
+        x: 918,
+        y: 408.3599999999995
+      }
+    ],
+    W65: [
+      {
+        x: 918,
+        y: 330
+      },
+      {
+        x: 396,
+        y: 330
+      }
+    ],
+    W66: [
+      {
+        x: 396,
+        y: 384.3599999999995
+      },
+      {
+        x: 738,
+        y: 384.3599999999995
+      }
+    ],
+    W67: [
+      {
+        x: 702,
+        y: 658.00000015
+      },
+      {
+        x: 846,
+        y: 658.00000015
+      }
+    ],
+    W68: [
+      {
+        x: 828,
+        y: 736.79999985
+      },
+      {
+        x: 754.0000001799999,
+        y: 736.79999985
+      },
+      {
+        x: 754.0000001799999,
+        y: 408.3599999999995
+      },
+      {
+        x: 900,
+        y: 408.3599999999995
+      }
+    ],
+    W69: [
+      {
+        x: 900,
+        y: 321
+      },
+      {
+        x: 378,
+        y: 321
+      }
+    ],
+    W70: [
+      {
+        x: 378,
+        y: 381.3599999999995
+      },
+      {
+        x: 702,
+        y: 381.3599999999995
+      }
+    ],
+    W71: [
+      {
+        x: 486,
+        y: 408.3599999999995
+      },
+      {
+        x: 306,
+        y: 408.3599999999995
+      }
+    ],
+    W72: [
+      {
+        x: 306,
+        y: 312
+      },
+      {
+        x: 828,
+        y: 312
+      }
+    ],
+    W73: [
+      {
+        x: 450,
+        y: 1033.0000000000002
+      },
+      {
+        x: 464,
+        y: 1033.0000000000002
+      },
+      {
+        x: 464,
+        y: 411.3599999999995
+      },
+      {
+        x: 324,
+        y: 411.3599999999995
+      }
+    ],
+    W74: [
+      {
+        x: 324,
+        y: 303
+      },
+      {
+        x: 846,
+        y: 303
+      }
+    ],
+    W75: [
+      {
+        x: 414,
+        y: 1039.0000000000002
+      },
+      {
+        x: 792,
+        y: 1039.0000000000002
+      }
+    ],
+    W76: [
+      {
+        x: 778,
+        y: 756
+      },
+      {
+        x: 778,
+        y: 676
+      },
+      {
+        x: 810,
+        y: 676
+      }
+    ]
+  };
+
+  // src/experiments/ram-preset.mjs
+  var RAM_CHIPS = [
+    { id: "U1", model: "6116", section: 1, column: 10 },
+    { id: "U2", model: "6116", section: 1, column: 39 },
+    { id: "U3", model: "74LS244", section: 2, column: 40 },
+    { id: "U4", model: "74LS138", section: 2, column: 12 }
+  ];
+  var RAM_COLORS = {
+    power: WIRE_COLORS[0],
+    ground: WIRE_COLORS[7],
+    dataInput: WIRE_COLORS[2],
+    dataBus: WIRE_COLORS[1],
+    address: WIRE_COLORS[3],
+    select: WIRE_COLORS[5],
+    control: WIRE_COLORS[4]
+  };
+  var RAM_INPUTS = { dataStart: 0, addressStart: 8, bank: 12, write: 13, read: 14, isolate: 15, count: 16 };
+  var RAM_EXPERIMENT_ID = "ram-expansion-example";
+  var RAM_EXPERIMENT_NAME = "\u5B9E\u9A8C\u4E09 RAM\u5B57\u6269\u5C55";
+  var RAM_OUTER_WIRES = ["W29", "W31", "W33", "W35", "W41", "W45", "W49", "W53", "W57", "W61", "W65", "W69", "W72", "W74"];
+  var PREVIOUS_RAM_NOTES = `# \u5B9E\u9A8C\u4E09 RAM\u5B57\u6269\u5C55
+
+## \u5B9E\u9A8C\u76EE\u6807
+
+\u4F7F\u7528\u4E24\u72476116\uFF08\u54042K\xD78\uFF09\u548C74LS138\u7EC4\u62104K\xD78\u5B58\u50A8\u5668\uFF0C74LS244\u9694\u79BB\u6570\u636E\u5F00\u5173\u4E0E\u5171\u4EAB\u6570\u636E\u603B\u7EBF\u3002\u63A5\u7EBF\u4F9D\u636E\u7B2C\u4E09\u6B21\u5B9E\u9A8C\u8BFE\u4EF6\u7B2C4\uFF5E8\u9875
+
+## \u5668\u4EF6\u4E0E\u5730\u5740
+
+| \u5668\u4EF6 | \u4F5C\u7528 | \u5B8C\u6574\u5730\u5740\u8303\u56F4 |
+| --- | --- | --- |
+| U1 6116 | \u7B2C1\u7247RAM\uFF0CA11=0\u65F6\u9009\u4E2D | 000H\uFF5E7FFH |
+| U2 6116 | \u7B2C2\u7247RAM\uFF0CA11=1\u65F6\u9009\u4E2D | 800H\uFF5EFFFH |
+| U3 74LS244 | \u4E24\u7EC4\u56DB\u8DEF\u7F13\u51B2\u5668\uFF0C\u5171\u540C\u63A7\u5236\u516B\u4F4D\u6570\u636E\u8F93\u5165 | \u5355\u5411\u8F93\u5165\u603B\u7EBF |
+| U4 74LS138 | A\u8F93\u5165\u63A5A11\uFF0CB/C\u63A5\u5730\uFF0CY0\u2032/Y1\u2032\u5206\u522B\u9009\u4E2DU1/U2 | \u4E24\u7247\u4E0D\u4F1A\u540C\u65F6\u9009\u4E2D |
+
+\u6309\u8BFE\u4EF6\u5141\u8BB8\u7684\u7B80\u5316\u65B9\u5F0F\uFF0CA4\uFF5EA10\u63A5\u5730\uFF0CA0\uFF5EA3\u7531\u5F00\u5173\u8BBE\u7F6E\uFF0CA11\u72EC\u7ACB\u9009\u7247\u3002\u53EF\u64CD\u4F5C\u5730\u5740\u4E3A000H\uFF5E00FH\u53CA800H\uFF5E80FH\uFF0C\u6BCF\u7247RAM\u7684\u5B8C\u6574\u5BB9\u91CF\u4ECD\u4E3A2K\xD78
+
+## \u5F00\u5173\u548C\u6307\u793A\u706F
+
+| \u7AEF\u53E3 | \u4F5C\u7528 |
+| --- | --- |
+| K7\uFF5EK0 | \u5199\u5165\u6570\u636ED7\uFF5ED0\uFF0CK0\u4E3A\u6700\u4F4E\u4F4D |
+| K11\uFF5EK8 | \u7247\u5185\u5730\u5740A3\uFF5EA0\uFF0CK8\u4E3A\u6700\u4F4E\u4F4D |
+| K12 | A11\uFF0C0\u9009U1\uFF0C1\u9009U2 |
+| K13 | WE\u2032\uFF0C0\u5141\u8BB8\u5199\u5165\uFF0C1\u7ED3\u675F\u5199\u5165 |
+| K14 | OE\u2032\uFF0C0\u5141\u8BB8\u8BFB\u51FA\uFF0C1\u5173\u95EDRAM\u8BFB\u8F93\u51FA |
+| K15 | 244\u4F7F\u80FD\uFF0C0\u63A5\u5165\u6570\u636E\u5F00\u5173\uFF0C1\u9694\u79BB\u5F00\u5173 |
+| L7\uFF5EL0 | \u5171\u4EAB\u6570\u636E\u603B\u7EBF\uFF0C\u8BFB\u53D6\u65F6\u663E\u793ARAM\u5185\u5BB9 |
+
+\u9ED8\u8BA4K13\u3001K14\u3001K15\u5747\u4E3A1\uFF0C\u8BFB\u5199\u548C\u6570\u636E\u8F93\u5165\u5747\u5173\u95ED\uFF0C\u603B\u7EBF\u663E\u793AZ\u5C5E\u4E8E\u6B63\u5E38\u72B6\u6001\u3002\u5199\u5165\u65F6\u6307\u793A\u706F\u663E\u793A\u5F00\u5173\u6570\u636E\uFF0C\u5FC5\u987B\u5207\u5230\u8BFB\u53D6\u72B6\u6001\u624D\u80FD\u786E\u8BA4RAM\u4FDD\u5B58\u4E86\u5185\u5BB9
+
+## \u5199\u5165\u6B65\u9AA4
+
+1. \u4FDD\u6301K13=1\u3001K14=1\u3001K15=1\uFF0C\u8BBE\u7F6EK12\u9009\u7247\u548CK11\uFF5EK8\u5730\u5740
+2. \u7528K7\uFF5EK0\u8BBE\u7F6E\u516B\u4F4D\u6570\u636E\uFF0C\u8BBE\u7F6EK15=0\uFF0C\u8BA9244\u9A71\u52A8\u6570\u636E\u603B\u7EBF
+3. \u8BBE\u7F6EK13=0\u5199\u5165\uFF0C\u4FDD\u6301\u5730\u5740\u548C\u6570\u636E\u7A33\u5B9A\uFF0C\u518D\u8BBE\u7F6EK13=1\u7ED3\u675F\u5199\u5165
+4. \u8BBE\u7F6EK15=1\u9694\u79BB\u6570\u636E\u5F00\u5173\u3002\u66F4\u6362\u5730\u5740\u524D\u5FC5\u987B\u786E\u8BA4K13=1
+
+## \u8BFB\u53D6\u6B65\u9AA4
+
+1. \u4FDD\u6301K13=1\u3001K15=1\uFF0C\u8BBE\u7F6EK12\u548CK11\uFF5EK8\u9009\u62E9\u5730\u5740
+2. \u8BBE\u7F6EK14=0\uFF0C\u4ECEL7\uFF5EL0\u8BFB\u53D6\u6570\u636E
+3. \u4E0B\u4E00\u6B21\u5199\u5165\u524D\u5148\u8BBE\u7F6EK14=1\uFF0C\u907F\u514DRAM\u4E0E244\u540C\u65F6\u9A71\u52A8\u603B\u7EBF
+
+## \u8BFE\u4EF6\u9A8C\u6536
+
+\u5148\u5B8C\u6210\u4EE5\u4E0B\u56DB\u6B21\u5199\u5165\uFF0C\u518D\u96C6\u4E2D\u8BFB\u53D6\u6838\u5BF9\uFF0C\u8BFB\u53D6\u65F6\u53EA\u6539\u53D8\u5730\u5740\u548C\u9009\u7247\uFF0C\u4E0D\u91CD\u65B0\u5199\u5165
+
+| K12 | K11\uFF5EK8 | \u5B8C\u6574\u5730\u5740 | \u5199\u5165\u5E76\u9884\u671F\u8BFB\u51FA\u7684\u6570\u636E |
+| --- | --- | --- | --- |
+| 0 | 1010 | 00AH | 01010101 |
+| 0 | 0101 | 005H | 10101010 |
+| 1 | 1010 | 80AH | 11111111 |
+| 1 | 0101 | 805H | 00000000 |
+
+\u76F8\u540C\u7247\u5185\u5730\u5740\u5728\u4E0D\u540C\u82AF\u7247\u4E2D\u4FDD\u5B58\u4E0D\u540C\u5185\u5BB9\uFF0C\u624D\u80FD\u8BC1\u660E\u5B57\u6269\u5C55\u548C\u8BD1\u7801\u9009\u7247\u6B63\u786E
+
+## \u73B0\u8C61\u4E0E\u62A5\u544A
+
+\u8BB0\u5F55\u56DB\u4E2A\u5730\u5740\u7684\u5199\u5165\u5185\u5BB9\u3001\u5B9E\u9645\u8BFB\u51FA\u5185\u5BB9\u548C\u662F\u5426\u4E00\u81F4\uFF0C\u62A5\u544A\u5199\u660E\u4E24\u7247RAM\u5B8C\u6574\u5730\u5740\u8303\u56F4\u3001\u8BD1\u7801\u63A5\u6CD5\u4E0E\u8BFB\u5199\u987A\u5E8F\u3002\u5148\u7ED3\u675F\u5199\u5165\uFF0C\u518D\u9694\u79BB244\uFF0C\u5426\u5219\u60AC\u7A7A\u6570\u636E\u53EF\u80FD\u88AB\u5199\u5165RAM\u5E76\u53D8\u4E3AX\u3002RAM\u8BFB\u51FA\u5F00\u542F\u65F6\u53C8\u63A5\u5165244\u4F1A\u9020\u6210\u9A71\u52A8\u51B2\u7A81
+
+\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u636E\u5F00\u5173\uFF0C\u84DD\u8272\u4E3A\u5171\u4EAB\u6570\u636E\u603B\u7EBF\uFF0C\u9EC4\u8272\u4E3A\u5730\u5740\uFF0C\u9752\u8272\u4E3A\u7247\u9009\uFF0C\u7D2B\u8272\u4E3A\u8BFB\u5199\u4E0E\u9694\u79BB\u63A7\u5236\u3002\u4EA4\u53C9\u5BFC\u7EBF\u4FDD\u6301\u7EDD\u7F18\uFF0C\u7535\u6C14\u8FDE\u63A5\u7531\u5B9E\u9645\u63D2\u5B54\u51B3\u5B9A
+
+RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u7535\u3001\u5207\u6362\u5B9E\u9A8C\u3001\u91CD\u65B0\u52A0\u8F7D\u3001\u5BFC\u5165\u6216\u64A4\u9500\u540E\u9700\u8981\u91CD\u65B0\u5199\u5165\uFF0C\u5B58\u6863\u4FDD\u5B58\u63A5\u7EBF\u3001\u5F00\u5173\u548C\u5907\u6CE8\uFF0C\u4E0D\u4FDD\u5B58\u5DF2\u5199\u5165\u7684\u6570\u636E\u3002\u521D\u6B21\u8BFB\u53D6\u672A\u5199\u8FC7\u7684\u5730\u5740\u4F1A\u663E\u793AX\uFF0C\u4E0D\u80FD\u636E\u6B64\u5224\u65AD\u63A5\u7EBF\u9519\u8BEF
+`;
+  var RAM_NOTES = `# RAM \u5B57\u6269\u5C55\u64CD\u4F5C
+
+## \u5F00\u5173
+
+| \u7AEF\u53E3 | \u7528\u9014 |
+| --- | --- |
+| K7\uFF5EK0 | \u5199\u5165\u6570\u636E\uFF0C\u9AD8\u4F4D\u5728\u5DE6 |
+| K11\uFF5EK8 | \u7247\u5185\u5730\u5740\uFF0C\u9AD8\u4F4D\u5728\u5DE6 |
+| K12 | 0\u9009\u7B2C\u4E00\u7247\uFF0C1\u9009\u7B2C\u4E8C\u7247 |
+| K13 | 0\u5199\u5165\uFF0C1\u505C\u6B62\u5199\u5165 |
+| K14 | 0\u8BFB\u51FA\uFF0C1\u5173\u95ED\u8BFB\u51FA |
+| K15 | 0\u63A5\u5165\u6570\u636E\u5F00\u5173\uFF0C1\u9694\u79BB\u6570\u636E\u5F00\u5173 |
+| L7\uFF5EL0 | \u8BFB\u51FA\u7ED3\u679C |
+
+## \u5199\u5165
+
+1. \u6253\u5F00\u7535\u6E90\uFF0C\u5C06K13\u3001K14\u3001K15\u90FD\u8BBE\u4E3A1
+2. \u8BBE\u7F6EK12\u9009\u7247\u3001K11\uFF5EK8\u5730\u5740\u3001K7\uFF5EK0\u6570\u636E
+3. K15\u8BBE\u4E3A0\uFF0C\u63A5\u5165\u6570\u636E
+4. K13\u8BBE\u4E3A0\uFF0C\u518D\u8BBE\u56DE1\uFF0C\u5B8C\u6210\u5199\u5165
+5. K15\u8BBE\u56DE1\uFF0C\u9694\u79BB\u6570\u636E
+
+\u91CD\u590D\u6B65\u9AA42\uFF5E5\uFF0C\u5148\u5199\u5B8C\u4E0B\u9762\u56DB\u7EC4\u6570\u636E
+
+## \u9A8C\u6536\u6570\u636E
+
+| K12 | K11\uFF5EK8 | K7\uFF5EK0 |
+| --- | --- | --- |
+| 0 | 1010 | 01010101 |
+| 0 | 0101 | 10101010 |
+| 1 | 1010 | 11111111 |
+| 1 | 0101 | 00000000 |
+
+## \u8BFB\u53D6
+
+\u4FDD\u6301K13=1\u3001K15=1\uFF0C\u628AK14\u8BBE\u4E3A0\u3002\u53EA\u5207\u6362K12\u548CK11\uFF5EK8\uFF0C\u68C0\u67E5L7\uFF5EL0\u662F\u5426\u4E0E\u8868\u4E2D\u6570\u636E\u4E00\u81F4
+
+\u518D\u6B21\u5199\u5165\u524D\uFF0C\u5148\u628AK14\u8BBE\u56DE1\u3002\u4E0D\u9700\u8981\u4F7F\u7528P+\u6216P\u2212
+
+## \u63D0\u9192
+
+\u5148\u505C\u6B62\u5199\u5165\uFF0C\u518D\u9694\u79BB\u6570\u636E\u3002Z\u8868\u793A\u603B\u7EBF\u672A\u8F93\u51FA\uFF0C\u672A\u5199\u5165\u7684\u5730\u5740\u8BFB\u51FAX\u3002\u65AD\u7535\u3001\u5237\u65B0\u6216\u5207\u6362\u5B9E\u9A8C\u540E\u9700\u91CD\u65B0\u5199\u5165\uFF0C\u4FDD\u5B58\u5B58\u6863\u4E0D\u4FDD\u5B58RAM\u6570\u636E
+`;
+  function connectPower(project, usage) {
+    let power = "VCC";
+    let ground = "GND";
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      const powerPin = chip.id + "-" + model.power;
+      const groundPin = chip.id + "-" + model.ground;
+      connect(project, usage, power, powerPin, RAM_COLORS.power);
+      connect(project, usage, ground, groundPin, RAM_COLORS.ground);
+      power = powerPin;
+      ground = groundPin;
+    }
+    for (const id of ["U1", "U2"]) {
+      const memory = CHIP_MODELS["6116"].memory;
+      for (let bit = 4; bit < memory.address.length; bit = bit + 1) {
+        const pin = id + "-" + memory.address[bit];
+        connect(project, usage, ground, pin, RAM_COLORS.ground);
+        ground = pin;
+      }
+    }
+    for (const pin of [2, 3, 4, 5]) {
+      const endpoint = "U4-" + pin;
+      connect(project, usage, ground, endpoint, RAM_COLORS.ground);
+      ground = endpoint;
+    }
+    connect(project, usage, power, "U4-6", RAM_COLORS.power);
+  }
+  function connectAddresses(project, usage) {
+    const memory = CHIP_MODELS["6116"].memory;
+    for (let bit = 0; bit < 4; bit = bit + 1) {
+      const firstPin = "U1-" + memory.address[bit];
+      const secondPin = "U2-" + memory.address[bit];
+      const input = "K" + (RAM_INPUTS.addressStart + bit);
+      connect(project, usage, input, firstPin, RAM_COLORS.address);
+      connect(project, usage, firstPin, secondPin, RAM_COLORS.address);
+    }
+    connect(project, usage, "K" + RAM_INPUTS.bank, "U4-1", RAM_COLORS.address);
+    connect(project, usage, "U4-15", "U1-18", RAM_COLORS.select);
+    connect(project, usage, "U4-14", "U2-18", RAM_COLORS.select);
+  }
+  function connectData(project, usage) {
+    const memory = CHIP_MODELS["6116"].memory;
+    const buffer = CHIP_MODELS["74LS244"];
+    for (let bit = 0; bit < memory.data.length; bit = bit + 1) {
+      const gate = buffer.gates[bit];
+      const input = "K" + (RAM_INPUTS.dataStart + bit);
+      const firstPin = "U1-" + memory.data[bit];
+      const secondPin = "U2-" + memory.data[bit];
+      connect(project, usage, input, "U3-" + gate[1], RAM_COLORS.dataInput);
+      connect(project, usage, "U3-" + gate[2], secondPin, RAM_COLORS.dataBus);
+      connect(project, usage, secondPin, firstPin, RAM_COLORS.dataBus);
+      connect(project, usage, firstPin, "L" + bit, RAM_COLORS.dataBus);
+    }
+  }
+  function connectControls(project, usage) {
+    const memory = CHIP_MODELS["6116"].memory;
+    connect(project, usage, "K" + RAM_INPUTS.write, "U1-" + memory.write, RAM_COLORS.control);
+    connect(project, usage, "U1-" + memory.write, "U2-" + memory.write, RAM_COLORS.control);
+    connect(project, usage, "K" + RAM_INPUTS.read, "U1-" + memory.read, RAM_COLORS.control);
+    connect(project, usage, "U1-" + memory.read, "U2-" + memory.read, RAM_COLORS.control);
+    connect(project, usage, "K" + RAM_INPUTS.isolate, "U3-1", RAM_COLORS.control);
+    connect(project, usage, "U3-1", "U3-19", RAM_COLORS.control);
+  }
+  function outerHole(endpoint) {
+    const parts = endpoint.split(":");
+    if (parts[0] !== "B1") {
+      return endpoint;
+    }
+    if (parts[1] === "C" || parts[1] === "D") {
+      return parts[0] + ":A:" + parts[2];
+    }
+    if (parts[1] === "G" || parts[1] === "H") {
+      return parts[0] + ":J:" + parts[2];
+    }
+    return endpoint;
+  }
+  function ramPreset(useOuterHoles = true) {
+    const project = emptyProject();
+    project.name = RAM_EXPERIMENT_NAME;
+    project.notes = RAM_NOTES;
+    project.inputCount = RAM_INPUTS.count;
+    project.outputCount = 8;
+    project.chips = structuredClone(RAM_CHIPS);
+    const usage = {};
+    connectPower(project, usage);
+    connectAddresses(project, usage);
+    connectData(project, usage);
+    connectControls(project, usage);
+    project.switches[RAM_INPUTS.write] = 1;
+    project.switches[RAM_INPUTS.read] = 1;
+    project.switches[RAM_INPUTS.isolate] = 1;
+    for (const wire of project.wires) {
+      if (useOuterHoles && RAM_OUTER_WIRES.includes(wire.id)) {
+        wire.from = outerHole(wire.from);
+        wire.to = outerHole(wire.to);
+      }
+      if (Object.hasOwn(ram_routes_default, wire.id)) {
+        wire.bends = structuredClone(ram_routes_default[wire.id]);
+      }
+    }
+    return project;
+  }
+
+  // src/experiments/preset-layout.mjs
+  var PREVIOUS_LAYOUTS = [
+    { create: complementPreset, columns: [24, 16, 39, 3, 44], ram: false },
+    { create: ramPreset, columns: [8, 35, 35, 12], ram: true }
+  ];
+  function previousEndpoint(endpoint, reference, columns) {
+    for (let index = 0; index < reference.chips.length; index = index + 1) {
+      const chip = reference.chips[index];
+      const model = CHIP_MODELS[chip.model];
+      for (let pin = 1; pin <= model.count; pin = pin + 1) {
+        if (baseNode(endpoint) === baseNode(pinHole(chip, pin))) {
+          const parts = endpoint.split(":");
+          const column = Number(parts[2]) + columns[index] - chip.column;
+          return parts[0] + ":" + parts[1] + ":" + column;
+        }
+      }
+    }
+    return endpoint;
+  }
+  function matchesPreviousLayout(project, reference, columns) {
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length || project.pullUps.length !== 0) {
+      return false;
+    }
+    for (let index = 0; index < reference.chips.length; index = index + 1) {
+      const expected = reference.chips[index];
+      const actual = project.chips[index];
+      if (actual.id !== expected.id || actual.model !== expected.model || actual.section !== expected.section || actual.column !== columns[index]) {
+        return false;
+      }
+    }
+    for (let index = 0; index < reference.wires.length; index = index + 1) {
+      const expected = reference.wires[index];
+      const actual = project.wires[index];
+      const from = previousEndpoint(expected.from, reference, columns);
+      const to = previousEndpoint(expected.to, reference, columns);
+      if (actual.id !== expected.id || actual.from !== from || actual.to !== to) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function centerSavedPresets(workspace2) {
+    let changed = false;
+    for (const id of Object.keys(workspace2.projects)) {
+      const project = workspace2.projects[id];
+      if (project.notes === PREVIOUS_RAM_NOTES) {
+        project.notes = RAM_NOTES;
+        changed = true;
+      }
+      for (const layout of PREVIOUS_LAYOUTS) {
+        const reference = layout.create();
+        let previous = reference;
+        if (layout.ram) {
+          previous = ramPreset(false);
+        }
+        if (!matchesPreviousLayout(project, previous, layout.columns)) {
+          continue;
+        }
+        const updated = copyProject(project);
+        updated.chips = copyProject(reference.chips);
+        for (let index = 0; index < updated.wires.length; index = index + 1) {
+          const wire = updated.wires[index];
+          const expected = reference.wires[index];
+          wire.from = expected.from;
+          wire.to = expected.to;
+          wire.bends = copyProject(expected.bends);
+          delete wire.angle;
+        }
+        workspace2.projects[id] = updated;
+        changed = true;
+      }
+      const rerouted = separateSavedRamWires(workspace2.projects[id]);
+      if (rerouted) {
+        workspace2.projects[id] = rerouted;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  function separateSavedRamWires(project) {
+    const previous = ramPreset(false);
+    const current = ramPreset();
+    if (project.chips.length !== current.chips.length || project.wires.length !== current.wires.length) {
+      return null;
+    }
+    for (let index = 0; index < current.chips.length; index = index + 1) {
+      const expected = current.chips[index];
+      const actual = project.chips[index];
+      if (actual.id !== expected.id || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
+        return null;
+      }
+    }
+    const updated = copyProject(project);
+    let changed = false;
+    for (let index = 0; index < current.wires.length; index = index + 1) {
+      const wire = updated.wires[index];
+      const oldWire = previous.wires[index];
+      const newWire = current.wires[index];
+      if (wire.id !== oldWire.id) {
+        return null;
+      }
+      if (baseNode(wire.from) !== baseNode(oldWire.from) || baseNode(wire.to) !== baseNode(oldWire.to)) {
+        return null;
+      }
+      if (!RAM_OUTER_WIRES.includes(wire.id)) {
+        continue;
+      }
+      if (wire.from === newWire.from && wire.to === newWire.to) {
+        continue;
+      }
+      if (wire.from !== oldWire.from || wire.to !== oldWire.to) {
+        return null;
+      }
+      wire.from = newWire.from;
+      wire.to = newWire.to;
+      wire.bends = copyProject(newWire.bends);
+      delete wire.angle;
+      changed = true;
+    }
+    if (!changed) {
+      return null;
+    }
+    try {
+      validateProject(updated);
+    } catch (error) {
+      return null;
+    }
+    return updated;
   }
 
   // src/storage/workspace.mjs
   var WORKSPACE_KEY = "breadboard-lab-workspace-v1";
   var READ_ONLY_KEY = "breadboard-lab-read-only";
   var CLEANUP_BACKUP_KEY = "sdu-breadboard-before-cleanup-v1";
+  var WORKSPACE_VERSION = 1;
+  var EXPERIMENT_ID_PATTERN = /^[a-zA-Z0-9-]{1,80}$/;
+  function emptyWorkspace() {
+    return { version: WORKSPACE_VERSION, activeId: "", projects: {} };
+  }
+  function migrateSavedWorkspace(workspace2, storage) {
+    const beforeCleanup = JSON.stringify(workspace2);
+    const centered = centerSavedPresets(workspace2);
+    const removed = cleanWorkspace(workspace2);
+    if (centered || removed.length > 0) {
+      storage.setItem(CLEANUP_BACKUP_KEY, beforeCleanup);
+      storage.setItem(WORKSPACE_KEY, JSON.stringify(workspace2));
+    }
+    return removed.length;
+  }
+  function loadWorkspace(storageOwner) {
+    let workspace2 = emptyWorkspace();
+    let project = null;
+    let readOnly2 = false;
+    let warning = "";
+    let removedCount = 0;
+    let initializePreset = false;
+    try {
+      const storage = storageOwner.localStorage;
+      readOnly2 = storage.getItem(READ_ONLY_KEY) === "true";
+      const savedWorkspace = storage.getItem(WORKSPACE_KEY);
+      const savedProject = storage.getItem(STORAGE_KEY);
+      if (savedWorkspace) {
+        workspace2 = validateWorkspace(JSON.parse(savedWorkspace));
+        removedCount = migrateSavedWorkspace(workspace2, storage);
+        project = copyProject(workspace2.projects[workspace2.activeId]);
+      } else if (savedProject) {
+        project = validateProject(JSON.parse(savedProject));
+      }
+    } catch (error) {
+      warning = "\u672C\u5730\u7535\u8DEF\u65E0\u6CD5\u6062\u590D\uFF0C\u5DF2\u6253\u5F00\u793A\u4F8B\u3002\u539F\u6587\u4EF6\u53EF\u91CD\u65B0\u5BFC\u5165";
+    }
+    if (!project) {
+      project = complementPreset();
+      initializePreset = true;
+      keepExperiment(workspace2, newExperimentId(), project);
+    } else {
+      if (workspace2.activeId === "") {
+        keepExperiment(workspace2, newExperimentId(), project);
+      }
+      initializePreset = project.power && isComplementPreset(project);
+    }
+    ensureRamExperiment(workspace2);
+    return {
+      workspace: workspace2,
+      project,
+      readOnly: readOnly2,
+      warning,
+      removedCount,
+      initializePreset
+    };
+  }
   function ensureRamExperiment(workspace2) {
     for (const id of Object.keys(workspace2.projects)) {
       if (id === RAM_EXPERIMENT_ID || workspace2.projects[id].name === RAM_EXPERIMENT_NAME) {
@@ -10409,7 +11864,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (project.chips.length > 0 || project.wires.length > 0 || project.pullUps.length > 0) {
       return false;
     }
-    if (project.notes !== GENERAL_NOTES || project.inputCount !== PROJECT_DEFAULTS.inputCount || project.outputCount !== PROJECT_DEFAULTS.outputCount || project.power !== PROJECT_DEFAULTS.power) {
+    if (project.notes !== GENERAL_NOTES || project.power !== PROJECT_DEFAULTS.power) {
+      return false;
+    }
+    if (project.inputCount !== PROJECT_DEFAULTS.inputCount || project.outputCount !== PROJECT_DEFAULTS.outputCount) {
       return false;
     }
     for (const value of project.switches) {
@@ -10437,7 +11895,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     for (const id of ids) {
       const project = workspace2.projects[id];
-      if (!isBlankExperiment(project) && project.name !== "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668") {
+      if (!isBlankExperiment(project) && project.name !== COMPLEMENT_NAME) {
         continue;
       }
       const signature = JSON.stringify(project);
@@ -10458,12 +11916,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     workspace2.projects[id] = copyProject(project);
   }
   function validateWorkspace(value) {
-    if (!value || value.version !== 1 || typeof value.activeId !== "string" || !value.projects || typeof value.projects !== "object") {
+    if (!value || value.version !== WORKSPACE_VERSION || typeof value.activeId !== "string" || !value.projects || typeof value.projects !== "object") {
       throw new Error("\u672C\u5730\u5B9E\u9A8C\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u5BFC\u5165\u4F60\u4FDD\u5B58\u7684\u5B9E\u9A8C\u6587\u4EF6");
     }
-    const workspace2 = { version: 1, activeId: value.activeId, projects: {} };
+    const workspace2 = emptyWorkspace();
+    workspace2.activeId = value.activeId;
     for (const id of Object.keys(value.projects)) {
-      if (!/^[a-zA-Z0-9-]{1,80}$/.test(id)) {
+      if (!EXPERIMENT_ID_PATTERN.test(id)) {
         throw new Error("\u5B9E\u9A8C\u7F16\u53F7\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5\u4FDD\u5B58\u6587\u4EF6");
       }
       workspace2.projects[id] = validateProject(value.projects[id]);
@@ -10475,7 +11934,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.9.2";
+  var APP_VERSION = "1.10.0";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/ui/inspection-layout.mjs
@@ -10836,13 +12295,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       collectChipBlocks(context, chip);
     }
     const nets = collectNetworks(context, project);
-    const floatingInputs = [];
+    const floatingInputs2 = [];
     for (const terminal of context.terminals.values()) {
       if (terminal.pin > 0 && !terminal.power && terminal.direction !== "output" && terminal.level === "Z") {
-        floatingInputs.push(terminal);
+        floatingInputs2.push(terminal);
       }
     }
-    return { nets, blocks: context.blocks, boardPorts: context.boardPorts, floatingInputs };
+    return { nets, blocks: context.blocks, boardPorts: context.boardPorts, floatingInputs: floatingInputs2 };
   }
 
   // src/diagram/logic-diagram-layout.mjs
@@ -11357,15 +12816,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/diagram/logic-diagram-view.mjs
-  var VIEW_OPTIONS = {
-    minimum: 0.15,
-    maximum: 2.5,
-    step: 0.15,
-    margin: 24,
-    releaseDelay: 1e3,
-    wheelSpeed: 15e-4,
-    wheelLinePixels: 16
-  };
+  var VIEW_OPTIONS = { minimum: 0.15, maximum: 2.5, step: 0.15, margin: 24 };
   var DIAGRAM_PAN_OPTIONS = {
     buttons: [0, 1],
     activeClass: "logic-panning",
@@ -11373,9 +12824,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     onStart: prepareDiagramPan
   };
   var DIAGRAM_SELECTION_OPTIONS = { canStart: canSelectDiagramArea, onSelect: selectDiagramArea };
-  var EXPORT_PROPERTIES = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "font-family", "font-size", "font-weight", "text-anchor", "opacity", "paint-order"];
   var DIAGRAM_CONTROLS = ["logic-export", "logic-show-power", "logic-fit", "logic-zoom-in", "logic-zoom-out", "logic-network"];
-  var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
   var SYMBOL_DRAW = { bubbleRadius: 3.5, junctionRadius: 4.5, numberOffset: 7, numberRise: 4, labelOffset: 9 };
   var currentDiagram = null;
   var currentGraph = null;
@@ -11386,17 +12835,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var diagramPan = null;
   var diagramSelection = null;
   var selectedNetworks = /* @__PURE__ */ new Set();
-  function svgElement(parent, name, attributes, text2 = "") {
-    const shape = document.createElementNS(SVG_NAMESPACE, name);
-    for (const key of Object.keys(attributes)) {
-      shape.setAttribute(key, String(attributes[key]));
-    }
-    if (text2 !== "") {
-      shape.textContent = text2;
-    }
-    parent.append(shape);
-    return shape;
-  }
   function terminalNetwork(terminal) {
     for (const network of currentDiagram.nets) {
       if (network.root === terminal.root) {
@@ -11460,12 +12898,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const body = item.body;
     let boundary = body.x;
     let textX = boundary + SYMBOL_DRAW.labelOffset;
-    let anchor = "start";
+    let anchor2 = "start";
     let numberX = centerX + SYMBOL_DRAW.numberOffset;
     if (right) {
       boundary = body.x + body.width;
       textX = boundary - SYMBOL_DRAW.labelOffset;
-      anchor = "end";
+      anchor2 = "end";
       numberX = centerX - SYMBOL_DRAW.numberOffset;
     }
     let label2 = terminal.name;
@@ -11505,16 +12943,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     svgElement(target, "text", {
       x: numberX,
       y: centerY - SYMBOL_DRAW.numberRise,
-      "text-anchor": anchor,
+      "text-anchor": anchor2,
       class: "logic-pin-number"
     }, String(terminal.pin));
     if (item.block.symbol === "") {
-      svgElement(target, "text", { x: textX, y: centerY + 4, "text-anchor": anchor, class: "logic-pin-label" }, label2);
+      svgElement(target, "text", { x: textX, y: centerY + 4, "text-anchor": anchor2, class: "logic-pin-label" }, label2);
     } else if (network && network.rail !== "" && !element("logic-show-power").checked) {
       svgElement(target, "text", {
         x: numberX,
         y: centerY + 11,
-        "text-anchor": anchor,
+        "text-anchor": anchor2,
         class: "logic-power-label"
       }, network.rail);
     }
@@ -11640,6 +13078,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
     element("logic-diagram-summary").textContent = "\u6B63\u5728\u751F\u6210\u903B\u8F91\u56FE";
+    element("logic-export-error").hidden = true;
     currentGraph = null;
     const svg2 = element("logic-diagram");
     svg2.replaceChildren();
@@ -11685,7 +13124,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     generation = generation + 1;
     element("logic-diagram-dialog").close();
   }
-  function setLogicZoom(value, anchor = null) {
+  function setLogicZoom(value, anchor2 = null) {
     if (!currentGraph) {
       return;
     }
@@ -11694,9 +13133,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const bounds = viewport.getBoundingClientRect();
     let offsetX = viewport.clientWidth / 2;
     let offsetY = viewport.clientHeight / 2;
-    if (anchor) {
-      offsetX = anchor.clientX - bounds.left - viewport.clientLeft;
-      offsetY = anchor.clientY - bounds.top - viewport.clientTop;
+    if (anchor2) {
+      offsetX = anchor2.clientX - bounds.left - viewport.clientLeft;
+      offsetY = anchor2.clientY - bounds.top - viewport.clientTop;
     }
     const diagramX = (viewport.scrollLeft + offsetX) / zoom;
     const diagramY = (viewport.scrollTop + offsetY) / zoom;
@@ -11729,13 +13168,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (!currentGraph || element("logic-diagram-dialog").getAttribute("aria-busy") === "true") {
       return;
     }
-    let delta = event.deltaY;
-    if (event.deltaMode === 1) {
-      delta = delta * VIEW_OPTIONS.wheelLinePixels;
-    } else if (event.deltaMode === 2) {
-      delta = delta * element("logic-diagram-scroll").clientHeight;
-    }
-    const scale = Math.exp(-delta * VIEW_OPTIONS.wheelSpeed);
+    const viewport = element("logic-diagram-scroll");
+    const scale = wheelZoomFactor(event, viewport);
     setLogicZoom(zoom * scale, event);
   }
   function canPanDiagram(event) {
@@ -11854,34 +13288,17 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function changeNetwork(event) {
     selectNetwork(event.currentTarget.value);
   }
-  function exportLogicDiagram() {
+  function createLogicImage(format) {
+    if (!currentGraph) {
+      throw new Error("\u903B\u8F91\u56FE\u5C1A\u672A\u751F\u6210");
+    }
     const source = element("logic-diagram");
-    const copy = source.cloneNode(true);
+    const palette = createExportPalette();
+    const copy = copyStyledSvg(source, palette);
     copy.setAttribute("xmlns", SVG_NAMESPACE);
-    copy.removeAttribute("style");
     copy.setAttribute("width", String(currentGraph.width));
     copy.setAttribute("height", String(currentGraph.height));
-    const originals = source.querySelectorAll("*");
-    const copies = copy.querySelectorAll("*");
-    for (let index = 0; index < originals.length; index = index + 1) {
-      const style = window.getComputedStyle(originals[index]);
-      for (const property of EXPORT_PROPERTIES) {
-        copies[index].setAttribute(property, style.getPropertyValue(property));
-      }
-      copies[index].removeAttribute("tabindex");
-      copies[index].removeAttribute("role");
-    }
-    const text2 = new XMLSerializer().serializeToString(copy);
-    const file = new Blob([text2], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(file);
-    const anchor = node("a", "", "");
-    anchor.href = url;
-    anchor.download = "breadboard-logic.svg";
-    anchor.click();
-    window.setTimeout(releaseLogicDownload.bind(null, url), VIEW_OPTIONS.releaseDelay);
-  }
-  function releaseLogicDownload(url) {
-    URL.revokeObjectURL(url);
+    return encodeSvgImage(copy, format);
   }
   function bindLogicDiagram() {
     const viewport = element("logic-diagram-scroll");
@@ -11895,7 +13312,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("logic-fit").addEventListener("click", fitLogicDiagram);
     element("logic-zoom-in").addEventListener("click", zoomInLogicDiagram);
     element("logic-zoom-out").addEventListener("click", zoomOutLogicDiagram);
-    element("logic-export").addEventListener("click", exportLogicDiagram);
+    bindFileExport("logic-export", "logic", createLogicImage);
     element("logic-network").addEventListener("change", changeNetwork);
     viewport.addEventListener("click", clickDiagram);
     element("logic-diagram").addEventListener("keydown", keyDiagram);
@@ -11908,23 +13325,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     wireAngle: 45,
     // 撤销最多保留的编辑次数
     historyLimit: 80,
-    // 缩放上下限、按钮步长和滚轮灵敏度
+    // 板面的缩放上下限和按钮步长
     zoomMinimum: 0.15,
     zoomMaximum: 2,
     zoomStep: 0.15,
-    wheelSpeed: 15e-4,
     // 连续点击容差与开始拖动的最小距离
     clickTolerance: 7,
     dragThreshold: 4,
     // 适应宽度时画布两侧预留的总空间
     fitPadding: 36,
-    // 滚轮按行报告位移时，每行对应的像素数
-    wheelLinePixels: 16,
-    // 下载地址释放时间和页脚时钟刷新时间
-    downloadReleaseDelay: 1e3,
+    // 页脚时钟刷新时间
     clockInterval: 1e3
   };
-  var EXPORT_SETTINGS = { indent: 2, circuit: "breadboard-circuit.json", image: "breadboard-wiring.png" };
+  var PROJECT_JSON_INDENT = 2;
   var PLACEMENT_OFFSET = 30;
   var PULSE_SETTINGS = { feedbackDuration: 160 };
   var BOARD_PAN_OPTIONS = {
@@ -11934,10 +13347,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     onStart: prepareBoardPan
   };
   var BOARD_SELECTION_OPTIONS = { canStart: canSelectBoardArea, onSelect: selectBoardArea };
+  var INSPECTOR_TABS = ["inspect", "timing", "wires", "diagnostics", "notes"];
+  var BOARD_TOOLS = ["place", "wire", "select", "delete"];
+  var READ_ONLY_CONTROLS = ["tool-place", "tool-wire", "tool-delete", "input-count", "output-count", "notes-edit-button"];
+  var CLOCK_FORMATTER = new Intl.DateTimeFormat("zh-CN", CLOCK_SETTINGS);
   var state = {
     project: emptyProject(),
     runtime: createRuntime(),
     result: null,
+    timing: createTimingTrace(),
     tool: "wire",
     wireColor: WIRE_COLORS[1],
     wireAngle: SETTINGS.wireAngle,
@@ -11965,16 +13383,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var canvas = null;
   var zoomAnchor = null;
   var lastPinnedChip = "";
-  var lastInputCount = 0;
   var boardTransitionFirst = null;
   var boardTransitionLast = null;
   var readOnly = false;
-  var workspace = { version: 1, activeId: "", projects: {} };
+  var workspace = null;
   var activeExperiment = "";
   var circuitDiagnostics = { issues: [], chips: [], power: false, stable: false };
   var dirtyExperiments = /* @__PURE__ */ new Set();
-  var importedExperiments = /* @__PURE__ */ new Map();
-  var savedExperiments = { version: 1, activeId: "", projects: {} };
+  var importedExperiments = /* @__PURE__ */ new Set();
+  var savedExperiments = null;
   var autoSave = false;
   var confirmationAction = null;
   var switchAction = null;
@@ -11997,8 +13414,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var routingBusy = false;
   var expandedSelection = /* @__PURE__ */ new Set();
   function updateClock() {
-    element("app-version").textContent = "v" + APP_VERSION;
-    element("current-time").textContent = new Intl.DateTimeFormat("zh-CN", CLOCK_SETTINGS).format(/* @__PURE__ */ new Date());
+    element("current-time").textContent = CLOCK_FORMATTER.format(/* @__PURE__ */ new Date());
   }
   function stageChanges() {
     keepExperiment(workspace, activeExperiment, state.project);
@@ -12008,9 +13424,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     } else {
       renderSaveStatus();
     }
-  }
-  function saveCurrent() {
-    saveLocal();
   }
   function changeAutoSave(event) {
     autoSave = event.currentTarget.checked;
@@ -12142,36 +13555,66 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       return;
     }
     switchAction = action;
+    let name = state.project.name.trim();
+    if (name === "") {
+      name = "\u672A\u547D\u540D\u5B9E\u9A8C";
+    }
     const message = element("switch-message");
-    message.textContent = "\u201C" + state.project.name + "\u201D\u6709\u672A\u4FDD\u5B58\u7684\u66F4\u6539\u3002\u4E0D\u4FDD\u5B58\u5E76\u5207\u6362\u65F6\uFF0C\u66F4\u6539\u4EC5\u4FDD\u7559\u5230\u672C\u6B21\u4F1A\u8BDD\u7ED3\u675F";
+    if (Object.hasOwn(savedExperiments.projects, activeExperiment)) {
+      message.textContent = "\u201C" + name + "\u201D\u6709\u672A\u4FDD\u5B58\u7684\u6539\u52A8\u3002\u4E0D\u4FDD\u5B58\u5C31\u5207\u6362\uFF0C\u5207\u56DE\u6765\u65F6\u5C06\u6062\u590D\u5230\u4E0A\u6B21\u4FDD\u5B58\u7684\u5185\u5BB9\u3002";
+    } else {
+      message.textContent = "\u201C" + name + "\u201D\u8FD8\u672A\u4FDD\u5B58\u3002\u4E0D\u4FDD\u5B58\u5C31\u5207\u6362\uFF0C\u8FD9\u4EFD\u5B9E\u9A8C\u5C06\u4ECE\u5217\u8868\u4E2D\u79FB\u9664\u3002";
+    }
     element("switch-dialog").showModal();
   }
   function cancelExperimentSwitch() {
     switchAction = null;
     element("switch-dialog").close();
   }
-  function switchWithoutSaving() {
+  function finishExperimentSwitch() {
     const action = switchAction;
     cancelExperimentSwitch();
     if (action) {
       action();
     }
   }
+  function switchWithoutSaving() {
+    const saved = savedExperiments.projects[activeExperiment];
+    if (saved) {
+      workspace.projects[activeExperiment] = copyProject(saved);
+    } else {
+      delete workspace.projects[activeExperiment];
+      importedExperiments.delete(activeExperiment);
+    }
+    dirtyExperiments.delete(activeExperiment);
+    finishExperimentSwitch();
+  }
   function saveAndSwitch() {
     if (saveLocal()) {
-      switchWithoutSaving();
+      finishExperimentSwitch();
+      toast("\u4E0A\u4E00\u4EFD\u5B9E\u9A8C\u5DF2\u4FDD\u5B58", "info");
     } else {
-      element("switch-message").textContent = "\u672C\u5730\u4FDD\u5B58\u5931\u8D25\u3002\u4F60\u53EF\u4EE5\u91CD\u8BD5\u3001\u53D6\u6D88\uFF0C\u6216\u4E0D\u4FDD\u5B58\u5E76\u5207\u6362";
+      const message = element("switch-message");
+      const failure = "\u4FDD\u5B58\u5931\u8D25\uFF0C\u53EF\u91CD\u8BD5\uFF0C\u6216\u53D6\u6D88\u5207\u6362\u540E\u5BFC\u51FA JSON \u5907\u4EFD\u3002";
+      const warning = "\u4E0D\u4FDD\u5B58\u5E76\u5207\u6362\u4F1A\u4E22\u5F03\u672C\u6B21\u6539\u52A8\u3002";
+      if (Object.hasOwn(savedExperiments.projects, activeExperiment)) {
+        message.textContent = failure + warning;
+      } else {
+        message.textContent = failure + "\u4E0D\u4FDD\u5B58\u5E76\u5207\u6362\u4F1A\u4ECE\u5217\u8868\u4E2D\u79FB\u9664\u8FD9\u4EFD\u5B9E\u9A8C\u3002";
+      }
     }
   }
   function openExperiment(id) {
     activeExperiment = id;
+    workspace.activeId = id;
     state.project = copyProject(workspace.projects[id]);
     state.saveFailed = false;
     resetExperiment();
   }
   function resetExperiment() {
     resetRuntime();
+    state.result = null;
+    state.timing = createTimingTrace();
     state.undo = [];
     state.redo = [];
     state.notesEditing = false;
@@ -12250,10 +13693,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function toast(message, kind) {
-    const id = showToast(message, kind);
+    showToast(message, kind);
     recentAction = message;
     updateActionStatus();
-    return id;
   }
   function remember() {
     state.undo.push(copyProject(state.project));
@@ -12267,21 +13709,17 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       validateProject(state.project);
       keepExperiment(workspace, activeExperiment, state.project);
       const nextSaved = copyProject(savedExperiments);
-      for (const id of importedExperiments.keys()) {
+      for (const id of importedExperiments) {
         if (id !== activeExperiment) {
-          const project = importedExperiments.get(id);
+          const project = workspace.projects[id];
           keepExperiment(nextSaved, id, project);
         }
       }
       keepExperiment(nextSaved, activeExperiment, state.project);
       localStorage.setItem(WORKSPACE_KEY, JSON.stringify(nextSaved));
       savedExperiments = nextSaved;
-      for (const id of importedExperiments.keys()) {
-        const imported = JSON.stringify(importedExperiments.get(id));
-        const draft = JSON.stringify(workspace.projects[id]);
-        if (imported === draft) {
-          dirtyExperiments.delete(id);
-        }
+      for (const id of importedExperiments) {
+        dirtyExperiments.delete(id);
       }
       importedExperiments.clear();
       dirtyExperiments.delete(activeExperiment);
@@ -12290,32 +13728,46 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       state.saveFailed = false;
       renderSaveStatus();
       return true;
-    } catch (error) {
+    } catch {
       if (!state.saveFailed) {
-        saveToastId = showToast("\u672A\u80FD\u4FDD\u5B58\u5F53\u524D\u5B9E\u9A8C\uFF0C\u53EF\u5148\u5BFC\u51FA JSON \u5907\u4EFD\u3002\u539F\u56E0\uFF1A" + error.message, "warning");
+        dismissToast(saveToastId);
+        saveToastId = showToast("\u4FDD\u5B58\u5931\u8D25\uFF0C\u5F53\u524D\u6539\u52A8\u672A\u5199\u5165\u672C\u673A\u3002\u8BF7\u91CD\u8BD5\uFF0C\u6216\u5BFC\u51FA JSON \u5907\u4EFD\u3002", "warning");
         state.saveFailed = true;
       }
       renderSaveStatus();
       return false;
     }
   }
+  function saveCurrentExperiment() {
+    if (saveLocal()) {
+      toast("\u5F53\u524D\u5B9E\u9A8C\u5DF2\u4FDD\u5B58", "info");
+    }
+  }
   function renderSaveStatus() {
     const status = element("save-status");
     if (state.saveFailed) {
-      status.textContent = "\u672C\u5730\u4FDD\u5B58\u4E0D\u53EF\u7528";
+      status.textContent = "\u672C\u5730\u4FDD\u5B58\u5931\u8D25";
     } else if (dirtyExperiments.has(activeExperiment)) {
       status.textContent = "\u5F53\u524D\u5B9E\u9A8C\u672A\u4FDD\u5B58";
     } else if (importedExperiments.size > 0) {
       status.textContent = "\u5BFC\u5165\u7684\u5907\u4EFD\u672A\u4FDD\u5B58";
-    } else if (dirtyExperiments.size > 0) {
-      status.textContent = "\u5176\u4ED6\u5B9E\u9A8C\u6709\u672A\u4FDD\u5B58\u66F4\u6539";
     } else {
       status.textContent = "\u65E0\u672A\u4FDD\u5B58\u66F4\u6539";
     }
   }
-  function calculate(notify) {
-    const previousPower = circuitDiagnostics.power;
+  function calculate(notify, action = "\u4EFF\u771F\u66F4\u65B0") {
+    const previousResult = state.result;
     state.result = simulate(state.project, state.runtime);
+    if (previousResult && previousResult.signature !== state.result.signature) {
+      resetTimingCircuit(state.timing, state.project, "\u63A5\u7EBF\u6216\u5668\u4EF6\u5DF2\u66F4\u6539\uFF0C\u539F\u8BB0\u5F55\u5DF2\u6E05\u9664");
+    } else {
+      captureTimingTrace(state.timing, state.result, action);
+    }
+    updateDiagnostics(notify);
+    animateBoard();
+  }
+  function updateDiagnostics(notify) {
+    const previousPower = circuitDiagnostics.power;
     circuitDiagnostics = inspectCircuit(state.project, state.result);
     const current = /* @__PURE__ */ new Set();
     const newIssues = [];
@@ -12344,7 +13796,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       diagnosticToastId = showToast(message, kind);
     }
     state.previousIssues = current;
-    animateBoard();
   }
   function targetVisuals() {
     const switches = [];
@@ -12412,8 +13863,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     return true;
   }
-  function commit() {
-    calculate(true);
+  function commit(action) {
+    calculate(true, action);
     stageChanges();
     render();
   }
@@ -12441,7 +13892,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     return false;
   }
-  async function connectWire(first, second, bends) {
+  function canConnectWire(first, second) {
     if (editingLocked()) {
       return false;
     }
@@ -12463,6 +13914,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     if (state.project.wires.length >= LIMITS.wires) {
       toast("\u5BFC\u7EBF\u6570\u91CF\u5DF2\u8FBE\u5230\u6B64\u7248\u672C\u7684\u4E0A\u9650", "error");
+      return false;
+    }
+    return true;
+  }
+  async function connectWire(first, second, bends) {
+    if (!canConnectWire(first, second)) {
       return false;
     }
     const wire = { id: nextId(state.project.wires, "W"), from: first, to: second, color: state.wireColor, bends };
@@ -13113,10 +14570,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     } else {
       state.project.switches[index] = 0;
     }
-    commit();
-  }
-  function clickQuickSwitch(event) {
-    toggleSwitch(Number(event.currentTarget.dataset.bit));
+    commit("\u5207\u6362 K" + index);
   }
   function startPulse(kind) {
     if (!state.project.power) {
@@ -13134,7 +14588,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     } else {
       state.runtime.pulses.negative = 0;
     }
-    calculate(true);
+    calculate(true, "\u6309\u4E0B " + kind);
     render();
     return true;
   }
@@ -13148,7 +14602,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     pulsePointerTarget = null;
     state.runtime.pulses.positive = 0;
     state.runtime.pulses.negative = 1;
-    calculate(true);
+    calculate(true, "\u677E\u5F00 " + kind);
     recentAction = kind + " \u5355\u8109\u51B2\u5DF2\u5B8C\u6210";
     render();
     pulseTimer = window.setTimeout(clearPulseFeedback, PULSE_SETTINGS.feedbackDuration);
@@ -13195,31 +14649,32 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       dismissToast(powerToastId);
       powerToastId = "";
     }
+    let action = "\u5173\u95ED\u7535\u6E90";
+    if (state.project.power) {
+      action = "\u6253\u5F00\u7535\u6E90";
+    }
+    commit(action);
+  }
+  function restoreHistory(source, destination) {
+    if (editingLocked()) {
+      return;
+    }
+    if (source.length === 0) {
+      return;
+    }
+    const current = copyProject(state.project);
+    destination.push(current);
+    state.project = source.pop();
+    resetRuntime();
+    resetTimingCircuit(state.timing, state.project, "\u4EFF\u771F\u5DF2\u91CD\u7F6E\uFF0C\u539F\u8BB0\u5F55\u5DF2\u6E05\u9664");
+    state.result = null;
     commit();
   }
   function undoEdit() {
-    if (editingLocked()) {
-      return;
-    }
-    if (state.undo.length === 0) {
-      return;
-    }
-    state.redo.push(copyProject(state.project));
-    state.project = state.undo.pop();
-    resetRuntime();
-    commit();
+    restoreHistory(state.undo, state.redo);
   }
   function redoEdit() {
-    if (editingLocked()) {
-      return;
-    }
-    if (state.redo.length === 0) {
-      return;
-    }
-    state.undo.push(copyProject(state.project));
-    state.project = state.redo.pop();
-    resetRuntime();
-    commit();
+    restoreHistory(state.redo, state.undo);
   }
   function resetRuntime() {
     heldPulse = "";
@@ -13274,21 +14729,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     stageChanges();
     renderExperiments();
   }
-  function download(blob, name) {
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = name;
-    anchor.click();
-    window.setTimeout(revokeDownload.bind(null, url), SETTINGS.downloadReleaseDelay);
-  }
-  function revokeDownload(url) {
-    URL.revokeObjectURL(url);
-  }
-  function exportProject() {
-    const content = JSON.stringify(state.project, null, EXPORT_SETTINGS.indent);
-    const file = new Blob([content], { type: "application/json" });
-    download(file, EXPORT_SETTINGS.circuit);
+  function createCircuitFile(format) {
+    if (format !== "json") {
+      return createBoardImage(format);
+    }
+    const content = JSON.stringify(state.project, null, PROJECT_JSON_INDENT);
+    return new Blob([content], { type: "application/json" });
   }
   function chooseImport() {
     element("import-file").click();
@@ -13299,6 +14745,28 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.saveFailed = false;
     stageChanges();
     resetExperiment();
+  }
+  function importWorkspaceBackup(parsed) {
+    const imported = validateWorkspace(parsed);
+    for (const id of Object.keys(imported.projects)) {
+      const newId = newExperimentId();
+      const project = imported.projects[id];
+      workspace.projects[newId] = copyProject(project);
+      importedExperiments.add(newId);
+      dirtyExperiments.add(newId);
+    }
+    let saved = false;
+    if (autoSave) {
+      saved = saveLocal();
+    }
+    render();
+    if (saved) {
+      toast("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\u5E76\u4FDD\u5B58\uFF0C\u53EF\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u67E5\u770B", "info");
+    } else if (autoSave) {
+      recordPendingImport("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\uFF0C\u4F46\u81EA\u52A8\u4FDD\u5B58\u5931\u8D25\u3002\u8BF7\u91CD\u8BD5\u4FDD\u5B58", "warning");
+    } else {
+      recordPendingImport("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\uFF0C\u53EF\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u67E5\u770B\u3002\u6309 Ctrl+S \u4FDD\u5B58\u5C1A\u672A\u5199\u5165\u7684\u5907\u4EFD", "info");
+    }
   }
   async function importProject(event) {
     const input = event.currentTarget;
@@ -13313,23 +14781,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       const content = await file.text();
       const parsed = JSON.parse(content);
       if (parsed.projects) {
-        const imported = validateWorkspace(parsed);
-        for (const id of Object.keys(imported.projects)) {
-          const newId = newExperimentId();
-          const project = imported.projects[id];
-          workspace.projects[newId] = copyProject(project);
-          importedExperiments.set(newId, project);
-          dirtyExperiments.add(newId);
-        }
-        const saved = autoSave && saveLocal();
-        render();
-        if (saved) {
-          toast("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\u5E76\u4FDD\u5B58\uFF0C\u53EF\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u67E5\u770B", "info");
-        } else if (autoSave) {
-          recordPendingImport("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\uFF0C\u4F46\u81EA\u52A8\u4FDD\u5B58\u5931\u8D25\u3002\u8BF7\u91CD\u8BD5\u4FDD\u5B58", "warning");
-        } else {
-          recordPendingImport("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\uFF0C\u53EF\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u67E5\u770B\u3002\u6309 Ctrl+S \u4FDD\u5B58\u5C1A\u672A\u5199\u5165\u7684\u5907\u4EFD", "info");
-        }
+        importWorkspaceBackup(parsed);
       } else {
         const candidate = validateProject(parsed);
         requestExperimentSwitch(openNewExperiment.bind(null, candidate));
@@ -13347,16 +14799,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     dismissToast(saveToastId);
     saveToastId = showToast(message, kind);
   }
-  function receiveImage(blob) {
-    if (!blob) {
-      toast("\u65E0\u6CD5\u5BFC\u51FA\u56FE\u7247\uFF0C\u8BF7\u91CD\u8BD5", "error");
-      return;
-    }
-    download(blob, EXPORT_SETTINGS.image);
-  }
-  function exportImage() {
+  function createBoardImage(format) {
     renderBoard(canvas, state, endpoints);
-    canvas.toBlob(receiveImage, "image/png");
+    return encodeCanvasImage(canvas, format);
   }
   function applyZoom(value) {
     state.zoom = Math.max(SETTINGS.zoomMinimum, Math.min(SETTINGS.zoomMaximum, value));
@@ -13371,8 +14816,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       viewport.scrollTop = viewport.scrollTop + bounds.top + zoomAnchor.y * state.zoom - zoomAnchor.clientY;
     }
   }
-  function changeZoom(value, anchor) {
-    zoomAnchor = anchor;
+  function changeZoom(value, anchor2) {
+    zoomAnchor = anchor2;
     state.targetZoom = Math.max(SETTINGS.zoomMinimum, Math.min(SETTINGS.zoomMaximum, value));
     tween("zoom", state.zoom, state.targetZoom, applyZoom, MOTION.zoomDuration);
   }
@@ -13382,15 +14827,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     event.preventDefault();
     const bounds = canvas.getBoundingClientRect();
-    const anchor = { x: (event.clientX - bounds.left) / state.zoom, y: (event.clientY - bounds.top) / state.zoom, clientX: event.clientX, clientY: event.clientY };
-    let delta = event.deltaY;
-    if (event.deltaMode === 1) {
-      delta = delta * SETTINGS.wheelLinePixels;
-    } else if (event.deltaMode === 2) {
-      delta = delta * element("board-viewport").clientHeight;
-    }
-    const scale = Math.exp(-delta * SETTINGS.wheelSpeed);
-    changeZoom(state.targetZoom * scale, anchor);
+    const anchor2 = { x: (event.clientX - bounds.left) / state.zoom, y: (event.clientY - bounds.top) / state.zoom, clientX: event.clientX, clientY: event.clientY };
+    const viewport = element("board-viewport");
+    const scale = wheelZoomFactor(event, viewport);
+    changeZoom(state.targetZoom * scale, anchor2);
   }
   function fitBoard() {
     const width = element("board-viewport").clientWidth - SETTINGS.fitPadding;
@@ -13542,88 +14982,59 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     delete state.runtime.devices[chip.id];
     commit();
   }
-  function renderInspection() {
-    const container = element("inspect-panel");
-    const scrollTop = container.scrollTop;
-    container.replaceChildren();
-    container.classList.remove("inspection-duplicate");
-    if (catalogModel !== "") {
-      let shown = hasFixedItem("model", catalogModel);
-      if (state.fixedItems.length === 0 && !element("pinned-chip").hidden) {
-        let shownChip = null;
-        if (state.selected && state.selected.kind === "chip") {
-          shownChip = findChip(state.selected.id);
-        }
-        if (shownChip && shownChip.model === catalogModel) {
-          shown = true;
-        }
-      }
-      if (shown) {
-        container.classList.add("inspection-duplicate");
-        return;
-      }
-      renderCatalogInfo(container, catalogModel);
-      return;
+  function catalogAlreadyShown() {
+    if (hasFixedItem("model", catalogModel)) {
+      return true;
     }
-    if (state.selection.length > 1) {
-      renderMultiInspection(container);
-      container.scrollTop = scrollTop;
-      return;
+    if (state.fixedItems.length > 0 || element("pinned-chip").hidden) {
+      return false;
     }
-    if (state.selected && state.selected.kind === "chip") {
-      const chip = findChip(state.selected.id);
-      if (chip) {
-        const fixed = hasFixedItem("chip", chip.id);
-        const preview = state.fixedItems.length === 0 && state.selection.length <= 1;
-        if (fixed || preview) {
-          container.classList.add("inspection-duplicate");
-          return;
-        }
-        renderChipPanel(container, chip, "selected-");
-        container.scrollTop = scrollTop;
-        return;
-      }
+    const selected = state.selected;
+    if (!selected || selected.kind !== "chip") {
+      return false;
     }
-    if (state.selected && state.selected.kind === "wire") {
-      const wire = findWire(state.selected.id);
-      if (wire) {
-        container.append(node("h2", wire.id, ""), node("p", endpointLabel(wire.from) + " \u2192 " + endpointLabel(wire.to), "inspection-meta"));
-        container.append(node("div", String(readEndpoint(state.result, wire.from)), "node-value"));
-        const remove = node("button", "\u5220\u9664\u5BFC\u7EBF", "button");
-        remove.addEventListener("click", deleteSelected);
-        container.append(remove);
-        return;
-      }
+    const chip = findChip(selected.id);
+    return chip !== null && chip.model === catalogModel;
+  }
+  function renderSelectedWire(container, wire) {
+    const route = endpointLabel(wire.from) + " \u2192 " + endpointLabel(wire.to);
+    const level = readEndpoint(state.result, wire.from);
+    const remove = node("button", "\u5220\u9664\u5BFC\u7EBF", "button");
+    remove.addEventListener("click", deleteSelected);
+    container.append(node("h2", wire.id, ""), node("p", route, "inspection-meta"));
+    container.append(node("div", String(level), "node-value"), remove);
+  }
+  function renderSelectedNode(container, name) {
+    const value = readEndpoint(state.result, name);
+    let level = "Z \xB7 \u60AC\u7A7A";
+    if (value === 1) {
+      level = "1 \xB7 \u9AD8\u7535\u5E73";
+    } else if (value === 0) {
+      level = "0 \xB7 \u4F4E\u7535\u5E73";
+    } else if (value === "X") {
+      level = "X \xB7 \u672A\u77E5\u6216\u51B2\u7A81";
     }
-    if (state.selected && state.selected.kind === "node") {
-      const name = state.selected.id;
-      const value = readEndpoint(state.result, name);
-      let level = "Z \xB7 \u60AC\u7A7A";
-      if (value === 1) {
-        level = "1 \xB7 \u9AD8\u7535\u5E73";
-      } else if (value === 0) {
-        level = "0 \xB7 \u4F4E\u7535\u5E73";
-      } else if (value === "X") {
-        level = "X \xB7 \u672A\u77E5\u6216\u51B2\u7A81";
-      }
-      container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"), node("div", level, "node-value"));
-      const pullUp = node("button", "\u4E3A\u6B64\u8282\u70B9\u6DFB\u52A0\u4E0A\u62C9", "button");
-      if (state.project.pullUps.includes(name)) {
-        pullUp.textContent = "\u79FB\u9664\u6B64\u8282\u70B9\u4E0A\u62C9";
-      }
-      pullUp.disabled = readOnly;
-      pullUp.dataset.endpoint = name;
-      pullUp.addEventListener("click", togglePullUp);
-      container.append(pullUp);
-      for (const chip of state.project.chips) {
-        for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-          if (pinHole(chip, pin) === name) {
-            container.append(node("p", chip.id + " \u7B2C " + pin + " \u811A \xB7 " + CHIP_MODELS[chip.model].labels[pin], "inspection-meta"));
-          }
+    container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"));
+    container.append(node("div", level, "node-value"));
+    const pullUp = node("button", "\u4E3A\u6B64\u8282\u70B9\u6DFB\u52A0\u4E0A\u62C9", "button");
+    if (state.project.pullUps.includes(name)) {
+      pullUp.textContent = "\u79FB\u9664\u6B64\u8282\u70B9\u4E0A\u62C9";
+    }
+    pullUp.disabled = readOnly;
+    pullUp.dataset.endpoint = name;
+    pullUp.addEventListener("click", togglePullUp);
+    container.append(pullUp);
+    for (const chip of state.project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      for (let pin = 1; pin <= model.count; pin = pin + 1) {
+        if (pinHole(chip, pin) === name) {
+          const description = chip.id + " \u7B2C " + pin + " \u811A \xB7 " + model.labels[pin];
+          container.append(node("p", description, "inspection-meta"));
         }
       }
-      return;
     }
+  }
+  function renderInspectionSummary(container) {
     const empty = node("div", "", "empty-inspector");
     empty.append(icon("scan-line"), node("strong", "\u672A\u9009\u62E9\u5BF9\u8C61", ""), node("p", "\u82AF\u7247 " + state.project.chips.length + " \u7247 \xB7 \u5BFC\u7EBF " + state.project.wires.length + " \u6839", ""));
     container.append(empty);
@@ -13639,6 +15050,48 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       summary.append(row);
     }
     container.append(summary);
+  }
+  function renderInspection() {
+    const container = element("inspect-panel");
+    const scrollTop = container.scrollTop;
+    container.replaceChildren();
+    container.classList.remove("inspection-duplicate");
+    if (catalogModel !== "") {
+      if (catalogAlreadyShown()) {
+        container.classList.add("inspection-duplicate");
+      } else {
+        renderCatalogInfo(container, catalogModel);
+      }
+      return;
+    }
+    if (state.selection.length > 1) {
+      renderMultiInspection(container);
+      container.scrollTop = scrollTop;
+      return;
+    }
+    const selected = state.selected;
+    if (selected && selected.kind === "chip") {
+      const chip = findChip(selected.id);
+      if (chip) {
+        if (hasFixedItem("chip", chip.id) || state.fixedItems.length === 0) {
+          container.classList.add("inspection-duplicate");
+        } else {
+          renderChipPanel(container, chip, "selected-");
+          container.scrollTop = scrollTop;
+        }
+        return;
+      }
+    } else if (selected && selected.kind === "wire") {
+      const wire = findWire(selected.id);
+      if (wire) {
+        renderSelectedWire(container, wire);
+        return;
+      }
+    } else if (selected && selected.kind === "node") {
+      renderSelectedNode(container, selected.id);
+      return;
+    }
+    renderInspectionSummary(container);
   }
   function togglePullUp(event) {
     if (editingLocked()) {
@@ -13852,7 +15305,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function renderPanels() {
     element("inspection-stack").hidden = state.activeTab !== "inspect";
     renderPinnedChip();
-    for (const name of ["inspect", "wires", "diagnostics", "notes"]) {
+    for (const name of INSPECTOR_TABS) {
       const active = name === state.activeTab;
       element(name + "-panel").hidden = !active;
       element("tab-" + name).classList.toggle("active", active);
@@ -13877,6 +15330,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     if (state.activeTab === "notes") {
       renderNotes();
     }
+    if (state.activeTab === "timing") {
+      renderTimingPanel(state);
+    }
     refreshIcons();
   }
   function findFixedItem(kind, id) {
@@ -13899,12 +15355,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     state.fixedItems = kept;
   }
-  function renderPinnedChip() {
-    const container = element("pinned-chip");
-    if (state.activeTab !== "inspect") {
-      container.hidden = true;
-      return;
-    }
+  function visiblePinnedItems() {
     const items = [];
     for (const item of state.fixedItems) {
       if (item.kind === "model" || findChip(item.id)) {
@@ -13919,61 +15370,77 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         shown.push({ kind: "chip", id: chip.id });
       }
     }
-    container.hidden = shown.length === 0;
+    return shown;
+  }
+  function rebuildPinnedPanes(container, items) {
+    const scrollPositions = {};
+    for (const pane of container.querySelectorAll(".inspection-pane")) {
+      scrollPositions[pane.dataset.key] = pane.scrollTop;
+    }
+    container.replaceChildren();
+    let previous = null;
+    for (const item of items) {
+      const pane = node("section", "", "inspection-pane");
+      pane.dataset.key = item.kind + ":" + item.id;
+      pane.dataset.kind = item.kind;
+      pane.dataset.id = item.id;
+      pane.id = "pane-" + item.kind + "-" + item.id;
+      if (previous) {
+        const divider = node("div", "", "");
+        configureInspectionDivider(divider, previous, pane);
+        container.append(divider);
+      }
+      container.append(pane);
+      let prefix = "fixed-" + item.id + "-";
+      if (item.kind === "chip") {
+        if (!container.querySelector("#pin-chip-info")) {
+          prefix = "";
+        }
+        renderChipPanel(pane, findChip(item.id), prefix);
+      } else {
+        renderCatalogInfo(pane, item.id, prefix);
+      }
+      if (Object.hasOwn(scrollPositions, pane.dataset.key)) {
+        pane.scrollTop = scrollPositions[pane.dataset.key];
+      }
+      previous = pane;
+    }
+  }
+  function refreshPinnedLevels(container) {
+    for (const pane of container.querySelectorAll(".inspection-pane[data-kind='chip']")) {
+      const chip = findChip(pane.dataset.id);
+      for (const cell of pane.querySelectorAll("[data-pin]")) {
+        const pin = Number(cell.dataset.pin);
+        const value = readEndpoint(state.result, pinHole(chip, pin));
+        cell.textContent = String(value);
+        cell.classList.toggle("high", value === 1);
+        cell.classList.toggle("unknown", value === "X" || value === "Z");
+      }
+    }
+  }
+  function renderPinnedChip() {
+    const container = element("pinned-chip");
+    if (state.activeTab !== "inspect") {
+      container.hidden = true;
+      return;
+    }
+    const items = visiblePinnedItems();
+    container.hidden = items.length === 0;
     if (container.hidden) {
       container.replaceChildren();
       lastPinnedChip = "";
       return;
     }
     let key = String(readOnly);
-    for (const item of shown) {
+    for (const item of items) {
       const fixed = hasFixedItem(item.kind, item.id);
       key = key + ":" + item.kind + ":" + item.id + ":" + fixed;
     }
     if (lastPinnedChip !== key) {
-      const scrollPositions = {};
-      for (const pane of container.querySelectorAll(".inspection-pane")) {
-        scrollPositions[pane.dataset.key] = pane.scrollTop;
-      }
-      container.replaceChildren();
-      let previous = null;
-      for (const item of shown) {
-        const pane = node("section", "", "inspection-pane");
-        pane.dataset.key = item.kind + ":" + item.id;
-        pane.dataset.kind = item.kind;
-        pane.dataset.id = item.id;
-        pane.id = "pane-" + item.kind + "-" + item.id;
-        if (previous) {
-          const divider = node("div", "", "");
-          configureInspectionDivider(divider, previous, pane);
-          container.append(divider);
-        }
-        container.append(pane);
-        let prefix = "fixed-" + item.id + "-";
-        if (item.kind === "chip") {
-          if (!container.querySelector("#pin-chip-info")) {
-            prefix = "";
-          }
-          renderChipPanel(pane, findChip(item.id), prefix);
-        } else {
-          renderCatalogInfo(pane, item.id, prefix);
-        }
-        if (Object.hasOwn(scrollPositions, pane.dataset.key)) {
-          pane.scrollTop = scrollPositions[pane.dataset.key];
-        }
-        previous = pane;
-      }
+      rebuildPinnedPanes(container, items);
       lastPinnedChip = key;
     }
-    for (const pane of container.querySelectorAll(".inspection-pane[data-kind='chip']")) {
-      const chip = findChip(pane.dataset.id);
-      for (const cell of pane.querySelectorAll("[data-pin]")) {
-        const value = readEndpoint(state.result, pinHole(chip, Number(cell.dataset.pin)));
-        cell.textContent = String(value);
-        cell.classList.toggle("high", value === 1);
-        cell.classList.toggle("unknown", value === "X" || value === "Z");
-      }
-    }
+    refreshPinnedLevels(container);
   }
   function updatePinButton(button, chipId) {
     const fixed = hasFixedItem("chip", chipId) || hasFixedItem("model", chipId);
@@ -14006,143 +15473,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const chipId = event.currentTarget.dataset.chip;
     toggleFixedItem("chip", chipId);
   }
-  function createQuickInput(bit) {
-    const wrapper = node("div", "", "quick-input");
-    wrapper.append(node("span", "K" + bit, "quick-port-label"));
-    const led = node("span", "", "io-led");
-    led.dataset.inputLed = String(bit);
-    led.setAttribute("role", "img");
-    const button = node("button", "0", "bit-button");
-    button.dataset.bit = String(bit);
-    button.setAttribute("aria-label", "\u5207\u6362 K" + bit);
-    button.addEventListener("click", clickQuickSwitch);
-    wrapper.append(led, button);
-    return wrapper;
-  }
-  function ensureInputControls(count) {
-    if (lastInputCount === count) {
-      return;
-    }
-    const container = element("quick-switches");
-    container.replaceChildren();
-    for (let bit = count - 1; bit >= 0; bit = bit - 1) {
-      container.append(createQuickInput(bit));
-    }
-    lastInputCount = count;
-  }
-  function setLedState(led, name, value) {
-    led.classList.toggle("on", value === 1);
-    led.dataset.value = String(value);
-    led.setAttribute("aria-label", name + "\uFF1A" + value);
-    led.title = name + "\uFF1A" + value;
-  }
-  function renderOutputLeds(count) {
-    const container = element("output-leds");
-    if (container.children.length !== count) {
-      container.replaceChildren();
-      for (let bit = count - 1; bit >= 0; bit = bit - 1) {
-        const wrapper = node("div", "", "output-port");
-        const led = node("span", "", "io-led");
-        led.dataset.outputLed = String(bit);
-        led.setAttribute("role", "img");
-        wrapper.append(led, node("span", "L" + bit, "quick-port-label"));
-        container.append(wrapper);
-      }
-    }
-    for (const led of container.querySelectorAll("[data-output-led]")) {
-      const name = "L" + led.dataset.outputLed;
-      setLedState(led, name, readEndpoint(state.result, name));
-    }
-  }
-  function updateIoLayout() {
-    const strip = document.querySelector(".io-strip");
-    const input = document.querySelector(".input-block");
-    const switches = element("quick-switches");
-    const buttons = switches.querySelectorAll(".quick-input");
-    if (buttons.length === 0) {
-      return;
-    }
-    const stripStyle = getComputedStyle(strip);
-    const switchStyle = getComputedStyle(switches);
-    const inputStyle = getComputedStyle(input);
-    const pulseStyle = getComputedStyle(document.querySelector(".operation-block"));
-    const paddingStart = Number.parseFloat(stripStyle.paddingInlineStart);
-    const paddingEnd = Number.parseFloat(stripStyle.paddingInlineEnd);
-    const groupGap = Number.parseFloat(stripStyle.columnGap);
-    const switchGap = Number.parseFloat(switchStyle.columnGap);
-    const numberGap = Number.parseFloat(inputStyle.columnGap);
-    const pulseGap = Number.parseFloat(pulseStyle.columnGap);
-    let switchWidth = 0;
-    for (const button of buttons) {
-      switchWidth = switchWidth + button.getBoundingClientRect().width;
-    }
-    switchWidth = switchWidth + (buttons.length - 1) * switchGap;
-    const numberWidth = element("input-decimal").getBoundingClientRect().width;
-    const inputWidth = switchWidth + numberGap + numberWidth;
-    const settingsWidth = document.querySelector(".io-settings").getBoundingClientRect().width;
-    const outputWidth = document.querySelector(".result-block").getBoundingClientRect().width;
-    const positiveWidth = element("pulse-positive").getBoundingClientRect().width;
-    const negativeWidth = element("pulse-negative").getBoundingClientRect().width;
-    const pulseWidth = positiveWidth + negativeWidth + pulseGap;
-    const requiredWidth = settingsWidth + outputWidth + inputWidth + pulseWidth + groupGap * 3;
-    const availableWidth = strip.clientWidth - paddingStart - paddingEnd;
-    strip.classList.toggle("pulses-stacked", requiredWidth > availableWidth);
-  }
-  function renderIo() {
-    const inputCount = state.project.inputCount;
-    const outputCount = state.project.outputCount;
-    ensureInputControls(inputCount);
-    let input = 0;
-    for (const button of element("quick-switches").querySelectorAll("button")) {
-      const bit = Number(button.dataset.bit);
-      const value = state.project.switches[bit];
-      button.textContent = String(value);
-      button.setAttribute("aria-pressed", String(value === 1));
-      const led = button.parentElement.querySelector(".io-led");
-      setLedState(led, "K" + bit, readEndpoint(state.result, "K" + bit));
-      input = input * 2 + value;
-    }
-    element("input-decimal").textContent = String(input);
-    element("input-count").value = String(state.project.inputCount);
-    element("output-count").value = String(state.project.outputCount);
-    element("input-label").textContent = "\u8F93\u5165 K" + (inputCount - 1) + "\u2026K0";
-    element("output-label").textContent = "\u8F93\u51FA L" + (outputCount - 1) + "\u2026L0";
-    let binary = "";
-    let known = true;
-    let number = 0;
-    for (let bit = outputCount - 1; bit >= 0; bit = bit - 1) {
-      const value = readEndpoint(state.result, "L" + bit);
-      binary = binary + String(value);
-      if (bit > 0 && bit % 4 === 0) {
-        binary = binary + " ";
-      }
-      if (value !== 0 && value !== 1) {
-        known = false;
-      } else {
-        number = number * 2 + value;
-      }
-    }
-    element("binary-result").textContent = binary;
-    element("binary-result").classList.add("general-binary");
-    renderOutputLeds(outputCount);
-    let meaning = "\u672A\u77E5 / \u60AC\u7A7A";
-    if (!state.project.power) {
-      meaning = "\u7535\u6E90\u5173\u95ED";
-    } else if (known) {
-      meaning = String(number);
-    }
-    element("result-meaning").textContent = meaning;
-    updateIoLayout();
-  }
   function changeIoCount(event) {
     if (editingLocked()) {
-      renderIo();
+      renderBoardIo(state.project, state.result, toggleSwitch);
       return;
     }
     const count = Number(event.currentTarget.value);
-    if (!Number.isInteger(count) || count < 1 || count > IO_LIMIT) {
+    if (!validIoCount(count)) {
       toast("\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT + "\uFF0C\u8BF7\u8F93\u5165\u6574\u6570", "warning");
-      renderIo();
+      renderBoardIo(state.project, state.result, toggleSwitch);
       return;
     }
     remember();
@@ -14203,27 +15542,26 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       button.setAttribute("aria-pressed", String(pressed));
     }
   }
-  function render() {
-    updateActionStatus();
-    renderPulseButtons();
-    renderSaveStatus();
+  function renderBoardControls() {
     element("read-only-toggle").checked = readOnly;
     element("project-name").readOnly = readOnly;
-    for (const id of ["tool-place", "tool-wire", "tool-delete", "arrange-wires", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
+    for (const id of READ_ONLY_CONTROLS) {
       element(id).disabled = readOnly;
     }
-    element("arrange-wires").disabled = readOnly || routingBusy;
+    const arrangement = element("arrange-wires");
+    arrangement.disabled = readOnly || routingBusy;
+    arrangement.setAttribute("aria-busy", String(routingBusy));
     element("connect-endpoints").disabled = readOnly || routingBusy;
-    element("arrange-wires").setAttribute("aria-busy", String(routingBusy));
     element("project-name").value = state.project.name;
     element("power-toggle").checked = state.project.power;
     element("undo").disabled = readOnly || state.undo.length === 0;
     element("redo").disabled = readOnly || state.redo.length === 0;
     element("cancel-wire").disabled = !state.pending && state.placing === "";
-    for (const name of ["place", "wire", "select", "delete"]) {
+    for (const name of BOARD_TOOLS) {
       const active = state.tool === name;
-      element("tool-" + name).classList.toggle("selected", active);
-      element("tool-" + name).setAttribute("aria-pressed", String(active));
+      const button = element("tool-" + name);
+      button.classList.toggle("selected", active);
+      button.setAttribute("aria-pressed", String(active));
     }
     for (const button of element("wire-palette").children) {
       const active = button.dataset.color === state.wireColor;
@@ -14231,11 +15569,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       button.setAttribute("aria-pressed", String(active));
     }
     element("custom-color").value = state.wireColor;
-    element("wire-angle").value = "free";
+    const angle = element("wire-angle");
+    angle.value = "free";
     if (state.wireAngle === 45) {
-      element("wire-angle").value = "45";
+      angle.value = "45";
     }
-    refreshSelect(element("wire-angle"));
+    refreshSelect(angle);
+  }
+  function renderCircuitStatus() {
     element("wire-count").textContent = String(state.project.wires.length);
     element("issue-count").textContent = String(circuitDiagnostics.issues.length);
     element("circuit-count").textContent = state.project.chips.length + " \u7247\u82AF\u7247 \xB7 " + state.project.wires.length + " \u6839\u5BFC\u7EBF";
@@ -14251,7 +15592,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       status = "\u5F85\u653E\u7F6E " + state.placing;
     }
     element("simulation-status").textContent = status;
-    renderIo();
+  }
+  function render() {
+    updateActionStatus();
+    renderPulseButtons();
+    renderSaveStatus();
+    renderBoardControls();
+    renderCircuitStatus();
+    renderBoardIo(state.project, state.result, toggleSwitch);
     renderExperiments();
     renderPanels();
     cleanSelectPanels();
@@ -14287,6 +15635,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     openLogicDiagram(state.project, state.result);
   }
   function keyDown(event) {
+    if (element("export-dialog").open) {
+      return;
+    }
     const tag = event.target.tagName;
     const editing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
@@ -14295,7 +15646,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         saveAndSwitch();
         return;
       }
-      saveCurrent();
+      saveCurrentExperiment();
       return;
     }
     if (element("confirm-dialog").open || element("switch-dialog").open) {
@@ -14323,16 +15674,35 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       deleteSelected();
     }
   }
-  function bindEvents() {
+  function bindBoardEvents() {
     const viewport = element("board-viewport");
     boardPan = bindViewportPan(viewport, BOARD_PAN_OPTIONS);
     boardSelection = bindViewportSelection(viewport, BOARD_SELECTION_OPTIONS);
-    element("tool-place").addEventListener("click", chooseTool);
+    for (const name of BOARD_TOOLS) {
+      element("tool-" + name).addEventListener("click", chooseTool);
+    }
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
     canvas.addEventListener("pointercancel", cancelPointer);
     canvas.addEventListener("lostpointercapture", releasePointerPulse);
-    element("save-project").addEventListener("click", saveCurrent);
+    canvas.addEventListener("click", clickBoard);
+    canvas.addEventListener("pointermove", movePointer);
+    canvas.addEventListener("pointerleave", leaveBoard);
+    viewport.addEventListener("wheel", wheelBoard, { passive: false });
+    element("arrange-wires").addEventListener("click", requestWireRouting);
+    element("connect-endpoints").addEventListener("click", connectByName);
+    element("chip-search").addEventListener("input", renderLibrary);
+    element("custom-color").addEventListener("input", chooseCustomColor);
+    element("wire-angle").addEventListener("change", changeWireAngle);
+    element("cancel-wire").addEventListener("click", cancelWire);
+    element("zoom-in").addEventListener("click", zoomIn);
+    element("zoom-out").addEventListener("click", zoomOut);
+    element("fit-board").addEventListener("click", fitBoard);
+    element("show-internals").addEventListener("change", changeDisplayOptions);
+    element("show-levels").addEventListener("change", changeDisplayOptions);
+  }
+  function bindWorkspaceEvents() {
+    element("save-project").addEventListener("click", saveCurrentExperiment);
     element("autosave-toggle").addEventListener("change", changeAutoSave);
     element("quick-delete").addEventListener("click", quickDelete);
     element("confirm-cancel").addEventListener("click", cancelConfirmation);
@@ -14345,26 +15715,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("read-only-toggle").addEventListener("change", changeReadOnly);
     element("new-experiment").addEventListener("click", newProject);
     element("experiment-picker").addEventListener("change", switchExperiment);
-    element("diagnose-circuit").addEventListener("click", diagnoseCurrentCircuit);
-    element("arrange-wires").addEventListener("click", requestWireRouting);
-    canvas.addEventListener("click", clickBoard);
-    canvas.addEventListener("pointermove", movePointer);
-    canvas.addEventListener("pointerleave", leaveBoard);
-    viewport.addEventListener("wheel", wheelBoard, { passive: false });
-    element("tool-wire").addEventListener("click", chooseTool);
-    element("tool-select").addEventListener("click", chooseTool);
-    element("tool-delete").addEventListener("click", chooseTool);
-    element("chip-search").addEventListener("input", renderLibrary);
-    element("custom-color").addEventListener("input", chooseCustomColor);
-    element("wire-angle").addEventListener("change", changeWireAngle);
-    element("cancel-wire").addEventListener("click", cancelWire);
     element("undo").addEventListener("click", undoEdit);
     element("redo").addEventListener("click", redoEdit);
-    element("zoom-in").addEventListener("click", zoomIn);
-    element("zoom-out").addEventListener("click", zoomOut);
-    element("fit-board").addEventListener("click", fitBoard);
-    element("show-internals").addEventListener("change", changeDisplayOptions);
-    element("show-levels").addEventListener("change", changeDisplayOptions);
+    element("new-project").addEventListener("click", newProject);
+    bindFileExport("export-project", "circuit", createCircuitFile);
+    element("import-project").addEventListener("click", chooseImport);
+    element("import-file").addEventListener("change", importProject);
+    element("project-name").addEventListener("input", renameProject);
+    bindFileExport("export-image", "board", createBoardImage);
+  }
+  function bindPulseEvents() {
     for (const button of document.querySelectorAll(".pulse-button")) {
       button.addEventListener("pointerdown", pressPulseButton);
       button.addEventListener("pointerup", releasePointerPulse);
@@ -14374,19 +15734,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     window.addEventListener("blur", finishPulse);
     element("power-toggle").addEventListener("change", changePower);
-    element("new-project").addEventListener("click", newProject);
-    element("export-project").addEventListener("click", exportProject);
-    element("import-project").addEventListener("click", chooseImport);
-    element("import-file").addEventListener("change", importProject);
-    element("project-name").addEventListener("input", renameProject);
-    element("export-image").addEventListener("click", exportImage);
-    element("connect-endpoints").addEventListener("click", connectByName);
-    element("tab-inspect").addEventListener("click", changeTab);
-    element("tab-wires").addEventListener("click", changeTab);
-    element("tab-diagnostics").addEventListener("click", changeTab);
-    element("tab-notes").addEventListener("click", changeTab);
     element("input-count").addEventListener("change", changeIoCount);
     element("output-count").addEventListener("change", changeIoCount);
+  }
+  function bindPanelEvents() {
+    for (const name of INSPECTOR_TABS) {
+      element("tab-" + name).addEventListener("click", changeTab);
+    }
+    element("diagnose-circuit").addEventListener("click", diagnoseCurrentCircuit);
     element("notes-edit-button").addEventListener("click", editNotes);
     element("notes-preview-button").addEventListener("click", previewNotes);
     element("notes-editor").addEventListener("focus", rememberNotes);
@@ -14395,6 +15750,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("close-help").addEventListener("click", closeHelp);
     element("view-logic-diagram").addEventListener("click", showLogicDiagram);
     bindLogicDiagram();
+    bindTimingPanel(state);
+  }
+  function bindEvents() {
+    bindExportDialog();
+    bindTooltips();
+    bindBoardEvents();
+    bindWorkspaceEvents();
+    bindPulseEvents();
+    bindPanelEvents();
     document.addEventListener("keydown", keyDown);
   }
   function initializeDefaultPreset() {
@@ -14404,7 +15768,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.project.switches[COMPLEMENT_RESET_INPUT] = resetValue;
     calculate(false);
   }
-  function start() {
+  function prepareWorkbench() {
     canvas = element("board-canvas");
     element("project-name").maxLength = LIMITS.nameLength;
     element("notes-editor").maxLength = NOTES_LIMIT;
@@ -14413,48 +15777,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     canvas.width = BOARD.width * DRAW.pixelRatio;
     canvas.height = BOARD.height * DRAW.pixelRatio;
     canvas.style.height = BOARD.height + "px";
-    let loadError = "";
-    let removedCount = 0;
-    let initializePreset = false;
-    try {
-      readOnly = localStorage.getItem(READ_ONLY_KEY) === "true";
-      const savedWorkspace = localStorage.getItem(WORKSPACE_KEY);
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (savedWorkspace) {
-        workspace = validateWorkspace(JSON.parse(savedWorkspace));
-        const beforeCleanup = JSON.stringify(workspace);
-        const centered = centerSavedPresets(workspace);
-        removedCount = cleanWorkspace(workspace).length;
-        if (removedCount > 0 || centered) {
-          localStorage.setItem(CLEANUP_BACKUP_KEY, beforeCleanup);
-          localStorage.setItem(WORKSPACE_KEY, JSON.stringify(workspace));
-        }
-        activeExperiment = workspace.activeId;
-        state.project = copyProject(workspace.projects[activeExperiment]);
-      } else if (saved) {
-        state.project = validateProject(JSON.parse(saved));
-      } else {
-        state.project = complementPreset();
-        initializePreset = true;
-      }
-    } catch (error) {
-      state.project = complementPreset();
-      initializePreset = true;
-      loadError = "\u672C\u5730\u7535\u8DEF\u65E0\u6CD5\u6062\u590D\uFF0C\u5DF2\u6253\u5F00\u793A\u4F8B\u3002\u539F\u6587\u4EF6\u53EF\u91CD\u65B0\u5BFC\u5165";
-    }
-    if (!initializePreset && state.project.power && isComplementPreset(state.project)) {
-      initializePreset = true;
-    }
-    if (activeExperiment === "") {
-      activeExperiment = newExperimentId();
-      keepExperiment(workspace, activeExperiment, state.project);
-    }
-    ensureRamExperiment(workspace);
+  }
+  function start() {
+    prepareWorkbench();
+    const restored = loadWorkspace(window);
+    workspace = restored.workspace;
+    readOnly = restored.readOnly;
+    activeExperiment = workspace.activeId;
+    state.project = restored.project;
     savedExperiments = copyProject(workspace);
     bindEvents();
     createPalette();
     calculate(false);
-    if (initializePreset) {
+    if (restored.initializePreset) {
       initializeDefaultPreset();
     }
     renderLibrary();
@@ -14465,13 +15800,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const ioObserver = new ResizeObserver(updateIoLayout);
     ioObserver.observe(document.querySelector(".io-strip"));
     refreshIcons();
+    element("app-version").textContent = "v" + APP_VERSION;
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);
-    if (loadError !== "") {
-      toast(loadError, "warning");
+    if (restored.warning !== "") {
+      toast(restored.warning, "warning");
     }
-    if (removedCount > 0) {
-      toast("\u5DF2\u6574\u7406 " + removedCount + " \u4EFD\u91CD\u590D\u7A7A\u767D\u6216\u8865\u7801\u5B9E\u9A8C\uFF0C\u6574\u7406\u524D\u7684\u5217\u8868\u5DF2\u5907\u4EFD", "info");
+    if (restored.removedCount > 0) {
+      toast("\u5DF2\u6574\u7406 " + restored.removedCount + " \u4EFD\u91CD\u590D\u7A7A\u767D\u6216\u8865\u7801\u5B9E\u9A8C\uFF0C\u6574\u7406\u524D\u7684\u5217\u8868\u5DF2\u5907\u4EFD", "info");
     }
   }
   start();

@@ -152,60 +152,81 @@ function chipOutputs(chip, pins, registers, devices) {
     return outputs;
 }
 
-// 根据电源、按键、脉冲和芯片输出重建驱动表，返回各节点的驱动列表
-function collectDrivers(project, topology, values, registers, pulses, devices, previousDrivers) {
-    const drivers = {};
-    if (project.power) {
-        addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
-        addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
-        for (let index = 0; index < IO_LIMIT; index = index + 1) {
-            const name = "K" + index;
-            addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
-        }
-        addDriver(drivers, nodeFor(topology, "P+"), pulses.positive, "P+");
-        addDriver(drivers, nodeFor(topology, "P-"), pulses.negative, "P−");
-        for (const endpoint of project.pullUps || []) {
+// 登记板载电源、开关、脉冲和外接上拉，不依赖上一轮的芯片输出
+function addBoardDrivers(project, topology, pulses, drivers) {
+    addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
+    addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+        const name = "K" + index;
+        addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
+    }
+    addDriver(drivers, nodeFor(topology, "P+"), pulses.positive, "P+");
+    addDriver(drivers, nodeFor(topology, "P-"), pulses.negative, "P−");
+    if (project.pullUps) {
+        for (const endpoint of project.pullUps) {
             addDriver(drivers, nodeFor(topology, endpoint), 1, "上拉 " + endpoint, "pull-up");
         }
-        for (const chip of project.chips) {
-            const pins = readPins(chip, topology, values);
-            const model = CHIP_MODELS[chip.model];
-            // 双向脚只读取外部驱动，避免将芯片自己的输出当成输入
-            if (model.bidirectional && chipPowered(chip, pins)) {
-                for (const pin of model.bidirectional) {
-                    const node = nodeFor(topology, pinHole(chip, pin));
-                    const external = [];
-                    const source = chip.id + "-" + pin;
-                    const entries = previousDrivers[node] || [];
-                    for (const driver of entries) {
-                        if (driver.source !== source) {
-                            external.push(driver);
-                        }
-                    }
-                    // 只有 74LS48 的 BI/RBO 内置弱上拉，RAM 数据脚没有这个电路
-                    if (model.kind === "seven-segment") {
-                        addDriver(drivers, node, 1, chip.id + "-" + pin + "-bias", "pull-up");
-                        external.push({ value: 1, kind: "pull-up" });
-                    }
-                    pins[pin] = resolveDrivers(external);
+    }
+}
+
+// 双向脚用上一轮的外部驱动读值，排除引脚自己驱动的输出
+function readBidirectionalPins(chip, pins, topology, drivers, previousDrivers) {
+    const model = CHIP_MODELS[chip.model];
+    if (!model.bidirectional || !chipPowered(chip, pins)) {
+        return;
+    }
+    for (const pin of model.bidirectional) {
+        const node = nodeFor(topology, pinHole(chip, pin));
+        const external = [];
+        const source = chip.id + "-" + pin;
+        const entries = previousDrivers[node];
+        if (entries) {
+            for (const driver of entries) {
+                if (driver.source !== source) {
+                    external.push(driver);
                 }
             }
-            const outputs = chipOutputs(chip, pins, registers, devices);
-            for (const pin in outputs) {
-                const hole = pinHole(chip, Number(pin));
-                let kind = "push-pull";
-                if (model.kind === "open-collector" || (model.kind === "seven-segment" && Number(pin) === 4)) {
-                    kind = "open-collector";
-                }
-                // 74LS48 段输出的高电平来自内部约 2kΩ 上拉，不是推挽强驱动
-                if (model.kind === "seven-segment" && Number(pin) !== 4) {
-                    kind = "open-collector";
-                    if (outputs[pin] === 1) {
-                        kind = "pull-up";
-                    }
-                }
-                addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin, kind);
-            }
+        }
+        // 74LS48 的 BI/RBO 内置弱上拉，而 RAM 数据脚没有
+        if (model.kind === "seven-segment") {
+            addDriver(drivers, node, 1, source + "-bias", "pull-up");
+            external.push({ value: 1, kind: "pull-up" });
+        }
+        pins[pin] = resolveDrivers(external);
+    }
+}
+
+// 区分普通推挽、开集电极和 74LS48 段输出使用的内部弱上拉
+function outputDriverKind(model, pin, value) {
+    if (model.kind === "open-collector") {
+        return "open-collector";
+    }
+    if (model.kind === "seven-segment") {
+        if (pin !== model.controls.blanking && value === 1) {
+            return "pull-up";
+        }
+        return "open-collector";
+    }
+    return "push-pull";
+}
+
+// 读取上一轮电平并重建驱动表，断电时不登记任何驱动
+function collectDrivers(project, topology, values, runtime, previousDrivers) {
+    const drivers = {};
+    if (!project.power) {
+        return drivers;
+    }
+    addBoardDrivers(project, topology, runtime.pulses, drivers);
+    for (const chip of project.chips) {
+        const pins = readPins(chip, topology, values);
+        readBidirectionalPins(chip, pins, topology, drivers, previousDrivers);
+        const outputs = chipOutputs(chip, pins, runtime.registers, runtime.devices);
+        const model = CHIP_MODELS[chip.model];
+        for (const pin in outputs) {
+            const pinNumber = Number(pin);
+            const hole = pinHole(chip, pinNumber);
+            const kind = outputDriverKind(model, pinNumber, outputs[pin]);
+            addDriver(drivers, nodeFor(topology, hole), outputs[pin], chip.id + "-" + pin, kind);
         }
     }
     return drivers;
@@ -256,7 +277,7 @@ function settle(project, topology, runtime, previous) {
         drivers = previous.drivers;
     }
     for (let pass = 0; pass < MAX_SETTLE_PASSES; pass = pass + 1) {
-        drivers = collectDrivers(project, topology, values, runtime.registers, runtime.pulses, runtime.devices, drivers);
+        drivers = collectDrivers(project, topology, values, runtime, drivers);
         const next = driverValues(drivers);
         // 至少用本次算出的驱动表再传播一轮，双向脚需要用它分辨外部驱动
         if (pass > 0 && sameValues(values, next)) {
@@ -279,23 +300,30 @@ function updateRegisters(project, topology, values, registers) {
             continue;
         }
         const register = registers[chip.id];
+        const model = CHIP_MODELS[chip.model];
         const pins = readPins(chip, topology, values);
         const powered = project.power && chipPowered(chip, pins);
+        const reset = pins[model.controls.reset];
+        const clock = pins[model.controls.clock];
+        const rising = register.clock === 0 && clock === 1;
+        const previousHigh = register.clock === 1;
+        // 当前不是低电平且旧时钟不是高电平时，可能刚发生上升沿
+        const uncertainRise = clock !== 0 && !previousHigh;
         const nextBits = [];
-        for (let bit = 0; bit < 8; bit = bit + 1) {
+        for (let bit = 0; bit < model.data.length; bit = bit + 1) {
             let value = register.bits[bit];
             if (!powered) {
                 value = "X";
-            } else if (pins[1] === 0) {
+            } else if (reset === 0) {
                 value = 0;
-            } else if (pins[1] !== 1) {
+            } else if (reset !== 1) {
                 value = "X";
-            } else if (register.clock === 0 && pins[11] === 1) {
-                value = pins[CHIP_MODELS[chip.model].data[bit]];
+            } else if (rising) {
+                value = pins[model.data[bit]];
                 if (value !== 0 && value !== 1) {
                     value = "X";
                 }
-            } else if ((register.clock === 0 && pins[11] !== 0) || (register.clock !== 1 && register.clock !== 0 && pins[11] !== 0)) {
+            } else if (uncertainRise) {
                 value = "X";
             }
             nextBits.push(value);
@@ -304,93 +332,113 @@ function updateRegisters(project, topology, values, registers) {
             }
         }
         register.bits = nextBits;
-        register.clock = pins[11];
+        register.clock = clock;
     }
     return changed;
 }
 
-// 根据稳定结果整理诊断，返回可显示的中文问题列表
+// 检查一个节点的强驱动，外接上拉和内部弱上拉不计入冲突
+function describeDriverConflict(drivers) {
+    const sources = [];
+    let pushPull = false;
+    let high = false;
+    let low = false;
+    for (const driver of drivers) {
+        if (driver.kind === "pull-up") {
+            continue;
+        }
+        sources.push(driver.source);
+        if (driver.kind === "push-pull") {
+            pushPull = true;
+        }
+        if (driver.value === 1) {
+            high = true;
+        } else if (driver.value === 0) {
+            low = true;
+        }
+    }
+    if (sources.length < 2 || !pushPull) {
+        return "";
+    }
+    const names = sources.join("、");
+    if (high && low) {
+        return "高低电平冲突：" + names + "，此节点结果为 X";
+    }
+    return "多个驱动源连接到同一节点：" + names;
+}
+
+// 仅检查当前需要输入的引脚，返回悬空脚号供提示使用
+function floatingInputs(model, pins) {
+    const missing = [];
+    for (const pin of model.inputs) {
+        if (pins[pin] !== "Z") {
+            continue;
+        }
+        // 七段译码器的 RBI 允许开路，开路时不请求灭零
+        if (model.kind === "seven-segment" && pin === model.controls.rippleBlanking) {
+            continue;
+        }
+        if (model.memory && model.bidirectional.includes(pin)) {
+            const selected = pins[model.memory.select];
+            const writing = pins[model.memory.write];
+            if (selected !== 0 || writing !== 0) {
+                continue;
+            }
+        }
+        missing.push(String(pin));
+    }
+    return missing;
+}
+
+// 检查单片芯片的供电、悬空输入和置位复位冲突
+function diagnoseChip(chip, result, issues) {
+    const pins = readPins(chip, result.topology, result.values);
+    if (!chipPowered(chip, pins)) {
+        issues.push({ code: "power:" + chip.id, severity: "error", message: chip.id + " 电源不正确，请检查 VCC 和 GND" });
+        return;
+    }
+    const model = CHIP_MODELS[chip.model];
+    const missing = floatingInputs(model, pins);
+    if (missing.length > 0) {
+        const pinList = missing.join("、");
+        issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " 输入悬空：第 " + pinList + " 脚" });
+    }
+    if (!model.channels) {
+        return;
+    }
+    let active = 0;
+    if (model.activeHigh) {
+        active = 1;
+    }
+    for (let index = 0; index < model.channels.length; index = index + 1) {
+        const channel = model.channels[index];
+        if (pins[channel.set] === active && pins[channel.reset] === active) {
+            const channelName = chip.id + " 第 " + (index + 1) + " 路";
+            const message = channelName + "置位和复位同时有效，两个输出均为 1，同时释放后的状态不确定";
+            issues.push({ code: "async-conflict:" + chip.id + ":" + index, severity: "warning", message: message });
+        }
+    }
+}
+
+// 汇总通电时的电源、节点和芯片问题，保持诊断显示顺序
 function diagnose(project, result) {
     const issues = [];
     if (!project.power) {
         return issues;
     }
-    if (nodeFor(result.topology, "VCC") === nodeFor(result.topology, "GND")) {
+    const power = nodeFor(result.topology, "VCC");
+    const ground = nodeFor(result.topology, "GND");
+    if (power === ground) {
         issues.push({ code: "power-short", severity: "error", message: "+5V 与 GND 被导线短接，请断开对应连线" });
     }
     for (const node in result.drivers) {
-        const drivers = [];
-        let pushPull = 0;
-        for (const driver of result.drivers[node]) {
-            if (driver.kind !== "pull-up") {
-                drivers.push(driver);
-                if (driver.kind === "push-pull") {
-                    pushPull = pushPull + 1;
-                }
-            }
-        }
-        if (drivers.length > 1 && pushPull > 0) {
-            let sources = "";
-            let high = false;
-            let low = false;
-            for (const driver of drivers) {
-                if (sources !== "") {
-                    sources = sources + "、";
-                }
-                sources = sources + driver.source;
-                if (driver.value === 1) {
-                    high = true;
-                }
-                if (driver.value === 0) {
-                    low = true;
-                }
-            }
-            let message = "多个驱动源连接到同一节点：" + sources;
-            if (high && low) {
-                message = "高低电平冲突：" + sources + "，此节点结果为 X";
-            }
+        const message = describeDriverConflict(result.drivers[node]);
+        if (message !== "") {
             issues.push({ code: "drivers:" + node, severity: "error", message: message });
         }
     }
     for (const chip of project.chips) {
-        const pins = readPins(chip, result.topology, result.values);
-        if (!chipPowered(chip, pins)) {
-            issues.push({ code: "power:" + chip.id, severity: "error", message: chip.id + " 电源不正确，请检查 VCC 和 GND" });
-            continue;
-        }
-        const missing = [];
-        const model = CHIP_MODELS[chip.model];
-        for (const pin of model.inputs) {
-            // 七段译码器的 RBI 允许开路，开路时不请求灭零
-            if (model.kind === "seven-segment" && pin === 5) {
-                continue;
-            }
-            if (model.memory && model.bidirectional.includes(pin)) {
-                const selected = pins[model.memory.select];
-                const writing = pins[model.memory.write];
-                if (selected !== 0 || writing !== 0) {
-                    continue;
-                }
-            }
-            if (pins[pin] === "Z") {
-                missing.push(String(pin));
-            }
-        }
-        if (missing.length > 0) {
-            issues.push({ code: "floating:" + chip.id, severity: "warning", message: chip.id + " 输入悬空：第 " + missing.join("、") + " 脚" });
-        }
-        if (model.channels) {
-            let active = 0;
-            if (model.activeHigh) {
-                active = 1;
-            }
-            for (let index = 0; index < model.channels.length; index = index + 1) {
-                const channel = model.channels[index];
-                if (pins[channel.set] === active && pins[channel.reset] === active) {
-                    issues.push({ code: "async-conflict:" + chip.id + ":" + index, severity: "warning", message: chip.id + " 第 " + (index + 1) + " 路置位和复位同时有效，两个输出均为 1，同时释放后的状态不确定" });
-                }
-            }
-        }
+        diagnoseChip(chip, result, issues);
     }
     if (!result.stable) {
         issues.push({ code: "unstable", severity: "error", message: "电路未达到稳定状态，请检查组合逻辑反馈" });
@@ -447,7 +495,7 @@ export function simulate(project, runtime) {
         }
         settled = settle(project, topology, runtime, settled);
     }
-    const result = { topology: topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
+    const result = { signature: signature, topology: topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
     runtime.feedback = null;
     if (project.power && result.stable) {
         runtime.feedback = { signature: signature, settled: settled };

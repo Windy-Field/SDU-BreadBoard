@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { APP_VERSION } from "../src/version.mjs";
 import { WORKSPACE_KEY } from "../src/storage/workspace.mjs";
+import { confirmBrowserDownload } from "./helpers/downloads.mjs";
 
 const ROOT = process.cwd();
 const POWERSHELL = "powershell.exe";
@@ -173,9 +174,7 @@ async function testOfflinePackage() {
         assert.match(await page.locator("#logic-diagram-summary").textContent(), /5 片芯片/);
         assert.ok(await page.locator("#logic-diagram .logic-wire").count() > 30);
         await page.locator("#close-logic-diagram").click();
-        const downloadEvent = page.waitForEvent("download");
-        await page.locator("#export-project").click();
-        const download = await downloadEvent;
+        const download = await confirmBrowserDownload(page, "#export-project", "json");
         assert.equal(download.suggestedFilename(), "breadboard-circuit.json");
         await page.locator("#from-endpoint").fill("B0:A:1");
         await page.locator("#to-endpoint").fill("B0:A:2");

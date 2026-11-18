@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
-import fs from "node:fs";
+import { readImageDownload } from "../helpers/downloads.mjs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { BOARD, endpointPosition, portHole } from "../../src/board/board.mjs";
@@ -84,11 +84,8 @@ async function countHoverPaints(point) {
 
 // 导出当前实验核对平移前后结构不变，不读取应用内部状态
 async function readProject(page) {
-    const waiting = page.waitForEvent("download");
-    await page.locator("#export-project").click();
-    const download = await waiting;
-    const filename = await download.path();
-    return fs.readFileSync(filename, "utf8");
+    const content = await readImageDownload(page, "#export-project", "json", "breadboard-circuit.json");
+    return content.toString("utf8");
 }
 
 // 在各工具模式下按住左键平移，松开后不能新增接线、放置芯片或发起删除

@@ -2,6 +2,7 @@ import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { pngDimensions, readImageDownload } from "../helpers/downloads.mjs";
 import { pathToFileURL } from "node:url";
 import { buildLogicDiagram } from "../../src/diagram/logic-diagram.mjs";
 import { complementPreset } from "../../src/experiments/presets.mjs";
@@ -37,11 +38,8 @@ function readDiagramSize() {
 
 // 将当前电路导出到浏览器临时下载区，供操作前后比对
 async function readProject(page) {
-    const waiting = page.waitForEvent("download");
-    await page.locator("#export-project").click();
-    const download = await waiting;
-    const filename = await download.path();
-    return fs.readFileSync(filename, "utf8");
+    const content = await readImageDownload(page, "#export-project", "json", "breadboard-circuit.json");
+    return content.toString("utf8");
 }
 
 // 记录脚本错误，错误列表在测试末尾统一核对
@@ -324,15 +322,18 @@ async function main() {
         const gateSymbols = page.locator(".logic-gate-symbol");
         assert.equal(await gateSymbols.first().textContent(), "=1");
         await page.screenshot({ path: path.join(SCREENSHOTS, "logic-diagram-desktop.png"), fullPage: true });
-        const waiting = page.waitForEvent("download");
-        await page.locator("#logic-export").click();
-        const download = await waiting;
-        const filename = await download.path();
-        const exported = fs.readFileSync(filename, "utf8");
-        assert.equal(download.suggestedFilename(), "breadboard-logic.svg");
+        const svg = await readImageDownload(page, "#logic-export", "svg", "breadboard-logic.svg");
+        const exported = svg.toString("utf8");
         assert.match(exported, /viewBox=/);
         assert.match(exported, /U4\.1/);
         assert.equal(exported.includes("var(--"), false);
+        const diagram = page.locator("#logic-diagram");
+        const viewBox = await diagram.getAttribute("viewBox");
+        const dimensions = viewBox.split(" ");
+        const png = await readImageDownload(page, "#logic-export", "png", "breadboard-logic.png");
+        assert.deepEqual(pngDimensions(png), {
+            width: Math.floor(Number(dimensions[2]) * 2), height: Math.floor(Number(dimensions[3]) * 2)
+        });
         await page.locator("#logic-show-power").check();
         await page.waitForFunction(diagramReady);
         assert.ok(await page.locator("[data-component='U1-power']").count() > 0);

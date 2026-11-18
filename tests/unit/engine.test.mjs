@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { evaluateAdder, logicGate } from "../../src/chips/chips.mjs";
-import { BOARD, PORT_LAYOUT, RAIL_LAYOUT, IO_LIMIT, WIRING_VERSION, baseNode, emptyProject, endpointPosition, validEndpoint, NOTES_LIMIT, rowY, portHole, isPhysicalHole, isInputColumn } from "../../src/board/board.mjs";
+import { BOARD, PORT_LAYOUT, RAIL_LAYOUT, IO_LIMIT, WIRING_VERSION, baseNode, copyProject, emptyProject, endpointPosition, validEndpoint, NOTES_LIMIT, rowY, portHole, isPhysicalHole, isInputColumn } from "../../src/board/board.mjs";
 import { createRuntime, emitPulse, readEndpoint, simulate } from "../../src/simulation/engine.mjs";
 import { complementPreset } from "../../src/experiments/presets.mjs";
-import { validateProject } from "../../src/storage/storage.mjs";
+import { STORAGE_KEY, validateProject } from "../../src/storage/storage.mjs";
 import { auditComplement } from "../helpers/preset-audit.mjs";
-import { keepExperiment, validateWorkspace } from "../../src/storage/workspace.mjs";
+import { CLEANUP_BACKUP_KEY, READ_ONLY_KEY, WORKSPACE_KEY, keepExperiment, loadWorkspace, validateWorkspace } from "../../src/storage/workspace.mjs";
 import { objectSelected } from "../../src/board/geometry.mjs";
 import { allEndpoints } from "../../src/board/render.mjs";
 import original from "../fixtures/complement-original.json" with { type: "json" };
@@ -406,6 +406,64 @@ function testWorkspace() {
 
 test("标准接线核对与差异定位", testWiringAudit);
 test("独立实验保存与切换", testWorkspace);
+
+// 首次启动从旧单实验存储恢复时，保留原输入、标题及只读设置
+function testLegacyWorkspaceStartup() {
+    const project = complementPreset();
+    project.name = "旧版实验";
+    project.switches[0] = 1;
+    const storage = new Map();
+    storage.set(STORAGE_KEY, JSON.stringify(project));
+    storage.set(READ_ONLY_KEY, "true");
+    const storageOwner = { localStorage: { getItem: storage.get.bind(storage) } };
+    const restored = loadWorkspace(storageOwner);
+    assert.equal(restored.readOnly, true);
+    assert.equal(restored.warning, "");
+    assert.equal(restored.initializePreset, true);
+    assert.deepEqual(restored.project, project);
+    assert.equal(Object.keys(restored.workspace.projects).length, 2);
+    assert.equal(storage.has(WORKSPACE_KEY), false);
+}
+
+// 去重前保留完整工作区，当前实验中的输入不随初始化被改写
+function testWorkspaceCleanupBackup() {
+    const original = { version: 1, activeId: "first", projects: {} };
+    const project = complementPreset();
+    project.switches[0] = 1;
+    original.projects.first = project;
+    original.projects.duplicate = copyProject(project);
+    const storage = new Map();
+    storage.set(WORKSPACE_KEY, JSON.stringify(original));
+    const storageOwner = {
+        localStorage: { getItem: storage.get.bind(storage), setItem: storage.set.bind(storage) }
+    };
+    const restored = loadWorkspace(storageOwner);
+    assert.equal(restored.removedCount, 1);
+    assert.equal(restored.workspace.activeId, "first");
+    assert.equal(restored.project.switches[0], 1);
+    const backup = JSON.parse(storage.get(CLEANUP_BACKUP_KEY));
+    assert.deepEqual(backup.projects, original.projects);
+    const saved = JSON.parse(storage.get(WORKSPACE_KEY));
+    assert.deepEqual(Object.keys(saved.projects), ["first"]);
+}
+
+// 模拟浏览器禁止访问本地存储，启动时仍可使用默认示例
+function testUnavailableWorkspaceStorage() {
+    const storageOwner = {};
+    // 有些隐私设置会在获取存储对象时就抛错
+    function denyStorage() {
+        throw new Error("本地存储已禁用");
+    }
+    Object.defineProperty(storageOwner, "localStorage", { get: denyStorage });
+    const restored = loadWorkspace(storageOwner);
+    assert.match(restored.warning, /无法恢复/);
+    assert.equal(restored.initializePreset, true);
+    assert.deepEqual(restored.project, complementPreset());
+}
+
+test("启动时恢复旧单实验和只读设置，不主动保存", testLegacyWorkspaceStartup);
+test("工作区去重前保留原始备份", testWorkspaceCleanupBackup);
+test("本地存储不可用时仍能打开默认实验", testUnavailableWorkspaceStorage);
 
 // 画布高亮只读取实际选择，固定资料面板不作为选中依据
 function testSelectionHighlight() {

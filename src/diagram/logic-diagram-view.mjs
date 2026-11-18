@@ -1,15 +1,15 @@
-import { element, node, refreshIcons } from "../ui/dom.mjs";
+import { element, node, refreshIcons, svgElement, SVG_NAMESPACE } from "../ui/dom.mjs";
+import { copyStyledSvg, createExportPalette, encodeSvgImage } from "../ui/image-export.mjs";
+import { bindFileExport } from "../ui/export-dialog.mjs";
 import { buildLogicDiagram } from "./logic-diagram.mjs";
 import { layoutLogicDiagram } from "./logic-diagram-layout.mjs";
 import { bindViewportPan } from "../ui/viewport-pan.mjs";
 import { bindViewportSelection } from "../ui/viewport-selection.mjs";
 import { pathIntersectsRectangle, segmentIntersectsRectangle } from "../ui/selection-geometry.mjs";
+import { wheelZoomFactor } from "../ui/motion.mjs";
 
-// 缩放上下限、步长与下载地址释放时间集中维护
-const VIEW_OPTIONS = {
-    minimum: 0.15, maximum: 2.5, step: 0.15, margin: 24, releaseDelay: 1000,
-    wheelSpeed: 0.0015, wheelLinePixels: 16
-};
+// 图纸的缩放上下限、步长以及适应宽度时预留的空白
+const VIEW_OPTIONS = { minimum: 0.15, maximum: 2.5, step: 0.15, margin: 24 };
 // 逻辑图允许左键和中键平移，布局状态与键盘焦点由图纸界面维护
 const DIAGRAM_PAN_OPTIONS = {
     buttons: [0, 1],
@@ -19,11 +19,8 @@ const DIAGRAM_PAN_OPTIONS = {
 };
 // 逻辑图按真实网络框选，任意支线命中后整组网络一起高亮
 const DIAGRAM_SELECTION_OPTIONS = { canStart: canSelectDiagramArea, onSelect: selectDiagramArea };
-// 导出 SVG 时复制实际样式，文件离开网页后仍保留字号、线色和透明度
-const EXPORT_PROPERTIES = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "font-family", "font-size", "font-weight", "text-anchor", "opacity", "paint-order"];
 // 布局期间暂停图纸操作，关闭按钮始终可用
 const DIAGRAM_CONTROLS = ["logic-export", "logic-show-power", "logic-fit", "logic-zoom-in", "logic-zoom-out", "logic-network"];
-const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 // 引脚短线和反相圈使用图纸坐标，符号不再采用资料卡片的标题栏
 const SYMBOL_DRAW = { bubbleRadius: 3.5, junctionRadius: 4.5, numberOffset: 7, numberRise: 4, labelOffset: 9 };
 let currentDiagram = null;
@@ -35,19 +32,6 @@ let generation = 0;
 let diagramPan = null;
 let diagramSelection = null;
 const selectedNetworks = new Set();
-
-// 创建 SVG 节点，绘图只设置几何属性，配色和字体由样式文件维护
-function svgElement(parent, name, attributes, text = "") {
-    const shape = document.createElementNS(SVG_NAMESPACE, name);
-    for (const key of Object.keys(attributes)) {
-        shape.setAttribute(key, String(attributes[key]));
-    }
-    if (text !== "") {
-        shape.textContent = text;
-    }
-    parent.append(shape);
-    return shape;
-}
 
 // 找到端点所属网络，电源标签和线路点击都使用同一份完整网络
 function terminalNetwork(terminal) {
@@ -293,6 +277,7 @@ async function generateDiagram() {
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
     element("logic-diagram-summary").textContent = "正在生成逻辑图";
+    element("logic-export-error").hidden = true;
     // 清空旧图，避免这次布局失败时显示上一份电路的网络与引脚
     currentGraph = null;
     const svg = element("logic-diagram");
@@ -399,13 +384,8 @@ function wheelLogicDiagram(event) {
     if (!currentGraph || element("logic-diagram-dialog").getAttribute("aria-busy") === "true") {
         return;
     }
-    let delta = event.deltaY;
-    if (event.deltaMode === 1) {
-        delta = delta * VIEW_OPTIONS.wheelLinePixels;
-    } else if (event.deltaMode === 2) {
-        delta = delta * element("logic-diagram-scroll").clientHeight;
-    }
-    const scale = Math.exp(-delta * VIEW_OPTIONS.wheelSpeed);
+    const viewport = element("logic-diagram-scroll");
+    const scale = wheelZoomFactor(event, viewport);
     setLogicZoom(zoom * scale, event);
 }
 
@@ -544,37 +524,18 @@ function changeNetwork(event) {
     selectNetwork(event.currentTarget.value);
 }
 
-// 导出自带样式的 SVG，离开项目目录后仍可直接查看
-function exportLogicDiagram() {
+// 按原始图纸尺寸生成 SVG 或 PNG，缩放和滚动不影响输出
+function createLogicImage(format) {
+    if (!currentGraph) {
+        throw new Error("逻辑图尚未生成");
+    }
     const source = element("logic-diagram");
-    const copy = source.cloneNode(true);
+    const palette = createExportPalette();
+    const copy = copyStyledSvg(source, palette);
     copy.setAttribute("xmlns", SVG_NAMESPACE);
-    copy.removeAttribute("style");
     copy.setAttribute("width", String(currentGraph.width));
     copy.setAttribute("height", String(currentGraph.height));
-    const originals = source.querySelectorAll("*");
-    const copies = copy.querySelectorAll("*");
-    for (let index = 0; index < originals.length; index = index + 1) {
-        const style = window.getComputedStyle(originals[index]);
-        for (const property of EXPORT_PROPERTIES) {
-            copies[index].setAttribute(property, style.getPropertyValue(property));
-        }
-        copies[index].removeAttribute("tabindex");
-        copies[index].removeAttribute("role");
-    }
-    const text = new XMLSerializer().serializeToString(copy);
-    const file = new Blob([text], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(file);
-    const anchor = node("a", "", "");
-    anchor.href = url;
-    anchor.download = "breadboard-logic.svg";
-    anchor.click();
-    window.setTimeout(releaseLogicDownload.bind(null, url), VIEW_OPTIONS.releaseDelay);
-}
-
-// 下载开始后释放临时地址，不留下中间图纸文件
-function releaseLogicDownload(url) {
-    URL.revokeObjectURL(url);
+    return encodeSvgImage(copy, format);
 }
 
 // 将逻辑图控件绑定一次，窗口反复打开时不重复添加监听
@@ -590,7 +551,7 @@ export function bindLogicDiagram() {
     element("logic-fit").addEventListener("click", fitLogicDiagram);
     element("logic-zoom-in").addEventListener("click", zoomInLogicDiagram);
     element("logic-zoom-out").addEventListener("click", zoomOutLogicDiagram);
-    element("logic-export").addEventListener("click", exportLogicDiagram);
+    bindFileExport("logic-export", "logic", createLogicImage);
     element("logic-network").addEventListener("change", changeNetwork);
     viewport.addEventListener("click", clickDiagram);
     element("logic-diagram").addEventListener("keydown", keyDiagram);

@@ -45,6 +45,11 @@ export const GENERAL_NOTES = "# 电路说明\n\n## 功能\n\n填写这个电路�
 // 调色板默认颜色，排列顺序就是界面中的显示顺序
 export const WIRE_COLORS = ["#dc3545", "#1976d2", "#16845b", "#d68a0b", "#8b55c5", "#0d939d", "#d44f93", "#46515f", "#93a619", "#e26c2b", "#8494a7", "#65483d"];
 
+// 检查显示位数是否合法，导入和界面编辑共用相同限制
+export function validIoCount(count) {
+    return Number.isInteger(count) && count >= 1 && count <= IO_LIMIT;
+}
+
 // 将面包板列号转换为横坐标，插孔、接口和脉冲端口共用这个网格
 export function columnX(column) {
     return BOARD.startX + (column - 1) * BOARD.pitch;

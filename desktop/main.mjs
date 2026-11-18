@@ -5,6 +5,7 @@ import { DESKTOP_SETTINGS } from "./settings.mjs";
 import { startUpdates, UPDATE_SETTINGS } from "./updates.mjs";
 import { updateDialogDetail, selectReleaseNotes, plainReleaseNotes } from "./release-notes.mjs";
 import { loadDesktopPage } from "./window-load.mjs";
+import { bindNativeExport } from "./native-export.mjs";
 
 // 桌面程序与网页入口保持相同目录关系，安装后仍从应用内部读取资源
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -12,10 +13,20 @@ const APP_ORIGIN = DESKTOP_SETTINGS.scheme + "://" + DESKTOP_SETTINGS.host;
 const ENTRY_URL = APP_ORIGIN + "/" + DESKTOP_SETTINGS.entry;
 const ICON_PATH = path.join(PROJECT_ROOT, DESKTOP_SETTINGS.icon);
 const ASSET_ROOT = path.join(PROJECT_ROOT, "assets");
+const EXPORT_PRELOAD = path.join(PROJECT_ROOT, "desktop", "export-preload.cjs");
+// 资料窗口只加载应用自带的这些格式，测试开关同时控制窗口显示与更新检查
+const REFERENCE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".pdf"];
+const TEST_MODE_SWITCH = "test-desktop";
 let mainWindow = null;
 let pendingUpdateInstall = null;
 let updates = null;
 let stopping = false;
+let resetNativeExport = null;
+
+// 给导出接口提供当前主窗口，窗口关闭后返回空值
+function getMainWindow() {
+    return mainWindow;
+}
 
 // 把固定应用地址映射到包内文件，校验路径后返回真实文件名，升级不改变网页存储来源
 function bundledPath(address) {
@@ -56,8 +67,9 @@ function localReferencePath(address) {
         if (relative.startsWith("..") || path.isAbsolute(relative)) {
             return "";
         }
-        const extension = path.extname(filename).toLowerCase();
-        if (![".png", ".jpg", ".jpeg", ".pdf"].includes(extension)) {
+        const extension = path.extname(filename);
+        const normalized = extension.toLowerCase();
+        if (!REFERENCE_EXTENSIONS.includes(normalized)) {
             return "";
         }
         return filename;
@@ -91,7 +103,7 @@ function openReference(address) {
         height: DESKTOP_SETTINGS.referenceHeight,
         icon: ICON_PATH,
         parent: mainWindow,
-        show: !app.commandLine.hasSwitch("test-desktop"),
+        show: !app.commandLine.hasSwitch(TEST_MODE_SWITCH),
         webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
     });
     reference.webContents.setWindowOpenHandler(denyNewWindow);
@@ -141,7 +153,7 @@ function confirmUnsavedExit(event) {
     }
 }
 
-// JSON、PNG 和 SVG 导出沿用页面下载，通过原生保存窗口选择位置
+// 其他浏览器下载仍通过原生保存窗口选择位置
 function prepareDownload(event, item) {
     item.setSaveDialogOptions({
         title: "导出实验文件",
@@ -157,6 +169,7 @@ function reportDesktopError(error) {
 
 // 主窗口关闭后释放引用，下次激活时可以创建新窗口
 function clearMainWindow() {
+    resetNativeExport();
     mainWindow = null;
     if (pendingUpdateInstall) {
         const install = pendingUpdateInstall;
@@ -238,7 +251,7 @@ async function offerUpdateInstall(version, install, releaseNotes) {
 
 // 仅发行版开启网络更新，测试与开发入口不访问 GitHub
 async function initializeUpdates() {
-    if (!app.isPackaged || app.commandLine.hasSwitch("test-desktop")) {
+    if (!app.isPackaged || app.commandLine.hasSwitch(TEST_MODE_SWITCH)) {
         return;
     }
     const updaterModule = await import("electron-updater");
@@ -272,7 +285,7 @@ function prepareUpdates() {
     initializeUpdates().catch(logUpdateError);
 }
 
-// 创建独立桌面窗口，网页只能访问浏览器能力，不直接访问 Node.js 或系统接口
+// 主窗口保持沙盒，只通过受限的导出接口请求系统保存窗口
 function createMainWindow() {
     mainWindow = new BrowserWindow({
         title: DESKTOP_SETTINGS.title,
@@ -282,12 +295,13 @@ function createMainWindow() {
         minHeight: DESKTOP_SETTINGS.minimumHeight,
         icon: ICON_PATH,
         backgroundColor: DESKTOP_SETTINGS.backgroundColor,
-        show: !app.commandLine.hasSwitch("test-desktop"),
-        webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
+        show: !app.commandLine.hasSwitch(TEST_MODE_SWITCH),
+        webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, preload: EXPORT_PRELOAD }
     });
     mainWindow.webContents.setWindowOpenHandler(handleNewWindow);
     mainWindow.webContents.on("will-navigate", preventMainNavigation);
     mainWindow.webContents.on("will-prevent-unload", confirmUnsavedExit);
+    mainWindow.webContents.on("did-start-loading", resetNativeExport);
     mainWindow.webContents.once("did-finish-load", prepareUpdates);
     mainWindow.on("closed", clearMainWindow);
     loadDesktopPage(mainWindow, ENTRY_URL, reportDesktopError);
@@ -323,6 +337,7 @@ function quitAfterWindowsClosed() {
 function startDesktop() {
     Menu.setApplicationMenu(null);
     protocol.handle(DESKTOP_SETTINGS.scheme, serveBundledFile);
+    resetNativeExport = bindNativeExport(getMainWindow, ENTRY_URL);
     createMainWindow();
     mainWindow.webContents.session.on("will-download", prepareDownload);
     app.on("activate", activateApplication);

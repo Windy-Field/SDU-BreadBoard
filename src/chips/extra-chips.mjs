@@ -1,3 +1,6 @@
+// 74LS160 和 74LS161 共用同一套接脚，计数进位只受第二路使能控制
+const COUNTER_CONTROLS = { clock: 2, reset: 1, load: 9, enable: [7, 10], data: [3, 4, 5, 6], carry: 15 };
+
 // 新增型号严格使用用户材料中的物理脚号；已有型号由 chips.mjs 原样保留
 export const EXTRA_CHIPS = {
     "6116": {
@@ -133,6 +136,7 @@ export const EXTRA_CHIPS = {
         inputs: [1, 2, 3, 4, 5, 6, 7],
         outputs: [13, 12, 11, 10, 9, 15, 14, 4],
         bidirectional: [4],
+        controls: { lampTest: 3, blanking: 4, rippleBlanking: 5 },
         kind: "seven-segment"
     },
     "74LS74": {
@@ -190,6 +194,7 @@ export const EXTRA_CHIPS = {
         inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
         outputs: [14, 13, 12, 11, 15],
         sequential: "counter",
+        controls: COUNTER_CONTROLS,
         modulus: 10
     },
     "74LS161": {
@@ -201,6 +206,7 @@ export const EXTRA_CHIPS = {
         inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10],
         outputs: [14, 13, 12, 11, 15],
         sequential: "counter",
+        controls: COUNTER_CONTROLS,
         modulus: 16
     },
     "74LS194": {
@@ -211,6 +217,7 @@ export const EXTRA_CHIPS = {
         labels: ["", "CLR′", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"],
         inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11],
         outputs: [12, 13, 14, 15],
+        controls: { clock: 2, reset: 1, mode: [9, 10], right: 3, left: 11, data: [4, 5, 6, 7] },
         sequential: "shift"
     }
 };

@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import path from "node:path";
-import fs from "node:fs";
+import { readImageDownload } from "../helpers/downloads.mjs";
 import { pathToFileURL } from "node:url";
 import { complementPreset } from "../../src/experiments/presets.mjs";
 import { emptyProject, endpointPosition, portHole, BOARD } from "../../src/board/board.mjs";
@@ -44,11 +44,8 @@ async function clickPoint(page, point) {
 // 导出当前实验供断言，不依赖编译产物中的私有变量
 async function exportedProject(page) {
     await page.waitForFunction(routingFinished);
-    const waiting = page.waitForEvent("download");
-    await page.locator("#export-project").click();
-    const download = await waiting;
-    const file = await download.path();
-    return JSON.parse(fs.readFileSync(file, "utf8"));
+    const content = await readImageDownload(page, "#export-project", "json", "breadboard-circuit.json");
+    return JSON.parse(content.toString("utf8"));
 }
 
 // 通过导入控件载入测试数据，不直接改动应用内存
@@ -58,7 +55,7 @@ async function importFixture(page, project) {
     await page.locator("#import-file").setInputFiles(file);
 }
 
-// 确认取消、不保存和保存三种切换结果，复用空白实验时不能撤销到上一份电路
+// 确认不保存会放弃改动或移除新实验，取消和保存仍按原方式处理
 async function testUnsavedExperimentSwitch(browser) {
     const page = await browser.newPage({ viewport: { width: 375, height: 900 } });
     try {
@@ -67,12 +64,23 @@ async function testUnsavedExperimentSwitch(browser) {
         const dialog = page.locator("#switch-dialog");
         const original = await picker.inputValue();
         await page.locator("#save-project").click();
+        const savedInitial = await page.evaluate(readSavedWorkspace);
+        await page.locator("#new-experiment").click();
+        const unsavedBlank = await picker.inputValue();
+        await picker.selectOption(original, { force: true });
+        await page.getByRole("button", { name: "不保存并切换", exact: true }).click();
+        assert.equal(await picker.inputValue(), original);
+        assert.equal(await picker.locator("option[value='" + unsavedBlank + "']").count(), 0);
+        assert.deepEqual(await page.evaluate(readSavedWorkspace), savedInitial);
+        assert.equal(await page.evaluate(hasUnloadWarning), false);
+
         await page.locator("#new-experiment").click();
         const blank = await picker.inputValue();
         await page.locator("#save-project").click();
         await picker.selectOption(original, { force: true });
         const switchButton = page.getByRole("button", { name: "切换 K0", exact: true });
         await switchButton.click();
+        assert.equal(await page.evaluate(hasUnloadWarning), true);
         const saved = await page.evaluate(readSavedWorkspace);
         await page.locator("#new-experiment").click();
         assert.equal(await dialog.isVisible(), true);
@@ -89,7 +97,17 @@ async function testUnsavedExperimentSwitch(browser) {
         assert.equal(await page.locator("#wire-count").textContent(), "0");
         assert.deepEqual(await page.evaluate(readSavedWorkspace), saved);
         await picker.selectOption(original, { force: true });
-        assert.equal(await switchButton.getAttribute("aria-pressed"), "true");
+        assert.equal(await switchButton.getAttribute("aria-pressed"), "false");
+        assert.equal(await page.locator("#save-status").textContent(), "无未保存更改");
+        await picker.selectOption(blank, { force: true });
+        assert.equal(await dialog.isVisible(), false);
+        assert.equal(await picker.inputValue(), blank);
+        assert.deepEqual(await page.evaluate(readSavedWorkspace), saved);
+        assert.equal(await page.evaluate(hasUnloadWarning), false);
+
+        await picker.selectOption(original, { force: true });
+        const secondSwitchButton = page.getByRole("button", { name: "切换 K1", exact: true });
+        await secondSwitchButton.click();
         await picker.selectOption(blank, { force: true });
         assert.equal(await dialog.isVisible(), true);
         await page.locator("#switch-cancel").click();
@@ -100,7 +118,9 @@ async function testUnsavedExperimentSwitch(browser) {
         await page.locator("#switch-save").click();
         assert.equal(await picker.inputValue(), blank);
         const confirmed = await page.evaluate(readSavedWorkspace);
-        assert.equal(confirmed.projects[original].switches[0], 1);
+        assert.equal(confirmed.projects[original].switches[0], 0);
+        assert.equal(confirmed.projects[original].switches[1], 1);
+        assert.equal(await page.evaluate(hasUnloadWarning), false);
 
         await page.getByRole("button", { name: "切换 K0", exact: true }).click();
         await page.locator("#autosave-toggle").check();
@@ -111,6 +131,13 @@ async function testUnsavedExperimentSwitch(browser) {
     } finally {
         await page.close();
     }
+}
+
+// 触发离开检查但不关闭页面，返回程序是否要求确认
+function hasUnloadWarning() {
+    const event = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(event);
+    return event.defaultPrevented;
 }
 
 // 检查对话框打开后键盘是否落在取消按钮上
@@ -154,6 +181,24 @@ async function testWorkspaceImport(browser) {
         const savedNotice = page.locator(".toast").filter({ hasText: "实验备份已导入并保存" });
         await savedNotice.waitFor();
         assert.equal(await notice.count(), 0);
+
+        // 放弃备份中的一份实验后，保存其他实验也不会把它重新写入
+        await page.locator("#autosave-toggle").uncheck();
+        const original = await picker.inputValue();
+        const discarded = emptyProject();
+        discarded.name = "将放弃的备份实验";
+        const pending = { version: 1, activeId: "discarded", projects: { discarded: discarded } };
+        await importFixture(page, pending);
+        const discardedOption = picker.locator("option", { hasText: discarded.name });
+        await discardedOption.waitFor({ state: "attached" });
+        const discardedId = await discardedOption.getAttribute("value");
+        await picker.selectOption(discardedId, { force: true });
+        await picker.selectOption(original, { force: true });
+        await page.locator("#switch-without-saving").click();
+        assert.equal(await discardedOption.count(), 0);
+        await page.locator("#save-project").click();
+        const savedAfterDiscard = await page.evaluate(readSavedWorkspace);
+        assert.equal(Object.hasOwn(savedAfterDiscard.projects, discardedId), false);
     } finally {
         await page.close();
     }
@@ -915,9 +960,7 @@ async function main() {
         assert.equal(savedBlank.projects[presetId].switches[0], 0);
         assert.equal(savedBlank.projects[blankId].name, "空白实验手动保存");
         await page.locator("#experiment-picker").selectOption(presetId, { force: true });
-        assert.equal(await page.getByRole("button", { name: "切换 K0", exact: true }).getAttribute("aria-pressed"), "true");
-        await page.keyboard.press("Control+s");
-        assert.equal((await page.evaluate(readSavedWorkspace)).projects[presetId].switches[0], 1);
+        assert.equal(await page.getByRole("button", { name: "切换 K0", exact: true }).getAttribute("aria-pressed"), "false");
         await page.locator("#experiment-picker").selectOption(blankId, { force: true });
         await testDirectPlacement(page);
         await page.locator("#from-endpoint").fill("B0:A:1");

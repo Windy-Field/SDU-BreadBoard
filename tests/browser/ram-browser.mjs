@@ -2,6 +2,7 @@ import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { confirmBrowserDownload } from "../helpers/downloads.mjs";
 import { pathToFileURL } from "node:url";
 import { RAM_INPUTS, RAM_EXPERIMENT_ID } from "../../src/experiments/ram-preset.mjs";
 import { APP_VERSION } from "../../src/version.mjs";
@@ -145,9 +146,7 @@ async function main() {
         }
         await page.setViewportSize({ width: 1600, height: 1000 });
         await page.locator("#save-project").click();
-        const downloadEvent = page.waitForEvent("download");
-        await page.locator("#export-project").click();
-        const download = await downloadEvent;
+        const download = await confirmBrowserDownload(page, "#export-project", "json");
         const exportedPath = path.join(REPORT_DIRECTORY, "ram-roundtrip.json");
         await download.saveAs(exportedPath);
         const project = JSON.parse(fs.readFileSync(exportedPath, "utf8"));

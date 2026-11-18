@@ -1,8 +1,21 @@
 // 动效时长单位为毫秒，电路计算不等待动画
 export const MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
+// 面包板和逻辑图共用滚轮灵敏度，按行滚动时先换算为像素
+const WHEEL_ZOOM = { sensitivity: 0.0015, linePixels: 16 };
 const transitions = new Map();
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let frame = 0;
+
+// 按浏览器的滚轮单位换算步长，返回这一次滚动的缩放倍率
+export function wheelZoomFactor(event, viewport) {
+    let pixels = event.deltaY;
+    if (event.deltaMode === 1) {
+        pixels = pixels * WHEEL_ZOOM.linePixels;
+    } else if (event.deltaMode === 2) {
+        pixels = pixels * viewport.clientHeight;
+    }
+    return Math.exp(-pixels * WHEEL_ZOOM.sensitivity);
+}
 
 // 对进行中的数值过渡计算当前值，参数为进度，返回平滑进度
 function easing(progress) {

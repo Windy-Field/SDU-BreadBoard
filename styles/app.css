@@ -2,6 +2,7 @@
 @import url("tokens.css");
 @import url("select.css");
 @import url("logic-diagram.css");
+@import url("timing.css");
 :root {
     /* 工作台左右栏宽度 */
     --sidebar-width: 214px;
@@ -14,9 +15,8 @@
     --experiments-max-height: 31dvh;
     /* 芯片条目的最小高度 */
     --chip-option-height: 68px;
-    /* 画布内边距和悬浮提示等待时间 */
+    /* 画布内边距 */
     --board-padding: 10px;
-    --tooltip-delay: 800ms;
     /* 走线方式选择框宽度，防止切换选项时工具栏跳动 */
     --wire-angle-width: 112px;
     /* 校名图片位于输入输出配置上方，按原比例显示 */
@@ -58,12 +58,21 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
 #save-status { font-size: 11px; color: var(--color-muted); white-space: nowrap; }
 .header-actions { display: flex; align-items: center; gap: 6px; }
 .icon-button { width: 34px; height: 34px; border-color: transparent; display: inline-flex; justify-content: center; align-items: center; padding: 0; flex: 0 0 34px; position: relative; }
-[data-tip] { position: relative; }
-[data-tip]::after { content: attr(data-tip); position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); padding: 6px 9px; background: var(--color-ink); color: var(--color-paper); border-radius: 4px; font-size: 12px; white-space: nowrap; pointer-events: none; opacity: 0; z-index: var(--z-tooltip); }
-@media (hover: hover) and (pointer: fine) {
-    [data-tip]:hover::after { opacity: 1; transition: opacity var(--dur-micro) var(--ease-out) var(--tooltip-delay); }
+.workbench-tooltip {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    width: max-content;
+    max-width: calc(100% - var(--tooltip-edge) * 2);
+    padding: 6px 9px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font: 12px/1.5 var(--font-body);
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
-[data-tip]:focus-visible::after { opacity: 1; }
 .power-control { display: flex; align-items: center; gap: 6px; border-left: 1px solid var(--color-rule); margin-left: 5px; padding-left: 14px; white-space: nowrap; cursor: pointer; }
 .power-control input { width: 15px; height: 15px; }
 .power-dot, .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-success); display: inline-block; }
@@ -95,7 +104,7 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
 .palette { display: grid; grid-template-columns: repeat(6, 20px); gap: 6px; align-items: center; width: max-content; flex-shrink: 0; }
 .swatch { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--color-surface); outline: 1px solid transparent; padding: 0; }
 .swatch.active { outline: 2px solid var(--color-ink); outline-offset: 1px; }
-.custom-color { width: 28px; height: 30px; display: grid; place-items: center; overflow: hidden; cursor: pointer; }
+.custom-color { position: relative; width: 28px; height: 30px; display: grid; place-items: center; overflow: hidden; cursor: pointer; }
 .custom-color input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; }
 .toolbar-end { margin-left: auto; display: flex; align-items: center; gap: 1px; }
 .wire-angle-control { width: var(--wire-angle-width); flex: 0 0 var(--wire-angle-width); }
@@ -268,7 +277,7 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
     .terminal-connect h2 { grid-column: 1 / 4; }
     .terminal-connect .button { grid-column: auto; }
     .swatch { width: 18px; height: 18px; }
-    .toolbar-end { margin-left: 0; flex: 1 0 100%; flex-wrap: nowrap; justify-content: flex-end; }
+    .toolbar-end { margin-left: 0; flex: 1 0 100%; min-width: 0; flex-wrap: wrap; justify-content: flex-end; }
     .board-status { gap: 8px; }
     .rail-note { width: 100%; }
     .app-footer > span:last-child { display: none; }
@@ -304,6 +313,8 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .autosave-control { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; color: var(--color-muted); font-size: 11px; }
 .release-info { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-mono); white-space: nowrap; }
 .dialog-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 20px 20px; }
+#export-dialog { width: min(320px, calc(100% - 32px)); }
+.export-field { gap: 6px; }
 #switch-dialog .dialog-actions { flex-wrap: wrap; }
 .button.danger { color: var(--color-accent-ink); background: var(--color-error); border-color: var(--color-error); }
 .chip-option > span { min-width: 0; }
@@ -346,7 +357,6 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .splitter-adjust svg.lucide { width: 12px; height: 12px; flex-basis: 12px; }
 .inspection-pane .pin-table, .inspector-content .pin-table { table-layout: fixed; }
 .inspection-pane .pin-table td, .inspection-pane .pin-table th, .inspection-pane .pin-table button, .inspector-content .pin-table td, .inspector-content .pin-table th, .inspector-content .pin-table button { white-space: normal; overflow-wrap: anywhere; }
-.inspector [data-tip]::after { left: auto; right: 0; transform: none; max-width: 220px; white-space: normal; overflow-wrap: anywhere; }
 @media (min-width: 701px) {
     html, body { height: 100%; overflow: hidden; }
     body { display: flex; flex-direction: column; height: 100dvh; }
