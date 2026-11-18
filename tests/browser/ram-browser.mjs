@@ -160,6 +160,7 @@ async function main() {
         assert.equal(await page.locator("#binary-result").textContent(), "XXXX XXXX");
         await page.locator("#new-project").click();
         await page.locator("#import-file").setInputFiles(exportedPath);
+        await page.locator("#switch-without-saving").click();
         await page.getByRole("button", { name: "切换 K15", exact: true }).waitFor();
         assert.equal(await page.locator("#binary-result").textContent(), "XXXX XXXX");
         await writeByte(page, 10, 85);

@@ -54,6 +54,34 @@ function boardZoomReady() {
     return document.getElementById("zoom-label").textContent === "200%";
 }
 
+// 连续派发鼠标移动，记录两帧内实画的次数并恢复画布原有方法
+async function countHoverPaints(point) {
+    const canvas = document.getElementById("board-canvas");
+    const bounds = canvas.getBoundingClientRect();
+    const context = canvas.getContext("2d");
+    const clear = context.clearRect;
+    let paints = 0;
+    // 只记录清屏次数，不改变清屏参数或绘制结果
+    function countClear(left, top, width, height) {
+        paints = paints + 1;
+        clear.call(context, left, top, width, height);
+    }
+    context.clearRect = countClear;
+    try {
+        const clientX = bounds.left + point.x / canvas.clientWidth * bounds.width;
+        const clientY = bounds.top + point.y / canvas.clientHeight * bounds.height;
+        for (let index = 40; index >= 0; index = index - 1) {
+            const location = { clientX: clientX + index, clientY: clientY };
+            canvas.dispatchEvent(new PointerEvent("pointermove", location));
+        }
+        await new Promise(requestAnimationFrame);
+        await new Promise(requestAnimationFrame);
+        return paints;
+    } finally {
+        context.clearRect = clear;
+    }
+}
+
 // 导出当前实验核对平移前后结构不变，不读取应用内部状态
 async function readProject(page) {
     const waiting = page.waitForEvent("download");
@@ -130,6 +158,9 @@ async function main() {
     try {
         await page.goto(pathToFileURL(path.join(process.cwd(), "index.html")).href);
         await page.locator("#new-experiment").click();
+        const hoverHole = endpointPosition("B0:A:4");
+        assert.equal(await page.evaluate(countHoverPaints, hoverHole), 1);
+        assert.match(await page.locator("#pointer-status").textContent(), /A4/);
         await testBoardPan(page);
         const linePoint = { x: endpointPosition("L0").x, y: 83 };
         const defaultPixel = await page.evaluate(readConnectionPixel, linePoint);
@@ -178,11 +209,16 @@ async function main() {
         await page.locator("#from-endpoint").fill("R:GND:0");
         await page.locator("#to-endpoint").fill("R:VCC:0");
         await page.locator("#connect-endpoints").click();
-        assert.ok((await page.evaluate(readLabels)).includes("X"), "冲突节点应显示 X");
+        await page.waitForFunction(conflictLabelDrawn);
         console.log("板面验证通过：左键平移和抓握光标、工具与只读兼容、移出释放、板载标识不可插线、真实孔连接、直连电平、内部示意和字符电平标签");
     } finally {
         await browser.close();
     }
+}
+
+// 等待异步布线成功后画出冲突电平，不把一次点击等同于接线完成
+function conflictLabelDrawn() {
+    return window.boardLabels.includes("X");
 }
 
 // 滚动画布到输入板附近，不影响左侧或整个页面

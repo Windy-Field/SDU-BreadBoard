@@ -4,7 +4,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import { complementPreset } from "../../src/experiments/presets.mjs";
-import { emptyProject, endpointPosition, BOARD } from "../../src/board/board.mjs";
+import { emptyProject, endpointPosition, portHole, BOARD } from "../../src/board/board.mjs";
 import { CHIP_MODELS } from "../../src/chips/chips.mjs";
 import { sortedChipNames } from "../../src/chips/catalog.mjs";
 import originalPreset from "../fixtures/complement-original.json" with { type: "json" };
@@ -49,6 +49,209 @@ async function exportedProject(page) {
     const download = await waiting;
     const file = await download.path();
     return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+// 通过导入控件载入测试数据，不直接改动应用内存
+async function importFixture(page, project) {
+    const buffer = Buffer.from(JSON.stringify(project));
+    const file = { name: "fixture.json", mimeType: "application/json", buffer: buffer };
+    await page.locator("#import-file").setInputFiles(file);
+}
+
+// 确认取消、不保存和保存三种切换结果，复用空白实验时不能撤销到上一份电路
+async function testUnsavedExperimentSwitch(browser) {
+    const page = await browser.newPage({ viewport: { width: 375, height: 900 } });
+    try {
+        await page.goto(URL);
+        const picker = page.locator("#experiment-picker");
+        const dialog = page.locator("#switch-dialog");
+        const original = await picker.inputValue();
+        await page.locator("#save-project").click();
+        await page.locator("#new-experiment").click();
+        const blank = await picker.inputValue();
+        await page.locator("#save-project").click();
+        await picker.selectOption(original, { force: true });
+        const switchButton = page.getByRole("button", { name: "切换 K0", exact: true });
+        await switchButton.click();
+        const saved = await page.evaluate(readSavedWorkspace);
+        await page.locator("#new-experiment").click();
+        assert.equal(await dialog.isVisible(), true);
+        assert.equal(await picker.inputValue(), original);
+        assert.equal(await page.locator("#switch-cancel").evaluate(isFocused), true);
+        await page.keyboard.press("Escape");
+        assert.equal(await dialog.isVisible(), false);
+        assert.equal(await picker.inputValue(), original);
+        await page.locator("#new-experiment").click();
+        await page.locator("#switch-without-saving").click();
+        assert.equal(await picker.inputValue(), blank);
+        assert.equal(await page.locator("#undo").isDisabled(), true);
+        assert.equal(await page.locator("#redo").isDisabled(), true);
+        assert.equal(await page.locator("#wire-count").textContent(), "0");
+        assert.deepEqual(await page.evaluate(readSavedWorkspace), saved);
+        await picker.selectOption(original, { force: true });
+        assert.equal(await switchButton.getAttribute("aria-pressed"), "true");
+        await picker.selectOption(blank, { force: true });
+        assert.equal(await dialog.isVisible(), true);
+        await page.locator("#switch-cancel").click();
+        assert.equal(await picker.inputValue(), original);
+        const unsaved = await page.evaluate(readSavedWorkspace);
+        assert.equal(unsaved.projects[original].switches[0], 0);
+        await picker.selectOption(blank, { force: true });
+        await page.locator("#switch-save").click();
+        assert.equal(await picker.inputValue(), blank);
+        const confirmed = await page.evaluate(readSavedWorkspace);
+        assert.equal(confirmed.projects[original].switches[0], 1);
+
+        await page.getByRole("button", { name: "切换 K0", exact: true }).click();
+        await page.locator("#autosave-toggle").check();
+        await picker.selectOption(original, { force: true });
+        assert.equal(await dialog.isVisible(), false);
+        const automatic = await page.evaluate(readSavedWorkspace);
+        assert.equal(automatic.projects[blank].switches[0], 1);
+    } finally {
+        await page.close();
+    }
+}
+
+// 检查对话框打开后键盘是否落在取消按钮上
+function isFocused(button) {
+    return document.activeElement === button;
+}
+
+// 导入的多份实验一次保存，刷新后名称和内容仍在各自的实验中
+async function testWorkspaceImport(browser) {
+    const page = await browser.newPage();
+    try {
+        await page.goto(URL);
+        const first = emptyProject();
+        first.name = "备份实验甲";
+        first.switches[0] = 1;
+        const second = emptyProject();
+        second.name = "备份实验乙";
+        second.power = false;
+        const backup = { version: 1, activeId: "first", projects: { first: first, second: second } };
+        await importFixture(page, backup);
+        const picker = page.locator("#experiment-picker");
+        const firstOption = picker.locator("option", { hasText: first.name });
+        const secondOption = picker.locator("option", { hasText: second.name });
+        await secondOption.waitFor({ state: "attached" });
+        assert.equal(await page.evaluate(readSavedWorkspace), null);
+        const notice = page.locator(".toast").filter({ hasText: "按 Ctrl+S 保存尚未写入的备份" });
+        assert.equal(await notice.count(), 1);
+        assert.equal(await page.locator("#save-status").textContent(), "导入的备份未保存");
+        const firstId = await firstOption.getAttribute("value");
+        const secondId = await secondOption.getAttribute("value");
+        await page.keyboard.press("Control+s");
+        await notice.waitFor({ state: "detached" });
+        await page.reload();
+        assert.equal(await firstOption.count(), 1);
+        assert.equal(await secondOption.count(), 1);
+        const saved = await page.evaluate(readSavedWorkspace);
+        assert.deepEqual(saved.projects[firstId], first);
+        assert.deepEqual(saved.projects[secondId], second);
+        await page.locator("#autosave-toggle").check();
+        await importFixture(page, backup);
+        const savedNotice = page.locator(".toast").filter({ hasText: "实验备份已导入并保存" });
+        await savedNotice.waitFor();
+        assert.equal(await notice.count(), 0);
+    } finally {
+        await page.close();
+    }
+}
+
+// 过期诊断随电路状态或实验切换而撤下，重复操作不堆叠相同错误
+async function testNoticeLifecycle(browser) {
+    const page = await browser.newPage({ reducedMotion: "reduce" });
+    try {
+        await page.goto(URL);
+        const power = page.locator("#power-toggle");
+        await power.uncheck();
+        const pulse = page.locator("#pulse-positive");
+        await pulse.click();
+        await pulse.click();
+        const notices = page.locator(".toast").filter({ hasText: "请先打开电源再发脉冲" });
+        assert.equal(await notices.count(), 1);
+
+        await page.locator("#diagnose-circuit").click();
+        const diagnostics = page.locator(".toast").filter({ hasText: "可查看芯片供电与接线状态" });
+        assert.equal(await diagnostics.count(), 1);
+        await power.check();
+        assert.equal(await diagnostics.count(), 0);
+        assert.equal(await notices.count(), 0);
+
+        await power.uncheck();
+        await pulse.click();
+        assert.equal(await notices.count(), 1);
+        await page.locator("#new-experiment").click();
+        await page.locator("#switch-without-saving").click();
+        assert.equal(await notices.count(), 0);
+        assert.equal(await page.locator("#action-status").textContent(), "就绪");
+    } finally {
+        await page.close();
+    }
+}
+
+// 通过连到 L0 的脉冲检查右键不触发，左键仍在按下和松开时改变电平
+async function testPulseButtons(browser) {
+    const page = await browser.newPage();
+    try {
+        await page.goto(URL);
+        const project = emptyProject();
+        project.name = "脉冲按钮测试";
+        project.outputCount = 1;
+        project.wires.push({ id: "W1", from: portHole("P+"), to: portHole("L0"), color: "#1976d2", bends: [] });
+        await importFixture(page, project);
+        const output = page.locator("#binary-result");
+        const picker = page.locator("#experiment-picker-trigger");
+        const experimentName = picker.getByText(project.name, { exact: true });
+        await experimentName.waitFor();
+        await page.locator("#pulse-positive").hover();
+        await page.mouse.down({ button: "right" });
+        assert.equal(await output.textContent(), "0");
+        await page.mouse.up({ button: "right" });
+        await page.mouse.down();
+        assert.equal(await output.textContent(), "1");
+        await page.mouse.up();
+        assert.equal(await output.textContent(), "0");
+    } finally {
+        await page.close();
+    }
+}
+
+// 拖出画布后松手应保留原路径，保存并刷新仍能打开同一份实验
+async function testOutsideBend(browser) {
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, reducedMotion: "reduce" });
+    try {
+        await page.goto(URL);
+        const project = emptyProject();
+        project.name = "导线转折点测试";
+        const bend = { x: 252, y: 92 };
+        const wire = { id: "W1", from: "B0:A:4", to: "B0:A:16", color: "#1976d2", bends: [bend] };
+        project.wires.push(wire);
+        await importFixture(page, project);
+        await page.locator("#wire-angle-trigger").click();
+        await page.locator("#wire-angle-option-0").click();
+        await page.locator("#tool-select").click();
+        await page.locator("#tab-wires").click();
+        const wireButtons = page.locator("#wires-panel button[data-wire='W1']");
+        await wireButtons.first().click();
+        const position = await screenPoint(page, bend);
+        const bounds = await page.locator("#board-canvas").boundingBox();
+        await page.mouse.move(position.x, position.y);
+        await page.mouse.down();
+        await page.mouse.move(position.x, bounds.y - 30, { steps: 5 });
+        await page.mouse.up();
+        const warning = page.getByText("请在画布内放置转折点", { exact: false });
+        const firstWarning = warning.first();
+        await firstWarning.waitFor();
+        assert.deepEqual((await exportedProject(page)).wires, project.wires);
+        await page.locator("#save-project").click();
+        await page.reload();
+        assert.equal(await page.locator("#project-name").inputValue(), project.name);
+        assert.deepEqual((await exportedProject(page)).wires, project.wires);
+    } finally {
+        await page.close();
+    }
 }
 
 // 记录脚本错误，最后一并检查
@@ -129,6 +332,7 @@ async function testAngleWiring(browser) {
         assert.deepEqual((await exportedProject(page)).wires, arranged.wires);
         const payload = Buffer.from(JSON.stringify(arranged));
         await page.locator("#import-file").setInputFiles({ name: "angled.json", mimeType: "application/json", buffer: payload });
+        await page.locator("#switch-without-saving").click();
         assert.deepEqual((await exportedProject(page)).wires, arranged.wires);
         await page.locator("#wire-angle-trigger").click();
         await page.locator("#wire-angle-option-1").click();
@@ -231,6 +435,7 @@ async function testPresetRouting(page) {
     imported.name = "旧版走线测试";
     const payload = Buffer.from(JSON.stringify(imported));
     await page.locator("#import-file").setInputFiles({ name: "original.json", mimeType: "application/json", buffer: payload });
+    await page.locator("#switch-without-saving").click();
     await page.waitForFunction(importedPresetReady);
     const before = await exportedProject(page);
     await page.locator("#arrange-wires").click();
@@ -282,6 +487,7 @@ function verifyDisplaySpacing(project) {
 // 整理成功和失败时等待 Toast 都能消失，成功提示继续保留
 async function testRoutingToast(page) {
     await page.locator("#new-experiment").click();
+    await page.locator("#switch-without-saving").click();
     await page.locator("#from-endpoint").fill("B0:A:1");
     await page.locator("#to-endpoint").fill("B0:J:20");
     await page.locator("#connect-endpoints").click();
@@ -304,6 +510,7 @@ function importedPresetReady() {
 // 用普通电路在页面中整理路径，核对两端与颜色保留，并可撤销
 async function testGeneralWireRouting(page) {
     await page.locator("#new-experiment").click();
+    await page.locator("#switch-without-saving").click();
     await page.locator("#from-endpoint").fill("B0:A:1");
     await page.locator("#to-endpoint").fill("B0:J:20");
     await page.locator("#connect-endpoints").click();
@@ -679,6 +886,11 @@ async function main() {
         await page.waitForSelector(".chip-option");
         await page.waitForTimeout(250);
         await testLibraryOrder(page);
+        await testUnsavedExperimentSwitch(browser);
+        await testWorkspaceImport(browser);
+        await testNoticeLifecycle(browser);
+        await testPulseButtons(browser);
+        await testOutsideBend(browser);
         await testAngleWiring(browser);
         await testGeneralDiagnostics(page);
         const headings = page.locator("h1");
@@ -691,13 +903,13 @@ async function main() {
         await page.getByRole("button", { name: "切换 K0", exact: true }).click();
         assert.equal((await page.evaluate(readSavedWorkspace)).projects[presetId].switches[0], 0);
         await page.locator("#new-experiment").click();
+        await page.locator("#switch-without-saving").click();
         const blankId = await page.locator("#experiment-picker").inputValue();
         const count = await page.locator("#experiment-picker option").count();
         await page.locator("#new-experiment").click();
         assert.equal(await page.locator("#experiment-picker").inputValue(), blankId);
         assert.equal(await page.locator("#experiment-picker option").count(), count);
         await page.locator("#project-name").fill("空白实验手动保存");
-        await page.locator("#project-name").press("Tab");
         await page.keyboard.press("Control+s");
         const savedBlank = await page.evaluate(readSavedWorkspace);
         assert.equal(savedBlank.projects[presetId].switches[0], 0);

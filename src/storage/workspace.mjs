@@ -56,11 +56,10 @@ export function findBlankExperiment(workspace) {
     return "";
 }
 
-// 去掉多余空白和完全相同的补码副本，保留有独立编辑内容的实验
+// 只去掉内容完全相同的空白或补码副本，优先保留当前实验
 export function cleanWorkspace(workspace) {
     const removed = [];
-    let blank = "";
-    const signatures = new Map();
+    const signatures = new Set();
     const ids = Object.keys(workspace.projects);
     if (ids.includes(workspace.activeId)) {
         ids.splice(ids.indexOf(workspace.activeId), 1);
@@ -68,23 +67,15 @@ export function cleanWorkspace(workspace) {
     }
     for (const id of ids) {
         const project = workspace.projects[id];
-        let duplicate = "";
-        if (isBlankExperiment(project)) {
-            duplicate = blank;
-            if (blank === "") {
-                blank = id;
-            }
-        } else if (project.name === "双符号位补码运算器") {
-            const signature = JSON.stringify({ chips: project.chips, wires: project.wires, notes: project.notes, inputCount: project.inputCount, outputCount: project.outputCount, pullUps: project.pullUps });
-            if (signatures.has(signature)) {
-                duplicate = signatures.get(signature);
-            } else {
-                signatures.set(signature, id);
-            }
+        if (!isBlankExperiment(project) && project.name !== "双符号位补码运算器") {
+            continue;
         }
-        if (duplicate !== "") {
+        const signature = JSON.stringify(project);
+        if (signatures.has(signature)) {
             removed.push(id);
             delete workspace.projects[id];
+        } else {
+            signatures.add(signature);
         }
     }
     return removed;

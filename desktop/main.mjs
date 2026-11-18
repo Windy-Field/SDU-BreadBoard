@@ -127,8 +127,8 @@ function confirmUnsavedExit(event) {
     const choice = dialog.showMessageBoxSync(mainWindow, {
         type: "question",
         title: "实验尚未保存",
-        message: "当前实验有未保存的更改，确定离开吗？",
-        detail: "选择返回后，可以按 Ctrl+S 保存当前实验",
+        message: "还有未保存的实验或备份，确定离开吗？",
+        detail: "选择返回后，可切回需要保存的实验，再按 Ctrl+S 保存",
         buttons: ["返回实验", "放弃更改并离开"],
         defaultId: 0,
         cancelId: 0,

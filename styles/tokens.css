@@ -45,10 +45,11 @@
     --radius-control: 6px;
     --radius-panel: 8px;
     /* 交互缓动与短动画时长 */
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
-    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     --dur-micro: 120ms;
+    --dur-popover: 160ms;
+    --dur-notice: 180ms;
+    --dur-dialog: 200ms;
     /* 页面浮层顺序，数值越大越靠前 */
     --z-tooltip: 60;
     --z-toast: 50;

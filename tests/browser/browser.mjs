@@ -237,6 +237,7 @@ async function main() {
         await occupiedMessages.first().waitFor();
         assert.equal(await page.locator("#wire-count").textContent(), "61");
         await page.locator("#new-project").click();
+        await page.locator("#switch-without-saving").click();
         assert.equal(await page.locator("#wire-count").textContent(), "0");
         assert.equal(await page.locator("#project-mode").count(), 0);
         assert.equal(await page.locator("#clear-register").count(), 0);
@@ -290,12 +291,15 @@ async function main() {
         assert.equal(await page.locator("#wire-count").textContent(), "1");
         assert.equal(await page.locator("#load-preset").count(), 0);
         await page.locator("#import-file").setInputFiles(path.join(ROOT, "examples", "complement-adder.json"));
+        await page.locator("#switch-without-saving").click();
         await page.waitForFunction(wireCountRestored);
         const presetId = await page.locator("#experiment-picker").inputValue();
         await page.locator("#new-experiment").click();
+        await page.locator("#switch-without-saving").click();
         assert.equal(await page.locator("#wire-count").textContent(), "0");
         assert.equal(await page.locator("#project-mode").count(), 0);
         await page.locator("#experiment-picker").selectOption(presetId, { force: true });
+        await page.locator("#switch-without-saving").click();
         assert.equal(await page.locator("#wire-count").textContent(), "61");
         await page.locator("#tab-notes").click();
         assert.match(await page.locator("#notes-preview").textContent(), /低电平|异步清零/);
@@ -317,7 +321,9 @@ async function main() {
         const savedPath = path.join(SCREENSHOTS, "roundtrip.json");
         await exported.saveAs(savedPath);
         await page.locator("#new-project").click();
+        await page.locator("#switch-without-saving").click();
         await page.locator("#import-file").setInputFiles(savedPath);
+        await page.locator("#switch-without-saving").click();
         await page.waitForFunction(wireCountRestored);
         const imageEvent = page.waitForEvent("download");
         await page.locator("#export-image").click();

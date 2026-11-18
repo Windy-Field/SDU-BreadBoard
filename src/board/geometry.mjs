@@ -8,6 +8,20 @@ const PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9
 const WIRE_LAYOUT = { laneStart: 12, laneCount: 9, laneStep: 5, sameRowDistance: 12 };
 // 芯片外壳相对引脚的位置与高度，绘制和点击共用
 const CHIP_LAYOUT = { leftOffset: 9, topOffset: 9, height: 32 };
+const endpointPositions = new WeakMap();
+
+// 固定孔位只换算一次，连续命中检测不再重复解析数千个孔名
+function fixedPositions(endpoints) {
+    let positions = endpointPositions.get(endpoints);
+    if (!positions) {
+        positions = [];
+        for (const name of endpoints) {
+            positions.push(endpointPosition(name));
+        }
+        endpointPositions.set(endpoints, positions);
+    }
+    return positions;
+}
 // 返回芯片在画布中的外框，用于绘制和鼠标选择
 export function chipBounds(chip) {
     const count = CHIP_MODELS[chip.model].count;
@@ -92,10 +106,14 @@ export function hitCandidates(point, state, endpoints) {
             }
         }
     }
-    for (const name of endpoints) {
-        const location = endpointPosition(name);
-        if (Math.hypot(point.x - location.x, point.y - location.y) <= PICK.nodeRadius) {
-            candidates.push({ kind: "node", id: name });
+    const positions = fixedPositions(endpoints);
+    const radiusSquared = PICK.nodeRadius * PICK.nodeRadius;
+    for (let index = 0; index < positions.length; index = index + 1) {
+        const location = positions[index];
+        const horizontal = point.x - location.x;
+        const vertical = point.y - location.y;
+        if (horizontal * horizontal + vertical * vertical <= radiusSquared) {
+            candidates.push({ kind: "node", id: endpoints[index] });
         }
     }
     for (const chip of state.project.chips) {
@@ -149,13 +167,12 @@ export function wireHandleAt(point, project, selected) {
     if (!selected || selected.kind !== "wire") {
         return null;
     }
-    const displayPaths = wireDisplayPaths(project.wires);
     for (let index = 0; index < project.wires.length; index = index + 1) {
         const wire = project.wires[index];
         if (wire.id !== selected.id) {
             continue;
         }
-        const points = displayPaths[index];
+        const points = wirePoints(wire, index);
         for (let handle = 0; handle < points.length; handle = handle + 1) {
             if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
                 return { wire: wire.id, handle: handle, points: points };

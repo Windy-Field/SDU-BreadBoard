@@ -120,6 +120,17 @@ function setExitChoice(application, choice) {
     application.dialog.showMessageBoxSync = chooseExit;
 }
 
+// Electron 可能已处理退出确认，浏览器调试接口收到的是同一次确认的迟到通知
+async function dismissDesktopDialog(dialog) {
+    try {
+        await dialog.dismiss();
+    } catch (error) {
+        if (dialog.type() !== "beforeunload" || !error.message.includes("No dialog is showing")) {
+            throw error;
+        }
+    }
+}
+
 // 请求关闭主窗口，实际是否关闭仍由页面未保存检查决定
 function closeMainWindow(application) {
     const windows = application.BrowserWindow.getAllWindows();
@@ -207,6 +218,10 @@ async function main() {
         await restored.waitForFunction(routingReady);
         await restored.locator("#pulse-negative").click();
         assert.equal(await restored.locator("#binary-result").textContent(), "000 0001");
+        // 脉冲不会写入存档，改一次输入才会触发未保存退出确认
+        await restored.locator("[data-bit='0']").click();
+        assert.equal(await restored.locator("#save-status").textContent(), "当前实验未保存");
+        restored.on("dialog", dismissDesktopDialog);
         await application.evaluate(setExitChoice, 0);
         await application.evaluate(closeMainWindow);
         assert.equal(await application.evaluate(windowCount), 1);

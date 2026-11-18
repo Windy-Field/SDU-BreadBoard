@@ -293,6 +293,14 @@ async function generateDiagram() {
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
     element("logic-diagram-summary").textContent = "正在生成逻辑图";
+    // 清空旧图，避免这次布局失败时显示上一份电路的网络与引脚
+    currentGraph = null;
+    const svg = element("logic-diagram");
+    svg.replaceChildren();
+    svg.removeAttribute("style");
+    element("logic-network-members").replaceChildren();
+    element("logic-network").replaceChildren(node("option", "网络核对", ""));
+    element("logic-zoom-label").textContent = "";
     for (const id of DIAGRAM_CONTROLS) {
         element(id).disabled = true;
     }

@@ -37,8 +37,10 @@ function positionPanel(control) {
     const above = bounds.top - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
     let available = below;
     const upward = below < Math.min(SELECT_LAYOUT.upwardThreshold, above);
+    control.panel.dataset.direction = "down";
     if (upward) {
         available = above;
+        control.panel.dataset.direction = "up";
     }
     control.panel.style.width = width + "px";
     control.panel.style.maxHeight = Math.max(SELECT_LAYOUT.minimumHeight, Math.min(SELECT_LAYOUT.maximumHeight, available)) + "px";
@@ -46,7 +48,7 @@ function positionPanel(control) {
     control.panel.style.top = "0px";
     let top = bounds.bottom + SELECT_LAYOUT.gap;
     if (upward) {
-        top = bounds.top - SELECT_LAYOUT.gap - control.panel.getBoundingClientRect().height;
+        top = bounds.top - SELECT_LAYOUT.gap - control.panel.offsetHeight;
     }
     control.panel.style.top = Math.max(SELECT_LAYOUT.margin, top) + "px";
 }
@@ -84,13 +86,14 @@ function renderOptions(control) {
 }
 
 // 打开一个下拉面板，其他面板先关闭，初始焦点跟随已选值
-function openSelect(control) {
+function openSelect(control, keyboard) {
     if (control.select.disabled) {
         return;
     }
     closeSelect(false);
     openedControl = control;
     renderOptions(control);
+    control.panel.classList.toggle("keyboard-open", keyboard);
     control.panel.showPopover();
     control.button.setAttribute("aria-expanded", "true");
     positionPanel(control);
@@ -98,11 +101,11 @@ function openSelect(control) {
 }
 
 // 点击按钮展开或收起，不改变当前实验
-function toggleSelect(control) {
+function toggleSelect(control, event) {
     if (openedControl === control) {
         closeSelect(true);
     } else {
-        openSelect(control);
+        openSelect(control, event.detail === 0);
     }
 }
 
@@ -149,7 +152,7 @@ function selectKeyDown(control, event) {
         return;
     }
     if (openedControl !== control) {
-        openSelect(control);
+        openSelect(control, true);
         return;
     }
     if (event.key === "Enter" || event.key === " ") {
@@ -174,7 +177,7 @@ function searchOption(control, text) {
     control.typed = control.typed + text.toLocaleLowerCase();
     control.typedAt = now;
     if (openedControl !== control) {
-        openSelect(control);
+        openSelect(control, true);
     }
     for (let index = 0; index < control.select.options.length; index = index + 1) {
         const option = control.select.options[index];

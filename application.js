@@ -224,7 +224,6 @@
 
   // src/ui/motion.mjs
   var MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
-  var FADE_START_OPACITY = 0.45;
   var transitions = /* @__PURE__ */ new Map();
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   var frame = 0;
@@ -259,28 +258,33 @@
       frame = window.requestAnimationFrame(stepTransitions);
     }
   }
-  function fadeContent(element2) {
-    if (reducedMotion.matches) {
-      return;
+  function cancelTween(key) {
+    transitions.delete(key);
+    if (transitions.size === 0 && frame !== 0) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
     }
-    for (const animation of element2.getAnimations()) {
-      animation.cancel();
-    }
-    const style = getComputedStyle(document.documentElement);
-    element2.animate([{ opacity: FADE_START_OPACITY }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
   }
 
   // src/ui/toast.mjs
   var TOAST_SETTINGS = { duration: 6e3, visibleLimit: 4 };
+  var reducedMotion2 = window.matchMedia("(prefers-reduced-motion: reduce)");
   var toastCounter = 0;
   function removeToast(id) {
     const item = element(id);
-    if (!item) {
+    if (!item || item.classList.contains("leaving")) {
       return;
     }
-    window.clearTimeout(Number(item.dataset.timer));
+    stopTimer(item);
+    if (reducedMotion2.matches) {
+      item.remove();
+      return;
+    }
     item.classList.add("leaving");
-    window.setTimeout(detachToast.bind(null, id), MOTION.toastDuration);
+    item.inert = true;
+    item.setAttribute("aria-hidden", "true");
+    const timer = window.setTimeout(detachToast.bind(null, id), MOTION.toastDuration);
+    item.dataset.timer = String(timer);
   }
   function detachToast(id) {
     const item = element(id);
@@ -292,22 +296,67 @@
     const item = event.currentTarget.closest(".toast");
     removeToast(item.id);
   }
-  function pauseToast(event) {
-    window.clearTimeout(Number(event.currentTarget.dataset.timer));
+  function stopTimer(item) {
+    window.clearTimeout(Number(item.dataset.timer));
+    delete item.dataset.timer;
   }
-  function resumeToast(event) {
-    const item = event.currentTarget;
-    if (item.dataset.persistent === "true") {
+  function startTimer(item) {
+    if (!item.isConnected || item.classList.contains("leaving")) {
+      return;
+    }
+    stopTimer(item);
+    if (item.dataset.persistent === "true" || item.matches(":hover") || item.contains(document.activeElement)) {
       return;
     }
     const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
     item.dataset.timer = String(timer);
   }
-  function showToast(message, kind, persistent) {
+  function pauseToast(event) {
+    const item = event.currentTarget;
+    if (!item.classList.contains("leaving")) {
+      stopTimer(item);
+    }
+  }
+  function resumeToast(event) {
+    queueMicrotask(startTimer.bind(null, event.currentTarget));
+  }
+  function findToast(region, message, kind) {
+    for (const item of region.children) {
+      if (item.dataset.persistent === "true" || item.classList.contains("leaving")) {
+        continue;
+      }
+      if (item.dataset.message === message && item.classList.contains(kind)) {
+        return item;
+      }
+    }
+    return null;
+  }
+  function trimToasts(region) {
+    while (region.children.length > TOAST_SETTINGS.visibleLimit) {
+      let oldest = region.firstElementChild;
+      for (const item of region.children) {
+        if (item.dataset.persistent !== "true" || item.classList.contains("leaving")) {
+          oldest = item;
+          break;
+        }
+      }
+      stopTimer(oldest);
+      oldest.remove();
+    }
+  }
+  function showToast(message, kind, persistent = false) {
+    const region = element("toast-region");
+    if (!persistent) {
+      const existing = findToast(region, message, kind);
+      if (existing) {
+        startTimer(existing);
+        return existing.id;
+      }
+    }
     toastCounter = toastCounter + 1;
     const item = node("div", "", "toast " + kind);
     item.id = "toast-" + toastCounter;
-    item.setAttribute("role", "status");
+    item.dataset.message = message;
     let symbol = "circle-alert";
     if (kind === "info") {
       symbol = "info";
@@ -324,22 +373,22 @@
     item.addEventListener("mouseleave", resumeToast);
     item.addEventListener("focusin", pauseToast);
     item.addEventListener("focusout", resumeToast);
-    const region = element("toast-region");
-    region.append(item);
     if (persistent) {
       item.dataset.persistent = "true";
       close.setAttribute("aria-label", "\u5173\u95ED\u7B49\u5F85\u63D0\u793A");
-    } else {
-      const timer = window.setTimeout(removeToast.bind(null, item.id), TOAST_SETTINGS.duration);
-      item.dataset.timer = String(timer);
     }
-    while (region.children.length > TOAST_SETTINGS.visibleLimit) {
-      const oldest = region.firstElementChild;
-      window.clearTimeout(Number(oldest.dataset.timer));
-      oldest.remove();
-    }
+    region.append(item);
+    startTimer(item);
+    trimToasts(region);
     refreshIcons();
     return item.id;
+  }
+  function clearToasts() {
+    const region = element("toast-region");
+    for (const item of region.children) {
+      stopTimer(item);
+    }
+    region.replaceChildren();
   }
   function dismissToast(id) {
     if (id !== "") {
@@ -384,8 +433,10 @@
     const above = bounds.top - SELECT_LAYOUT.gap - SELECT_LAYOUT.margin;
     let available = below;
     const upward = below < Math.min(SELECT_LAYOUT.upwardThreshold, above);
+    control.panel.dataset.direction = "down";
     if (upward) {
       available = above;
+      control.panel.dataset.direction = "up";
     }
     control.panel.style.width = width + "px";
     control.panel.style.maxHeight = Math.max(SELECT_LAYOUT.minimumHeight, Math.min(SELECT_LAYOUT.maximumHeight, available)) + "px";
@@ -393,7 +444,7 @@
     control.panel.style.top = "0px";
     let top = bounds.bottom + SELECT_LAYOUT.gap;
     if (upward) {
-      top = bounds.top - SELECT_LAYOUT.gap - control.panel.getBoundingClientRect().height;
+      top = bounds.top - SELECT_LAYOUT.gap - control.panel.offsetHeight;
     }
     control.panel.style.top = Math.max(SELECT_LAYOUT.margin, top) + "px";
   }
@@ -425,23 +476,24 @@
     }
     refreshIcons();
   }
-  function openSelect(control) {
+  function openSelect(control, keyboard) {
     if (control.select.disabled) {
       return;
     }
     closeSelect(false);
     openedControl = control;
     renderOptions(control);
+    control.panel.classList.toggle("keyboard-open", keyboard);
     control.panel.showPopover();
     control.button.setAttribute("aria-expanded", "true");
     positionPanel(control);
     focusOption(control, control.select.selectedIndex);
   }
-  function toggleSelect(control) {
+  function toggleSelect(control, event) {
     if (openedControl === control) {
       closeSelect(true);
     } else {
-      openSelect(control);
+      openSelect(control, event.detail === 0);
     }
   }
   function chooseOption(control, index) {
@@ -482,7 +534,7 @@
       return;
     }
     if (openedControl !== control) {
-      openSelect(control);
+      openSelect(control, true);
       return;
     }
     if (event.key === "Enter" || event.key === " ") {
@@ -505,7 +557,7 @@
     control.typed = control.typed + text2.toLocaleLowerCase();
     control.typedAt = now;
     if (openedControl !== control) {
-      openSelect(control);
+      openSelect(control, true);
     }
     for (let index = 0; index < control.select.options.length; index = index + 1) {
       const option = control.select.options[index];
@@ -4379,6 +4431,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   };
   var FILE_BOUNDS = { width: 1300, height: 1280 };
   var LEGACY_COMPLEMENT_PORT_COUNT = 7;
+  function validWireBend(bend) {
+    return Boolean(bend && Number.isFinite(bend.x) && Number.isFinite(bend.y) && bend.x >= 0 && bend.x <= FILE_BOUNDS.width && bend.y >= 0 && bend.y <= FILE_BOUNDS.height);
+  }
   function legacyNode(name, wiringVersion) {
     if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
       return name;
@@ -4555,7 +4610,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       }
       const bends = [];
       for (const bend of entry.bends) {
-        if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y) || bend.x < 0 || bend.x > FILE_BOUNDS.width || bend.y < 0 || bend.y > FILE_BOUNDS.height) {
+        if (!validWireBend(bend)) {
           throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
         }
         bends.push({ x: bend.x, y: bend.y });
@@ -4837,7 +4892,11 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   }
   function sevenSegment(pins, outputs) {
     const number = readNumber(pins, [7, 1, 2, 6]);
-    const blankZero = number === 0 && pins[5] === 0 && pins[3] === 1;
+    let rippleBlank = pins[5];
+    if (rippleBlank === "Z") {
+      rippleBlank = 1;
+    }
+    const blankZero = number === 0 && rippleBlank === 0 && pins[3] === 1;
     outputs[4] = "Z";
     if (blankZero) {
       outputs[4] = 0;
@@ -4849,10 +4908,8 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       } else if (pins[3] === 0 && pins[4] === 1) {
         value = 1;
       } else if (pins[3] === 1 && pins[4] === 1 && number !== "X") {
-        if (number !== 0 || pins[5] === 1) {
+        if (number !== 0 || rippleBlank === 1) {
           value = Number(SEGMENT_PATTERNS[number][index]);
-        } else if (pins[5] === 0) {
-          value = 0;
         }
       }
       outputs[SEGMENT_PINS[index]] = value;
@@ -5415,13 +5472,28 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     }
     return true;
   }
-  function settle(project, topology, registers, pulses, devices) {
+  function topologySignature(project) {
+    const connections = [];
+    for (const wire of project.wires) {
+      connections.push([wire.from, wire.to]);
+    }
+    const chips = [];
+    for (const chip of project.chips) {
+      chips.push([chip.id, chip.model, chip.section, chip.column]);
+    }
+    return JSON.stringify([connections, chips, project.pullUps]);
+  }
+  function settle(project, topology, runtime, previous) {
     let values = {};
     let drivers = {};
+    if (previous && previous.stable) {
+      values = previous.values;
+      drivers = previous.drivers;
+    }
     for (let pass = 0; pass < MAX_SETTLE_PASSES; pass = pass + 1) {
-      drivers = collectDrivers(project, topology, values, registers, pulses, devices, drivers);
+      drivers = collectDrivers(project, topology, values, runtime.registers, runtime.pulses, runtime.devices, drivers);
       const next = driverValues(drivers);
-      if (sameValues(values, next)) {
+      if (pass > 0 && sameValues(values, next)) {
         return { values: next, drivers, stable: true };
       }
       values = next;
@@ -5518,6 +5590,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       const missing = [];
       const model = CHIP_MODELS[chip.model];
       for (const pin of model.inputs) {
+        if (model.kind === "seven-segment" && pin === 5) {
+          continue;
+        }
         if (model.memory && model.bidirectional.includes(pin)) {
           const selected = pins[model.memory.select];
           const writing = pins[model.memory.write];
@@ -5551,7 +5626,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     return issues;
   }
   function createRuntime() {
-    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 } };
+    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, feedback: null };
   }
   function simulate(project, runtime) {
     const topology = buildTopology(project);
@@ -5567,7 +5642,12 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         runtime.devices[chip.id] = createMemory(model.memory);
       }
     }
-    let settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
+    const signature = topologySignature(project);
+    let previous = null;
+    if (project.power && runtime.feedback && runtime.feedback.signature === signature) {
+      previous = runtime.feedback.settled;
+    }
+    let settled = settle(project, topology, runtime, previous);
     let complete = false;
     for (let pass = 0; pass < MAX_SEQUENTIAL_PASSES; pass = pass + 1) {
       let changed = updateRegisters(project, topology, settled.values, runtime.registers);
@@ -5589,9 +5669,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         complete = true;
         break;
       }
-      settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
+      settled = settle(project, topology, runtime, settled);
     }
     const result = { topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
+    runtime.feedback = null;
+    if (project.power && result.stable) {
+      runtime.feedback = { signature, settled };
+    }
     result.issues = diagnose(project, result);
     return result;
   }
@@ -5724,6 +5808,18 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   var PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
   var WIRE_LAYOUT = { laneStart: 12, laneCount: 9, laneStep: 5, sameRowDistance: 12 };
   var CHIP_LAYOUT = { leftOffset: 9, topOffset: 9, height: 32 };
+  var endpointPositions = /* @__PURE__ */ new WeakMap();
+  function fixedPositions(endpoints2) {
+    let positions = endpointPositions.get(endpoints2);
+    if (!positions) {
+      positions = [];
+      for (const name of endpoints2) {
+        positions.push(endpointPosition(name));
+      }
+      endpointPositions.set(endpoints2, positions);
+    }
+    return positions;
+  }
   function chipBounds(chip) {
     const count = CHIP_MODELS[chip.model].count;
     const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - CHIP_LAYOUT.leftOffset;
@@ -5798,10 +5894,14 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         }
       }
     }
-    for (const name of endpoints2) {
-      const location = endpointPosition(name);
-      if (Math.hypot(point.x - location.x, point.y - location.y) <= PICK.nodeRadius) {
-        candidates.push({ kind: "node", id: name });
+    const positions = fixedPositions(endpoints2);
+    const radiusSquared = PICK.nodeRadius * PICK.nodeRadius;
+    for (let index = 0; index < positions.length; index = index + 1) {
+      const location = positions[index];
+      const horizontal = point.x - location.x;
+      const vertical = point.y - location.y;
+      if (horizontal * horizontal + vertical * vertical <= radiusSquared) {
+        candidates.push({ kind: "node", id: endpoints2[index] });
       }
     }
     for (const chip of state2.project.chips) {
@@ -5847,13 +5947,12 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (!selected || selected.kind !== "wire") {
       return null;
     }
-    const displayPaths = wireDisplayPaths(project.wires);
     for (let index = 0; index < project.wires.length; index = index + 1) {
       const wire = project.wires[index];
       if (wire.id !== selected.id) {
         continue;
       }
-      const points = displayPaths[index];
+      const points = wirePoints(wire, index);
       for (let handle = 0; handle < points.length; handle = handle + 1) {
         if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
           return { wire: wire.id, handle, points };
@@ -6117,13 +6216,19 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   var INTERNAL_DRAW = { lineWidth: 1, restingOpacity: 0.45, activeOpacity: 0.9 };
   var COLOR_NAMES = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "level-floating", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
   var drawingFont = "";
+  var drawingColors = null;
+  var boardLayers = null;
   function canvasColors() {
+    if (drawingColors) {
+      return drawingColors;
+    }
     const style = getComputedStyle(document.documentElement);
     const colors = {};
     for (const name of COLOR_NAMES) {
       colors[name] = style.getPropertyValue("--color-" + name).trim();
     }
     drawingFont = style.getPropertyValue("--font-body").trim();
+    drawingColors = colors;
     return colors;
   }
   function rectangle(context, left, top, width, height, radius, color) {
@@ -6179,7 +6284,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     }
     return endpoints2;
   }
-  function drawBreadboards(context, state2, colors) {
+  function drawBreadboards(context, emphasis, colors) {
     for (let section = 0; section < BOARD.sections; section = section + 1) {
       const top = BOARD.startY + section * BOARD.sectionHeight - DRAW.sectionTopOffset;
       rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, DRAW.sectionHeight, 7, colors.surface);
@@ -6193,8 +6298,8 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         if (column === 1 || column % 5 === 0) {
           label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
         }
-        if (state2.visual.internals > 0) {
-          context.globalAlpha = state2.visual.internals;
+        if (emphasis > 0) {
+          context.globalAlpha = emphasis;
           polyline(context, [{ x: horizontal, y: rowY(section, "A") }, { x: horizontal, y: rowY(section, "E") }], colors.trace, 2);
           polyline(context, [{ x: horizontal, y: rowY(section, "F") }, { x: horizontal, y: rowY(section, "J") }], colors.trace, 2);
           context.globalAlpha = 1;
@@ -6206,7 +6311,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         for (const segment of BUS_SEGMENTS) {
           const first = endpointPosition(holeId(section, row, segment[0]));
           const last = endpointPosition(holeId(section, row, segment[1]));
-          context.globalAlpha = 0.25 + state2.visual.internals * 0.75;
+          context.globalAlpha = 0.25 + emphasis * 0.75;
           polyline(context, [first, last], colors.accent, 2);
           context.globalAlpha = 1;
         }
@@ -6240,6 +6345,32 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
         circle(context, location.x, location.y, 3.2, colors.hole);
       }
+    }
+  }
+  function createBoardLayer(emphasis, colors) {
+    const layer = document.createElement("canvas");
+    layer.width = BOARD.width * DRAW.pixelRatio;
+    layer.height = BOARD.height * DRAW.pixelRatio;
+    const context = layer.getContext("2d");
+    context.scale(DRAW.pixelRatio, DRAW.pixelRatio);
+    rectangle(context, 0, 0, BOARD.width, BOARD.height, DRAW.boardRadius, colors.board);
+    drawBreadboards(context, emphasis, colors);
+    return layer;
+  }
+  function drawBoardLayer(context, emphasis, colors) {
+    if (!boardLayers) {
+      boardLayers = { normal: createBoardLayer(0, colors), emphasized: null };
+    }
+    if (emphasis > 0 && !boardLayers.emphasized) {
+      boardLayers.emphasized = createBoardLayer(1, colors);
+    }
+    if (emphasis < 1) {
+      context.drawImage(boardLayers.normal, 0, 0, BOARD.width, BOARD.height);
+    }
+    if (emphasis > 0) {
+      context.globalAlpha = emphasis;
+      context.drawImage(boardLayers.emphasized, 0, 0, BOARD.width, BOARD.height);
+      context.globalAlpha = 1;
     }
   }
   function drawModules(context, state2, colors) {
@@ -6305,6 +6436,10 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         const last = endpointPosition(holeId(section, "F", column));
         polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
       }
+    }
+    if (emphasis === 0) {
+      context.globalAlpha = 1;
+      return;
     }
     context.globalAlpha = emphasis;
     for (const rail of ["GND", "VCC"]) {
@@ -6438,10 +6573,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (state2.selected && state2.selected.kind === "node") {
       selectedNode = nodeFor(state2.result.topology, state2.selected.id);
     }
-    for (const name of endpoints2) {
-      const node2 = nodeFor(state2.result.topology, name);
-      const location = endpointPosition(name);
-      if (selectedNode !== "" && node2 === selectedNode) {
+    if (selectedNode !== "") {
+      for (const name of endpoints2) {
+        const root = nodeFor(state2.result.topology, name);
+        if (root !== selectedNode) {
+          continue;
+        }
+        const location = endpointPosition(name);
         context.strokeStyle = colors.accent;
         context.lineWidth = 2;
         context.beginPath();
@@ -6461,8 +6599,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     context.setTransform(DRAW.pixelRatio, 0, 0, DRAW.pixelRatio, 0, 0);
     const colors = canvasColors();
     context.clearRect(0, 0, BOARD.width, BOARD.height);
-    rectangle(context, 0, 0, BOARD.width, BOARD.height, DRAW.boardRadius, colors.board);
-    drawBreadboards(context, state2, colors);
+    drawBoardLayer(context, state2.visual.internals, colors);
     drawModules(context, state2, colors);
     drawPortConnections(context, state2, colors);
     for (const chip of state2.project.chips) {
@@ -9486,16 +9623,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         return true;
       });
     };
-    const _initDocument = function _initDocument2(dirty2) {
+    const _initDocument = function _initDocument2(dirty) {
       let doc = null;
       let leadingWhitespace = null;
-      if (FORCE_BODY) dirty2 = "<remove></remove>" + dirty2;
+      if (FORCE_BODY) dirty = "<remove></remove>" + dirty;
       else {
-        const matches = stringMatch(dirty2, /^[\r\n\t ]+/);
+        const matches = stringMatch(dirty, /^[\r\n\t ]+/);
         leadingWhitespace = matches && matches[0];
       }
-      if (PARSER_MEDIA_TYPE === "application/xhtml+xml" && NAMESPACE === HTML_NAMESPACE) dirty2 = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + dirty2 + "</body></html>";
-      const dirtyPayload = trustedTypesPolicy ? _createTrustedHTML(dirty2) : dirty2;
+      if (PARSER_MEDIA_TYPE === "application/xhtml+xml" && NAMESPACE === HTML_NAMESPACE) dirty = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + dirty + "</body></html>";
+      const dirtyPayload = trustedTypesPolicy ? _createTrustedHTML(dirty) : dirty;
       if (NAMESPACE === HTML_NAMESPACE) try {
         doc = new DOMParser().parseFromString(dirtyPayload, PARSER_MEDIA_TYPE);
       } catch (_2) {
@@ -9508,7 +9645,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         }
       }
       const body = doc.body || doc.documentElement;
-      if (dirty2 && leadingWhitespace) body.insertBefore(document2.createTextNode(leadingWhitespace), body.childNodes[0] || null);
+      if (dirty && leadingWhitespace) body.insertBefore(document2.createTextNode(leadingWhitespace), body.childNodes[0] || null);
       if (NAMESPACE === HTML_NAMESPACE) return getElementsByTagName.call(doc, WHOLE_DOCUMENT ? "html" : "body")[0];
       return WHOLE_DOCUMENT ? doc.documentElement : body;
     };
@@ -9826,19 +9963,19 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         }
       }
     };
-    DOMPurify.sanitize = function(dirty2) {
+    DOMPurify.sanitize = function(dirty) {
       let cfg = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
       let body = null;
       let importedNode = null;
       let currentNode = null;
       let returnNode = null;
-      IS_EMPTY_INPUT = !dirty2;
-      if (IS_EMPTY_INPUT) dirty2 = "<!-->";
-      if (typeof dirty2 !== "string" && !_isNode(dirty2)) {
-        dirty2 = stringifyValue(dirty2);
-        if (typeof dirty2 !== "string") throw typeErrorCreate("dirty is not a string, aborting");
+      IS_EMPTY_INPUT = !dirty;
+      if (IS_EMPTY_INPUT) dirty = "<!-->";
+      if (typeof dirty !== "string" && !_isNode(dirty)) {
+        dirty = stringifyValue(dirty);
+        if (typeof dirty !== "string") throw typeErrorCreate("dirty is not a string, aborting");
       }
-      if (!DOMPurify.isSupported) return dirty2;
+      if (!DOMPurify.isSupported) return dirty;
       if (SET_CONFIG) {
         ALLOWED_TAGS = SET_CONFIG_ALLOWED_TAGS;
         ALLOWED_ATTR = SET_CONFIG_ALLOWED_ATTR;
@@ -9846,61 +9983,61 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       if (hooks.uponSanitizeElement.length > 0 || hooks.uponSanitizeAttribute.length > 0) ALLOWED_TAGS = clone(ALLOWED_TAGS);
       if (hooks.uponSanitizeAttribute.length > 0) ALLOWED_ATTR = clone(ALLOWED_ATTR);
       DOMPurify.removed = [];
-      const inPlace = IN_PLACE && typeof dirty2 !== "string" && _isNode(dirty2);
+      const inPlace = IN_PLACE && typeof dirty !== "string" && _isNode(dirty);
       let inPlaceNodes = [];
       const outerVisited = IN_PLACE_VISITED;
       if (inPlace) {
-        _neutralizePatchLinkage(dirty2);
-        const nn = _readNodeName(dirty2);
+        _neutralizePatchLinkage(dirty);
+        const nn = _readNodeName(dirty);
         if (typeof nn === "string") {
           const tagName = transformCaseFunc(nn);
           if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
-            _neutralizeRoot(dirty2);
+            _neutralizeRoot(dirty);
             throw typeErrorCreate("root node is forbidden and cannot be sanitized in-place");
           }
         }
-        if (_isClobbered(dirty2)) {
-          _neutralizeRoot(dirty2);
+        if (_isClobbered(dirty)) {
+          _neutralizeRoot(dirty);
           throw typeErrorCreate("root node is clobbered and cannot be sanitized in-place");
         }
-        inPlaceNodes = _collectLiveNodes(dirty2);
+        inPlaceNodes = _collectLiveNodes(dirty);
         IN_PLACE_VISITED = setCreate();
-      } else if (_isNode(dirty2)) {
+      } else if (_isNode(dirty)) {
         body = _initDocument("<!---->");
-        importedNode = body.ownerDocument.importNode(dirty2, true);
+        importedNode = body.ownerDocument.importNode(dirty, true);
         if (importedNode.nodeType === NODE_TYPE.element && importedNode.nodeName === "BODY") body = importedNode;
         else if (importedNode.nodeName === "HTML") body = importedNode;
         else body.appendChild(importedNode);
         _sanitizeAttachedShadowRoots(body);
       } else {
-        if (!RETURN_DOM && !SAFE_FOR_TEMPLATES && !WHOLE_DOCUMENT && dirty2.indexOf("<") === -1) return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? _createTrustedHTML(dirty2) : dirty2;
-        body = _initDocument(dirty2);
+        if (!RETURN_DOM && !SAFE_FOR_TEMPLATES && !WHOLE_DOCUMENT && dirty.indexOf("<") === -1) return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? _createTrustedHTML(dirty) : dirty;
+        body = _initDocument(dirty);
         if (!body) return RETURN_DOM ? null : RETURN_TRUSTED_TYPE ? emptyHTML : "";
       }
       if (body && FORCE_BODY) _forceRemove(body.firstChild);
-      const walkRoot = inPlace ? dirty2 : body;
+      const walkRoot = inPlace ? dirty : body;
       try {
-        if (inPlace) _sanitizeAttachedShadowRoots(dirty2);
+        if (inPlace) _sanitizeAttachedShadowRoots(dirty);
         const nodeIterator = _createNodeIterator(walkRoot);
         while (currentNode = nodeIterator.nextNode()) {
           _sanitizeElements(currentNode, walkRoot);
           _sanitizeAttributes(currentNode, walkRoot);
           if (_isDocumentFragment(currentNode.content)) _sanitizeShadowDOM2(currentNode.content);
         }
-        if (inPlace) _sanitizeUnvisitedNodes(dirty2, inPlaceNodes);
+        if (inPlace) _sanitizeUnvisitedNodes(dirty, inPlaceNodes);
       } catch (error) {
         if (inPlace) {
-          _neutralizeRoot(dirty2);
-          _neutralizeDiscarded(dirty2, inPlaceNodes);
+          _neutralizeRoot(dirty);
+          _neutralizeDiscarded(dirty, inPlaceNodes);
         }
         throw error;
       } finally {
         IN_PLACE_VISITED = outerVisited;
       }
       if (inPlace) {
-        if (_neutralizeDiscarded(dirty2, inPlaceNodes)) throw typeErrorCreate("a node selected for removal could not be safely returned; refusing to sanitize in place");
-        if (SAFE_FOR_TEMPLATES) _scrubTemplateExpressions2(dirty2);
-        return dirty2;
+        if (_neutralizeDiscarded(dirty, inPlaceNodes)) throw typeErrorCreate("a node selected for removal could not be safely returned; refusing to sanitize in place");
+        if (SAFE_FOR_TEMPLATES) _scrubTemplateExpressions2(dirty);
+        return dirty;
       }
       if (RETURN_DOM) {
         if (SAFE_FOR_TEMPLATES) _scrubTemplateExpressions2(body);
@@ -10292,8 +10429,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function cleanWorkspace(workspace2) {
     const removed = [];
-    let blank = "";
-    const signatures = /* @__PURE__ */ new Map();
+    const signatures = /* @__PURE__ */ new Set();
     const ids = Object.keys(workspace2.projects);
     if (ids.includes(workspace2.activeId)) {
       ids.splice(ids.indexOf(workspace2.activeId), 1);
@@ -10301,23 +10437,15 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     for (const id of ids) {
       const project = workspace2.projects[id];
-      let duplicate = "";
-      if (isBlankExperiment(project)) {
-        duplicate = blank;
-        if (blank === "") {
-          blank = id;
-        }
-      } else if (project.name === "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668") {
-        const signature = JSON.stringify({ chips: project.chips, wires: project.wires, notes: project.notes, inputCount: project.inputCount, outputCount: project.outputCount, pullUps: project.pullUps });
-        if (signatures.has(signature)) {
-          duplicate = signatures.get(signature);
-        } else {
-          signatures.set(signature, id);
-        }
+      if (!isBlankExperiment(project) && project.name !== "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668") {
+        continue;
       }
-      if (duplicate !== "") {
+      const signature = JSON.stringify(project);
+      if (signatures.has(signature)) {
         removed.push(id);
         delete workspace2.projects[id];
+      } else {
+        signatures.add(signature);
       }
     }
     return removed;
@@ -10347,7 +10475,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.9.1";
+  var APP_VERSION = "1.9.2";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/ui/inspection-layout.mjs
@@ -11512,6 +11640,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     generation = request;
     element("logic-diagram-dialog").setAttribute("aria-busy", "true");
     element("logic-diagram-summary").textContent = "\u6B63\u5728\u751F\u6210\u903B\u8F91\u56FE";
+    currentGraph = null;
+    const svg2 = element("logic-diagram");
+    svg2.replaceChildren();
+    svg2.removeAttribute("style");
+    element("logic-network-members").replaceChildren();
+    element("logic-network").replaceChildren(node("option", "\u7F51\u7EDC\u6838\u5BF9", ""));
+    element("logic-zoom-label").textContent = "";
     for (const id of DIAGRAM_CONTROLS) {
       element(id).disabled = true;
     }
@@ -11837,11 +11972,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var workspace = { version: 1, activeId: "", projects: {} };
   var activeExperiment = "";
   var circuitDiagnostics = { issues: [], chips: [], power: false, stable: false };
-  var dirty = false;
   var dirtyExperiments = /* @__PURE__ */ new Set();
+  var importedExperiments = /* @__PURE__ */ new Map();
   var savedExperiments = { version: 1, activeId: "", projects: {} };
   var autoSave = false;
   var confirmationAction = null;
+  var switchAction = null;
   var drag = null;
   var boardPan = null;
   var boardSelection = null;
@@ -11849,10 +11985,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   var cycle = { x: -100, y: -100, signature: "", index: 0 };
   var catalogModel = "";
   var heldPulse = "";
+  var pulsePointerId = null;
+  var pulsePointerTarget = null;
   var pulseTimer = 0;
   var recentAction = "";
+  var diagnosticToastId = "";
+  var saveToastId = "";
+  var powerToastId = "";
+  var hoverFrame = 0;
+  var hoverPoint = null;
   var routingBusy = false;
-  var routingToastId = "";
   var expandedSelection = /* @__PURE__ */ new Set();
   function updateClock() {
     element("app-version").textContent = "v" + APP_VERSION;
@@ -11860,11 +12002,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function stageChanges() {
     keepExperiment(workspace, activeExperiment, state.project);
-    dirty = true;
     dirtyExperiments.add(activeExperiment);
-    element("save-status").textContent = "\u6709\u672A\u4FDD\u5B58\u7684\u66F4\u6539";
     if (autoSave) {
       saveLocal();
+    } else {
+      renderSaveStatus();
     }
   }
   function saveCurrent() {
@@ -11877,7 +12019,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
   }
   function beforeLeave(event) {
-    if (dirty) {
+    if (dirtyExperiments.size > 0) {
       event.preventDefault();
       event.returnValue = "";
     }
@@ -11909,6 +12051,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     delete workspace.projects[activeExperiment];
     delete savedExperiments.projects[activeExperiment];
     dirtyExperiments.delete(activeExperiment);
+    importedExperiments.delete(activeExperiment);
     const ids = Object.keys(workspace.projects);
     if (ids.length === 0) {
       activeExperiment = newExperimentId();
@@ -11917,21 +12060,21 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       activeExperiment = ids[0];
       state.project = copyProject(workspace.projects[activeExperiment]);
     }
-    resetRuntime();
-    state.undo = [];
-    state.redo = [];
-    commit();
-    renderLibrary();
-    if (Object.keys(savedExperiments.projects).length > 0) {
-      savedExperiments.activeId = Object.keys(savedExperiments.projects)[0];
+    keepExperiment(workspace, activeExperiment, state.project);
+    const savedIds = Object.keys(savedExperiments.projects);
+    if (savedIds.length > 0) {
+      savedExperiments.activeId = savedIds[0];
     } else {
-      savedExperiments.activeId = activeExperiment;
-      savedExperiments.projects[activeExperiment] = copyProject(state.project);
+      const blankId = newExperimentId();
+      keepExperiment(savedExperiments, blankId, emptyProject());
     }
+    state.saveFailed = false;
+    resetExperiment();
     try {
       localStorage.setItem(WORKSPACE_KEY, JSON.stringify(savedExperiments));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedExperiments.projects[savedExperiments.activeId]));
     } catch (error) {
+      state.saveFailed = true;
+      renderSaveStatus();
       toast("\u5B9E\u9A8C\u5DF2\u4ECE\u5217\u8868\u79FB\u9664\uFF0C\u4F60\u53EF\u4EE5\u5728\u6D4F\u89C8\u5668\u5B58\u50A8\u6062\u590D\u540E\u4FDD\u5B58", "warning");
     }
   }
@@ -11986,29 +12129,71 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     refreshSelect(picker);
   }
   function switchExperiment(event) {
-    keepExperiment(workspace, activeExperiment, state.project);
     const id = event.currentTarget.value;
-    if (!Object.hasOwn(workspace.projects, id)) {
+    if (id === activeExperiment || !Object.hasOwn(workspace.projects, id)) {
       return;
     }
+    renderExperiments();
+    requestExperimentSwitch(openExperiment.bind(null, id));
+  }
+  function requestExperimentSwitch(action) {
+    if (!dirtyExperiments.has(activeExperiment)) {
+      action();
+      return;
+    }
+    switchAction = action;
+    const message = element("switch-message");
+    message.textContent = "\u201C" + state.project.name + "\u201D\u6709\u672A\u4FDD\u5B58\u7684\u66F4\u6539\u3002\u4E0D\u4FDD\u5B58\u5E76\u5207\u6362\u65F6\uFF0C\u66F4\u6539\u4EC5\u4FDD\u7559\u5230\u672C\u6B21\u4F1A\u8BDD\u7ED3\u675F";
+    element("switch-dialog").showModal();
+  }
+  function cancelExperimentSwitch() {
+    switchAction = null;
+    element("switch-dialog").close();
+  }
+  function switchWithoutSaving() {
+    const action = switchAction;
+    cancelExperimentSwitch();
+    if (action) {
+      action();
+    }
+  }
+  function saveAndSwitch() {
+    if (saveLocal()) {
+      switchWithoutSaving();
+    } else {
+      element("switch-message").textContent = "\u672C\u5730\u4FDD\u5B58\u5931\u8D25\u3002\u4F60\u53EF\u4EE5\u91CD\u8BD5\u3001\u53D6\u6D88\uFF0C\u6216\u4E0D\u4FDD\u5B58\u5E76\u5207\u6362";
+    }
+  }
+  function openExperiment(id) {
     activeExperiment = id;
     state.project = copyProject(workspace.projects[id]);
+    state.saveFailed = false;
+    resetExperiment();
+  }
+  function resetExperiment() {
     resetRuntime();
     state.undo = [];
     state.redo = [];
+    state.notesEditing = false;
+    recentAction = "";
+    diagnosticToastId = "";
+    saveToastId = "";
+    powerToastId = "";
+    clearToasts();
     calculate(false);
-    render();
     renderLibrary();
+    render();
   }
   function diagnoseCurrentCircuit() {
     circuitDiagnostics = inspectCircuit(state.project, state.result);
     state.activeTab = "diagnostics";
+    dismissToast(diagnosticToastId);
     if (circuitDiagnostics.issues.length > 0) {
-      toast("\u53D1\u73B0 " + circuitDiagnostics.issues.length + " \u9879\u8BCA\u65AD\uFF0C\u8BF7\u67E5\u770B\u53F3\u4FA7\u8BE6\u60C5", "warning");
+      diagnosticToastId = showToast("\u53D1\u73B0 " + circuitDiagnostics.issues.length + " \u9879\u8BCA\u65AD\uFF0C\u8BF7\u67E5\u770B\u8BE6\u60C5", "warning");
     } else if (!state.project.power) {
-      toast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u53EF\u67E5\u770B\u82AF\u7247\u4F9B\u7535\u4E0E\u63A5\u7EBF\u72B6\u6001", "info");
+      diagnosticToastId = showToast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u53EF\u67E5\u770B\u82AF\u7247\u4F9B\u7535\u4E0E\u63A5\u7EBF\u72B6\u6001", "info");
     } else {
-      toast("\u5F53\u524D\u672A\u53D1\u73B0\u4F9B\u7535\u3001\u51B2\u7A81\u3001\u77ED\u8DEF\u6216\u903B\u8F91\u72B6\u6001\u5F02\u5E38", "info");
+      diagnosticToastId = showToast("\u5F53\u524D\u672A\u53D1\u73B0\u4F9B\u7535\u3001\u51B2\u7A81\u3001\u77ED\u8DEF\u6216\u903B\u8F91\u72B6\u6001\u5F02\u5E38", "info");
     }
     render();
   }
@@ -12023,7 +12208,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       toast("\u5F53\u524D\u5B9E\u9A8C\u8FD8\u6CA1\u6709\u5BFC\u7EBF", "info");
       return;
     }
-    confirmAction("\u6574\u7406\u8D70\u7EBF\uFF1F", "libavoid \u4F1A\u907F\u5F00\u82AF\u7247\uFF0C\u7EFC\u5408\u8C03\u6574\u62D0\u89D2\u3001\u4EA4\u53C9\u548C\u7EBF\u95F4\u8DDD\uFF1B\u8D77\u70B9\u3001\u7EC8\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\u4FDD\u6301\u4E0D\u53D8\u3002\u624B\u52A8\u8F6C\u6298\u70B9\u5C06\u88AB\u66FF\u6362\uFF0C\u4F60\u53EF\u4EE5\u64A4\u9500\u8FD9\u6B21\u6574\u7406", applyWireRouting, "\u786E\u8BA4\u6574\u7406", false);
+    confirmAction("\u6574\u7406\u8D70\u7EBF\uFF1F", "\u5C06\u6309\u5F53\u524D\u8D70\u7EBF\u6A21\u5F0F\u91CD\u65B0\u8BA1\u7B97\u8DEF\u5F84\uFF0C\u5E76\u66FF\u6362\u624B\u52A8\u8F6C\u6298\u70B9\u3002\u5BFC\u7EBF\u7AEF\u70B9\u3001\u989C\u8272\u548C\u5907\u6CE8\u4E0D\u4F1A\u6539\u53D8\u3002\u6B64\u64CD\u4F5C\u53EF\u4EE5\u64A4\u9500", applyWireRouting, "\u786E\u8BA4\u6574\u7406", false);
   }
   async function applyWireRouting() {
     const experiment = activeExperiment;
@@ -12031,7 +12216,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const candidate = copyProject(state.project);
     const angle = state.wireAngle;
     routingBusy = true;
-    routingToastId = showToast("\u6B63\u5728\u6574\u7406\u8D70\u7EBF\uFF0C\u8BF7\u7A0D\u5019", "info", true);
+    const waiting = showToast("\u6B63\u5728\u6574\u7406\u8D70\u7EBF\uFF0C\u8BF7\u7A0D\u5019", "info", true);
     render();
     try {
       const routes = await routeWires(candidate, angle);
@@ -12059,16 +12244,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     } catch (error) {
       toast("\u539F\u63A5\u7EBF\u5DF2\u4FDD\u7559\uFF0C" + error.message, "warning");
     } finally {
-      dismissToast(routingToastId);
-      routingToastId = "";
+      dismissToast(waiting);
       routingBusy = false;
       render();
     }
   }
   function toast(message, kind) {
-    showToast(message, kind);
+    const id = showToast(message, kind);
     recentAction = message;
     updateActionStatus();
+    return id;
   }
   function remember() {
     state.undo.push(copyProject(state.project));
@@ -12079,25 +12264,57 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function saveLocal() {
     try {
+      validateProject(state.project);
       keepExperiment(workspace, activeExperiment, state.project);
       const nextSaved = copyProject(savedExperiments);
+      for (const id of importedExperiments.keys()) {
+        if (id !== activeExperiment) {
+          const project = importedExperiments.get(id);
+          keepExperiment(nextSaved, id, project);
+        }
+      }
       keepExperiment(nextSaved, activeExperiment, state.project);
       localStorage.setItem(WORKSPACE_KEY, JSON.stringify(nextSaved));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.project));
       savedExperiments = nextSaved;
+      for (const id of importedExperiments.keys()) {
+        const imported = JSON.stringify(importedExperiments.get(id));
+        const draft = JSON.stringify(workspace.projects[id]);
+        if (imported === draft) {
+          dirtyExperiments.delete(id);
+        }
+      }
+      importedExperiments.clear();
       dirtyExperiments.delete(activeExperiment);
-      dirty = dirtyExperiments.size > 0;
-      element("save-status").textContent = "\u5F53\u524D\u5B9E\u9A8C\u5DF2\u4FDD\u5B58";
+      dismissToast(saveToastId);
+      saveToastId = "";
       state.saveFailed = false;
+      renderSaveStatus();
+      return true;
     } catch (error) {
-      element("save-status").textContent = "\u672C\u5730\u4FDD\u5B58\u4E0D\u53EF\u7528";
       if (!state.saveFailed) {
-        toast("\u6D4F\u89C8\u5668\u65E0\u6CD5\u4FDD\u5B58\u7535\u8DEF\uFF0C\u8BF7\u4F7F\u7528\u5BFC\u51FA\u6309\u94AE\u4FDD\u7559\u6587\u4EF6", "warning");
+        saveToastId = showToast("\u672A\u80FD\u4FDD\u5B58\u5F53\u524D\u5B9E\u9A8C\uFF0C\u53EF\u5148\u5BFC\u51FA JSON \u5907\u4EFD\u3002\u539F\u56E0\uFF1A" + error.message, "warning");
         state.saveFailed = true;
       }
+      renderSaveStatus();
+      return false;
+    }
+  }
+  function renderSaveStatus() {
+    const status = element("save-status");
+    if (state.saveFailed) {
+      status.textContent = "\u672C\u5730\u4FDD\u5B58\u4E0D\u53EF\u7528";
+    } else if (dirtyExperiments.has(activeExperiment)) {
+      status.textContent = "\u5F53\u524D\u5B9E\u9A8C\u672A\u4FDD\u5B58";
+    } else if (importedExperiments.size > 0) {
+      status.textContent = "\u5BFC\u5165\u7684\u5907\u4EFD\u672A\u4FDD\u5B58";
+    } else if (dirtyExperiments.size > 0) {
+      status.textContent = "\u5176\u4ED6\u5B9E\u9A8C\u6709\u672A\u4FDD\u5B58\u66F4\u6539";
+    } else {
+      status.textContent = "\u65E0\u672A\u4FDD\u5B58\u66F4\u6539";
     }
   }
   function calculate(notify) {
+    const previousPower = circuitDiagnostics.power;
     state.result = simulate(state.project, state.runtime);
     circuitDiagnostics = inspectCircuit(state.project, state.result);
     const current = /* @__PURE__ */ new Set();
@@ -12109,6 +12326,12 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         newIssues.push(issue);
       }
     }
+    const previous = state.previousIssues;
+    const issuesChanged = previousPower !== circuitDiagnostics.power || current.size !== previous.size || newIssues.length > 0;
+    if (issuesChanged) {
+      dismissToast(diagnosticToastId);
+      diagnosticToastId = "";
+    }
     if (notify && newIssues.length > 0) {
       let message = newIssues[0].message;
       if (newIssues.length > 1) {
@@ -12118,7 +12341,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       if (newIssues[0].severity === "warning") {
         kind = "warning";
       }
-      toast(message, kind);
+      diagnosticToastId = showToast(message, kind);
     }
     state.previousIssues = current;
     animateBoard();
@@ -12163,11 +12386,31 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const target = targetVisuals();
     if (state.visual.switches.length === 0) {
       state.visual = target;
+      boardTransitionLast = target;
+      return;
+    }
+    if (boardTransitionLast && sameBoardVisual(boardTransitionLast, target)) {
       return;
     }
     boardTransitionFirst = state.visual;
     boardTransitionLast = target;
     tween("board", 0, 1, updateBoardTransition, MOTION.duration);
+  }
+  function sameBoardVisual(first, second) {
+    if (first.internals !== second.internals) {
+      return false;
+    }
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      if (first.switches[index] !== second.switches[index]) {
+        return false;
+      }
+    }
+    for (const name of Object.keys(first.leds)) {
+      if (first.leds[name] !== second.leds[name]) {
+        return false;
+      }
+    }
+    return true;
   }
   function commit() {
     calculate(true);
@@ -12506,8 +12749,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     const target = hitTest(canvasPoint(event), state, endpoints);
     if (target && target.kind === "pulse") {
-      startPulse(target.id);
-      canvas.setPointerCapture(event.pointerId);
+      startPointerPulse(event, target.id);
       return;
     }
     if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey) {
@@ -12583,13 +12825,17 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     drag.moved = true;
     const wire = findWire(drag.wire);
     if (drag.handle > 0 && drag.handle < drag.points.length - 1) {
+      const location = { x: Math.round(point.x), y: Math.round(point.y) };
+      if (!validWireBend(location) || point.y > BOARD.height) {
+        return;
+      }
       const bends = [];
       for (let index = 1; index < drag.points.length - 1; index = index + 1) {
-        let location = drag.points[index];
+        let bend = drag.points[index];
         if (index === drag.handle) {
-          location = { x: Math.round(point.x), y: Math.round(point.y) };
+          bend = location;
         }
-        bends.push(location);
+        bends.push(bend);
       }
       wire.bends = bends;
       if (state.wireAngle === 45) {
@@ -12599,8 +12845,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     renderBoard(canvas, state, endpoints);
   }
   function pointerUp(event) {
-    if (heldPulse !== "") {
-      finishPulse();
+    if (releasePointerPulse(event)) {
       ignoreClick = true;
       if (canvas.hasPointerCapture(event.pointerId)) {
         canvas.releasePointerCapture(event.pointerId);
@@ -12621,8 +12866,9 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     ignoreClick = true;
     const wire = findWire(current.wire);
     const end = current.handle === 0 || current.handle === current.points.length - 1;
+    const point = canvasPoint(event);
     if (end) {
-      const name = nearestEndpoint(canvasPoint(event), endpoints);
+      const name = nearestEndpoint(point, endpoints);
       let previous = wire.from;
       if (current.handle !== 0) {
         previous = wire.to;
@@ -12641,13 +12887,18 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       if (state.wireAngle === 45) {
         wire.angle = 45;
       }
+    } else if (!validWireBend(point) || point.y > BOARD.height) {
+      state.project = current.original;
+      toast("\u8BF7\u5728\u753B\u5E03\u5185\u653E\u7F6E\u8F6C\u6298\u70B9\uFF0C\u539F\u63A5\u7EBF\u5DF2\u4FDD\u7559", "warning");
+      render();
+      return;
     }
     state.undo.push(current.original);
     state.redo = [];
     commit();
   }
-  function cancelPointer() {
-    finishPulse();
+  function cancelPointer(event) {
+    releasePointerPulse(event);
     if (drag && drag.moved) {
       state.project = drag.original;
     }
@@ -12662,28 +12913,59 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       dragPointer(event);
       return;
     }
-    const point = canvasPoint(event);
+    hoverPoint = { clientX: event.clientX, clientY: event.clientY };
+    if (hoverFrame === 0) {
+      hoverFrame = window.requestAnimationFrame(updateBoardHover);
+    }
+  }
+  function updateBoardHover() {
+    hoverFrame = 0;
+    const point = canvasPoint(hoverPoint);
     state.pointer = point;
     const target = hitTest(point, state, endpoints);
-    state.hovered = "";
+    let hovered = "";
+    let status = "\u9762\u5305\u677F";
+    let title = "";
     if (target && target.kind === "node") {
-      state.hovered = target.id;
+      hovered = target.id;
       const value = readEndpoint(state.result, target.id);
-      element("pointer-status").textContent = endpointLabel(target.id) + " \xB7 " + value;
-      canvas.title = endpointLabel(target.id) + "\uFF1A" + value;
+      status = endpointLabel(target.id) + " \xB7 " + value;
+      title = status;
     } else if (target && target.kind === "chip") {
-      element("pointer-status").textContent = target.id;
-      canvas.title = target.id;
-    } else {
-      element("pointer-status").textContent = "\u9762\u5305\u677F";
-      canvas.title = "";
+      status = target.id;
+      title = target.id;
     }
-    renderBoard(canvas, state, endpoints);
+    setPointerStatus(status, title);
+    if (state.hovered !== hovered || state.pending) {
+      state.hovered = hovered;
+      renderBoard(canvas, state, endpoints);
+    }
   }
-  function leaveBoard() {
+  function setPointerStatus(status, title) {
+    const label2 = element("pointer-status");
+    if (label2.textContent !== status) {
+      label2.textContent = status;
+    }
+    if (canvas.title !== title) {
+      canvas.title = title;
+    }
+  }
+  function clearBoardHover() {
+    if (hoverFrame !== 0) {
+      window.cancelAnimationFrame(hoverFrame);
+      hoverFrame = 0;
+    }
+    hoverPoint = null;
     state.hovered = "";
     state.pointer = null;
-    renderBoard(canvas, state, endpoints);
+    setPointerStatus("\u9762\u5305\u677F", "");
+  }
+  function leaveBoard() {
+    const repaint = state.hovered !== "" || Boolean(state.pending && state.pointer);
+    clearBoardHover();
+    if (repaint) {
+      renderBoard(canvas, state, endpoints);
+    }
   }
   function cancelWire() {
     state.pending = null;
@@ -12838,11 +13120,11 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function startPulse(kind) {
     if (!state.project.power) {
-      toast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u8BF7\u5148\u6253\u5F00\u7535\u6E90\u518D\u53D1\u8109\u51B2", "warning");
-      return;
+      powerToastId = showToast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u8BF7\u5148\u6253\u5F00\u7535\u6E90\u518D\u53D1\u8109\u51B2", "warning");
+      return false;
     }
     if (heldPulse !== "") {
-      return;
+      return false;
     }
     window.clearTimeout(pulseTimer);
     heldPulse = kind;
@@ -12854,6 +13136,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     calculate(true);
     render();
+    return true;
   }
   function finishPulse() {
     if (heldPulse === "") {
@@ -12861,6 +13144,8 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     const kind = heldPulse;
     heldPulse = "";
+    pulsePointerId = null;
+    pulsePointerTarget = null;
     state.runtime.pulses.positive = 0;
     state.runtime.pulses.negative = 1;
     calculate(true);
@@ -12870,20 +13155,33 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function clearPulseFeedback() {
     state.pressedPulse = "";
-    render();
+    renderPulseButtons();
+    updateActionStatus();
+    renderBoard(canvas, state, endpoints);
   }
   function pulse(kind) {
-    startPulse(kind);
-    finishPulse();
-  }
-  function pressPulseButton(event) {
-    startPulse(event.currentTarget.dataset.pulse);
-    if (heldPulse !== "") {
-      event.currentTarget.setPointerCapture(event.pointerId);
+    if (startPulse(kind)) {
+      finishPulse();
     }
   }
-  function releasePulseButton() {
+  function startPointerPulse(event, kind) {
+    if (event.button !== 0 || !startPulse(kind)) {
+      return;
+    }
+    pulsePointerId = event.pointerId;
+    pulsePointerTarget = event.currentTarget;
+    pulsePointerTarget.setPointerCapture(pulsePointerId);
+  }
+  function pressPulseButton(event) {
+    const kind = event.currentTarget.dataset.pulse;
+    startPointerPulse(event, kind);
+  }
+  function releasePointerPulse(event) {
+    if (event.pointerId !== pulsePointerId || event.currentTarget !== pulsePointerTarget) {
+      return false;
+    }
     finishPulse();
+    return true;
   }
   function clickPulseButton(event) {
     if (event.detail === 0) {
@@ -12893,6 +13191,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function changePower(event) {
     remember();
     state.project.power = event.currentTarget.checked;
+    if (state.project.power) {
+      dismissToast(powerToastId);
+      powerToastId = "";
+    }
     commit();
   }
   function undoEdit() {
@@ -12921,6 +13223,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function resetRuntime() {
     heldPulse = "";
+    pulsePointerId = null;
+    pulsePointerTarget = null;
+    drag = null;
+    ignoreClick = false;
+    clearBoardHover();
+    cancelTween("board");
+    boardTransitionLast = null;
+    state.visual.switches = [];
     state.pressedPulse = "";
     window.clearTimeout(pulseTimer);
     state.runtime = createRuntime();
@@ -12938,25 +13248,22 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     resetInspectionLayout();
   }
   function newProject() {
-    keepExperiment(workspace, activeExperiment, state.project);
     const blank = findBlankExperiment(workspace);
-    if (blank !== "") {
-      activeExperiment = blank;
-      state.project = copyProject(workspace.projects[blank]);
-      resetRuntime();
-      calculate(false);
-      render();
-      toast("\u5DF2\u5207\u6362\u5230\u73B0\u6709\u7684\u7A7A\u767D\u5B9E\u9A8C\u3002\u4F60\u5F00\u59CB\u7F16\u8F91\u540E\uFF0C\u53EF\u4EE5\u518D\u65B0\u5EFA\u4E0B\u4E00\u4EFD", "info");
+    if (blank === activeExperiment) {
+      toast("\u5F53\u524D\u5B9E\u9A8C\u5DF2\u7ECF\u662F\u7A7A\u767D\u5B9E\u9A8C", "info");
       return;
     }
-    activeExperiment = newExperimentId();
-    state.project = emptyProject();
-    state.project.name = "\u7A7A\u767D\u5B9E\u9A8C " + (Object.keys(workspace.projects).length + 1);
-    resetRuntime();
-    state.undo = [];
-    state.redo = [];
-    commit();
-    renderLibrary();
+    if (blank !== "") {
+      requestExperimentSwitch(openExperiment.bind(null, blank));
+      return;
+    }
+    requestExperimentSwitch(createBlankExperiment);
+  }
+  function createBlankExperiment() {
+    const project = emptyProject();
+    const count = Object.keys(workspace.projects).length + 1;
+    project.name = "\u7A7A\u767D\u5B9E\u9A8C " + count;
+    openNewExperiment(project);
   }
   function renameProject(event) {
     if (editingLocked()) {
@@ -12986,6 +13293,13 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function chooseImport() {
     element("import-file").click();
   }
+  function openNewExperiment(project) {
+    activeExperiment = newExperimentId();
+    state.project = project;
+    state.saveFailed = false;
+    stageChanges();
+    resetExperiment();
+  }
   async function importProject(event) {
     const input = event.currentTarget;
     const file = input.files[0];
@@ -12999,27 +13313,27 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       const content = await file.text();
       const parsed = JSON.parse(content);
       if (parsed.projects) {
-        keepExperiment(workspace, activeExperiment, state.project);
         const imported = validateWorkspace(parsed);
         for (const id of Object.keys(imported.projects)) {
-          workspace.projects[newExperimentId()] = imported.projects[id];
+          const newId = newExperimentId();
+          const project = imported.projects[id];
+          workspace.projects[newId] = copyProject(project);
+          importedExperiments.set(newId, project);
+          dirtyExperiments.add(newId);
         }
-        cleanWorkspace(workspace);
-        stageChanges();
+        const saved = autoSave && saveLocal();
         render();
-        toast("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\u3002\u4F60\u53EF\u4EE5\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u5207\u6362\uFF0C\u6309 Ctrl+S \u4FDD\u5B58", "info");
-        input.value = "";
-        return;
+        if (saved) {
+          toast("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\u5E76\u4FDD\u5B58\uFF0C\u53EF\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u67E5\u770B", "info");
+        } else if (autoSave) {
+          recordPendingImport("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\uFF0C\u4F46\u81EA\u52A8\u4FDD\u5B58\u5931\u8D25\u3002\u8BF7\u91CD\u8BD5\u4FDD\u5B58", "warning");
+        } else {
+          recordPendingImport("\u5B9E\u9A8C\u5907\u4EFD\u5DF2\u5BFC\u5165\uFF0C\u53EF\u5728\u201C\u6211\u7684\u5B9E\u9A8C\u201D\u4E2D\u67E5\u770B\u3002\u6309 Ctrl+S \u4FDD\u5B58\u5C1A\u672A\u5199\u5165\u7684\u5907\u4EFD", "info");
+        }
+      } else {
+        const candidate = validateProject(parsed);
+        requestExperimentSwitch(openNewExperiment.bind(null, candidate));
       }
-      const candidate = validateProject(parsed);
-      keepExperiment(workspace, activeExperiment, state.project);
-      activeExperiment = newExperimentId();
-      state.project = candidate;
-      resetRuntime();
-      state.undo = [];
-      state.redo = [];
-      commit();
-      renderLibrary();
     } catch (error) {
       let message = "\u7535\u8DEF\u6587\u4EF6\u65E0\u6CD5\u89E3\u6790\uFF0C\u8BF7\u68C0\u67E5 JSON \u683C\u5F0F";
       if (!(error instanceof SyntaxError)) {
@@ -13029,6 +13343,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     }
     input.value = "";
   }
+  function recordPendingImport(message, kind) {
+    dismissToast(saveToastId);
+    saveToastId = showToast(message, kind);
+  }
   function receiveImage(blob) {
     if (!blob) {
       toast("\u65E0\u6CD5\u5BFC\u51FA\u56FE\u7247\uFF0C\u8BF7\u91CD\u8BD5", "error");
@@ -13037,6 +13355,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     download(blob, EXPORT_SETTINGS.image);
   }
   function exportImage() {
+    renderBoard(canvas, state, endpoints);
     canvas.toBlob(receiveImage, "image/png");
   }
   function applyZoom(value) {
@@ -13087,6 +13406,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.showInternals = element("show-internals").checked;
     state.showLevels = element("show-levels").checked;
     animateBoard();
+    renderBoard(canvas, state, endpoints);
   }
   function connectByName() {
     const first = element("from-endpoint").value.trim();
@@ -13096,7 +13416,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   function changeTab(event) {
     state.activeTab = event.currentTarget.id.slice(4);
     renderPanels();
-    fadeContent(element(state.activeTab + "-panel"));
   }
   function appendPinRow(table, chip, pin) {
     const model = CHIP_MODELS[chip.model];
@@ -13833,7 +14152,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
       state.project.outputCount = count;
     }
     commit();
-    fadeContent(document.querySelector(".io-strip"));
   }
   function renderNotes() {
     const editor = element("notes-editor");
@@ -13859,12 +14177,10 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     state.notesEditing = true;
     renderNotes();
     element("notes-editor").focus({ preventScroll: true });
-    fadeContent(element("notes-editor"));
   }
   function previewNotes() {
     state.notesEditing = false;
     renderNotes();
-    fadeContent(element("notes-preview"));
   }
   function rememberNotes() {
     remember();
@@ -13880,17 +14196,17 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("undo").disabled = state.undo.length === 0;
     element("redo").disabled = state.redo.length === 0;
   }
-  function render() {
-    updateActionStatus();
+  function renderPulseButtons() {
     for (const button of document.querySelectorAll(".pulse-button")) {
       const pressed = button.dataset.pulse === state.pressedPulse;
       button.classList.toggle("pressed", pressed);
       button.setAttribute("aria-pressed", String(pressed));
     }
-    element("save-status").textContent = "\u5F53\u524D\u5B9E\u9A8C\u5DF2\u4FDD\u5B58";
-    if (dirtyExperiments.has(activeExperiment)) {
-      element("save-status").textContent = "\u5F53\u524D\u5B9E\u9A8C\u672A\u4FDD\u5B58";
-    }
+  }
+  function render() {
+    updateActionStatus();
+    renderPulseButtons();
+    renderSaveStatus();
     element("read-only-toggle").checked = readOnly;
     element("project-name").readOnly = readOnly;
     for (const id of ["tool-place", "tool-wire", "tool-delete", "arrange-wires", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
@@ -13963,7 +14279,6 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
   function showHelp() {
     element("help-dialog").showModal();
-    fadeContent(element("help-dialog"));
   }
   function closeHelp() {
     element("help-dialog").close();
@@ -13976,10 +14291,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     const editing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
       event.preventDefault();
+      if (element("switch-dialog").open) {
+        saveAndSwitch();
+        return;
+      }
       saveCurrent();
       return;
     }
-    if (element("confirm-dialog").open) {
+    if (element("confirm-dialog").open || element("switch-dialog").open) {
       return;
     }
     if (element("logic-diagram-dialog").open) {
@@ -14012,11 +14331,16 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
     canvas.addEventListener("pointercancel", cancelPointer);
+    canvas.addEventListener("lostpointercapture", releasePointerPulse);
     element("save-project").addEventListener("click", saveCurrent);
     element("autosave-toggle").addEventListener("change", changeAutoSave);
     element("quick-delete").addEventListener("click", quickDelete);
     element("confirm-cancel").addEventListener("click", cancelConfirmation);
     element("confirm-accept").addEventListener("click", acceptConfirmation);
+    element("switch-cancel").addEventListener("click", cancelExperimentSwitch);
+    element("switch-dialog").addEventListener("cancel", cancelExperimentSwitch);
+    element("switch-without-saving").addEventListener("click", switchWithoutSaving);
+    element("switch-save").addEventListener("click", saveAndSwitch);
     window.addEventListener("beforeunload", beforeLeave);
     element("read-only-toggle").addEventListener("change", changeReadOnly);
     element("new-experiment").addEventListener("click", newProject);
@@ -14043,17 +14367,18 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     element("show-levels").addEventListener("change", changeDisplayOptions);
     for (const button of document.querySelectorAll(".pulse-button")) {
       button.addEventListener("pointerdown", pressPulseButton);
-      button.addEventListener("pointerup", releasePulseButton);
-      button.addEventListener("pointercancel", releasePulseButton);
+      button.addEventListener("pointerup", releasePointerPulse);
+      button.addEventListener("pointercancel", releasePointerPulse);
+      button.addEventListener("lostpointercapture", releasePointerPulse);
       button.addEventListener("click", clickPulseButton);
     }
-    window.addEventListener("blur", releasePulseButton);
+    window.addEventListener("blur", finishPulse);
     element("power-toggle").addEventListener("change", changePower);
     element("new-project").addEventListener("click", newProject);
     element("export-project").addEventListener("click", exportProject);
     element("import-project").addEventListener("click", chooseImport);
     element("import-file").addEventListener("change", importProject);
-    element("project-name").addEventListener("change", renameProject);
+    element("project-name").addEventListener("input", renameProject);
     element("export-image").addEventListener("click", exportImage);
     element("connect-endpoints").addEventListener("click", connectByName);
     element("tab-inspect").addEventListener("click", changeTab);

@@ -17,6 +17,12 @@ const FILE_BOUNDS = { width: 1300, height: 1280 };
 // 旧补码文件至少显示七个端口，包含清零输入与溢出输出
 const LEGACY_COMPLEMENT_PORT_COUNT = 7;
 
+// 判断转折点能否写入实验文件，编辑和导入都使用相同的坐标范围
+export function validWireBend(bend) {
+    return Boolean(bend && Number.isFinite(bend.x) && Number.isFinite(bend.y) &&
+        bend.x >= 0 && bend.x <= FILE_BOUNDS.width && bend.y >= 0 && bend.y <= FILE_BOUNDS.height);
+}
+
 // 无版本旧文件的板载端口独立，版本 2 的第四块上下五孔也尚未桥接
 function legacyNode(name, wiringVersion) {
     if (wiringVersion === undefined && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
@@ -212,7 +218,7 @@ function restoreWires(value, project, occupied) {
         }
         const bends = [];
         for (const bend of entry.bends) {
-            if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y) || bend.x < 0 || bend.x > FILE_BOUNDS.width || bend.y < 0 || bend.y > FILE_BOUNDS.height) {
+            if (!validWireBend(bend)) {
                 throw new Error("导线转折点超出面包板范围");
             }
             bends.push({ x: bend.x, y: bend.y });

@@ -17,11 +17,13 @@
 .select-trigger[aria-expanded="true"] { border-color: var(--color-accent); background: var(--color-accent-soft); }
 .select-trigger[aria-expanded="true"] > svg { transform: rotate(180deg); color: var(--color-accent); }
 /* 两侧仅保留窄滚动条占位，不再叠加宽大的默认空白 */
-.select-panel { position: fixed; inset: auto; margin: 0; padding: var(--select-panel-padding-block) var(--select-padding-inline); border: 1px solid var(--color-rule); border-radius: 6px; background: var(--color-surface); color: var(--color-ink); box-shadow: 0 8px 24px var(--color-shadow); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-gutter: stable both-edges; opacity: 0; transform: translateY(-4px); transition: opacity var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out), display var(--dur-micro) allow-discrete, overlay var(--dur-micro) allow-discrete; }
+.select-panel { position: fixed; inset: auto; margin: 0; padding: var(--select-panel-padding-block) var(--select-padding-inline); border: 1px solid var(--color-rule); border-radius: 6px; background: var(--color-surface); color: var(--color-ink); box-shadow: 0 8px 24px var(--color-shadow); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-gutter: stable both-edges; opacity: 0; transform: scaleY(0.97); transform-origin: center top; pointer-events: none; transition: opacity var(--dur-popover) var(--ease-out), transform var(--dur-popover) var(--ease-out), display var(--dur-popover) allow-discrete, overlay var(--dur-popover) allow-discrete; }
+.select-panel[data-direction="up"] { transform-origin: center bottom; }
+.select-panel.keyboard-open { transition: none; }
 .select-panel::-webkit-scrollbar { width: var(--select-scrollbar-width); }
 .select-panel::-webkit-scrollbar-thumb { background: var(--color-muted); border-radius: 2px; }
-.select-panel:popover-open { opacity: 1; transform: translateY(0); }
-@starting-style { .select-panel:popover-open { opacity: 0; transform: translateY(-4px); } }
+.select-panel:popover-open { opacity: 1; transform: none; pointer-events: auto; }
+@starting-style { .select-panel:popover-open { opacity: 0; transform: scaleY(0.97); } }
 .select-option { display: flex; align-items: center; gap: var(--select-option-gap); min-height: 40px; padding: var(--select-option-padding-block) var(--select-padding-inline); border-radius: 4px; font-size: 12px; line-height: 1.5; cursor: pointer; }
 .select-option-label { flex: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
 .select-option > svg { width: 16px; height: 16px; flex: 0 0 16px; visibility: hidden; color: var(--color-accent); }

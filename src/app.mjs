@@ -1,6 +1,6 @@
 import { element, node, icon, refreshIcons } from "./ui/dom.mjs";
 import { appendChipReference } from "./ui/chip-reference-view.mjs";
-import { showToast, dismissToast } from "./ui/toast.mjs";
+import { showToast, dismissToast, clearToasts } from "./ui/toast.mjs";
 import { refreshSelect, cleanSelectPanels } from "./ui/select-control.mjs";
 import { BOARD, WIRE_COLORS, IO_LIMIT, NOTES_LIMIT, copyProject, emptyProject, endpointLabel, pinHole, placementError, isPhysicalHole } from "./board/board.mjs";
 import { CHIP_MODELS } from "./chips/chips.mjs";
@@ -10,8 +10,8 @@ import { complementPreset, isComplementPreset, COMPLEMENT_RESET_INPUT } from "./
 import { routeWires, routeNewWire } from "./board/routing.mjs";
 import { DRAW, allEndpoints, renderBoard } from "./board/render.mjs";
 import { hitTest, hitCandidates, wireHandleAt, nearestEndpoint, chipBounds, wireDisplayPaths } from "./board/geometry.mjs";
-import { LIMITS, STORAGE_KEY, validateProject } from "./storage/storage.mjs";
-import { MOTION, tween, fadeContent } from "./ui/motion.mjs";
+import { LIMITS, STORAGE_KEY, validateProject, validWireBend } from "./storage/storage.mjs";
+import { MOTION, tween, cancelTween } from "./ui/motion.mjs";
 import { markdownFragment } from "./ui/notes.mjs";
 import { inspectCircuit } from "./simulation/diagnostics.mjs";
 import { CHIP_REFERENCES, sortedChipNames } from "./chips/catalog.mjs";
@@ -100,11 +100,12 @@ let readOnly = false;
 let workspace = { version: 1, activeId: "", projects: {} };
 let activeExperiment = "";
 let circuitDiagnostics = { issues: [], chips: [], power: false, stable: false };
-let dirty = false;
 const dirtyExperiments = new Set();
+const importedExperiments = new Map();
 let savedExperiments = { version: 1, activeId: "", projects: {} };
 let autoSave = false;
 let confirmationAction = null;
+let switchAction = null;
 let drag = null;
 let boardPan = null;
 let boardSelection = null;
@@ -112,10 +113,16 @@ let ignoreClick = false;
 let cycle = { x: -100, y: -100, signature: "", index: 0 };
 let catalogModel = "";
 let heldPulse = "";
+let pulsePointerId = null;
+let pulsePointerTarget = null;
 let pulseTimer = 0;
 let recentAction = "";
+let diagnosticToastId = "";
+let saveToastId = "";
+let powerToastId = "";
+let hoverFrame = 0;
+let hoverPoint = null;
 let routingBusy = false;
-let routingToastId = "";
 const expandedSelection = new Set();
 
 // 更新时间栏，统一按北京时间显示，版本号来自同一个配置文件
@@ -127,11 +134,11 @@ function updateClock() {
 // 把编辑留在内存中；只有手动保存或开启自动保存时才写入浏览器
 function stageChanges() {
     keepExperiment(workspace, activeExperiment, state.project);
-    dirty = true;
     dirtyExperiments.add(activeExperiment);
-    element("save-status").textContent = "有未保存的更改";
     if (autoSave) {
         saveLocal();
+    } else {
+        renderSaveStatus();
     }
 }
 
@@ -150,7 +157,7 @@ function changeAutoSave(event) {
 
 // 有未保存内容时让浏览器在关闭或刷新页面前询问是否离开
 function beforeLeave(event) {
-    if (dirty) {
+    if (dirtyExperiments.size > 0) {
         event.preventDefault();
         event.returnValue = "";
     }
@@ -190,6 +197,7 @@ function deleteCurrentExperiment() {
     delete workspace.projects[activeExperiment];
     delete savedExperiments.projects[activeExperiment];
     dirtyExperiments.delete(activeExperiment);
+    importedExperiments.delete(activeExperiment);
     const ids = Object.keys(workspace.projects);
     if (ids.length === 0) {
         activeExperiment = newExperimentId();
@@ -198,21 +206,22 @@ function deleteCurrentExperiment() {
         activeExperiment = ids[0];
         state.project = copyProject(workspace.projects[activeExperiment]);
     }
-    resetRuntime();
-    state.undo = [];
-    state.redo = [];
-    commit();
-    renderLibrary();
-    if (Object.keys(savedExperiments.projects).length > 0) {
-        savedExperiments.activeId = Object.keys(savedExperiments.projects)[0];
+    keepExperiment(workspace, activeExperiment, state.project);
+    const savedIds = Object.keys(savedExperiments.projects);
+    if (savedIds.length > 0) {
+        savedExperiments.activeId = savedIds[0];
     } else {
-        savedExperiments.activeId = activeExperiment;
-        savedExperiments.projects[activeExperiment] = copyProject(state.project);
+        // 列表中只剩未保存的草稿时，为下次启动保留一份独立空白实验
+        const blankId = newExperimentId();
+        keepExperiment(savedExperiments, blankId, emptyProject());
     }
+    state.saveFailed = false;
+    resetExperiment();
     try {
         localStorage.setItem(WORKSPACE_KEY, JSON.stringify(savedExperiments));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedExperiments.projects[savedExperiments.activeId]));
     } catch (error) {
+        state.saveFailed = true;
+        renderSaveStatus();
         toast("实验已从列表移除，你可以在浏览器存储恢复后保存", "warning");
     }
 }
@@ -275,33 +284,87 @@ function renderExperiments() {
     refreshSelect(picker);
 }
 
-// 保存并切换到另一份本地实验，寄存器按重新上电处理
+// 选择不同的实验时先恢复下拉框，用户确认后才更新当前实验
 function switchExperiment(event) {
-    keepExperiment(workspace, activeExperiment, state.project);
     const id = event.currentTarget.value;
-    if (!Object.hasOwn(workspace.projects, id)) {
+    if (id === activeExperiment || !Object.hasOwn(workspace.projects, id)) {
         return;
     }
+    renderExperiments();
+    requestExperimentSwitch(openExperiment.bind(null, id));
+}
+
+// 有未保存的当前实验时先询问，其他草稿不会随切换写入存档
+function requestExperimentSwitch(action) {
+    if (!dirtyExperiments.has(activeExperiment)) {
+        action();
+        return;
+    }
+    switchAction = action;
+    const message = element("switch-message");
+    message.textContent = "“" + state.project.name + "”有未保存的更改。不保存并切换时，更改仅保留到本次会话结束";
+    element("switch-dialog").showModal();
+}
+
+// 取消切换，保留当前实验、撤销记录和未保存的更改
+function cancelExperimentSwitch() {
+    switchAction = null;
+    element("switch-dialog").close();
+}
+
+// 执行用户确认的切换，不保存时只保留内存中的草稿
+function switchWithoutSaving() {
+    const action = switchAction;
+    cancelExperimentSwitch();
+    if (action) {
+        action();
+    }
+}
+
+// 写入成功后才切换，失败时留在当前实验以便重试或导出
+function saveAndSwitch() {
+    if (saveLocal()) {
+        switchWithoutSaving();
+    } else {
+        element("switch-message").textContent = "本地保存失败。你可以重试、取消，或不保存并切换";
+    }
+}
+
+// 打开已有实验的草稿，切换时不会写入本地存储
+function openExperiment(id) {
     activeExperiment = id;
     state.project = copyProject(workspace.projects[id]);
+    state.saveFailed = false;
+    resetExperiment();
+}
+
+// 切换实验后清空上一份的历史记录，重新计算易失状态
+function resetExperiment() {
     resetRuntime();
     state.undo = [];
     state.redo = [];
+    state.notesEditing = false;
+    recentAction = "";
+    diagnosticToastId = "";
+    saveToastId = "";
+    powerToastId = "";
+    clearToasts();
     calculate(false);
-    render();
     renderLibrary();
+    render();
 }
 
 // 打开当前实验的通用诊断，只读取现有结果，不额外触发时钟
 function diagnoseCurrentCircuit() {
     circuitDiagnostics = inspectCircuit(state.project, state.result);
     state.activeTab = "diagnostics";
+    dismissToast(diagnosticToastId);
     if (circuitDiagnostics.issues.length > 0) {
-        toast("发现 " + circuitDiagnostics.issues.length + " 项诊断，请查看右侧详情", "warning");
+        diagnosticToastId = showToast("发现 " + circuitDiagnostics.issues.length + " 项诊断，请查看详情", "warning");
     } else if (!state.project.power) {
-        toast("电源已关闭，可查看芯片供电与接线状态", "info");
+        diagnosticToastId = showToast("电源已关闭，可查看芯片供电与接线状态", "info");
     } else {
-        toast("当前未发现供电、冲突、短路或逻辑状态异常", "info");
+        diagnosticToastId = showToast("当前未发现供电、冲突、短路或逻辑状态异常", "info");
     }
     render();
 }
@@ -318,7 +381,7 @@ function requestWireRouting() {
         toast("当前实验还没有导线", "info");
         return;
     }
-    confirmAction("整理走线？", "libavoid 会避开芯片，综合调整拐角、交叉和线间距；起点、终点、线色和备注保持不变。手动转折点将被替换，你可以撤销这次整理", applyWireRouting, "确认整理", false);
+    confirmAction("整理走线？", "将按当前走线模式重新计算路径，并替换手动转折点。导线端点、颜色和备注不会改变。此操作可以撤销", applyWireRouting, "确认整理", false);
 }
 
 // 完成全部寻路后一次替换路径，计算期间切换或编辑实验时放弃本次结果
@@ -328,7 +391,7 @@ async function applyWireRouting() {
     const candidate = copyProject(state.project);
     const angle = state.wireAngle;
     routingBusy = true;
-    routingToastId = showToast("正在整理走线，请稍候", "info", true);
+    const waiting = showToast("正在整理走线，请稍候", "info", true);
     render();
     try {
         // 所有实验与逐根接线共用 libavoid 引擎
@@ -357,8 +420,7 @@ async function applyWireRouting() {
     } catch (error) {
         toast("原接线已保留，" + error.message, "warning");
     } finally {
-        dismissToast(routingToastId);
-        routingToastId = "";
+        dismissToast(waiting);
         routingBusy = false;
         render();
     }
@@ -366,9 +428,10 @@ async function applyWireRouting() {
 
 // 显示提示并更新状态栏，提示的节点与计时交给独立组件处理
 function toast(message, kind) {
-    showToast(message, kind);
+    const id = showToast(message, kind);
     recentAction = message;
     updateActionStatus();
+    return id;
 }
 
 // 保存编辑前的电路供撤销使用，清空已经失效的重做记录
@@ -380,30 +443,66 @@ function remember() {
     state.redo = [];
 }
 
-// 保存当前实验，其他实验只保留各自上一次手动保存的版本
+// 保存当前实验和待保存的导入批次，返回写入是否成功
 function saveLocal() {
     try {
+        validateProject(state.project);
         keepExperiment(workspace, activeExperiment, state.project);
         const nextSaved = copyProject(savedExperiments);
+        // 导入整份备份时一起保存新增实验，不写入其他实验的旧草稿
+        for (const id of importedExperiments.keys()) {
+            if (id !== activeExperiment) {
+                const project = importedExperiments.get(id);
+                keepExperiment(nextSaved, id, project);
+            }
+        }
         keepExperiment(nextSaved, activeExperiment, state.project);
         localStorage.setItem(WORKSPACE_KEY, JSON.stringify(nextSaved));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.project));
         savedExperiments = nextSaved;
+        for (const id of importedExperiments.keys()) {
+            // 只保存导入的原件，其他实验导入后新增的编辑仍是草稿
+            const imported = JSON.stringify(importedExperiments.get(id));
+            const draft = JSON.stringify(workspace.projects[id]);
+            if (imported === draft) {
+                dirtyExperiments.delete(id);
+            }
+        }
+        importedExperiments.clear();
         dirtyExperiments.delete(activeExperiment);
-        dirty = dirtyExperiments.size > 0;
-        element("save-status").textContent = "当前实验已保存";
+        dismissToast(saveToastId);
+        saveToastId = "";
         state.saveFailed = false;
+        renderSaveStatus();
+        return true;
     } catch (error) {
-        element("save-status").textContent = "本地保存不可用";
         if (!state.saveFailed) {
-            toast("浏览器无法保存电路，请使用导出按钮保留文件", "warning");
+            saveToastId = showToast("未能保存当前实验，可先导出 JSON 备份。原因：" + error.message, "warning");
             state.saveFailed = true;
         }
+        renderSaveStatus();
+        return false;
+    }
+}
+
+// 同时区分当前实验、其他草稿与仍未写入的导入批次
+function renderSaveStatus() {
+    const status = element("save-status");
+    if (state.saveFailed) {
+        status.textContent = "本地保存不可用";
+    } else if (dirtyExperiments.has(activeExperiment)) {
+        status.textContent = "当前实验未保存";
+    } else if (importedExperiments.size > 0) {
+        status.textContent = "导入的备份未保存";
+    } else if (dirtyExperiments.size > 0) {
+        status.textContent = "其他实验有未保存更改";
+    } else {
+        status.textContent = "无未保存更改";
     }
 }
 
 // 更新仿真并显示新出现的错误，参数决定是否发送 Toast
 function calculate(notify) {
+    const previousPower = circuitDiagnostics.power;
     state.result = simulate(state.project, state.runtime);
     circuitDiagnostics = inspectCircuit(state.project, state.result);
     const current = new Set();
@@ -415,6 +514,12 @@ function calculate(notify) {
             newIssues.push(issue);
         }
     }
+    const previous = state.previousIssues;
+    const issuesChanged = previousPower !== circuitDiagnostics.power || current.size !== previous.size || newIssues.length > 0;
+    if (issuesChanged) {
+        dismissToast(diagnosticToastId);
+        diagnosticToastId = "";
+    }
     if (notify && newIssues.length > 0) {
         let message = newIssues[0].message;
         if (newIssues.length > 1) {
@@ -424,7 +529,7 @@ function calculate(notify) {
         if (newIssues[0].severity === "warning") {
             kind = "warning";
         }
-        toast(message, kind);
+        diagnosticToastId = showToast(message, kind);
     }
     state.previousIssues = current;
     animateBoard();
@@ -475,11 +580,33 @@ function animateBoard() {
     const target = targetVisuals();
     if (state.visual.switches.length === 0) {
         state.visual = target;
+        boardTransitionLast = target;
+        return;
+    }
+    if (boardTransitionLast && sameBoardVisual(boardTransitionLast, target)) {
         return;
     }
     boardTransitionFirst = state.visual;
     boardTransitionLast = target;
     tween("board", 0, 1, updateBoardTransition, MOTION.duration);
+}
+
+// 比较开关、灯和内部连通的目标，只在画面确实变化时开启动画
+function sameBoardVisual(first, second) {
+    if (first.internals !== second.internals) {
+        return false;
+    }
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+        if (first.switches[index] !== second.switches[index]) {
+            return false;
+        }
+    }
+    for (const name of Object.keys(first.leds)) {
+        if (first.leds[name] !== second.leds[name]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // 完成一次编辑后保存、计算并刷新界面
@@ -850,8 +977,7 @@ function pointerDown(event) {
     }
     const target = hitTest(canvasPoint(event), state, endpoints);
     if (target && target.kind === "pulse") {
-        startPulse(target.id);
-        canvas.setPointerCapture(event.pointerId);
+        startPointerPulse(event, target.id);
         return;
     }
     if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey) {
@@ -938,13 +1064,17 @@ function dragPointer(event) {
     drag.moved = true;
     const wire = findWire(drag.wire);
     if (drag.handle > 0 && drag.handle < drag.points.length - 1) {
+        const location = { x: Math.round(point.x), y: Math.round(point.y) };
+        if (!validWireBend(location) || point.y > BOARD.height) {
+            return;
+        }
         const bends = [];
         for (let index = 1; index < drag.points.length - 1; index = index + 1) {
-            let location = drag.points[index];
+            let bend = drag.points[index];
             if (index === drag.handle) {
-                location = { x: Math.round(point.x), y: Math.round(point.y) };
+                bend = location;
             }
-            bends.push(location);
+            bends.push(bend);
         }
         wire.bends = bends;
         if (state.wireAngle === 45) {
@@ -956,8 +1086,7 @@ function dragPointer(event) {
 
 // 松开拖动时检查插孔占用，失败恢复原路径，成功后保存为一次编辑
 function pointerUp(event) {
-    if (heldPulse !== "") {
-        finishPulse();
+    if (releasePointerPulse(event)) {
         ignoreClick = true;
         if (canvas.hasPointerCapture(event.pointerId)) {
             canvas.releasePointerCapture(event.pointerId);
@@ -978,8 +1107,9 @@ function pointerUp(event) {
     ignoreClick = true;
     const wire = findWire(current.wire);
     const end = current.handle === 0 || current.handle === current.points.length - 1;
+    const point = canvasPoint(event);
     if (end) {
-        const name = nearestEndpoint(canvasPoint(event), endpoints);
+        const name = nearestEndpoint(point, endpoints);
         let previous = wire.from;
         if (current.handle !== 0) {
             previous = wire.to;
@@ -998,6 +1128,11 @@ function pointerUp(event) {
         if (state.wireAngle === 45) {
             wire.angle = 45;
         }
+    } else if (!validWireBend(point) || point.y > BOARD.height) {
+        state.project = current.original;
+        toast("请在画布内放置转折点，原接线已保留", "warning");
+        render();
+        return;
     }
     state.undo.push(current.original);
     state.redo = [];
@@ -1005,8 +1140,8 @@ function pointerUp(event) {
 }
 
 // 浏览器取消手势时恢复原来的导线路径
-function cancelPointer() {
-    finishPulse();
+function cancelPointer(event) {
+    releasePointerPulse(event);
     if (drag && drag.moved) {
         state.project = drag.original;
     }
@@ -1023,30 +1158,67 @@ function movePointer(event) {
         dragPointer(event);
         return;
     }
-    const point = canvasPoint(event);
-    state.pointer = point;
-    const target = hitTest(point, state, endpoints);
-    state.hovered = "";
-    if (target && target.kind === "node") {
-        state.hovered = target.id;
-        const value = readEndpoint(state.result, target.id);
-        element("pointer-status").textContent = endpointLabel(target.id) + " · " + value;
-        canvas.title = endpointLabel(target.id) + "：" + value;
-    } else if (target && target.kind === "chip") {
-        element("pointer-status").textContent = target.id;
-        canvas.title = target.id;
-    } else {
-        element("pointer-status").textContent = "面包板";
-        canvas.title = "";
+    hoverPoint = { clientX: event.clientX, clientY: event.clientY };
+    if (hoverFrame === 0) {
+        hoverFrame = window.requestAnimationFrame(updateBoardHover);
     }
-    renderBoard(canvas, state, endpoints);
 }
 
-// 离开画布后移除悬停标记
-function leaveBoard() {
+// 一帧只处理最新的悬停位置，只有高亮或待接导线变化时重绘画布
+function updateBoardHover() {
+    hoverFrame = 0;
+    const point = canvasPoint(hoverPoint);
+    state.pointer = point;
+    const target = hitTest(point, state, endpoints);
+    let hovered = "";
+    let status = "面包板";
+    let title = "";
+    if (target && target.kind === "node") {
+        hovered = target.id;
+        const value = readEndpoint(state.result, target.id);
+        status = endpointLabel(target.id) + " · " + value;
+        title = status;
+    } else if (target && target.kind === "chip") {
+        status = target.id;
+        title = target.id;
+    }
+    setPointerStatus(status, title);
+    if (state.hovered !== hovered || state.pending) {
+        state.hovered = hovered;
+        renderBoard(canvas, state, endpoints);
+    }
+}
+
+// 只改动实际变化的悬停文字，避免连续移动触发重复的页面更新
+function setPointerStatus(status, title) {
+    const label = element("pointer-status");
+    if (label.textContent !== status) {
+        label.textContent = status;
+    }
+    if (canvas.title !== title) {
+        canvas.title = title;
+    }
+}
+
+// 取消待处理的悬停并清空文字，适用于移出画布或切换实验
+function clearBoardHover() {
+    if (hoverFrame !== 0) {
+        window.cancelAnimationFrame(hoverFrame);
+        hoverFrame = 0;
+    }
+    hoverPoint = null;
     state.hovered = "";
     state.pointer = null;
-    renderBoard(canvas, state, endpoints);
+    setPointerStatus("面包板", "");
+}
+
+// 离开画布后移除悬停标记和接线预览
+function leaveBoard() {
+    const repaint = state.hovered !== "" || Boolean(state.pending && state.pointer);
+    clearBoardHover();
+    if (repaint) {
+        renderBoard(canvas, state, endpoints);
+    }
 }
 
 // 取消一根尚未完成的线或待放置芯片
@@ -1226,14 +1398,14 @@ function clickQuickSwitch(event) {
     toggleSwitch(Number(event.currentTarget.dataset.bit));
 }
 
-// 按下脉冲按钮时立即输出有效电平，保持到按钮松开
+// 让指定脉冲进入有效电平，返回是否真的开始了新脉冲
 function startPulse(kind) {
     if (!state.project.power) {
-        toast("电源已关闭，请先打开电源再发脉冲", "warning");
-        return;
+        powerToastId = showToast("电源已关闭，请先打开电源再发脉冲", "warning");
+        return false;
     }
     if (heldPulse !== "") {
-        return;
+        return false;
     }
     window.clearTimeout(pulseTimer);
     heldPulse = kind;
@@ -1245,6 +1417,7 @@ function startPulse(kind) {
     }
     calculate(true);
     render();
+    return true;
 }
 
 // 松开时恢复默认电平，P− 在此时产生上升沿
@@ -1254,6 +1427,8 @@ function finishPulse() {
     }
     const kind = heldPulse;
     heldPulse = "";
+    pulsePointerId = null;
+    pulsePointerTarget = null;
     state.runtime.pulses.positive = 0;
     state.runtime.pulses.negative = 1;
     calculate(true);
@@ -1265,26 +1440,41 @@ function finishPulse() {
 // 恢复脉冲按钮的外观，不修改已经完成的逻辑时序
 function clearPulseFeedback() {
     state.pressedPulse = "";
-    render();
+    renderPulseButtons();
+    updateActionStatus();
+    renderBoard(canvas, state, endpoints);
 }
 
 // 键盘激活或程序触发点击时也能发出一次完整脉冲
 function pulse(kind) {
-    startPulse(kind);
-    finishPulse();
-}
-
-// 外部脉冲按钮与画布按钮共用按下逻辑
-function pressPulseButton(event) {
-    startPulse(event.currentTarget.dataset.pulse);
-    if (heldPulse !== "") {
-        event.currentTarget.setPointerCapture(event.pointerId);
+    if (startPulse(kind)) {
+        finishPulse();
     }
 }
 
-// 外部按钮松开或取消指针时恢复默认电平
-function releasePulseButton() {
+// 只接受主按键，记录发出脉冲的指针和控件以便正确释放
+function startPointerPulse(event, kind) {
+    if (event.button !== 0 || !startPulse(kind)) {
+        return;
+    }
+    pulsePointerId = event.pointerId;
+    pulsePointerTarget = event.currentTarget;
+    pulsePointerTarget.setPointerCapture(pulsePointerId);
+}
+
+// 外部脉冲按钮将自己的信号名交给公共指针处理函数
+function pressPulseButton(event) {
+    const kind = event.currentTarget.dataset.pulse;
+    startPointerPulse(event, kind);
+}
+
+// 只有发出脉冲的指针及控件可以结束它，返回此次事件是否释放了脉冲
+function releasePointerPulse(event) {
+    if (event.pointerId !== pulsePointerId || event.currentTarget !== pulsePointerTarget) {
+        return false;
+    }
     finishPulse();
+    return true;
 }
 
 // 鼠标点击由按下松开处理，键盘生成的点击补发完整脉冲
@@ -1298,6 +1488,10 @@ function clickPulseButton(event) {
 function changePower(event) {
     remember();
     state.project.power = event.currentTarget.checked;
+    if (state.project.power) {
+        dismissToast(powerToastId);
+        powerToastId = "";
+    }
     commit();
 }
 
@@ -1332,6 +1526,14 @@ function redoEdit() {
 // 清除易失仿真状态和未完成的操作
 function resetRuntime() {
     heldPulse = "";
+    pulsePointerId = null;
+    pulsePointerTarget = null;
+    drag = null;
+    ignoreClick = false;
+    clearBoardHover();
+    cancelTween("board");
+    boardTransitionLast = null;
+    state.visual.switches = [];
     state.pressedPulse = "";
     window.clearTimeout(pulseTimer);
     state.runtime = createRuntime();
@@ -1349,30 +1551,29 @@ function resetRuntime() {
     resetInspectionLayout();
 }
 
-// 新建空电路，旧电路可通过撤销恢复
+// 新建或打开一份空白实验前，先处理当前实验的未保存内容
 function newProject() {
-    keepExperiment(workspace, activeExperiment, state.project);
     const blank = findBlankExperiment(workspace);
-    if (blank !== "") {
-        activeExperiment = blank;
-        state.project = copyProject(workspace.projects[blank]);
-        resetRuntime();
-        calculate(false);
-        render();
-        toast("已切换到现有的空白实验。你开始编辑后，可以再新建下一份", "info");
+    if (blank === activeExperiment) {
+        toast("当前实验已经是空白实验", "info");
         return;
     }
-    activeExperiment = newExperimentId();
-    state.project = emptyProject();
-    state.project.name = "空白实验 " + (Object.keys(workspace.projects).length + 1);
-    resetRuntime();
-    state.undo = [];
-    state.redo = [];
-    commit();
-    renderLibrary();
+    if (blank !== "") {
+        requestExperimentSwitch(openExperiment.bind(null, blank));
+        return;
+    }
+    requestExperimentSwitch(createBlankExperiment);
 }
 
-// 更新电路名称和未保存标记，不改变电气状态
+// 创建一份独立的空白实验，按当前自动保存设置处理新实验
+function createBlankExperiment() {
+    const project = emptyProject();
+    const count = Object.keys(workspace.projects).length + 1;
+    project.name = "空白实验 " + count;
+    openNewExperiment(project);
+}
+
+// 输入名称时立即更新草稿，让未离开标题框的 Ctrl+S 也能写入新名
 function renameProject(event) {
     if (editingLocked()) {
         render();
@@ -1410,6 +1611,15 @@ function chooseImport() {
     element("import-file").click();
 }
 
+// 将新建或导入的电路作为独立实验打开，并更新未保存标记
+function openNewExperiment(project) {
+    activeExperiment = newExperimentId();
+    state.project = project;
+    state.saveFailed = false;
+    stageChanges();
+    resetExperiment();
+}
+
 // 校验导入文件，失败时保留当前电路并用 Toast 说明
 async function importProject(event) {
     const input = event.currentTarget;
@@ -1424,27 +1634,27 @@ async function importProject(event) {
         const content = await file.text();
         const parsed = JSON.parse(content);
         if (parsed.projects) {
-            keepExperiment(workspace, activeExperiment, state.project);
             const imported = validateWorkspace(parsed);
             for (const id of Object.keys(imported.projects)) {
-                workspace.projects[newExperimentId()] = imported.projects[id];
+                const newId = newExperimentId();
+                const project = imported.projects[id];
+                workspace.projects[newId] = copyProject(project);
+                importedExperiments.set(newId, project);
+                dirtyExperiments.add(newId);
             }
-            cleanWorkspace(workspace);
-            stageChanges();
+            const saved = autoSave && saveLocal();
             render();
-            toast("实验备份已导入。你可以在“我的实验”中切换，按 Ctrl+S 保存", "info");
-            input.value = "";
-            return;
+            if (saved) {
+                toast("实验备份已导入并保存，可在“我的实验”中查看", "info");
+            } else if (autoSave) {
+                recordPendingImport("实验备份已导入，但自动保存失败。请重试保存", "warning");
+            } else {
+                recordPendingImport("实验备份已导入，可在“我的实验”中查看。按 Ctrl+S 保存尚未写入的备份", "info");
+            }
+        } else {
+            const candidate = validateProject(parsed);
+            requestExperimentSwitch(openNewExperiment.bind(null, candidate));
         }
-        const candidate = validateProject(parsed);
-        keepExperiment(workspace, activeExperiment, state.project);
-        activeExperiment = newExperimentId();
-        state.project = candidate;
-        resetRuntime();
-        state.undo = [];
-        state.redo = [];
-        commit();
-        renderLibrary();
     } catch (error) {
         let message = "电路文件无法解析，请检查 JSON 格式";
         if (!(error instanceof SyntaxError)) {
@@ -1453,6 +1663,12 @@ async function importProject(event) {
         toast(message, "error");
     }
     input.value = "";
+}
+
+// 保存后撤下需要用户再次保存的导入提示，避免留下已经过期的操作建议
+function recordPendingImport(message, kind) {
+    dismissToast(saveToastId);
+    saveToastId = showToast(message, kind);
 }
 
 // 接收画布图片并保存，参数为空时提示导出失败
@@ -1466,6 +1682,7 @@ function receiveImage(blob) {
 
 // 导出完整接线画布，不包括工具栏
 function exportImage() {
+    renderBoard(canvas, state, endpoints);
     canvas.toBlob(receiveImage, "image/png");
 }
 
@@ -1530,6 +1747,7 @@ function changeDisplayOptions() {
     state.showInternals = element("show-internals").checked;
     state.showLevels = element("show-levels").checked;
     animateBoard();
+    renderBoard(canvas, state, endpoints);
 }
 
 // 处理按端点名称接线按钮
@@ -1543,7 +1761,6 @@ function connectByName() {
 function changeTab(event) {
     state.activeTab = event.currentTarget.id.slice(4);
     renderPanels();
-    fadeContent(element(state.activeTab + "-panel"));
 }
 
 // 添加一条引脚信息，参数包含芯片、脚号和表格节点
@@ -2352,7 +2569,6 @@ function changeIoCount(event) {
         state.project.outputCount = count;
     }
     commit();
-    fadeContent(document.querySelector(".io-strip"));
 }
 
 // 将备注显示为安全的 Markdown 预览，编辑时保留光标位置
@@ -2382,14 +2598,12 @@ function editNotes() {
     state.notesEditing = true;
     renderNotes();
     element("notes-editor").focus({ preventScroll: true });
-    fadeContent(element("notes-editor"));
 }
 
 // 切换到清理后的 Markdown 预览
 function previewNotes() {
     state.notesEditing = false;
     renderNotes();
-    fadeContent(element("notes-preview"));
 }
 
 // 在开始编辑备注时保留一个撤销点，不为每个按键复制整张电路
@@ -2410,18 +2624,20 @@ function updateNotes(event) {
     element("redo").disabled = state.redo.length === 0;
 }
 
-// 刷新整个工作台的可见状态；不在此函数里改变电路
-function render() {
-    updateActionStatus();
+// 刷新两个脉冲按钮的按下样式和读屏状态
+function renderPulseButtons() {
     for (const button of document.querySelectorAll(".pulse-button")) {
         const pressed = button.dataset.pulse === state.pressedPulse;
         button.classList.toggle("pressed", pressed);
         button.setAttribute("aria-pressed", String(pressed));
     }
-    element("save-status").textContent = "当前实验已保存";
-    if (dirtyExperiments.has(activeExperiment)) {
-        element("save-status").textContent = "当前实验未保存";
-    }
+}
+
+// 刷新整个工作台的可见状态；不在此函数里改变电路
+function render() {
+    updateActionStatus();
+    renderPulseButtons();
+    renderSaveStatus();
     element("read-only-toggle").checked = readOnly;
     element("project-name").readOnly = readOnly;
     for (const id of ["tool-place", "tool-wire", "tool-delete", "arrange-wires", "connect-endpoints", "input-count", "output-count", "notes-edit-button"]) {
@@ -2498,7 +2714,6 @@ function updateActionStatus() {
 // 打开实验说明对话框
 function showHelp() {
     element("help-dialog").showModal();
-    fadeContent(element("help-dialog"));
 }
 
 // 关闭实验说明对话框
@@ -2517,10 +2732,14 @@ function keyDown(event) {
     const editing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
         event.preventDefault();
+        if (element("switch-dialog").open) {
+            saveAndSwitch();
+            return;
+        }
         saveCurrent();
         return;
     }
-    if (element("confirm-dialog").open) {
+    if (element("confirm-dialog").open || element("switch-dialog").open) {
         return;
     }
     if (element("logic-diagram-dialog").open) {
@@ -2555,11 +2774,16 @@ function bindEvents() {
     canvas.addEventListener("pointerdown", pointerDown);
     canvas.addEventListener("pointerup", pointerUp);
     canvas.addEventListener("pointercancel", cancelPointer);
+    canvas.addEventListener("lostpointercapture", releasePointerPulse);
     element("save-project").addEventListener("click", saveCurrent);
     element("autosave-toggle").addEventListener("change", changeAutoSave);
     element("quick-delete").addEventListener("click", quickDelete);
     element("confirm-cancel").addEventListener("click", cancelConfirmation);
     element("confirm-accept").addEventListener("click", acceptConfirmation);
+    element("switch-cancel").addEventListener("click", cancelExperimentSwitch);
+    element("switch-dialog").addEventListener("cancel", cancelExperimentSwitch);
+    element("switch-without-saving").addEventListener("click", switchWithoutSaving);
+    element("switch-save").addEventListener("click", saveAndSwitch);
     window.addEventListener("beforeunload", beforeLeave);
     element("read-only-toggle").addEventListener("change", changeReadOnly);
     element("new-experiment").addEventListener("click", newProject);
@@ -2586,17 +2810,18 @@ function bindEvents() {
     element("show-levels").addEventListener("change", changeDisplayOptions);
     for (const button of document.querySelectorAll(".pulse-button")) {
         button.addEventListener("pointerdown", pressPulseButton);
-        button.addEventListener("pointerup", releasePulseButton);
-        button.addEventListener("pointercancel", releasePulseButton);
+        button.addEventListener("pointerup", releasePointerPulse);
+        button.addEventListener("pointercancel", releasePointerPulse);
+        button.addEventListener("lostpointercapture", releasePointerPulse);
         button.addEventListener("click", clickPulseButton);
     }
-    window.addEventListener("blur", releasePulseButton);
+    window.addEventListener("blur", finishPulse);
     element("power-toggle").addEventListener("change", changePower);
     element("new-project").addEventListener("click", newProject);
     element("export-project").addEventListener("click", exportProject);
     element("import-project").addEventListener("click", chooseImport);
     element("import-file").addEventListener("change", importProject);
-    element("project-name").addEventListener("change", renameProject);
+    element("project-name").addEventListener("input", renameProject);
     element("export-image").addEventListener("click", exportImage);
     element("connect-endpoints").addEventListener("click", connectByName);
     element("tab-inspect").addEventListener("click", changeTab);

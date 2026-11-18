@@ -126,7 +126,12 @@ function compare(pins, outputs) {
 // 译码七段输出，位序为 a、b、c、d、e、f、g；4 脚只下拉或释放
 function sevenSegment(pins, outputs) {
     const number = readNumber(pins, [7, 1, 2, 6]);
-    const blankZero = number === 0 && pins[5] === 0 && pins[3] === 1;
+    // 原厂功能表允许 RBI 开路，只有明确的低电平才要求灭零
+    let rippleBlank = pins[5];
+    if (rippleBlank === "Z") {
+        rippleBlank = 1;
+    }
+    const blankZero = number === 0 && rippleBlank === 0 && pins[3] === 1;
     outputs[4] = "Z";
     if (blankZero) {
         outputs[4] = 0;
@@ -138,10 +143,8 @@ function sevenSegment(pins, outputs) {
         } else if (pins[3] === 0 && pins[4] === 1) {
             value = 1;
         } else if (pins[3] === 1 && pins[4] === 1 && number !== "X") {
-            if (number !== 0 || pins[5] === 1) {
+            if (number !== 0 || rippleBlank === 1) {
                 value = Number(SEGMENT_PATTERNS[number][index]);
-            } else if (pins[5] === 0) {
-                value = 0;
             }
         }
         outputs[SEGMENT_PINS[index]] = value;

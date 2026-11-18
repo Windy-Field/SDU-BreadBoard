@@ -234,14 +234,32 @@ function sameValues(first, second) {
     return true;
 }
 
-// 等待组合逻辑逐级传播到稳定，返回节点电平和驱动表
-function settle(project, topology, registers, pulses, devices) {
+// 记录会改变网络连通性的接线和芯片位置，不受走线路径、颜色或名称影响
+function topologySignature(project) {
+    const connections = [];
+    for (const wire of project.wires) {
+        connections.push([wire.from, wire.to]);
+    }
+    const chips = [];
+    for (const chip of project.chips) {
+        chips.push([chip.id, chip.model, chip.section, chip.column]);
+    }
+    return JSON.stringify([connections, chips, project.pullUps]);
+}
+
+// 从上次稳定的电平开始传播，让刚释放控制端的反馈锁存器保留状态
+function settle(project, topology, runtime, previous) {
     let values = {};
     let drivers = {};
+    if (previous && previous.stable) {
+        values = previous.values;
+        drivers = previous.drivers;
+    }
     for (let pass = 0; pass < MAX_SETTLE_PASSES; pass = pass + 1) {
-        drivers = collectDrivers(project, topology, values, registers, pulses, devices, drivers);
+        drivers = collectDrivers(project, topology, values, runtime.registers, runtime.pulses, runtime.devices, drivers);
         const next = driverValues(drivers);
-        if (sameValues(values, next)) {
+        // 至少用本次算出的驱动表再传播一轮，双向脚需要用它分辨外部驱动
+        if (pass > 0 && sameValues(values, next)) {
             return { values: next, drivers: drivers, stable: true };
         }
         values = next;
@@ -343,6 +361,10 @@ function diagnose(project, result) {
         const missing = [];
         const model = CHIP_MODELS[chip.model];
         for (const pin of model.inputs) {
+            // 七段译码器的 RBI 允许开路，开路时不请求灭零
+            if (model.kind === "seven-segment" && pin === 5) {
+                continue;
+            }
             if (model.memory && model.bidirectional.includes(pin)) {
                 const selected = pins[model.memory.select];
                 const writing = pins[model.memory.write];
@@ -378,7 +400,7 @@ function diagnose(project, result) {
 
 // 创建仿真运行状态；保存文件不包含这部分易失状态
 export function createRuntime() {
-    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 } };
+    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, feedback: null };
 }
 
 // 按实际接线计算整个电路，更新运行状态并返回端点电平和诊断
@@ -396,7 +418,12 @@ export function simulate(project, runtime) {
             runtime.devices[chip.id] = createMemory(model.memory);
         }
     }
-    let settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
+    const signature = topologySignature(project);
+    let previous = null;
+    if (project.power && runtime.feedback && runtime.feedback.signature === signature) {
+        previous = runtime.feedback.settled;
+    }
+    let settled = settle(project, topology, runtime, previous);
     let complete = false;
     for (let pass = 0; pass < MAX_SEQUENTIAL_PASSES; pass = pass + 1) {
         let changed = updateRegisters(project, topology, settled.values, runtime.registers);
@@ -418,9 +445,13 @@ export function simulate(project, runtime) {
             complete = true;
             break;
         }
-        settled = settle(project, topology, runtime.registers, runtime.pulses, runtime.devices);
+        settled = settle(project, topology, runtime, settled);
     }
     const result = { topology: topology, values: settled.values, drivers: settled.drivers, stable: settled.stable && complete, issues: [] };
+    runtime.feedback = null;
+    if (project.power && result.stable) {
+        runtime.feedback = { signature: signature, settled: settled };
+    }
     result.issues = diagnose(project, result);
     return result;
 }

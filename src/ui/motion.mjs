@@ -1,7 +1,5 @@
 // 动效时长单位为毫秒，电路计算不等待动画
 export const MOTION = { duration: 180, zoomDuration: 160, toastDuration: 180 };
-// 面板淡入的起始透明度，结束时恢复为完全可见
-const FADE_START_OPACITY = 0.45;
 const transitions = new Map();
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let frame = 0;
@@ -43,14 +41,11 @@ export function tween(key, first, last, update, duration) {
     }
 }
 
-// 让刚切换的内容短暂淡入；同一节点的新动画会取代旧动画
-export function fadeContent(element) {
-    if (reducedMotion.matches) {
-        return;
+// 取消指定过渡，如果没有其他动效则取消下一帧回调
+export function cancelTween(key) {
+    transitions.delete(key);
+    if (transitions.size === 0 && frame !== 0) {
+        window.cancelAnimationFrame(frame);
+        frame = 0;
     }
-    for (const animation of element.getAnimations()) {
-        animation.cancel();
-    }
-    const style = getComputedStyle(document.documentElement);
-    element.animate([{ opacity: FADE_START_OPACITY }, { opacity: 1 }], { duration: MOTION.duration, easing: style.getPropertyValue("--ease-out").trim() });
 }

@@ -44,15 +44,21 @@ const INTERNAL_DRAW = { lineWidth: 1, restingOpacity: 0.45, activeOpacity: 0.9 }
 // 从样式读取的语义颜色名称，画布与界面共用配色
 const COLOR_NAMES = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "level-floating", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
 let drawingFont = "";
+let drawingColors = null;
+let boardLayers = null;
 
 // 从页面样式读取画布使用的颜色，返回配色对象
 function canvasColors() {
+    if (drawingColors) {
+        return drawingColors;
+    }
     const style = getComputedStyle(document.documentElement);
     const colors = {};
     for (const name of COLOR_NAMES) {
         colors[name] = style.getPropertyValue("--color-" + name).trim();
     }
     drawingFont = style.getPropertyValue("--font-body").trim();
+    drawingColors = colors;
     return colors;
 }
 
@@ -120,7 +126,7 @@ export function allEndpoints() {
 }
 
 // 绘制面包板孔和内部五孔连通线，不跨接中央沟槽
-function drawBreadboards(context, state, colors) {
+function drawBreadboards(context, emphasis, colors) {
     for (let section = 0; section < BOARD.sections; section = section + 1) {
         const top = BOARD.startY + section * BOARD.sectionHeight - DRAW.sectionTopOffset;
         rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, DRAW.sectionHeight, 7, colors.surface);
@@ -134,8 +140,8 @@ function drawBreadboards(context, state, colors) {
             if (column === 1 || column % 5 === 0) {
                 label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
             }
-            if (state.visual.internals > 0) {
-                context.globalAlpha = state.visual.internals;
+            if (emphasis > 0) {
+                context.globalAlpha = emphasis;
                 polyline(context, [{ x: horizontal, y: rowY(section, "A") }, { x: horizontal, y: rowY(section, "E") }], colors.trace, 2);
                 polyline(context, [{ x: horizontal, y: rowY(section, "F") }, { x: horizontal, y: rowY(section, "J") }], colors.trace, 2);
                 context.globalAlpha = 1;
@@ -148,7 +154,7 @@ function drawBreadboards(context, state, colors) {
             for (const segment of BUS_SEGMENTS) {
                 const first = endpointPosition(holeId(section, row, segment[0]));
                 const last = endpointPosition(holeId(section, row, segment[1]));
-                context.globalAlpha = 0.25 + state.visual.internals * 0.75;
+                context.globalAlpha = 0.25 + emphasis * 0.75;
                 polyline(context, [first, last], colors.accent, 2);
                 context.globalAlpha = 1;
             }
@@ -183,6 +189,36 @@ function drawBreadboards(context, state, colors) {
             circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
             circle(context, location.x, location.y, 3.2, colors.hole);
         }
+    }
+}
+
+// 把固定孔位与底色画进独立画布，参数决定是否强调板内连通线
+function createBoardLayer(emphasis, colors) {
+    const layer = document.createElement("canvas");
+    layer.width = BOARD.width * DRAW.pixelRatio;
+    layer.height = BOARD.height * DRAW.pixelRatio;
+    const context = layer.getContext("2d");
+    context.scale(DRAW.pixelRatio, DRAW.pixelRatio);
+    rectangle(context, 0, 0, BOARD.width, BOARD.height, DRAW.boardRadius, colors.board);
+    drawBreadboards(context, emphasis, colors);
+    return layer;
+}
+
+// 合成普通和强调两层，只在第一次打开内部连通时生成强调层
+function drawBoardLayer(context, emphasis, colors) {
+    if (!boardLayers) {
+        boardLayers = { normal: createBoardLayer(0, colors), emphasized: null };
+    }
+    if (emphasis > 0 && !boardLayers.emphasized) {
+        boardLayers.emphasized = createBoardLayer(1, colors);
+    }
+    if (emphasis < 1) {
+        context.drawImage(boardLayers.normal, 0, 0, BOARD.width, BOARD.height);
+    }
+    if (emphasis > 0) {
+        context.globalAlpha = emphasis;
+        context.drawImage(boardLayers.emphasized, 0, 0, BOARD.width, BOARD.height);
+        context.globalAlpha = 1;
     }
 }
 
@@ -253,6 +289,10 @@ function drawPortConnections(context, state, colors) {
             const last = endpointPosition(holeId(section, "F", column));
             polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
         }
+    }
+    if (emphasis === 0) {
+        context.globalAlpha = 1;
+        return;
     }
     context.globalAlpha = emphasis;
     // 两条电源轨各自从首孔连到末孔，不能跨接地和电源
@@ -397,10 +437,13 @@ function drawHighlights(context, state, endpoints, colors) {
     if (state.selected && state.selected.kind === "node") {
         selectedNode = nodeFor(state.result.topology, state.selected.id);
     }
-    for (const name of endpoints) {
-        const node = nodeFor(state.result.topology, name);
-        const location = endpointPosition(name);
-        if (selectedNode !== "" && node === selectedNode) {
+    if (selectedNode !== "") {
+        for (const name of endpoints) {
+            const root = nodeFor(state.result.topology, name);
+            if (root !== selectedNode) {
+                continue;
+            }
+            const location = endpointPosition(name);
             context.strokeStyle = colors.accent;
             context.lineWidth = 2;
             context.beginPath();
@@ -422,8 +465,7 @@ export function renderBoard(canvas, state, endpoints) {
     context.setTransform(DRAW.pixelRatio, 0, 0, DRAW.pixelRatio, 0, 0);
     const colors = canvasColors();
     context.clearRect(0, 0, BOARD.width, BOARD.height);
-    rectangle(context, 0, 0, BOARD.width, BOARD.height, DRAW.boardRadius, colors.board);
-    drawBreadboards(context, state, colors);
+    drawBoardLayer(context, state.visual.internals, colors);
     drawModules(context, state, colors);
     drawPortConnections(context, state, colors);
     for (const chip of state.project.chips) {

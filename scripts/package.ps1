@@ -74,7 +74,7 @@ function New-OfflinePackage {
         }
 
         # 说明文件与入口放在一起，游客解压后即可找到打开方式
-        $instructions = @('# SDU 面包板离线包', '', '完整解压后，使用 Chrome 或 Edge 打开 index.html', '', '离线包已包含运行所需的文件，请保留 styles、vendor、assets 等目录', '', '当你按 Ctrl+S 后，程序只保存当前实验；迁移实验时可逐份导出 JSON，再到新页面导入')
+        $instructions = @('# SDU 面包板离线包', '', '完整解压后，使用 Chrome 或 Edge 打开 index.html', '', '离线包已包含运行所需的文件，请保留 styles、vendor、assets 等目录', '', 'Ctrl+S 保存当前实验和待写入的导入备份；切换有改动的实验前会询问是否保存。迁移实验时可逐份导出 JSON，再到新页面导入')
         $instructionsPath = Join-Path $packageRoot 'START-HERE.md'
         Set-Content -LiteralPath $instructionsPath -Value $instructions -Encoding UTF8
         Compress-Archive -LiteralPath $packageRoot -DestinationPath $archive -CompressionLevel $CompressionLevel

@@ -5,6 +5,8 @@ import { evaluateExtra } from "../../src/chips/chip-logic.mjs";
 import { createChipState, updateChipState, stateOutputs } from "../../src/chips/chip-state.mjs";
 import { emptyProject, pinHole, portHole } from "../../src/board/board.mjs";
 import { createRuntime, simulate, readEndpoint } from "../../src/simulation/engine.mjs";
+import { complementPreset } from "../../src/experiments/presets.mjs";
+import { cleanWorkspace } from "../../src/storage/workspace.mjs";
 
 // 独立记录原厂表的七段字形和非 BCD 状态恢复顺序，不从实现中取得期望值
 const SEGMENT_MASKS = [63, 6, 91, 79, 102, 109, 124, 7, 127, 103, 88, 76, 98, 105, 120, 0];
@@ -387,18 +389,21 @@ function testSegmentDrive() {
     connect(project, chip, 16, portHole("VCC"));
     connect(project, chip, 8, portHole("GND"));
     connect(project, chip, 3, portHole("K4"));
-    connect(project, chip, 5, portHole("K5"));
     const order = [7, 1, 2, 6];
     for (let bit = 0; bit < 4; bit = bit + 1) {
         connect(project, chip, order[bit], portHole("K" + bit));
     }
     project.switches[4] = 1;
-    project.switches[5] = 1;
     const runtime = createRuntime();
     let result = simulate(project, runtime);
     assert.equal(readEndpoint(result, pinHole(chip, 4)), 1);
+    assert.equal(readEndpoint(result, pinHole(chip, 5)), "Z");
+    for (const pin of [13, 12, 11, 10, 9, 15]) {
+        assert.equal(readEndpoint(result, pinHole(chip, pin)), 1);
+    }
+    assert.equal(readEndpoint(result, pinHole(chip, 14)), 0);
     assert.deepEqual(result.issues, []);
-    project.switches[5] = 0;
+    connect(project, chip, 5, portHole("K5"));
     result = simulate(project, runtime);
     assert.equal(readEndpoint(result, pinHole(chip, 4)), 0);
     project.switches[0] = 1;
@@ -410,6 +415,61 @@ function testSegmentDrive() {
     result = simulate(project, runtime);
     assert.equal(readEndpoint(result, pinHole(chip, 12)), 0);
     assert.deepEqual(result.issues, []);
+}
+
+// 两个与非门交叉接线，验证置位和复位都能保持，断电后不会恢复旧值
+function testNandLatch() {
+    const project = emptyProject();
+    const chip = { id: "U1", model: "74LS00", section: 1, column: 3 };
+    project.chips.push(chip);
+    connect(project, chip, 14, portHole("VCC"));
+    connect(project, chip, 7, portHole("GND"));
+    connect(project, chip, 1, portHole("K0"));
+    connect(project, chip, 4, portHole("K1"));
+    const output = pinHole(chip, 3);
+    const inverted = pinHole(chip, 6);
+    connect(project, chip, 5, output.replace(":F:", ":G:"));
+    connect(project, chip, 2, inverted.replace(":F:", ":G:"));
+    const runtime = createRuntime();
+
+    project.switches[1] = 1;
+    simulate(project, runtime);
+    project.switches[0] = 1;
+    const set = simulate(project, runtime);
+    assert.equal(set.stable, true);
+    assert.equal(readEndpoint(set, output), 1);
+    assert.equal(readEndpoint(set, inverted), 0);
+
+    project.switches[1] = 0;
+    simulate(project, runtime);
+    project.switches[1] = 1;
+    const reset = simulate(project, runtime);
+    assert.equal(reset.stable, true);
+    assert.equal(readEndpoint(reset, output), 0);
+    assert.equal(readEndpoint(reset, inverted), 1);
+
+    project.power = false;
+    simulate(project, runtime);
+    project.power = true;
+    const restarted = simulate(project, runtime);
+    assert.equal(readEndpoint(restarted, output), "X");
+    assert.equal(readEndpoint(restarted, inverted), "X");
+}
+
+// 去重时保留输入或电源不同的补码实验，以及名称不同的空白实验
+function testDistinctExperiments() {
+    const preset = complementPreset();
+    const differentInput = complementPreset();
+    const differentPower = complementPreset();
+    differentInput.switches[0] = 1;
+    differentPower.power = false;
+    const blank = emptyProject();
+    const namedBlank = emptyProject();
+    namedBlank.name = "下次实验";
+    const projects = { preset: preset, duplicate: complementPreset(), input: differentInput, power: differentPower, blank: blank, named: namedBlank };
+    const workspace = { activeId: "preset", projects: projects };
+    assert.deepEqual(cleanWorkspace(workspace), ["duplicate"]);
+    assert.deepEqual(Object.keys(workspace.projects), ["preset", "input", "power", "blank", "named"]);
 }
 
 // 全局电源开启但芯片VCC未连接时，内部上拉也不能给BI/RBO供电
@@ -539,6 +599,8 @@ test("共同时钟两级触发器同时采样", testSharedClock);
 test("全部芯片供电与断电输出", testEveryChipPower);
 test("74LS273全部256种数据与时钟保持", testFullRegister);
 test("74LS48内部上拉与灭零恢复", testSegmentDrive);
+test("两路与非门锁存器保持状态，断电后丢失", testNandLatch);
+test("同名补码实验保留不同的输入与电源状态", testDistinctExperiments);
 test("未接电源的74LS48内部上拉不驱动节点", testUnpoweredSegmentBias);
 test("使能禁止时屏蔽未知数据和地址", testDisabledUnknownInputs);
 test("两路D和JK全部异步控制组合", testAllAsyncControls);
