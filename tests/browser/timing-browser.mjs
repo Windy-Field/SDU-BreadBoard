@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 import { chromium } from "playwright";
 import { pngDimensions, readImageDownload } from "../helpers/downloads.mjs";
 
@@ -133,7 +134,7 @@ async function testTimingPanel() {
         const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, reducedMotion: "reduce" });
         await page.context().setOffline(true);
         const url = pathToFileURL(path.resolve("index.html"));
-        await page.goto(url.href);
+        await openWorkbench(page, url.href);
         await page.locator("#tab-timing").click();
         const panel = page.locator("#timing-panel");
         assert.equal(await panel.isVisible(), true);

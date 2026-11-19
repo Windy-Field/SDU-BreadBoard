@@ -4499,2209 +4499,6 @@
     window.addEventListener("blur", hideTooltip);
   }
 
-  // src/experiments/preset-wiring.mjs
-  function allocatePin(project, usage, name) {
-    if (!name.startsWith("U")) {
-      const hole2 = portHole(name);
-      if (hole2 !== "") {
-        return hole2;
-      }
-      return name;
-    }
-    const parts = name.split("-");
-    let chip = null;
-    for (const candidate of project.chips) {
-      if (candidate.id === parts[0]) {
-        chip = candidate;
-      }
-    }
-    const pin = Number(parts[1]);
-    const hole = pinHole(chip, pin);
-    const position = hole.split(":");
-    let rows = "GHIJ";
-    if (pin > CHIP_MODELS[chip.model].count / 2) {
-      rows = "DCBA";
-    }
-    let index = 0;
-    if (Object.hasOwn(usage, name)) {
-      index = usage[name];
-    }
-    if (index >= rows.length) {
-      throw new Error("\u793A\u4F8B\u7535\u8DEF\u7684\u540C\u5217\u7A7A\u5B54\u4E0D\u8DB3");
-    }
-    usage[name] = index + 1;
-    return holeId(chip.section, rows[index], Number(position[2]));
-  }
-  function connect(project, usage, first, second, color) {
-    const from = allocatePin(project, usage, first);
-    const to = allocatePin(project, usage, second);
-    const number = project.wires.length + 1;
-    project.wires.push({ id: "W" + number, from, to, color, bends: [] });
-  }
-
-  // src/experiments/preset-routes.json
-  var preset_routes_default = {
-    W1: [
-      {
-        x: 1242,
-        y: 402.0000002219999
-      },
-      {
-        x: 522,
-        y: 402.0000002219999
-      }
-    ],
-    W2: [
-      {
-        x: 1210,
-        y: 496.9999999700001
-      },
-      {
-        x: 684,
-        y: 496.9999999700001
-      }
-    ],
-    W3: [
-      {
-        x: 522,
-        y: 399.0000002219999
-      },
-      {
-        x: 493.9999999967,
-        y: 399.0000002219999
-      },
-      {
-        x: 493.9999999967,
-        y: 651.925
-      },
-      {
-        x: 342,
-        y: 651.925
-      }
-    ],
-    W4: [
-      {
-        x: 686.0689655172414,
-        y: 506
-      },
-      {
-        x: 686.0689655172414,
-        y: 726
-      },
-      {
-        x: 468,
-        y: 726
-      }
-    ],
-    W5: [
-      {
-        x: 342,
-        y: 642.325
-      },
-      {
-        x: 756,
-        y: 642.325
-      }
-    ],
-    W6: [
-      {
-        x: 468,
-        y: 767.9999998200001
-      },
-      {
-        x: 882,
-        y: 767.9999998200001
-      }
-    ],
-    W7: [
-      {
-        x: 756,
-        y: 408.0000002219999
-      },
-      {
-        x: 252,
-        y: 408.0000002219999
-      }
-    ],
-    W8: [
-      {
-        x: 882,
-        y: 761.9999998200001
-      },
-      {
-        x: 674.0689655172414,
-        y: 761.9999998200001
-      },
-      {
-        x: 674.0689655172414,
-        y: 496.9999999700001
-      },
-      {
-        x: 360,
-        y: 496.9999999700001
-      }
-    ],
-    W9: [
-      {
-        x: 252,
-        y: 390.0000002219999
-      },
-      {
-        x: 864,
-        y: 390.0000002219999
-      }
-    ],
-    W10: [
-      {
-        x: 360,
-        y: 514.9999999700001
-      },
-      {
-        x: 972,
-        y: 514.9999999700001
-      }
-    ],
-    W11: [
-      {
-        x: 972,
-        y: 511.9999999700001
-      },
-      {
-        x: 735.5260663507107,
-        y: 511.9999999700001
-      },
-      {
-        x: 735.5260663507107,
-        y: 411.0000002219999
-      },
-      {
-        x: 576,
-        y: 411.0000002219999
-      }
-    ],
-    W12: [
-      {
-        x: 576,
-        y: 399.0000002219999
-      },
-      {
-        x: 558,
-        y: 399.0000002219999
-      }
-    ],
-    W13: [
-      {
-        x: 558,
-        y: 393.0000002219999
-      },
-      {
-        x: 789,
-        y: 393.0000002219999
-      },
-      {
-        x: 789,
-        y: 661
-      }
-    ],
-    W14: [
-      {
-        x: 795,
-        y: 646
-      },
-      {
-        x: 795,
-        y: 661
-      }
-    ],
-    W15: [
-      {
-        x: 828,
-        y: 646
-      }
-    ],
-    W16: [
-      {
-        x: 846,
-        y: 646
-      }
-    ],
-    W17: [
-      {
-        x: 849,
-        y: 646
-      },
-      {
-        x: 849,
-        y: 411.0000002219999
-      },
-      {
-        x: 954,
-        y: 411.0000002219999
-      }
-    ],
-    W18: [
-      {
-        x: 954,
-        y: 399.0000002219999
-      },
-      {
-        x: 936,
-        y: 399.0000002219999
-      }
-    ],
-    W19: [
-      {
-        x: 936,
-        y: 399.0000002219999
-      },
-      {
-        x: 900,
-        y: 399.0000002219999
-      }
-    ],
-    W20: [
-      {
-        x: 900,
-        y: 399.0000002219999
-      },
-      {
-        x: 882,
-        y: 399.0000002219999
-      }
-    ],
-    W21: [
-      {
-        x: 954,
-        y: 487.9999999700001
-      },
-      {
-        x: 252,
-        y: 487.9999999700001
-      }
-    ],
-    W22: [
-      {
-        x: 288,
-        y: 755.9999997600002
-      },
-      {
-        x: 432,
-        y: 755.9999997600002
-      }
-    ],
-    W23: [
-      {
-        x: 918,
-        y: 490.9999999700001
-      },
-      {
-        x: 306,
-        y: 490.9999999700001
-      }
-    ],
-    W24: [
-      {
-        x: 342,
-        y: 493.9999999700001
-      },
-      {
-        x: 328,
-        y: 493.9999999700001
-      },
-      {
-        x: 328,
-        y: 749.9999997600002
-      },
-      {
-        x: 360,
-        y: 749.9999997600002
-      }
-    ],
-    W25: [
-      {
-        x: 882,
-        y: 1028.5
-      },
-      {
-        x: 487.9999999967,
-        y: 1028.5
-      },
-      {
-        x: 487.9999999967,
-        y: 417.0000002219999
-      },
-      {
-        x: 342,
-        y: 417.0000002219999
-      }
-    ],
-    W26: [
-      {
-        x: 360,
-        y: 426
-      },
-      {
-        x: 379.99999994000007,
-        y: 426
-      },
-      {
-        x: 379.99999994000007,
-        y: 647.125
-      },
-      {
-        x: 360,
-        y: 647.125
-      }
-    ],
-    W27: [
-      {
-        x: 846,
-        y: 1034.5
-      },
-      {
-        x: 482,
-        y: 1034.5
-      },
-      {
-        x: 482,
-        y: 414.0000002219999
-      },
-      {
-        x: 288,
-        y: 414.0000002219999
-      }
-    ],
-    W28: [
-      {
-        x: 306,
-        y: 420.0000002219999
-      },
-      {
-        x: 432,
-        y: 420.0000002219999
-      }
-    ],
-    W29: [
-      {
-        x: 810,
-        y: 1040.5
-      },
-      {
-        x: 896,
-        y: 1040.5
-      },
-      {
-        x: 896,
-        y: 499.9999999700001
-      },
-      {
-        x: 864,
-        y: 499.9999999700001
-      }
-    ],
-    W30: [
-      {
-        x: 774,
-        y: 1040.5
-      },
-      {
-        x: 270,
-        y: 1040.5
-      }
-    ],
-    W31: [
-      {
-        x: 322.00000002,
-        y: 506
-      },
-      {
-        x: 322.00000002,
-        y: 491
-      }
-    ],
-    W32: [
-      {
-        x: 374,
-        y: 506
-      },
-      {
-        x: 374,
-        y: 423.0000002219999
-      },
-      {
-        x: 324,
-        y: 423.0000002219999
-      }
-    ],
-    W33: [
-      {
-        x: 324,
-        y: 411.0000002219999
-      },
-      {
-        x: 270,
-        y: 411.0000002219999
-      }
-    ],
-    W34: [
-      {
-        x: 270,
-        y: 396.0000002219999
-      },
-      {
-        x: 699.5260663507107,
-        y: 396.0000002219999
-      },
-      {
-        x: 699.5260663507107,
-        y: 484.9999999700001
-      },
-      {
-        x: 882,
-        y: 484.9999999700001
-      }
-    ],
-    W35: [
-      {
-        x: 882,
-        y: 517.9999999700001
-      },
-      {
-        x: 668.0689655172414,
-        y: 517.9999999700001
-      },
-      {
-        x: 668.0689655172414,
-        y: 755.9999997600002
-      },
-      {
-        x: 450,
-        y: 755.9999997600002
-      }
-    ],
-    W36: [
-      {
-        x: 901.9999999800001,
-        y: 491
-      },
-      {
-        x: 901.9999999800001,
-        y: 741
-      }
-    ],
-    W37: [
-      {
-        x: 846,
-        y: 755.9999998200001
-      },
-      {
-        x: 774,
-        y: 755.9999998200001
-      }
-    ],
-    W38: [
-      {
-        x: 468,
-        y: 675.925
-      },
-      {
-        x: 680.0689655172414,
-        y: 675.925
-      },
-      {
-        x: 680.0689655172414,
-        y: 749.9999998200001
-      },
-      {
-        x: 864,
-        y: 749.9999998200001
-      }
-    ],
-    W39: [
-      {
-        x: 396,
-        y: 737.9999997600002
-      },
-      {
-        x: 558,
-        y: 737.9999997600002
-      }
-    ],
-    W40: [
-      {
-        x: 342,
-        y: 743.9999997600002
-      },
-      {
-        x: 576,
-        y: 743.9999997600002
-      }
-    ],
-    W41: [
-      {
-        x: 396,
-        y: 661.525
-      },
-      {
-        x: 630,
-        y: 661.525
-      }
-    ],
-    W42: [
-      {
-        x: 450,
-        y: 671.125
-      },
-      {
-        x: 648,
-        y: 671.125
-      }
-    ],
-    W43: [
-      {
-        x: 810,
-        y: 731.9999998200001
-      },
-      {
-        x: 731.9260663507108,
-        y: 731.9999998200001
-      },
-      {
-        x: 731.9260663507108,
-        y: 414.0000002219999
-      },
-      {
-        x: 648,
-        y: 414.0000002219999
-      }
-    ],
-    W44: [
-      {
-        x: 756,
-        y: 743.9999998200001
-      },
-      {
-        x: 724.7260663507108,
-        y: 743.9999998200001
-      },
-      {
-        x: 724.7260663507108,
-        y: 420.0000002219999
-      },
-      {
-        x: 630,
-        y: 420.0000002219999
-      }
-    ],
-    W45: [
-      {
-        x: 540,
-        y: 731.9999997600002
-      },
-      {
-        x: 414,
-        y: 731.9999997600002
-      }
-    ],
-    W46: [
-      {
-        x: 594,
-        y: 749.9999997600002
-      },
-      {
-        x: 378,
-        y: 749.9999997600002
-      }
-    ],
-    W47: [
-      {
-        x: 612,
-        y: 656.725
-      },
-      {
-        x: 378,
-        y: 656.725
-      }
-    ],
-    W48: [
-      {
-        x: 662.0689655172414,
-        y: 491
-      },
-      {
-        x: 662.0689655172414,
-        y: 666.325
-      },
-      {
-        x: 414,
-        y: 666.325
-      }
-    ],
-    W49: [
-      {
-        x: 666,
-        y: 417.0000002219999
-      },
-      {
-        x: 728.3260663507108,
-        y: 417.0000002219999
-      },
-      {
-        x: 728.3260663507108,
-        y: 726
-      },
-      {
-        x: 828,
-        y: 726
-      }
-    ],
-    W50: [
-      {
-        x: 612,
-        y: 423.0000002219999
-      },
-      {
-        x: 721.1260663507107,
-        y: 423.0000002219999
-      },
-      {
-        x: 721.1260663507107,
-        y: 737.9999998200001
-      },
-      {
-        x: 792,
-        y: 737.9999998200001
-      }
-    ],
-    W51: [
-      {
-        x: 540,
-        y: 499.9999999700001
-      },
-      {
-        x: 703.1260663507107,
-        y: 499.9999999700001
-      },
-      {
-        x: 703.1260663507107,
-        y: 110
-      },
-      {
-        x: 954,
-        y: 110
-      }
-    ],
-    W52: [
-      {
-        x: 594,
-        y: 502.9999999700001
-      },
-      {
-        x: 706.7260663507108,
-        y: 502.9999999700001
-      },
-      {
-        x: 706.7260663507108,
-        y: 116
-      }
-    ],
-    W53: [
-      {
-        x: 612,
-        y: 505.9999999700001
-      },
-      {
-        x: 710.3260663507108,
-        y: 505.9999999700001
-      },
-      {
-        x: 710.3260663507108,
-        y: 122
-      },
-      {
-        x: 882,
-        y: 122
-      }
-    ],
-    W54: [
-      {
-        x: 666,
-        y: 508.9999999700001
-      },
-      {
-        x: 843,
-        y: 508.9999999700001
-      },
-      {
-        x: 843,
-        y: 116
-      }
-    ],
-    W55: [
-      {
-        x: 666,
-        y: 387.0000002219999
-      },
-      {
-        x: 810,
-        y: 387.0000002219999
-      }
-    ],
-    W56: [
-      {
-        x: 612,
-        y: 384.0000002219999
-      },
-      {
-        x: 774,
-        y: 384.0000002219999
-      }
-    ],
-    W57: [
-      {
-        x: 666,
-        y: 376.80000022199994
-      },
-      {
-        x: 717.5260663507107,
-        y: 376.80000022199994
-      },
-      {
-        x: 717.5260663507107,
-        y: 481.9999999700001
-      },
-      {
-        x: 918,
-        y: 481.9999999700001
-      }
-    ],
-    W58: [
-      {
-        x: 612,
-        y: 381.0000002219999
-      },
-      {
-        x: 713.9260663507108,
-        y: 381.0000002219999
-      },
-      {
-        x: 713.9260663507108,
-        y: 478.9999999700001
-      },
-      {
-        x: 936,
-        y: 478.9999999700001
-      }
-    ],
-    W59: [
-      {
-        x: 954,
-        y: 476
-      },
-      {
-        x: 740.9260663507108,
-        y: 476
-      },
-      {
-        x: 740.9260663507108,
-        y: 116
-      }
-    ],
-    W60: [
-      {
-        x: 739.1260663507107,
-        y: 1036
-      },
-      {
-        x: 739.1260663507107,
-        y: 493.9999999700001
-      },
-      {
-        x: 522,
-        y: 493.9999999700001
-      }
-    ],
-    W61: [
-      {
-        x: 1098,
-        y: 405.0000002219999
-      },
-      {
-        x: 684,
-        y: 405.0000002219999
-      }
-    ]
-  };
-
-  // src/experiments/presets.mjs
-  var PRESET_WIRE_COLORS = {
-    power: WIRE_COLORS[0],
-    ground: WIRE_COLORS[7],
-    input: WIRE_COLORS[2],
-    control: WIRE_COLORS[4],
-    result: WIRE_COLORS[1],
-    feedback: WIRE_COLORS[3],
-    output: WIRE_COLORS[5],
-    timing: WIRE_COLORS[6],
-    overflow: WIRE_COLORS[9]
-  };
-  var PRESET_CHIPS = [
-    { id: "U1", model: "74LS273", section: 1, column: 25 },
-    { id: "U2", model: "74LS283", section: 2, column: 15 },
-    { id: "U3", model: "74LS283", section: 2, column: 38 },
-    { id: "U4", model: "74LS86", section: 1, column: 10 },
-    { id: "U5", model: "74LS86", section: 1, column: 44 }
-  ];
-  var UNUSED_INPUTS = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
-  var INPUT_PINS = [1, 4, 9, 12];
-  var OUTPUT_PINS = [3, 6, 8, 11];
-  var ADDER_PINS = [6, 2, 15, 11];
-  var CONTROL_PINS = ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"];
-  var SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
-  var FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
-  var REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
-  var COMPLEMENT_PORT_COUNT = 7;
-  var COMPLEMENT_NAME = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
-  var COMPLEMENT_RESET_INPUT = 6;
-  var COMPLEMENT_NOTES = `# ${COMPLEMENT_NAME}
-
-## \u529F\u80FD
-
-\u8FD9\u4E2A\u7535\u8DEF\u5B9E\u73B0\u4E86\u8FDE\u7EED\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58\u4E86 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u7ED9\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
-
-## \u8F93\u5165\u53E3
-
-| \u7AEF\u53E3 | \u4F5C\u7528 |
-| --- | --- |
-| K0\u3001K1\u3001K2\u3001K3 | \u8F93\u5165\u8865\u7801\u7684\u4F4E\u56DB\u4F4D\uFF0CK0 \u6700\u4F4E\u4F4D |
-| K4 | \u8F93\u5165\u7B26\u53F7\u4F4D\uFF1B\u7535\u8DEF\u5C06\u6B64\u4F4D\u590D\u5236\u6210\u4E24\u4E2A\u7B26\u53F7\u4F4D |
-| K5 | 0 \u4E3A\u52A0\u6CD5\uFF0C1 \u4E3A\u51CF\u6CD5 |
-| K6 | 0 \u5F02\u6B65\u6E05\u96F6\uFF0C\u6B63\u5E38\u8FD0\u7B97\u4FDD\u6301 1 |
-| P\u2212 | \u5B8C\u6574\u8D1F\u8109\u51B2\u7ED3\u675F\u65F6\u7684\u4E0A\u5347\u6CBF\uFF0C\u4FDD\u5B58\u672C\u6B21\u7ED3\u679C |
-| P+ | \u672C\u793A\u4F8B\u672A\u8FDE\u63A5\uFF0C\u4E0D\u4F1A\u52A0\u8F7D\u7ED3\u679C |
-
-\u8F93\u5165\u987A\u5E8F\u4E3A **K4 K3 K2 K1 K0**\uFF0C\u4F7F\u7528\u4E94\u4F4D\u8865\u7801\uFF0C\u8303\u56F4\u4E3A \u221216\uFF5E15\u3002\u4F8B\uFF1A7 \u4E3A 00111\uFF0C\u221212 \u4E3A 10100\uFF0C\u22122 \u4E3A 11110\u3002\u51CF\u53BB 6 \u65F6\u8F93\u5165\u6B63\u6570 00110\uFF0C\u518D\u628A K5 \u8BBE\u7F6E\u4E3A 1
-
-## \u8F93\u51FA\u53E3
-
-| \u7AEF\u53E3 | \u4F5C\u7528 |
-| --- | --- |
-| L5 | \u9AD8\u7B26\u53F7\u4F4D |
-| L4 | \u4F4E\u7B26\u53F7\u4F4D |
-| L3\u3001L2\u3001L1\u3001L0 | \u7ED3\u679C\u7684\u56DB\u4E2A\u6570\u503C\u4F4D\uFF0CL0 \u6700\u4F4E\u4F4D |
-| L6 | \u4E24\u4E2A\u7B26\u53F7\u4F4D\u5F02\u6216\u7684\u7ED3\u679C\uFF0C1 \u8868\u793A\u5F53\u524D\u7ED3\u679C\u6EA2\u51FA |
-
-\u7ED3\u679C\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u5728 **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u65F6\u70B9\u4EAE**\uFF0CX \u6216 Z \u72B6\u6001\u4E0B\u4FDD\u6301\u7184\u706D
-
-## \u64CD\u4F5C\u6B65\u9AA4
-
-1. \u6253\u5F00\u7535\u6E90\u540E\uFF0C\u5C06 K6 \u5207\u5230 0 \u518D\u5207\u56DE 1\uFF0CL6\uFF5EL0 \u5E94\u663E\u793A 000 0000
-2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u5E76\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
-3. \u53D1\u51FA\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\u540E\uFF0C\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF0CL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
-
-\u7D2F\u8BA1\u7ED3\u679C\u5728\u6709\u6548\u8109\u51B2\u5230\u6765\u540E\u66F4\u65B0\uFF0C\u8C03\u6574\u8F93\u5165\u65F6\u4FDD\u6301\u539F\u503C\u3002\u4F60\u53EF\u4EE5\u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDE\u7EED\u5B8C\u6210\u8FD0\u7B97
-
-## \u9A8C\u6536
-
-| \u7B97\u5F0F | \u6BCF\u6B21\u8109\u51B2\u540E\u7684\u7D2F\u8BA1\u7ED3\u679C |
-| --- | --- |
-| 7\uFF0B5\u22126\uFF0B12 | 00 0111 \u2192 00 1100 \u2192 00 0110 \u2192 **01 0010**\uFF08\u6B63\u6EA2\u51FA\uFF09 |
-| \uFF08\u221212\uFF09\uFF0B\uFF08\u22122\uFF09\u22126 | 11 0100 \u2192 11 0010 \u2192 **10 1100**\uFF08\u8D1F\u6EA2\u51FA\uFF09 |
-
-## \u8D70\u7EBF\u4E0E\u7EBF\u8272
-
-K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5217\uFF0C\u8F93\u5165\u8F93\u51FA\u677F\u7528\u4F5C\u4FE1\u53F7\u663E\u793A\u548C\u64CD\u4F5C\u3002\u5BFC\u7EBF\u63A5\u5728\u9762\u5305\u677F\u5B54\u6216\u53F3\u4FA7\u7535\u6E90\u8F68\u5B54\u4E0A\uFF0C\u7AEF\u53E3\u4E0E\u5B54\u4F4D\u7684\u5BF9\u5E94\u5173\u7CFB\u89C1\u63A5\u7EBF\u8BF4\u660E
-
-\u7B2C\u56DB\u5757\u9762\u5305\u677F\u7528\u7EC6\u7EBF\u6865\u63A5\u4E86\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u4EE5\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u5206\u522B\u8FDE\u63A5
-
-\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u4E0E\u7B26\u53F7\u8F93\u5165\uFF08\u5305\u62EC\u53D6\u53CD\u540E\u7684\u6570\u636E\uFF09\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\u9001\u5165\u5BC4\u5B58\u5668\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A L0\uFF5EL5 \u7ED3\u679C\u8F93\u51FA\uFF0C\u6A59\u8272\u4E3A\u6EA2\u51FA\u5224\u65AD\u652F\u8DEF\u53CA L6 \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
-
-\u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u4E86\u82AF\u7247\u5916\u6846\uFF0C\u901A\u8FC7\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u5EFA\u7ACB\u8FDE\u63A5\uFF0C\u4EA4\u53C9\u5904\u4FDD\u6301\u7EDD\u7F18\u3002\u5F53\u4F60\u786E\u8BA4\u5DE6\u4FA7\u7684\u201C\u6574\u7406\u8D70\u7EBF\u201D\u64CD\u4F5C\u540E\uFF0C\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u8DEF\u5F84\uFF0C\u5E76\u4FDD\u7559\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\uFF0C\u6574\u4E2A\u64CD\u4F5C\u652F\u6301\u64A4\u9500
-
-\u5F53\u4F60\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u7684\u6613\u5931\u72B6\u6001\u4F1A\u91CD\u7F6E\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u7535\u8DEF\u91C7\u7528\u4E86\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u5C5E\u4E8E\u5B9E\u7269\u5B9E\u9A8C\u7684\u89C2\u5BDF\u8303\u56F4
-`;
-  function complementPreset() {
-    const project = emptyProject();
-    project.inputCount = COMPLEMENT_PORT_COUNT;
-    project.outputCount = COMPLEMENT_PORT_COUNT;
-    project.notes = COMPLEMENT_NOTES;
-    project.name = COMPLEMENT_NAME;
-    project.chips = structuredClone(PRESET_CHIPS);
-    const usage = {};
-    let power = "VCC";
-    let ground = "GND";
-    for (const chip of project.chips) {
-      const model = CHIP_MODELS[chip.model];
-      const powerPin = chip.id + "-" + model.power;
-      const groundPin = chip.id + "-" + model.ground;
-      connect(project, usage, power, powerPin, PRESET_WIRE_COLORS.power);
-      connect(project, usage, ground, groundPin, PRESET_WIRE_COLORS.ground);
-      power = powerPin;
-      ground = groundPin;
-    }
-    for (const pin of UNUSED_INPUTS) {
-      connect(project, usage, ground, pin, PRESET_WIRE_COLORS.ground);
-      ground = pin;
-    }
-    for (let bit = 0; bit < 4; bit = bit + 1) {
-      connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], PRESET_WIRE_COLORS.input);
-      connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], PRESET_WIRE_COLORS.input);
-    }
-    connect(project, usage, "K4", "U5-1", PRESET_WIRE_COLORS.input);
-    let control = "K5";
-    for (const pin of CONTROL_PINS) {
-      connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
-      control = pin;
-    }
-    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
-    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
-    connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
-    for (const pair of SUM_CONNECTIONS) {
-      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
-    }
-    for (const pair of FEEDBACK_CONNECTIONS) {
-      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.feedback);
-    }
-    for (let bit = 0; bit < 6; bit = bit + 1) {
-      connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
-    }
-    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
-    connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
-    for (const wire of project.wires) {
-      if (Object.hasOwn(preset_routes_default, wire.id)) {
-        wire.bends = structuredClone(preset_routes_default[wire.id]);
-      }
-    }
-    project.switches[COMPLEMENT_RESET_INPUT] = 1;
-    return project;
-  }
-  function presetWireKey(wire) {
-    const first = baseNode(wire.from);
-    const second = baseNode(wire.to);
-    if (first < second) {
-      return first + "|" + second;
-    }
-    return second + "|" + first;
-  }
-  function isComplementPreset(project) {
-    const reference = complementPreset();
-    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
-      return false;
-    }
-    if (project.pullUps.length !== reference.pullUps.length) {
-      return false;
-    }
-    const chips = /* @__PURE__ */ new Map();
-    for (const chip of project.chips) {
-      chips.set(chip.id, chip);
-    }
-    for (const expected of reference.chips) {
-      const actual = chips.get(expected.id);
-      if (!actual || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
-        return false;
-      }
-    }
-    const wires = /* @__PURE__ */ new Map();
-    for (const wire of reference.wires) {
-      const key = presetWireKey(wire);
-      let count = 0;
-      if (wires.has(key)) {
-        count = wires.get(key);
-      }
-      wires.set(key, count + 1);
-    }
-    for (const wire of project.wires) {
-      const key = presetWireKey(wire);
-      const count = wires.get(key);
-      if (!count) {
-        return false;
-      }
-      wires.set(key, count - 1);
-    }
-    return true;
-  }
-
-  // src/board/wire-path.mjs
-  var WIRE_PATH = { tolerance: 1e-6, cornerSize: BOARD.pitch, cornerPortion: 1 / 3 };
-  function simplifyWirePath(points) {
-    const result = [];
-    for (const point of points) {
-      const previous = result[result.length - 1];
-      if (previous && previous.x === point.x && previous.y === point.y) {
-        continue;
-      }
-      while (result.length >= 2) {
-        const last = result[result.length - 1];
-        const before = result[result.length - 2];
-        const firstHorizontal = last.x - before.x;
-        const firstVertical = last.y - before.y;
-        const nextHorizontal = point.x - last.x;
-        const nextVertical = point.y - last.y;
-        const cross = firstHorizontal * nextVertical - firstVertical * nextHorizontal;
-        const direction = firstHorizontal * nextHorizontal + firstVertical * nextVertical;
-        if (Math.abs(cross) > WIRE_PATH.tolerance || direction <= 0) {
-          break;
-        }
-        result.pop();
-      }
-      result.push({ x: point.x, y: point.y });
-    }
-    return result;
-  }
-  function angleWirePath(points) {
-    if (points.length === 0) {
-      return [];
-    }
-    const result = [points[0]];
-    for (let index = 1; index < points.length; index = index + 1) {
-      const first = points[index - 1];
-      const last = points[index];
-      const horizontal = last.x - first.x;
-      const vertical = last.y - first.y;
-      if (horizontal !== 0 && vertical !== 0) {
-        const diagonal = Math.abs(Math.abs(horizontal) - Math.abs(vertical)) <= WIRE_PATH.tolerance;
-        if (!diagonal || Math.abs(horizontal) > WIRE_PATH.cornerSize + WIRE_PATH.tolerance) {
-          const corner = { x: last.x, y: first.y };
-          const section = shortCornerPath([first, corner, last], [], Infinity);
-          for (let position = 1; position < section.length - 1; position = position + 1) {
-            result.push(section[position]);
-          }
-        }
-      }
-      result.push(last);
-    }
-    return simplifyWirePath(result);
-  }
-  function shortCornerPath(points, obstacles, maximumPoints) {
-    const result = [];
-    for (let index = 0; index < points.length; index = index + 1) {
-      const corner = points[index];
-      if (index === 0 || index === points.length - 1) {
-        result.push(corner);
-        continue;
-      }
-      const before = points[index - 1];
-      const after = points[index + 1];
-      const incomingX = corner.x - before.x;
-      const incomingY = corner.y - before.y;
-      const outgoingX = after.x - corner.x;
-      const outgoingY = after.y - corner.y;
-      const incomingAxis = incomingX === 0 || incomingY === 0;
-      const outgoingAxis = outgoingX === 0 || outgoingY === 0;
-      const perpendicular = incomingX * outgoingX + incomingY * outgoingY === 0;
-      const remaining = points.length - index - 1;
-      if (!incomingAxis || !outgoingAxis || !perpendicular || result.length + remaining + 2 > maximumPoints) {
-        result.push(corner);
-        continue;
-      }
-      const incomingLength = Math.hypot(incomingX, incomingY);
-      const outgoingLength = Math.hypot(outgoingX, outgoingY);
-      const size = Math.min(WIRE_PATH.cornerSize, incomingLength * WIRE_PATH.cornerPortion, outgoingLength * WIRE_PATH.cornerPortion);
-      if (size <= WIRE_PATH.tolerance) {
-        result.push(corner);
-        continue;
-      }
-      const first = { x: corner.x - Math.sign(incomingX) * size, y: corner.y - Math.sign(incomingY) * size };
-      const last = { x: corner.x + Math.sign(outgoingX) * size, y: corner.y + Math.sign(outgoingY) * size };
-      let blocked = false;
-      for (const obstacle of obstacles) {
-        if (segmentCrossesBounds(first, last, obstacle)) {
-          blocked = true;
-          break;
-        }
-      }
-      if (blocked) {
-        result.push(corner);
-      } else {
-        result.push(first, last);
-      }
-    }
-    return simplifyWirePath(result);
-  }
-  function segmentCrossesBounds(first, last, bounds) {
-    let enter = 0;
-    let leave = 1;
-    const starts = [first.x, first.y];
-    const changes = [last.x - first.x, last.y - first.y];
-    const minimums = [bounds.x + WIRE_PATH.tolerance, bounds.y + WIRE_PATH.tolerance];
-    const maximums = [bounds.x + bounds.width - WIRE_PATH.tolerance, bounds.y + bounds.height - WIRE_PATH.tolerance];
-    for (let axis = 0; axis < 2; axis = axis + 1) {
-      const start2 = starts[axis];
-      const change = changes[axis];
-      if (Math.abs(change) <= WIRE_PATH.tolerance) {
-        if (start2 < minimums[axis] || start2 > maximums[axis]) {
-          return false;
-        }
-      } else {
-        const firstPortion = (minimums[axis] - start2) / change;
-        const lastPortion = (maximums[axis] - start2) / change;
-        enter = Math.max(enter, Math.min(firstPortion, lastPortion));
-        leave = Math.min(leave, Math.max(firstPortion, lastPortion));
-        if (enter >= leave) {
-          return false;
-        }
-      }
-    }
-    return enter < leave;
-  }
-
-  // src/board/geometry.mjs
-  var PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
-  var WIRE_LAYOUT = { laneStart: 12, laneCount: 9, laneStep: 5, sameRowDistance: 12 };
-  var CHIP_LAYOUT = { leftOffset: 9, topOffset: 9, height: 32 };
-  var endpointPositions = /* @__PURE__ */ new WeakMap();
-  function fixedPositions(endpoints2) {
-    let positions = endpointPositions.get(endpoints2);
-    if (!positions) {
-      positions = [];
-      for (const name of endpoints2) {
-        positions.push(endpointPosition(name));
-      }
-      endpointPositions.set(endpoints2, positions);
-    }
-    return positions;
-  }
-  function chipBounds(chip) {
-    const count = CHIP_MODELS[chip.model].count;
-    const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - CHIP_LAYOUT.leftOffset;
-    const top = rowY(chip.section, "E") + CHIP_LAYOUT.topOffset;
-    return { x: left, y: top, width: count / 2 * BOARD.pitch, height: CHIP_LAYOUT.height };
-  }
-  function wirePoints(wire, index) {
-    const first = endpointPosition(wire.from);
-    const last = endpointPosition(wire.to);
-    const points = [first];
-    if (wire.bends.length > 0) {
-      for (const bend of wire.bends) {
-        points.push(bend);
-      }
-    } else if (wire.angle !== 45) {
-      const laneOffset = WIRE_LAYOUT.laneStart + index % WIRE_LAYOUT.laneCount * WIRE_LAYOUT.laneStep;
-      let lane = (first.y + last.y) / 2 + laneOffset;
-      if (Math.abs(first.y - last.y) < WIRE_LAYOUT.sameRowDistance) {
-        lane = first.y - laneOffset;
-      }
-      points.push({ x: first.x, y: lane });
-      points.push({ x: last.x, y: lane });
-    }
-    points.push(last);
-    if (wire.angle === 45) {
-      return angleWirePath(points);
-    }
-    return points;
-  }
-  function wireDisplayPaths(wires) {
-    const basePaths = [];
-    for (let index = 0; index < wires.length; index = index + 1) {
-      basePaths.push(wirePoints(wires[index], index));
-    }
-    return basePaths;
-  }
-  function segmentDistance(point, first, last) {
-    const horizontal = last.x - first.x;
-    const vertical = last.y - first.y;
-    const length = horizontal * horizontal + vertical * vertical;
-    if (length === 0) {
-      return Math.hypot(point.x - first.x, point.y - first.y);
-    }
-    let portion = ((point.x - first.x) * horizontal + (point.y - first.y) * vertical) / length;
-    portion = Math.max(0, Math.min(1, portion));
-    return Math.hypot(point.x - first.x - portion * horizontal, point.y - first.y - portion * vertical);
-  }
-  function hitCandidates(point, state2, endpoints2) {
-    const candidates = [];
-    const displayPaths = wireDisplayPaths(state2.project.wires);
-    if (point.y >= PORT_LAYOUT.inputY + PICK.buttonTop && point.y <= PORT_LAYOUT.inputY + PICK.buttonBottom) {
-      for (let index = 0; index < IO_LIMIT; index = index + 1) {
-        const location = endpointPosition("K" + index);
-        if (Math.abs(point.x - location.x) <= PICK.switchHalfWidth) {
-          return [{ kind: "switch", id: index }];
-        }
-      }
-      for (const name of ["P+", "P-"]) {
-        const location = endpointPosition(name);
-        if (Math.abs(point.x - location.x) <= PICK.pulseHalfWidth) {
-          return [{ kind: "pulse", id: name }];
-        }
-      }
-    }
-    for (let index = state2.project.wires.length - 1; index >= 0; index = index - 1) {
-      const wire = state2.project.wires[index];
-      const points = displayPaths[index];
-      for (let segment = 1; segment < points.length; segment = segment + 1) {
-        if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
-          candidates.push({ kind: "wire", id: wire.id });
-          break;
-        }
-      }
-    }
-    const positions = fixedPositions(endpoints2);
-    const radiusSquared = PICK.nodeRadius * PICK.nodeRadius;
-    for (let index = 0; index < positions.length; index = index + 1) {
-      const location = positions[index];
-      const horizontal = point.x - location.x;
-      const vertical = point.y - location.y;
-      if (horizontal * horizontal + vertical * vertical <= radiusSquared) {
-        candidates.push({ kind: "node", id: endpoints2[index] });
-      }
-    }
-    for (const chip of state2.project.chips) {
-      const bounds = chipBounds(chip);
-      if (point.x >= bounds.x && point.x <= bounds.x + bounds.width && point.y >= bounds.y && point.y <= bounds.y + bounds.height) {
-        candidates.push({ kind: "chip", id: chip.id });
-      }
-    }
-    return candidates;
-  }
-  function hitTest(point, state2, endpoints2) {
-    const candidates = hitCandidates(point, state2, endpoints2);
-    if (candidates.length > 0) {
-      return candidates[0];
-    }
-    return null;
-  }
-  function objectSelected(state2, kind, id) {
-    if (state2.selection && state2.selection.length > 0) {
-      for (const target of state2.selection) {
-        if (target.kind === kind && target.id === id) {
-          return true;
-        }
-      }
-      return false;
-    }
-    return Boolean(state2.selected && state2.selected.kind === kind && state2.selected.id === id);
-  }
-  function nearestEndpoint(point, endpoints2) {
-    let nearest = "";
-    let distance = PICK.endpointRadius;
-    for (const name of endpoints2) {
-      const location = endpointPosition(name);
-      const current = Math.hypot(point.x - location.x, point.y - location.y);
-      if (current < distance) {
-        distance = current;
-        nearest = name;
-      }
-    }
-    return nearest;
-  }
-  function wireHandleAt(point, project, selected) {
-    if (!selected || selected.kind !== "wire") {
-      return null;
-    }
-    for (let index = 0; index < project.wires.length; index = index + 1) {
-      const wire = project.wires[index];
-      if (wire.id !== selected.id) {
-        continue;
-      }
-      const points = wirePoints(wire, index);
-      for (let handle = 0; handle < points.length; handle = handle + 1) {
-        if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
-          return { wire: wire.id, handle, points };
-        }
-      }
-    }
-    return null;
-  }
-
-  // src/storage/storage.mjs
-  var STORAGE_KEY = "breadboard-lab-v1";
-  var LIMITS = {
-    chips: 40,
-    // 单个实验的芯片数量上限
-    wires: 800,
-    // 单个实验的导线及上拉节点数量上限
-    bends: 24,
-    // 每根导线的转折点数量上限
-    fileBytes: 2e6,
-    // 导入文件字节数上限
-    nameLength: 80
-    // 实验名称字符数上限
-  };
-  var FILE_BOUNDS = { width: 1300, height: 1280 };
-  var LEGACY_COMPLEMENT_PORT_COUNT = 7;
-  function validWireBend(bend) {
-    if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y)) {
-      return false;
-    }
-    const fitsWidth = bend.x >= 0 && bend.x <= FILE_BOUNDS.width;
-    const fitsHeight = bend.y >= 0 && bend.y <= FILE_BOUNDS.height;
-    return fitsWidth && fitsHeight;
-  }
-  function legacyNode(name, wiringVersion) {
-    if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
-      return name;
-    }
-    return baseNode(name, 2);
-  }
-  function connectionRoot(parents, name) {
-    if (!parents.has(name)) {
-      parents.set(name, name);
-    }
-    let root = name;
-    while (parents.get(root) !== root) {
-      root = parents.get(root);
-    }
-    return root;
-  }
-  function verifyPortMigration(original, migrated) {
-    const before = /* @__PURE__ */ new Map();
-    const after = /* @__PURE__ */ new Map();
-    for (const wire of original.wires) {
-      const first = connectionRoot(before, legacyNode(wire.from, original.wiringVersion));
-      const last = connectionRoot(before, legacyNode(wire.to, original.wiringVersion));
-      before.set(last, first);
-    }
-    for (const wire of migrated.wires) {
-      const first = connectionRoot(after, baseNode(wire.from));
-      const last = connectionRoot(after, baseNode(wire.to));
-      after.set(last, first);
-    }
-    const terminals = ["P+", "P-", "VCC", "GND"];
-    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
-      terminals.push("K" + bit, "L" + bit);
-    }
-    for (const chip of migrated.chips) {
-      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-        terminals.push(pinHole(chip, pin));
-      }
-    }
-    const forward = /* @__PURE__ */ new Map();
-    const reverse = /* @__PURE__ */ new Map();
-    for (const name of terminals) {
-      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
-      const newGroup = connectionRoot(after, baseNode(name));
-      if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
-        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
-      }
-      forward.set(oldGroup, newGroup);
-      reverse.set(newGroup, oldGroup);
-    }
-  }
-  function migrateEndpoint(name, occupied2) {
-    if (isPhysicalHole(name)) {
-      return name;
-    }
-    const preferred = portHole(name);
-    if (preferred === "") {
-      throw new Error("\u65E0\u6CD5\u627E\u5230\u7AEF\u53E3\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5B54\uFF1A" + name);
-    }
-    const parts = preferred.split(":");
-    if (preferred.startsWith("R:")) {
-      for (let index = Number(parts[2]); index >= 0; index = index - 1) {
-        const hole = parts[0] + ":" + parts[1] + ":" + index;
-        if (!occupied2.has(hole)) {
-          occupied2.add(hole);
-          return hole;
-        }
-      }
-    } else {
-      let rows = "JIHGF";
-      if (parts[1] === "A") {
-        rows = "ABCDE";
-      }
-      for (const row of rows) {
-        const hole = parts[0] + ":" + row + ":" + parts[2];
-        if (!occupied2.has(hole)) {
-          occupied2.add(hole);
-          return hole;
-        }
-      }
-    }
-    throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
-  }
-  function validateProjectHeader(value) {
-    if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
-      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
-    }
-    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
-      throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
-    }
-    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
-      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
-    }
-  }
-  function restoreProjectSettings(value, project) {
-    if (value.inputCount !== void 0 || value.outputCount !== void 0) {
-      if (!validIoCount(value.inputCount) || !validIoCount(value.outputCount)) {
-        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
-      }
-      project.inputCount = value.inputCount;
-      project.outputCount = value.outputCount;
-    }
-    if (value.mode === "complement") {
-      project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
-      project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
-    }
-    if (value.notes === void 0 && value.mode === "complement") {
-      project.notes = COMPLEMENT_NOTES;
-    } else if (value.notes !== void 0) {
-      if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
-        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 " + NOTES_LIMIT + " \u4E2A\u5B57\u7B26");
-      }
-      project.notes = value.notes;
-    }
-    if (typeof value.name === "string") {
-      project.name = value.name.slice(0, LIMITS.nameLength);
-    }
-    project.power = value.power === true;
-  }
-  function restorePullUps(value, project) {
-    if (value.pullUps !== void 0) {
-      if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
-        throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
-      }
-      const seen = /* @__PURE__ */ new Set();
-      for (const endpoint of value.pullUps) {
-        if (!validEndpoint(endpoint) || seen.has(endpoint)) {
-          throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-        }
-        project.pullUps.push(endpoint);
-        seen.add(endpoint);
-      }
-    }
-  }
-  function restoreChips(value, project) {
-    const identifiers = /* @__PURE__ */ new Set();
-    const occupied2 = /* @__PURE__ */ new Set();
-    for (const entry of value.chips) {
-      if (!entry || typeof entry.id !== "string" || !/^U[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-      }
-      const chip = { id: entry.id, model: entry.model, section: entry.section, column: entry.column };
-      const error = placementError(project.chips, chip, "");
-      if (error !== "") {
-        throw new Error(error);
-      }
-      identifiers.add(chip.id);
-      project.chips.push(chip);
-      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
-        occupied2.add(pinHole(chip, pin));
-      }
-    }
-    return occupied2;
-  }
-  function restoreWires(value, project, occupied2) {
-    const identifiers = /* @__PURE__ */ new Set();
-    const reserved = new Set(occupied2);
-    for (const entry of value.wires) {
-      if (entry && isPhysicalHole(entry.from)) {
-        reserved.add(entry.from);
-      }
-      if (entry && isPhysicalHole(entry.to)) {
-        reserved.add(entry.to);
-      }
-    }
-    for (const entry of value.wires) {
-      if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
-        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
-      }
-      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
-        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
-      }
-      if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
-        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5");
-      }
-      const bends = [];
-      for (const bend of entry.bends) {
-        if (!validWireBend(bend)) {
-          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
-        }
-        bends.push({ x: bend.x, y: bend.y });
-      }
-      const from = migrateEndpoint(entry.from, reserved);
-      const to = migrateEndpoint(entry.to, reserved);
-      if (from !== entry.from || to !== entry.to) {
-        bends.length = 0;
-      }
-      const wire = { id: entry.id, from, to, color: entry.color, bends };
-      if (entry.angle !== void 0 && entry.angle !== 45) {
-        throw new Error("\u5BFC\u7EBF\u89D2\u5EA6\u8BBE\u7F6E\u4E0D\u6B63\u786E");
-      }
-      if (entry.angle === 45) {
-        wire.angle = 45;
-      }
-      project.wires.push(wire);
-      occupied2.add(entry.from);
-      occupied2.add(entry.to);
-      identifiers.add(entry.id);
-    }
-  }
-  function restoreSwitches(value, project) {
-    for (let index = 0; index < IO_LIMIT; index = index + 1) {
-      if (value.switches[index] !== 0 && value.switches[index] !== 1) {
-        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
-      }
-      project.switches[index] = value.switches[index];
-    }
-  }
-  function validateProject(value) {
-    validateProjectHeader(value);
-    const project = emptyProject();
-    restoreProjectSettings(value, project);
-    restorePullUps(value, project);
-    const occupied2 = restoreChips(value, project);
-    restoreWires(value, project, occupied2);
-    restoreSwitches(value, project);
-    if (value.wiringVersion !== WIRING_VERSION) {
-      verifyPortMigration(value, project);
-    }
-    return project;
-  }
-
-  // src/ui/runtime-scripts.mjs
-  var loadingScripts = /* @__PURE__ */ new Map();
-  function loadRuntimeScript(filename) {
-    if (loadingScripts.has(filename)) {
-      return loadingScripts.get(filename);
-    }
-    function startLoading(resolve, reject) {
-      const script = document.createElement("script");
-      script.src = filename;
-      script.async = true;
-      function loaded() {
-        resolve();
-      }
-      function failed() {
-        loadingScripts.delete(filename);
-        script.remove();
-        reject(new Error("\u65E0\u6CD5\u52A0\u8F7D\u672C\u5730\u8FD0\u884C\u6587\u4EF6\uFF1A" + filename));
-      }
-      script.addEventListener("load", loaded, { once: true });
-      script.addEventListener("error", failed, { once: true });
-      document.head.append(script);
-    }
-    const loading = new Promise(startLoading);
-    loadingScripts.set(filename, loading);
-    return loading;
-  }
-
-  // src/board/routing-runtime.mjs
-  var ROUTING_SCRIPT = "vendor/routing-runtime.js";
-  var initialization = null;
-  async function loadRoutingRuntime() {
-    if (typeof window === "undefined") {
-      const runtime = await import("libavoid-js");
-      await runtime.AvoidLib.load();
-      return runtime.AvoidLib.getInstance();
-    }
-    await loadRuntimeScript(ROUTING_SCRIPT);
-    return window.BreadboardRouting.loadRouting();
-  }
-  function resetInitialization(error) {
-    initialization = null;
-    throw error;
-  }
-  function initializeRouting() {
-    if (!initialization) {
-      initialization = loadRoutingRuntime().catch(resetInitialization);
-    }
-    return initialization;
-  }
-
-  // src/board/routing.mjs
-  var ROUTING = {
-    // 提高每个额外正交线段的代价，避免连续小折段
-    segmentPenalty: 2e3,
-    shapeBuffer: 5,
-    nudgingDistance: 6,
-    bottomBoundary: 1110,
-    boundaryDepth: 1e3
-  };
-  function yieldFrame(resolve) {
-    setTimeout(resolve, 0);
-  }
-  function createRouter(Avoid) {
-    const router = new Avoid.Router(Avoid.RouterFlag.OrthogonalRouting.value);
-    const parameter = Avoid.RoutingParameter;
-    router.setRoutingParameter(parameter.segmentPenalty, ROUTING.segmentPenalty);
-    router.setRoutingParameter(parameter.shapeBufferDistance, ROUTING.shapeBuffer);
-    router.setRoutingParameter(parameter.idealNudgingDistance, ROUTING.nudgingDistance);
-    router.setRoutingOption(Avoid.RoutingOption.nudgeOrthogonalTouchingColinearSegments, true);
-    router.setRoutingOption(Avoid.RoutingOption.nudgeSharedPathsWithCommonEndPoint, true);
-    router.setRoutingOption(Avoid.RoutingOption.nudgeOrthogonalSegmentsConnectedToShapes, true);
-    return router;
-  }
-  function keepObject(objects, value) {
-    objects.push(value);
-    return value;
-  }
-  function addObstacles(Avoid, router, project, objects) {
-    const bounds = [];
-    for (const chip of project.chips) {
-      bounds.push(chipBounds(chip));
-    }
-    let bottom = ROUTING.bottomBoundary;
-    for (const wire of project.wires) {
-      bottom = Math.max(bottom, endpointPosition(wire.from).y, endpointPosition(wire.to).y);
-    }
-    const depth = ROUTING.boundaryDepth;
-    const walls = [
-      { x: -depth, y: -depth, width: depth, height: BOARD.height + depth * 2 },
-      { x: BOARD.width, y: -depth, width: depth, height: BOARD.height + depth * 2 },
-      { x: 0, y: -depth, width: BOARD.width, height: depth },
-      { x: 0, y: bottom + ROUTING.shapeBuffer, width: BOARD.width, height: depth }
-    ];
-    const obstacles = bounds.concat(walls);
-    for (const obstacle of obstacles) {
-      const first = keepObject(objects, new Avoid.Point(obstacle.x, obstacle.y));
-      const last = keepObject(objects, new Avoid.Point(obstacle.x + obstacle.width, obstacle.y + obstacle.height));
-      const rectangle2 = keepObject(objects, new Avoid.Rectangle(first, last));
-      new Avoid.ShapeRef(router, rectangle2);
-    }
-    return bounds;
-  }
-  function addCheckpoints(Avoid, connection, points, objects) {
-    if (points.length === 0) {
-      return;
-    }
-    const vector = keepObject(objects, new Avoid.CheckpointVector());
-    for (const location of points) {
-      const point = keepObject(objects, new Avoid.Point(location.x, location.y));
-      const checkpoint = keepObject(objects, new Avoid.Checkpoint(point));
-      vector.push_back(checkpoint);
-    }
-    connection.setRoutingCheckpoints(vector);
-  }
-  function addConnections(Avoid, router, project, targetId, objects) {
-    const connections = /* @__PURE__ */ new Map();
-    for (let index = 0; index < project.wires.length; index = index + 1) {
-      const wire = project.wires[index];
-      const first = endpointPosition(wire.from);
-      const last = endpointPosition(wire.to);
-      const sourcePoint = keepObject(objects, new Avoid.Point(first.x, first.y));
-      const targetPoint = keepObject(objects, new Avoid.Point(last.x, last.y));
-      const source = keepObject(objects, new Avoid.ConnEnd(sourcePoint));
-      const target = keepObject(objects, new Avoid.ConnEnd(targetPoint));
-      const connection = new Avoid.ConnRef(router, source, target);
-      connection.setRoutingType(Avoid.ConnType.ConnType_Orthogonal);
-      if (targetId !== "") {
-        let checkpoints = wire.bends;
-        if (wire.id !== targetId) {
-          checkpoints = wirePoints(wire, index).slice(1, -1);
-        }
-        addCheckpoints(Avoid, connection, checkpoints, objects);
-      }
-      connections.set(wire.id, connection);
-    }
-    return connections;
-  }
-  function readRoute(connection, wire, bounds) {
-    const route = connection.displayRoute();
-    const points = [];
-    try {
-      for (let index = 0; index < route.size(); index = index + 1) {
-        const point = route.at(index);
-        points.push({ x: point.x, y: point.y });
-        point.delete();
-      }
-    } finally {
-      route.delete();
-    }
-    if (points.length < 2) {
-      throw new Error("\u672A\u751F\u6210\u6709\u6548\u8D70\u7EBF\uFF1A" + wire.id);
-    }
-    const first = endpointPosition(wire.from);
-    const last = endpointPosition(wire.to);
-    const source = points[0];
-    const target = points[points.length - 1];
-    if (source.x !== first.x && source.y !== first.y) {
-      points.unshift({ x: source.x, y: first.y });
-    }
-    points.unshift(first);
-    if (target.x !== last.x && target.y !== last.y) {
-      points.push({ x: target.x, y: last.y });
-    }
-    points.push(last);
-    for (let index = 1; index < points.length; index = index + 1) {
-      for (const obstacle of bounds) {
-        if (segmentCrossesBounds(points[index - 1], points[index], obstacle)) {
-          throw new Error("\u8D70\u7EBF\u7A7F\u8FC7\u82AF\u7247\uFF0C\u8BF7\u8C03\u6574\u8F6C\u6298\u70B9\uFF1A" + wire.id);
-        }
-      }
-    }
-    return simplifyWirePath(points);
-  }
-  async function routeProject(project, angle, targetId) {
-    await new Promise(yieldFrame);
-    const Avoid = await initializeRouting();
-    const router = createRouter(Avoid);
-    const objects = [];
-    try {
-      const bounds = addObstacles(Avoid, router, project, objects);
-      const connections = addConnections(Avoid, router, project, targetId, objects);
-      router.processTransaction();
-      const routes = {};
-      for (const wire of project.wires) {
-        if (targetId !== "" && wire.id !== targetId) {
-          continue;
-        }
-        let points = readRoute(connections.get(wire.id), wire, bounds);
-        const preserveManualPoints = targetId !== "" && wire.bends.length > 0;
-        if (angle === 45 && !preserveManualPoints) {
-          points = shortCornerPath(points, bounds, LIMITS.bends + 2);
-        }
-        const bends = points.slice(1, -1);
-        if (bends.length === 0) {
-          bends.push({ x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 });
-        }
-        if (bends.length > LIMITS.bends) {
-          throw new Error("\u8D70\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u4E0A\u9650\uFF1A" + wire.id);
-        }
-        routes[wire.id] = bends;
-      }
-      return routes;
-    } finally {
-      router.delete();
-      for (let index = objects.length - 1; index >= 0; index = index - 1) {
-        objects[index].delete();
-      }
-    }
-  }
-  function routeWires(project, angle) {
-    return routeProject(project, angle, "");
-  }
-  async function routeNewWire(project, wire, angle) {
-    const candidate = Object.assign({}, project);
-    candidate.wires = project.wires.concat([wire]);
-    const routes = await routeProject(candidate, angle, wire.id);
-    return routes[wire.id];
-  }
-
-  // src/board/render.mjs
-  var DRAW = {
-    pixelRatio: 2,
-    holeRadius: 3.5,
-    wireWidth: 2.4,
-    selectedWireWidth: 5,
-    wireOutlineWidth: 2,
-    wireEndpointRadius: 4,
-    handleSize: 10,
-    chipText: 10,
-    railLabelOffset: 17,
-    railLinePadding: 10,
-    sectionTopOffset: 30,
-    sectionHeight: 234,
-    boardRadius: 8
-  };
-  var INPUT_DRAW = {
-    top: -25,
-    height: 107,
-    label: -14,
-    switchTop: 20,
-    switchSlider: 37,
-    switchTravel: 14,
-    valueLabel: 67,
-    ledTop: 9,
-    pulseCenter: 38,
-    pulseRadius: 14,
-    pulsePressedOffset: 3,
-    railLabel: 25
-  };
-  var OUTPUT_DRAW = { top: 14, height: 65, titleX: 1122, titleY: 35, ledY: 34, valueY: 40, labelY: 24 };
-  var LEVEL_DRAW = { width: 13, height: 14, fontSize: 10, railInterval: 5 };
-  var INTERNAL_DRAW = { lineWidth: 1, restingOpacity: 0.45, activeOpacity: 0.9 };
-  var COLOR_NAMES = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "level-floating", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
-  var drawingFont = "";
-  var drawingColors = null;
-  var boardLayers = null;
-  function canvasColors() {
-    if (drawingColors) {
-      return drawingColors;
-    }
-    const style = getComputedStyle(document.documentElement);
-    const colors = {};
-    for (const name of COLOR_NAMES) {
-      colors[name] = style.getPropertyValue("--color-" + name).trim();
-    }
-    drawingFont = style.getPropertyValue("--font-body").trim();
-    drawingColors = colors;
-    return colors;
-  }
-  function rectangle(context, left, top, width, height, radius, color) {
-    context.beginPath();
-    context.roundRect(left, top, width, height, radius);
-    context.fillStyle = color;
-    context.fill();
-  }
-  function label(context, content, horizontal, vertical, size, color, align) {
-    context.font = size + "px " + drawingFont;
-    context.fillStyle = color;
-    context.textAlign = align;
-    context.textBaseline = "middle";
-    context.fillText(content, horizontal, vertical);
-  }
-  function polyline(context, points, color, width) {
-    context.beginPath();
-    context.moveTo(points[0].x, points[0].y);
-    for (let index = 1; index < points.length; index = index + 1) {
-      context.lineTo(points[index].x, points[index].y);
-    }
-    context.strokeStyle = color;
-    context.lineWidth = width;
-    context.lineJoin = "round";
-    context.lineCap = "round";
-    context.stroke();
-  }
-  function circle(context, horizontal, vertical, radius, color) {
-    context.beginPath();
-    context.arc(horizontal, vertical, radius, 0, Math.PI * 2);
-    context.fillStyle = color;
-    context.fill();
-  }
-  function allEndpoints() {
-    const endpoints2 = [];
-    for (let section = 0; section < BOARD.sections; section = section + 1) {
-      for (const row of ROWS) {
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          endpoints2.push(holeId(section, row, column));
-        }
-      }
-      for (const row of BUS_ROWS) {
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          if (busHasHole(column)) {
-            endpoints2.push(holeId(section, row, column));
-          }
-        }
-      }
-    }
-    for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
-      endpoints2.push("R:GND:" + index);
-      endpoints2.push("R:VCC:" + index);
-    }
-    return endpoints2;
-  }
-  function drawBreadboards(context, emphasis, colors) {
-    for (let section = 0; section < BOARD.sections; section = section + 1) {
-      const top = BOARD.startY + section * BOARD.sectionHeight - DRAW.sectionTopOffset;
-      rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, DRAW.sectionHeight, 7, colors.surface);
-      context.strokeStyle = colors.rule;
-      context.lineWidth = 1;
-      context.strokeRect(43, top + 1, 1130, 232);
-      rectangle(context, 64, rowY(section, "E") + 15, 1086, 30, 3, colors.board);
-      label(context, String(section + 1), 55, top + 116, 12, colors.muted, "center");
-      for (let column = 1; column <= BOARD.columns; column = column + 1) {
-        const horizontal = BOARD.startX + (column - 1) * BOARD.pitch;
-        if (column === 1 || column % 5 === 0) {
-          label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
-        }
-        if (emphasis > 0) {
-          context.globalAlpha = emphasis;
-          polyline(context, [{ x: horizontal, y: rowY(section, "A") }, { x: horizontal, y: rowY(section, "E") }], colors.trace, 2);
-          polyline(context, [{ x: horizontal, y: rowY(section, "F") }, { x: horizontal, y: rowY(section, "J") }], colors.trace, 2);
-          context.globalAlpha = 1;
-        }
-      }
-      for (const row of BUS_ROWS) {
-        const vertical = rowY(section, row);
-        label(context, row, 74, vertical, 9, colors.muted, "center");
-        for (const segment of BUS_SEGMENTS) {
-          const first = endpointPosition(holeId(section, row, segment[0]));
-          const last = endpointPosition(holeId(section, row, segment[1]));
-          context.globalAlpha = 0.25 + emphasis * 0.75;
-          polyline(context, [first, last], colors.accent, 2);
-          context.globalAlpha = 1;
-        }
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          if (busHasHole(column)) {
-            const location = endpointPosition(holeId(section, row, column));
-            circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
-            circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
-          }
-        }
-      }
-      for (const row of ROWS) {
-        label(context, row, 74, rowY(section, row), 9, colors.muted, "center");
-        for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          const location = endpointPosition(holeId(section, row, column));
-          circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
-          circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
-        }
-      }
-    }
-    const railTop = RAIL_LAYOUT.startY - DRAW.railLinePadding;
-    const railBottom = RAIL_LAYOUT.endY + DRAW.railLinePadding;
-    const railLabel = RAIL_LAYOUT.startY - DRAW.railLabelOffset;
-    polyline(context, [{ x: RAIL_LAYOUT.groundX, y: railTop }, { x: RAIL_LAYOUT.groundX, y: railBottom }], colors.hole, 3);
-    polyline(context, [{ x: RAIL_LAYOUT.powerX, y: railTop }, { x: RAIL_LAYOUT.powerX, y: railBottom }], colors.error, 3);
-    label(context, "GND", RAIL_LAYOUT.groundX, railLabel, 11, colors.ink, "center");
-    label(context, "+5V", RAIL_LAYOUT.powerX, railLabel, 11, colors.error, "center");
-    for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
-      for (const name of ["GND", "VCC"]) {
-        const location = endpointPosition("R:" + name + ":" + index);
-        circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
-        circle(context, location.x, location.y, 3.2, colors.hole);
-      }
-    }
-  }
-  function createBoardLayer(emphasis, colors) {
-    const layer = document.createElement("canvas");
-    layer.width = BOARD.width * DRAW.pixelRatio;
-    layer.height = BOARD.height * DRAW.pixelRatio;
-    const context = layer.getContext("2d");
-    context.scale(DRAW.pixelRatio, DRAW.pixelRatio);
-    rectangle(context, 0, 0, BOARD.width, BOARD.height, DRAW.boardRadius, colors.board);
-    drawBreadboards(context, emphasis, colors);
-    return layer;
-  }
-  function drawBoardLayer(context, emphasis, colors) {
-    if (!boardLayers) {
-      boardLayers = { normal: createBoardLayer(0, colors), emphasized: null };
-    }
-    if (emphasis > 0 && !boardLayers.emphasized) {
-      boardLayers.emphasized = createBoardLayer(1, colors);
-    }
-    if (emphasis < 1) {
-      context.drawImage(boardLayers.normal, 0, 0, BOARD.width, BOARD.height);
-    }
-    if (emphasis > 0) {
-      context.globalAlpha = emphasis;
-      context.drawImage(boardLayers.emphasized, 0, 0, BOARD.width, BOARD.height);
-      context.globalAlpha = 1;
-    }
-  }
-  function drawModules(context, state2, colors) {
-    const inputY = PORT_LAYOUT.inputY;
-    rectangle(context, BOARD.panelLeft, OUTPUT_DRAW.top, BOARD.panelWidth, OUTPUT_DRAW.height, 5, colors.module);
-    rectangle(context, BOARD.panelLeft, inputY + INPUT_DRAW.top, BOARD.panelWidth, INPUT_DRAW.height, 5, colors.module);
-    label(context, "\u903B\u8F91\u6307\u793A\u706F", OUTPUT_DRAW.titleX, OUTPUT_DRAW.titleY, 12, colors["module-text"], "center");
-    for (let index = 0; index < IO_LIMIT; index = index + 1) {
-      const led = endpointPosition("L" + index);
-      const value = readEndpoint(state2.result, "L" + index);
-      rectangle(context, led.x - 8, OUTPUT_DRAW.ledY, 16, 13, 3, colors["led-off"]);
-      context.globalAlpha = state2.visual.leds["L" + index];
-      rectangle(context, led.x - 8, OUTPUT_DRAW.ledY, 16, 13, 3, colors["led-on"]);
-      context.globalAlpha = 1;
-      if (value === "X" || value === "Z") {
-        label(context, String(value), led.x, OUTPUT_DRAW.valueY, 8, colors["module-text"], "center");
-      }
-      label(context, "L" + index, led.x, OUTPUT_DRAW.labelY, 8, colors["module-text"], "center");
-      const location = endpointPosition("K" + index);
-      label(context, "K" + index, location.x, inputY + INPUT_DRAW.label, 9, colors["module-text"], "center");
-      rectangle(context, location.x - 12, inputY + INPUT_DRAW.switchTop, 24, 36, 4, colors["chip-text"]);
-      const switchTop = inputY + INPUT_DRAW.switchSlider - state2.visual.switches[index] * INPUT_DRAW.switchTravel;
-      rectangle(context, location.x - 9, switchTop, 18, 15, 2, colors.metal);
-      label(context, String(state2.project.switches[index]), location.x, inputY + INPUT_DRAW.valueLabel, 10, colors["module-text"], "center");
-      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-off"]);
-      context.globalAlpha = state2.visual.leds["K" + index];
-      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-on"]);
-      context.globalAlpha = 1;
-    }
-    for (const name of ["P+", "P-"]) {
-      const location = endpointPosition(name);
-      label(context, name, location.x, inputY + INPUT_DRAW.label, 10, colors["module-text"], "center");
-      let buttonColor = colors["chip-text"];
-      let buttonY = inputY + INPUT_DRAW.pulseCenter;
-      if (state2.pressedPulse === name) {
-        buttonColor = colors["led-on"];
-        buttonY = buttonY + INPUT_DRAW.pulsePressedOffset;
-      }
-      circle(context, location.x, buttonY, INPUT_DRAW.pulseRadius, buttonColor);
-      label(context, "\u8109\u51B2", location.x, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
-    }
-  }
-  function drawPortConnections(context, state2, colors) {
-    const emphasis = state2.visual.internals;
-    context.globalAlpha = INTERNAL_DRAW.restingOpacity + emphasis * (INTERNAL_DRAW.activeOpacity - INTERNAL_DRAW.restingOpacity);
-    const signals = ["P+", "P-"];
-    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
-      signals.push("K" + bit, "L" + bit);
-    }
-    for (const signal of signals) {
-      const location = endpointPosition(signal);
-      const first = { x: location.x, y: PORT_LAYOUT.inputY + INPUT_DRAW.top };
-      if (signal.startsWith("L")) {
-        first.y = OUTPUT_DRAW.top + OUTPUT_DRAW.height;
-      }
-      const last = endpointPosition(portHole(signal));
-      polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
-    }
-    const section = BOARD.sections - 1;
-    for (let column = 1; column <= BOARD.columns; column = column + 1) {
-      if (isInputColumn(column)) {
-        const first = endpointPosition(holeId(section, "E", column));
-        const last = endpointPosition(holeId(section, "F", column));
-        polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
-      }
-    }
-    if (emphasis === 0) {
-      context.globalAlpha = 1;
-      return;
-    }
-    context.globalAlpha = emphasis;
-    for (const rail of ["GND", "VCC"]) {
-      const first = endpointPosition("R:" + rail + ":0");
-      const last = endpointPosition("R:" + rail + ":" + (RAIL_LAYOUT.count - 1));
-      let color = colors.ink;
-      if (rail === "VCC") {
-        color = colors.error;
-      }
-      polyline(context, [first, last], color, 4);
-      for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
-        const point = endpointPosition("R:" + rail + ":" + index);
-        circle(context, point.x, point.y, 2, color);
-      }
-    }
-    context.globalAlpha = 1;
-  }
-  function drawLevel(context, name, point, state2, colors) {
-    const value = readEndpoint(state2.result, name);
-    let background = colors["level-floating"];
-    let foreground = colors.ink;
-    if (value === 1) {
-      background = colors.success;
-      foreground = colors.surface;
-    } else if (value === 0) {
-      background = colors.ink;
-      foreground = colors.surface;
-    } else if (value === "X") {
-      background = colors.unknown;
-    }
-    rectangle(context, point.x - LEVEL_DRAW.width / 2, point.y - LEVEL_DRAW.height / 2, LEVEL_DRAW.width, LEVEL_DRAW.height, 2, colors.surface);
-    rectangle(context, point.x - LEVEL_DRAW.width / 2 + 1, point.y - LEVEL_DRAW.height / 2 + 1, LEVEL_DRAW.width - 2, LEVEL_DRAW.height - 2, 1, background);
-    label(context, String(value), point.x, point.y, LEVEL_DRAW.fontSize, foreground, "center");
-  }
-  function drawNodeLevels(context, state2, colors) {
-    if (!state2.showLevels) {
-      return;
-    }
-    for (let section = 0; section < BOARD.sections; section = section + 1) {
-      for (let column = 1; column <= BOARD.columns; column = column + 1) {
-        for (const row of ["C", "H"]) {
-          const name = holeId(section, row, column);
-          drawLevel(context, name, endpointPosition(name), state2, colors);
-        }
-      }
-      for (const row of BUS_ROWS) {
-        for (const segment of BUS_SEGMENTS) {
-          const name = holeId(section, row, segment[0]);
-          drawLevel(context, name, endpointPosition(name), state2, colors);
-        }
-      }
-    }
-    for (const rail of ["GND", "VCC"]) {
-      for (let index = 0; index < RAIL_LAYOUT.count; index = index + LEVEL_DRAW.railInterval) {
-        const name = "R:" + rail + ":" + index;
-        drawLevel(context, name, endpointPosition(name), state2, colors);
-      }
-    }
-  }
-  function drawChip(context, chip, state2, colors) {
-    const bounds = chipBounds(chip);
-    const model = CHIP_MODELS[chip.model];
-    for (let pin = 1; pin <= model.count; pin = pin + 1) {
-      const location = endpointPosition(pinHole(chip, pin));
-      let edge = bounds.y + bounds.height;
-      if (pin > model.count / 2) {
-        edge = bounds.y;
-      }
-      polyline(context, [location, { x: location.x, y: edge }], colors.metal, 5);
-    }
-    rectangle(context, bounds.x, bounds.y, bounds.width, bounds.height, 3, colors.chip);
-    circle(context, bounds.x, bounds.y + 16, 6, colors.board);
-    label(context, chip.id + "  " + chip.model, bounds.x + bounds.width / 2 + 3, bounds.y + 16, DRAW.chipText, colors["chip-text"], "center");
-    for (let pin = 1; pin <= model.count; pin = pin + 1) {
-      const location = endpointPosition(pinHole(chip, pin));
-      let vertical = bounds.y + bounds.height - 3;
-      if (pin > model.count / 2) {
-        vertical = bounds.y + 4;
-      }
-      label(context, String(pin), location.x, vertical, 6, colors["chip-text"], "center");
-    }
-    if (objectSelected(state2, "chip", chip.id)) {
-      context.strokeStyle = colors.accent;
-      context.lineWidth = 2;
-      context.strokeRect(bounds.x - 3, bounds.y - 3, bounds.width + 6, bounds.height + 6);
-    }
-  }
-  function drawWires(context, state2, colors) {
-    const displayPaths = wireDisplayPaths(state2.project.wires);
-    for (let index = 0; index < state2.project.wires.length; index = index + 1) {
-      const wire = state2.project.wires[index];
-      const points = displayPaths[index];
-      let width = DRAW.wireWidth;
-      const selected = objectSelected(state2, "wire", wire.id);
-      if (selected) {
-        width = DRAW.selectedWireWidth;
-      }
-      polyline(context, points, colors.surface, width + DRAW.wireOutlineWidth);
-      polyline(context, points, wire.color, width);
-      const first = points[0];
-      const last = points[points.length - 1];
-      circle(context, first.x, first.y, DRAW.wireEndpointRadius, wire.color);
-      circle(context, last.x, last.y, DRAW.wireEndpointRadius, wire.color);
-      if (selected && state2.tool === "select") {
-        for (const point of points) {
-          rectangle(context, point.x - DRAW.handleSize / 2, point.y - DRAW.handleSize / 2, DRAW.handleSize, DRAW.handleSize, 2, colors.surface);
-          context.strokeStyle = wire.color;
-          context.lineWidth = 2;
-          context.strokeRect(point.x - DRAW.handleSize / 2, point.y - DRAW.handleSize / 2, DRAW.handleSize, DRAW.handleSize);
-        }
-      }
-    }
-    if (state2.pending) {
-      let points = [endpointPosition(state2.pending.from)];
-      for (const bend of state2.pending.bends) {
-        points.push(bend);
-      }
-      if (state2.pointer) {
-        points.push(state2.pointer);
-      }
-      if (state2.wireAngle === 45) {
-        points = angleWirePath(points);
-      }
-      context.setLineDash([6, 4]);
-      polyline(context, points, state2.wireColor, 2.5);
-      context.setLineDash([]);
-    }
-  }
-  function drawHighlights(context, state2, endpoints2, colors) {
-    let selectedNode = "";
-    if (state2.selected && state2.selected.kind === "node") {
-      selectedNode = nodeFor(state2.result.topology, state2.selected.id);
-    }
-    if (selectedNode !== "") {
-      for (const name of endpoints2) {
-        const root = nodeFor(state2.result.topology, name);
-        if (root !== selectedNode) {
-          continue;
-        }
-        const location = endpointPosition(name);
-        context.strokeStyle = colors.accent;
-        context.lineWidth = 2;
-        context.beginPath();
-        context.arc(location.x, location.y, 6.2, 0, Math.PI * 2);
-        context.stroke();
-      }
-    }
-    if (state2.hovered) {
-      const location = endpointPosition(state2.hovered);
-      context.strokeStyle = colors.accent;
-      context.lineWidth = 2;
-      context.strokeRect(location.x - 8, location.y - 8, 16, 16);
-    }
-  }
-  function renderBoard(canvas2, state2, endpoints2) {
-    const context = canvas2.getContext("2d");
-    context.setTransform(DRAW.pixelRatio, 0, 0, DRAW.pixelRatio, 0, 0);
-    const colors = canvasColors();
-    context.clearRect(0, 0, BOARD.width, BOARD.height);
-    drawBoardLayer(context, state2.visual.internals, colors);
-    drawModules(context, state2, colors);
-    drawPortConnections(context, state2, colors);
-    for (const chip of state2.project.chips) {
-      drawChip(context, chip, state2, colors);
-    }
-    drawWires(context, state2, colors);
-    drawHighlights(context, state2, endpoints2, colors);
-    drawNodeLevels(context, state2, colors);
-    if (state2.placing) {
-      label(context, "\u653E\u7F6E " + state2.placing, 650, 1105, 17, colors.accent, "center");
-    }
-  }
-
   // node_modules/marked/lib/marked.esm.js
   function j() {
     return { async: false, breaks: false, extensions: null, gfm: true, hooks: null, pedantic: false, renderer: null, silent: false, tokenizer: null, walkTokens: null };
@@ -10211,6 +8008,2259 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     return fragment;
   }
 
+  // src/ui/announcement.mjs
+  var ANNOUNCEMENT_ID = "experiment-wiring-1";
+  var DISMISSED_KEY = "breadboard-lab-dismissed-announcement";
+  var ANNOUNCEMENT_MARKDOWN = [
+    "\u672C\u9879\u76EE\u63D0\u4F9B\u7684\u5B9E\u9A8C\u5B58\u6863**\u4EC5\u4F9B\u53C2\u8003**\uFF01",
+    "",
+    "\u505A\u8BA1\u7B97\u673A\u7EC4\u6210\u539F\u7406\u5B9E\u9A8C\u65F6\uFF0C\u5EFA\u8BAE\u5BF9\u7167\u8BFE\u7A0B\u8BFE\u4EF6\u6838\u5BF9\u5B58\u6863\u3002\u6709\u7591\u95EE\u65F6\uFF0C\u53EF\u4EE5\u628A\u5B58\u6863\u548C\u5BF9\u5E94\u7684\u8BFE\u4EF6\u4E00\u8D77\u4EA4\u7ED9 AI \u8F85\u52A9\u590D\u67E5\u3002",
+    "",
+    "> **\u5B9E\u9645\u63A5\u7EBF\u4EE5\u8BFE\u7A0B\u8981\u6C42\u548C\u5B9E\u7269\u5B9E\u9A8C\u677F\u4E3A\u51C6\uFF01**"
+  ].join("\n");
+  function isAnnouncementDismissed() {
+    try {
+      return localStorage.getItem(DISMISSED_KEY) === ANNOUNCEMENT_ID;
+    } catch {
+      return false;
+    }
+  }
+  function openAnnouncement() {
+    const checkbox = element("announcement-dismiss");
+    checkbox.checked = isAnnouncementDismissed();
+    element("announcement-dialog").showModal();
+  }
+  function confirmAnnouncement() {
+    const checkbox = element("announcement-dismiss");
+    const dialog = element("announcement-dialog");
+    dialog.close();
+    if (checkbox.checked === isAnnouncementDismissed()) {
+      return;
+    }
+    try {
+      if (checkbox.checked) {
+        localStorage.setItem(DISMISSED_KEY, ANNOUNCEMENT_ID);
+      } else {
+        localStorage.removeItem(DISMISSED_KEY);
+      }
+    } catch {
+      showToast("\u6D4F\u89C8\u5668\u672A\u80FD\u4FDD\u5B58\u516C\u544A\u63D0\u9192\u8BBE\u7F6E", "warning");
+    }
+  }
+  function startAnnouncement() {
+    const content = element("announcement-content");
+    const fragment = markdownFragment(ANNOUNCEMENT_MARKDOWN);
+    content.replaceChildren(fragment);
+    element("announcement-button").addEventListener("click", openAnnouncement);
+    element("announcement-confirm").addEventListener("click", confirmAnnouncement);
+    if (!isAnnouncementDismissed()) {
+      openAnnouncement();
+    }
+  }
+
+  // src/experiments/preset-wiring.mjs
+  function allocatePin(project, usage, name) {
+    if (!name.startsWith("U")) {
+      const hole2 = portHole(name);
+      if (hole2 !== "") {
+        return hole2;
+      }
+      return name;
+    }
+    const parts = name.split("-");
+    let chip = null;
+    for (const candidate of project.chips) {
+      if (candidate.id === parts[0]) {
+        chip = candidate;
+      }
+    }
+    const pin = Number(parts[1]);
+    const hole = pinHole(chip, pin);
+    const position = hole.split(":");
+    let rows = "GHIJ";
+    if (pin > CHIP_MODELS[chip.model].count / 2) {
+      rows = "DCBA";
+    }
+    let index = 0;
+    if (Object.hasOwn(usage, name)) {
+      index = usage[name];
+    }
+    if (index >= rows.length) {
+      throw new Error("\u793A\u4F8B\u7535\u8DEF\u7684\u540C\u5217\u7A7A\u5B54\u4E0D\u8DB3");
+    }
+    usage[name] = index + 1;
+    return holeId(chip.section, rows[index], Number(position[2]));
+  }
+  function connect(project, usage, first, second, color) {
+    const from = allocatePin(project, usage, first);
+    const to = allocatePin(project, usage, second);
+    const number = project.wires.length + 1;
+    project.wires.push({ id: "W" + number, from, to, color, bends: [] });
+  }
+
+  // src/experiments/preset-routes.json
+  var preset_routes_default = {
+    W1: [
+      {
+        x: 1242,
+        y: 402.0000002219999
+      },
+      {
+        x: 522,
+        y: 402.0000002219999
+      }
+    ],
+    W2: [
+      {
+        x: 1210,
+        y: 496.9999999700001
+      },
+      {
+        x: 684,
+        y: 496.9999999700001
+      }
+    ],
+    W3: [
+      {
+        x: 522,
+        y: 399.0000002219999
+      },
+      {
+        x: 493.9999999967,
+        y: 399.0000002219999
+      },
+      {
+        x: 493.9999999967,
+        y: 651.925
+      },
+      {
+        x: 342,
+        y: 651.925
+      }
+    ],
+    W4: [
+      {
+        x: 686.0689655172414,
+        y: 506
+      },
+      {
+        x: 686.0689655172414,
+        y: 726
+      },
+      {
+        x: 468,
+        y: 726
+      }
+    ],
+    W5: [
+      {
+        x: 342,
+        y: 642.325
+      },
+      {
+        x: 756,
+        y: 642.325
+      }
+    ],
+    W6: [
+      {
+        x: 468,
+        y: 767.9999998200001
+      },
+      {
+        x: 882,
+        y: 767.9999998200001
+      }
+    ],
+    W7: [
+      {
+        x: 756,
+        y: 408.0000002219999
+      },
+      {
+        x: 252,
+        y: 408.0000002219999
+      }
+    ],
+    W8: [
+      {
+        x: 882,
+        y: 761.9999998200001
+      },
+      {
+        x: 674.0689655172414,
+        y: 761.9999998200001
+      },
+      {
+        x: 674.0689655172414,
+        y: 496.9999999700001
+      },
+      {
+        x: 360,
+        y: 496.9999999700001
+      }
+    ],
+    W9: [
+      {
+        x: 252,
+        y: 390.0000002219999
+      },
+      {
+        x: 864,
+        y: 390.0000002219999
+      }
+    ],
+    W10: [
+      {
+        x: 360,
+        y: 514.9999999700001
+      },
+      {
+        x: 972,
+        y: 514.9999999700001
+      }
+    ],
+    W11: [
+      {
+        x: 972,
+        y: 511.9999999700001
+      },
+      {
+        x: 735.5260663507107,
+        y: 511.9999999700001
+      },
+      {
+        x: 735.5260663507107,
+        y: 411.0000002219999
+      },
+      {
+        x: 576,
+        y: 411.0000002219999
+      }
+    ],
+    W12: [
+      {
+        x: 576,
+        y: 399.0000002219999
+      },
+      {
+        x: 558,
+        y: 399.0000002219999
+      }
+    ],
+    W13: [
+      {
+        x: 558,
+        y: 393.0000002219999
+      },
+      {
+        x: 789,
+        y: 393.0000002219999
+      },
+      {
+        x: 789,
+        y: 661
+      }
+    ],
+    W14: [
+      {
+        x: 795,
+        y: 646
+      },
+      {
+        x: 795,
+        y: 661
+      }
+    ],
+    W15: [
+      {
+        x: 828,
+        y: 646
+      }
+    ],
+    W16: [
+      {
+        x: 846,
+        y: 646
+      }
+    ],
+    W17: [
+      {
+        x: 849,
+        y: 646
+      },
+      {
+        x: 849,
+        y: 411.0000002219999
+      },
+      {
+        x: 954,
+        y: 411.0000002219999
+      }
+    ],
+    W18: [
+      {
+        x: 954,
+        y: 399.0000002219999
+      },
+      {
+        x: 936,
+        y: 399.0000002219999
+      }
+    ],
+    W19: [
+      {
+        x: 936,
+        y: 399.0000002219999
+      },
+      {
+        x: 900,
+        y: 399.0000002219999
+      }
+    ],
+    W20: [
+      {
+        x: 900,
+        y: 399.0000002219999
+      },
+      {
+        x: 882,
+        y: 399.0000002219999
+      }
+    ],
+    W21: [
+      {
+        x: 954,
+        y: 487.9999999700001
+      },
+      {
+        x: 252,
+        y: 487.9999999700001
+      }
+    ],
+    W22: [
+      {
+        x: 288,
+        y: 755.9999997600002
+      },
+      {
+        x: 432,
+        y: 755.9999997600002
+      }
+    ],
+    W23: [
+      {
+        x: 918,
+        y: 490.9999999700001
+      },
+      {
+        x: 306,
+        y: 490.9999999700001
+      }
+    ],
+    W24: [
+      {
+        x: 342,
+        y: 493.9999999700001
+      },
+      {
+        x: 328,
+        y: 493.9999999700001
+      },
+      {
+        x: 328,
+        y: 749.9999997600002
+      },
+      {
+        x: 360,
+        y: 749.9999997600002
+      }
+    ],
+    W25: [
+      {
+        x: 882,
+        y: 1028.5
+      },
+      {
+        x: 487.9999999967,
+        y: 1028.5
+      },
+      {
+        x: 487.9999999967,
+        y: 417.0000002219999
+      },
+      {
+        x: 342,
+        y: 417.0000002219999
+      }
+    ],
+    W26: [
+      {
+        x: 360,
+        y: 426
+      },
+      {
+        x: 379.99999994000007,
+        y: 426
+      },
+      {
+        x: 379.99999994000007,
+        y: 647.125
+      },
+      {
+        x: 360,
+        y: 647.125
+      }
+    ],
+    W27: [
+      {
+        x: 846,
+        y: 1034.5
+      },
+      {
+        x: 482,
+        y: 1034.5
+      },
+      {
+        x: 482,
+        y: 414.0000002219999
+      },
+      {
+        x: 288,
+        y: 414.0000002219999
+      }
+    ],
+    W28: [
+      {
+        x: 306,
+        y: 420.0000002219999
+      },
+      {
+        x: 432,
+        y: 420.0000002219999
+      }
+    ],
+    W29: [
+      {
+        x: 810,
+        y: 1040.5
+      },
+      {
+        x: 896,
+        y: 1040.5
+      },
+      {
+        x: 896,
+        y: 499.9999999700001
+      },
+      {
+        x: 864,
+        y: 499.9999999700001
+      }
+    ],
+    W30: [
+      {
+        x: 774,
+        y: 1040.5
+      },
+      {
+        x: 270,
+        y: 1040.5
+      }
+    ],
+    W31: [
+      {
+        x: 322.00000002,
+        y: 506
+      },
+      {
+        x: 322.00000002,
+        y: 491
+      }
+    ],
+    W32: [
+      {
+        x: 374,
+        y: 506
+      },
+      {
+        x: 374,
+        y: 423.0000002219999
+      },
+      {
+        x: 324,
+        y: 423.0000002219999
+      }
+    ],
+    W33: [
+      {
+        x: 324,
+        y: 411.0000002219999
+      },
+      {
+        x: 270,
+        y: 411.0000002219999
+      }
+    ],
+    W34: [
+      {
+        x: 270,
+        y: 396.0000002219999
+      },
+      {
+        x: 699.5260663507107,
+        y: 396.0000002219999
+      },
+      {
+        x: 699.5260663507107,
+        y: 484.9999999700001
+      },
+      {
+        x: 882,
+        y: 484.9999999700001
+      }
+    ],
+    W35: [
+      {
+        x: 882,
+        y: 517.9999999700001
+      },
+      {
+        x: 668.0689655172414,
+        y: 517.9999999700001
+      },
+      {
+        x: 668.0689655172414,
+        y: 755.9999997600002
+      },
+      {
+        x: 450,
+        y: 755.9999997600002
+      }
+    ],
+    W36: [
+      {
+        x: 901.9999999800001,
+        y: 491
+      },
+      {
+        x: 901.9999999800001,
+        y: 741
+      }
+    ],
+    W37: [
+      {
+        x: 846,
+        y: 755.9999998200001
+      },
+      {
+        x: 774,
+        y: 755.9999998200001
+      }
+    ],
+    W38: [
+      {
+        x: 468,
+        y: 675.925
+      },
+      {
+        x: 680.0689655172414,
+        y: 675.925
+      },
+      {
+        x: 680.0689655172414,
+        y: 749.9999998200001
+      },
+      {
+        x: 864,
+        y: 749.9999998200001
+      }
+    ],
+    W39: [
+      {
+        x: 396,
+        y: 737.9999997600002
+      },
+      {
+        x: 558,
+        y: 737.9999997600002
+      }
+    ],
+    W40: [
+      {
+        x: 342,
+        y: 743.9999997600002
+      },
+      {
+        x: 576,
+        y: 743.9999997600002
+      }
+    ],
+    W41: [
+      {
+        x: 396,
+        y: 661.525
+      },
+      {
+        x: 630,
+        y: 661.525
+      }
+    ],
+    W42: [
+      {
+        x: 450,
+        y: 671.125
+      },
+      {
+        x: 648,
+        y: 671.125
+      }
+    ],
+    W43: [
+      {
+        x: 810,
+        y: 731.9999998200001
+      },
+      {
+        x: 731.9260663507108,
+        y: 731.9999998200001
+      },
+      {
+        x: 731.9260663507108,
+        y: 414.0000002219999
+      },
+      {
+        x: 648,
+        y: 414.0000002219999
+      }
+    ],
+    W44: [
+      {
+        x: 756,
+        y: 743.9999998200001
+      },
+      {
+        x: 724.7260663507108,
+        y: 743.9999998200001
+      },
+      {
+        x: 724.7260663507108,
+        y: 420.0000002219999
+      },
+      {
+        x: 630,
+        y: 420.0000002219999
+      }
+    ],
+    W45: [
+      {
+        x: 540,
+        y: 731.9999997600002
+      },
+      {
+        x: 414,
+        y: 731.9999997600002
+      }
+    ],
+    W46: [
+      {
+        x: 594,
+        y: 749.9999997600002
+      },
+      {
+        x: 378,
+        y: 749.9999997600002
+      }
+    ],
+    W47: [
+      {
+        x: 612,
+        y: 656.725
+      },
+      {
+        x: 378,
+        y: 656.725
+      }
+    ],
+    W48: [
+      {
+        x: 662.0689655172414,
+        y: 491
+      },
+      {
+        x: 662.0689655172414,
+        y: 666.325
+      },
+      {
+        x: 414,
+        y: 666.325
+      }
+    ],
+    W49: [
+      {
+        x: 666,
+        y: 417.0000002219999
+      },
+      {
+        x: 728.3260663507108,
+        y: 417.0000002219999
+      },
+      {
+        x: 728.3260663507108,
+        y: 726
+      },
+      {
+        x: 828,
+        y: 726
+      }
+    ],
+    W50: [
+      {
+        x: 612,
+        y: 423.0000002219999
+      },
+      {
+        x: 721.1260663507107,
+        y: 423.0000002219999
+      },
+      {
+        x: 721.1260663507107,
+        y: 737.9999998200001
+      },
+      {
+        x: 792,
+        y: 737.9999998200001
+      }
+    ],
+    W51: [
+      {
+        x: 540,
+        y: 499.9999999700001
+      },
+      {
+        x: 703.1260663507107,
+        y: 499.9999999700001
+      },
+      {
+        x: 703.1260663507107,
+        y: 110
+      },
+      {
+        x: 954,
+        y: 110
+      }
+    ],
+    W52: [
+      {
+        x: 594,
+        y: 502.9999999700001
+      },
+      {
+        x: 706.7260663507108,
+        y: 502.9999999700001
+      },
+      {
+        x: 706.7260663507108,
+        y: 116
+      }
+    ],
+    W53: [
+      {
+        x: 612,
+        y: 505.9999999700001
+      },
+      {
+        x: 710.3260663507108,
+        y: 505.9999999700001
+      },
+      {
+        x: 710.3260663507108,
+        y: 122
+      },
+      {
+        x: 882,
+        y: 122
+      }
+    ],
+    W54: [
+      {
+        x: 666,
+        y: 508.9999999700001
+      },
+      {
+        x: 843,
+        y: 508.9999999700001
+      },
+      {
+        x: 843,
+        y: 116
+      }
+    ],
+    W55: [
+      {
+        x: 666,
+        y: 387.0000002219999
+      },
+      {
+        x: 810,
+        y: 387.0000002219999
+      }
+    ],
+    W56: [
+      {
+        x: 612,
+        y: 384.0000002219999
+      },
+      {
+        x: 774,
+        y: 384.0000002219999
+      }
+    ],
+    W57: [
+      {
+        x: 666,
+        y: 376.80000022199994
+      },
+      {
+        x: 717.5260663507107,
+        y: 376.80000022199994
+      },
+      {
+        x: 717.5260663507107,
+        y: 481.9999999700001
+      },
+      {
+        x: 918,
+        y: 481.9999999700001
+      }
+    ],
+    W58: [
+      {
+        x: 612,
+        y: 381.0000002219999
+      },
+      {
+        x: 713.9260663507108,
+        y: 381.0000002219999
+      },
+      {
+        x: 713.9260663507108,
+        y: 478.9999999700001
+      },
+      {
+        x: 936,
+        y: 478.9999999700001
+      }
+    ],
+    W59: [
+      {
+        x: 954,
+        y: 476
+      },
+      {
+        x: 740.9260663507108,
+        y: 476
+      },
+      {
+        x: 740.9260663507108,
+        y: 116
+      }
+    ],
+    W60: [
+      {
+        x: 739.1260663507107,
+        y: 1036
+      },
+      {
+        x: 739.1260663507107,
+        y: 493.9999999700001
+      },
+      {
+        x: 522,
+        y: 493.9999999700001
+      }
+    ],
+    W61: [
+      {
+        x: 1098,
+        y: 405.0000002219999
+      },
+      {
+        x: 684,
+        y: 405.0000002219999
+      }
+    ]
+  };
+
+  // src/experiments/presets.mjs
+  var PRESET_WIRE_COLORS = {
+    power: WIRE_COLORS[0],
+    ground: WIRE_COLORS[7],
+    input: WIRE_COLORS[2],
+    control: WIRE_COLORS[4],
+    result: WIRE_COLORS[1],
+    feedback: WIRE_COLORS[3],
+    output: WIRE_COLORS[5],
+    timing: WIRE_COLORS[6],
+    overflow: WIRE_COLORS[9]
+  };
+  var PRESET_CHIPS = [
+    { id: "U1", model: "74LS273", section: 1, column: 25 },
+    { id: "U2", model: "74LS283", section: 2, column: 15 },
+    { id: "U3", model: "74LS283", section: 2, column: 38 },
+    { id: "U4", model: "74LS86", section: 1, column: 10 },
+    { id: "U5", model: "74LS86", section: 1, column: 44 }
+  ];
+  var UNUSED_INPUTS = ["U1-17", "U1-18", "U3-14", "U3-15", "U3-12", "U3-11", "U5-9", "U5-10", "U5-12", "U5-13"];
+  var INPUT_PINS = [1, 4, 9, 12];
+  var OUTPUT_PINS = [3, 6, 8, 11];
+  var ADDER_PINS = [6, 2, 15, 11];
+  var CONTROL_PINS = ["U4-2", "U4-5", "U4-10", "U4-13", "U5-2", "U2-7"];
+  var SUM_CONNECTIONS = [["U2-4", "U1-3"], ["U2-1", "U1-4"], ["U2-13", "U1-7"], ["U2-10", "U1-8"], ["U3-4", "U1-13"], ["U3-1", "U1-14"]];
+  var FEEDBACK_CONNECTIONS = [["U1-2", "U2-5"], ["U1-5", "U2-3"], ["U1-6", "U2-14"], ["U1-9", "U2-12"], ["U1-12", "U3-5"], ["U1-15", "U3-3"]];
+  var REGISTER_OUTPUTS = [2, 5, 6, 9, 12, 15];
+  var COMPLEMENT_PORT_COUNT = 7;
+  var COMPLEMENT_NAME = "\u53CC\u7B26\u53F7\u4F4D\u8865\u7801\u8FD0\u7B97\u5668";
+  var COMPLEMENT_RESET_INPUT = 6;
+  var COMPLEMENT_NOTES = `# ${COMPLEMENT_NAME}
+
+## \u529F\u80FD
+
+\u8FD9\u4E2A\u7535\u8DEF\u5B9E\u73B0\u4E86\u8FDE\u7EED\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58\u4E86 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u7ED9\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
+
+## \u8F93\u5165\u53E3
+
+| \u7AEF\u53E3 | \u4F5C\u7528 |
+| --- | --- |
+| K0\u3001K1\u3001K2\u3001K3 | \u8F93\u5165\u8865\u7801\u7684\u4F4E\u56DB\u4F4D\uFF0CK0 \u6700\u4F4E\u4F4D |
+| K4 | \u8F93\u5165\u7B26\u53F7\u4F4D\uFF1B\u7535\u8DEF\u5C06\u6B64\u4F4D\u590D\u5236\u6210\u4E24\u4E2A\u7B26\u53F7\u4F4D |
+| K5 | 0 \u4E3A\u52A0\u6CD5\uFF0C1 \u4E3A\u51CF\u6CD5 |
+| K6 | 0 \u5F02\u6B65\u6E05\u96F6\uFF0C\u6B63\u5E38\u8FD0\u7B97\u4FDD\u6301 1 |
+| P\u2212 | \u5B8C\u6574\u8D1F\u8109\u51B2\u7ED3\u675F\u65F6\u7684\u4E0A\u5347\u6CBF\uFF0C\u4FDD\u5B58\u672C\u6B21\u7ED3\u679C |
+| P+ | \u672C\u793A\u4F8B\u672A\u8FDE\u63A5\uFF0C\u4E0D\u4F1A\u52A0\u8F7D\u7ED3\u679C |
+
+\u8F93\u5165\u987A\u5E8F\u4E3A **K4 K3 K2 K1 K0**\uFF0C\u4F7F\u7528\u4E94\u4F4D\u8865\u7801\uFF0C\u8303\u56F4\u4E3A \u221216\uFF5E15\u3002\u4F8B\uFF1A7 \u4E3A 00111\uFF0C\u221212 \u4E3A 10100\uFF0C\u22122 \u4E3A 11110\u3002\u51CF\u53BB 6 \u65F6\u8F93\u5165\u6B63\u6570 00110\uFF0C\u518D\u628A K5 \u8BBE\u7F6E\u4E3A 1
+
+## \u8F93\u51FA\u53E3
+
+| \u7AEF\u53E3 | \u4F5C\u7528 |
+| --- | --- |
+| L5 | \u9AD8\u7B26\u53F7\u4F4D |
+| L4 | \u4F4E\u7B26\u53F7\u4F4D |
+| L3\u3001L2\u3001L1\u3001L0 | \u7ED3\u679C\u7684\u56DB\u4E2A\u6570\u503C\u4F4D\uFF0CL0 \u6700\u4F4E\u4F4D |
+| L6 | \u4E24\u4E2A\u7B26\u53F7\u4F4D\u5F02\u6216\u7684\u7ED3\u679C\uFF0C1 \u8868\u793A\u5F53\u524D\u7ED3\u679C\u6EA2\u51FA |
+
+\u7ED3\u679C\u6309 **L5 L4\uFF5CL3 L2 L1 L0** \u8BFB\u53D6\u3002\u7B26\u53F7 00\u300111 \u4E3A\u672A\u6EA2\u51FA\uFF0C01 \u4E3A\u6B63\u6EA2\u51FA\uFF0C10 \u4E3A\u8D1F\u6EA2\u51FA\u3002\u6240\u6709\u8F93\u5165\u3001\u8F93\u51FA\u6307\u793A\u706F\u5747\u5728 **\u5DF2\u77E5\u9AD8\u7535\u5E73 1 \u65F6\u70B9\u4EAE**\uFF0CX \u6216 Z \u72B6\u6001\u4E0B\u4FDD\u6301\u7184\u706D
+
+## \u64CD\u4F5C\u6B65\u9AA4
+
+1. \u6253\u5F00\u7535\u6E90\u540E\uFF0C\u5C06 K6 \u5207\u5230 0 \u518D\u5207\u56DE 1\uFF0CL6\uFF5EL0 \u5E94\u663E\u793A 000 0000
+2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u5E76\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
+3. \u53D1\u51FA\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\u540E\uFF0C\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF0CL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
+
+\u7D2F\u8BA1\u7ED3\u679C\u5728\u6709\u6548\u8109\u51B2\u5230\u6765\u540E\u66F4\u65B0\uFF0C\u8C03\u6574\u8F93\u5165\u65F6\u4FDD\u6301\u539F\u503C\u3002\u4F60\u53EF\u4EE5\u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDE\u7EED\u5B8C\u6210\u8FD0\u7B97
+
+## \u9A8C\u6536
+
+| \u7B97\u5F0F | \u6BCF\u6B21\u8109\u51B2\u540E\u7684\u7D2F\u8BA1\u7ED3\u679C |
+| --- | --- |
+| 7\uFF0B5\u22126\uFF0B12 | 00 0111 \u2192 00 1100 \u2192 00 0110 \u2192 **01 0010**\uFF08\u6B63\u6EA2\u51FA\uFF09 |
+| \uFF08\u221212\uFF09\uFF0B\uFF08\u22122\uFF09\u22126 | 11 0100 \u2192 11 0010 \u2192 **10 1100**\uFF08\u8D1F\u6EA2\u51FA\uFF09 |
+
+## \u8D70\u7EBF\u4E0E\u7EBF\u8272
+
+K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5217\uFF0C\u8F93\u5165\u8F93\u51FA\u677F\u7528\u4F5C\u4FE1\u53F7\u663E\u793A\u548C\u64CD\u4F5C\u3002\u5BFC\u7EBF\u63A5\u5728\u9762\u5305\u677F\u5B54\u6216\u53F3\u4FA7\u7535\u6E90\u8F68\u5B54\u4E0A\uFF0C\u7AEF\u53E3\u4E0E\u5B54\u4F4D\u7684\u5BF9\u5E94\u5173\u7CFB\u89C1\u63A5\u7EBF\u8BF4\u660E
+
+\u7B2C\u56DB\u5757\u9762\u5305\u677F\u7528\u7EC6\u7EBF\u6865\u63A5\u4E86\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u4EE5\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u5206\u522B\u8FDE\u63A5
+
+\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u4E0E\u7B26\u53F7\u8F93\u5165\uFF08\u5305\u62EC\u53D6\u53CD\u540E\u7684\u6570\u636E\uFF09\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\u9001\u5165\u5BC4\u5B58\u5668\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A L0\uFF5EL5 \u7ED3\u679C\u8F93\u51FA\uFF0C\u6A59\u8272\u4E3A\u6EA2\u51FA\u5224\u65AD\u652F\u8DEF\u53CA L6 \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
+
+\u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u4E86\u82AF\u7247\u5916\u6846\uFF0C\u901A\u8FC7\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u5EFA\u7ACB\u8FDE\u63A5\uFF0C\u4EA4\u53C9\u5904\u4FDD\u6301\u7EDD\u7F18\u3002\u5F53\u4F60\u786E\u8BA4\u5DE6\u4FA7\u7684\u201C\u6574\u7406\u8D70\u7EBF\u201D\u64CD\u4F5C\u540E\uFF0C\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u8DEF\u5F84\uFF0C\u5E76\u4FDD\u7559\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\uFF0C\u6574\u4E2A\u64CD\u4F5C\u652F\u6301\u64A4\u9500
+
+\u5F53\u4F60\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u7684\u6613\u5931\u72B6\u6001\u4F1A\u91CD\u7F6E\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u7535\u8DEF\u91C7\u7528\u4E86\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u5C5E\u4E8E\u5B9E\u7269\u5B9E\u9A8C\u7684\u89C2\u5BDF\u8303\u56F4
+`;
+  function complementPreset() {
+    const project = emptyProject();
+    project.inputCount = COMPLEMENT_PORT_COUNT;
+    project.outputCount = COMPLEMENT_PORT_COUNT;
+    project.notes = COMPLEMENT_NOTES;
+    project.name = COMPLEMENT_NAME;
+    project.chips = structuredClone(PRESET_CHIPS);
+    const usage = {};
+    let power = "VCC";
+    let ground = "GND";
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      const powerPin = chip.id + "-" + model.power;
+      const groundPin = chip.id + "-" + model.ground;
+      connect(project, usage, power, powerPin, PRESET_WIRE_COLORS.power);
+      connect(project, usage, ground, groundPin, PRESET_WIRE_COLORS.ground);
+      power = powerPin;
+      ground = groundPin;
+    }
+    for (const pin of UNUSED_INPUTS) {
+      connect(project, usage, ground, pin, PRESET_WIRE_COLORS.ground);
+      ground = pin;
+    }
+    for (let bit = 0; bit < 4; bit = bit + 1) {
+      connect(project, usage, "K" + bit, "U4-" + INPUT_PINS[bit], PRESET_WIRE_COLORS.input);
+      connect(project, usage, "U4-" + OUTPUT_PINS[bit], "U2-" + ADDER_PINS[bit], PRESET_WIRE_COLORS.input);
+    }
+    connect(project, usage, "K4", "U5-1", PRESET_WIRE_COLORS.input);
+    let control = "K5";
+    for (const pin of CONTROL_PINS) {
+      connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
+      control = pin;
+    }
+    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
+    for (const pair of SUM_CONNECTIONS) {
+      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
+    }
+    for (const pair of FEEDBACK_CONNECTIONS) {
+      connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.feedback);
+    }
+    for (let bit = 0; bit < 6; bit = bit + 1) {
+      connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
+    }
+    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
+    connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
+    for (const wire of project.wires) {
+      if (Object.hasOwn(preset_routes_default, wire.id)) {
+        wire.bends = structuredClone(preset_routes_default[wire.id]);
+      }
+    }
+    project.switches[COMPLEMENT_RESET_INPUT] = 1;
+    return project;
+  }
+  function presetWireKey(wire) {
+    const first = baseNode(wire.from);
+    const second = baseNode(wire.to);
+    if (first < second) {
+      return first + "|" + second;
+    }
+    return second + "|" + first;
+  }
+  function isComplementPreset(project) {
+    const reference = complementPreset();
+    if (project.chips.length !== reference.chips.length || project.wires.length !== reference.wires.length) {
+      return false;
+    }
+    if (project.pullUps.length !== reference.pullUps.length) {
+      return false;
+    }
+    const chips = /* @__PURE__ */ new Map();
+    for (const chip of project.chips) {
+      chips.set(chip.id, chip);
+    }
+    for (const expected of reference.chips) {
+      const actual = chips.get(expected.id);
+      if (!actual || actual.model !== expected.model || actual.section !== expected.section || actual.column !== expected.column) {
+        return false;
+      }
+    }
+    const wires = /* @__PURE__ */ new Map();
+    for (const wire of reference.wires) {
+      const key = presetWireKey(wire);
+      let count = 0;
+      if (wires.has(key)) {
+        count = wires.get(key);
+      }
+      wires.set(key, count + 1);
+    }
+    for (const wire of project.wires) {
+      const key = presetWireKey(wire);
+      const count = wires.get(key);
+      if (!count) {
+        return false;
+      }
+      wires.set(key, count - 1);
+    }
+    return true;
+  }
+
+  // src/board/wire-path.mjs
+  var WIRE_PATH = { tolerance: 1e-6, cornerSize: BOARD.pitch, cornerPortion: 1 / 3 };
+  function simplifyWirePath(points) {
+    const result = [];
+    for (const point of points) {
+      const previous = result[result.length - 1];
+      if (previous && previous.x === point.x && previous.y === point.y) {
+        continue;
+      }
+      while (result.length >= 2) {
+        const last = result[result.length - 1];
+        const before = result[result.length - 2];
+        const firstHorizontal = last.x - before.x;
+        const firstVertical = last.y - before.y;
+        const nextHorizontal = point.x - last.x;
+        const nextVertical = point.y - last.y;
+        const cross = firstHorizontal * nextVertical - firstVertical * nextHorizontal;
+        const direction = firstHorizontal * nextHorizontal + firstVertical * nextVertical;
+        if (Math.abs(cross) > WIRE_PATH.tolerance || direction <= 0) {
+          break;
+        }
+        result.pop();
+      }
+      result.push({ x: point.x, y: point.y });
+    }
+    return result;
+  }
+  function angleWirePath(points) {
+    if (points.length === 0) {
+      return [];
+    }
+    const result = [points[0]];
+    for (let index = 1; index < points.length; index = index + 1) {
+      const first = points[index - 1];
+      const last = points[index];
+      const horizontal = last.x - first.x;
+      const vertical = last.y - first.y;
+      if (horizontal !== 0 && vertical !== 0) {
+        const diagonal = Math.abs(Math.abs(horizontal) - Math.abs(vertical)) <= WIRE_PATH.tolerance;
+        if (!diagonal || Math.abs(horizontal) > WIRE_PATH.cornerSize + WIRE_PATH.tolerance) {
+          const corner = { x: last.x, y: first.y };
+          const section = shortCornerPath([first, corner, last], [], Infinity);
+          for (let position = 1; position < section.length - 1; position = position + 1) {
+            result.push(section[position]);
+          }
+        }
+      }
+      result.push(last);
+    }
+    return simplifyWirePath(result);
+  }
+  function shortCornerPath(points, obstacles, maximumPoints) {
+    const result = [];
+    for (let index = 0; index < points.length; index = index + 1) {
+      const corner = points[index];
+      if (index === 0 || index === points.length - 1) {
+        result.push(corner);
+        continue;
+      }
+      const before = points[index - 1];
+      const after = points[index + 1];
+      const incomingX = corner.x - before.x;
+      const incomingY = corner.y - before.y;
+      const outgoingX = after.x - corner.x;
+      const outgoingY = after.y - corner.y;
+      const incomingAxis = incomingX === 0 || incomingY === 0;
+      const outgoingAxis = outgoingX === 0 || outgoingY === 0;
+      const perpendicular = incomingX * outgoingX + incomingY * outgoingY === 0;
+      const remaining = points.length - index - 1;
+      if (!incomingAxis || !outgoingAxis || !perpendicular || result.length + remaining + 2 > maximumPoints) {
+        result.push(corner);
+        continue;
+      }
+      const incomingLength = Math.hypot(incomingX, incomingY);
+      const outgoingLength = Math.hypot(outgoingX, outgoingY);
+      const size = Math.min(WIRE_PATH.cornerSize, incomingLength * WIRE_PATH.cornerPortion, outgoingLength * WIRE_PATH.cornerPortion);
+      if (size <= WIRE_PATH.tolerance) {
+        result.push(corner);
+        continue;
+      }
+      const first = { x: corner.x - Math.sign(incomingX) * size, y: corner.y - Math.sign(incomingY) * size };
+      const last = { x: corner.x + Math.sign(outgoingX) * size, y: corner.y + Math.sign(outgoingY) * size };
+      let blocked = false;
+      for (const obstacle of obstacles) {
+        if (segmentCrossesBounds(first, last, obstacle)) {
+          blocked = true;
+          break;
+        }
+      }
+      if (blocked) {
+        result.push(corner);
+      } else {
+        result.push(first, last);
+      }
+    }
+    return simplifyWirePath(result);
+  }
+  function segmentCrossesBounds(first, last, bounds) {
+    let enter = 0;
+    let leave = 1;
+    const starts = [first.x, first.y];
+    const changes = [last.x - first.x, last.y - first.y];
+    const minimums = [bounds.x + WIRE_PATH.tolerance, bounds.y + WIRE_PATH.tolerance];
+    const maximums = [bounds.x + bounds.width - WIRE_PATH.tolerance, bounds.y + bounds.height - WIRE_PATH.tolerance];
+    for (let axis = 0; axis < 2; axis = axis + 1) {
+      const start2 = starts[axis];
+      const change = changes[axis];
+      if (Math.abs(change) <= WIRE_PATH.tolerance) {
+        if (start2 < minimums[axis] || start2 > maximums[axis]) {
+          return false;
+        }
+      } else {
+        const firstPortion = (minimums[axis] - start2) / change;
+        const lastPortion = (maximums[axis] - start2) / change;
+        enter = Math.max(enter, Math.min(firstPortion, lastPortion));
+        leave = Math.min(leave, Math.max(firstPortion, lastPortion));
+        if (enter >= leave) {
+          return false;
+        }
+      }
+    }
+    return enter < leave;
+  }
+
+  // src/board/geometry.mjs
+  var PICK = { nodeRadius: 7, wireRadius: 5, endpointRadius: 14, handleRadius: 9, switchHalfWidth: 15, pulseHalfWidth: 16, buttonTop: 17, buttonBottom: 60 };
+  var WIRE_LAYOUT = { laneStart: 12, laneCount: 9, laneStep: 5, sameRowDistance: 12 };
+  var CHIP_LAYOUT = { leftOffset: 9, topOffset: 9, height: 32 };
+  var endpointPositions = /* @__PURE__ */ new WeakMap();
+  function fixedPositions(endpoints2) {
+    let positions = endpointPositions.get(endpoints2);
+    if (!positions) {
+      positions = [];
+      for (const name of endpoints2) {
+        positions.push(endpointPosition(name));
+      }
+      endpointPositions.set(endpoints2, positions);
+    }
+    return positions;
+  }
+  function chipBounds(chip) {
+    const count = CHIP_MODELS[chip.model].count;
+    const left = BOARD.startX + (chip.column - 1) * BOARD.pitch - CHIP_LAYOUT.leftOffset;
+    const top = rowY(chip.section, "E") + CHIP_LAYOUT.topOffset;
+    return { x: left, y: top, width: count / 2 * BOARD.pitch, height: CHIP_LAYOUT.height };
+  }
+  function wirePoints(wire, index) {
+    const first = endpointPosition(wire.from);
+    const last = endpointPosition(wire.to);
+    const points = [first];
+    if (wire.bends.length > 0) {
+      for (const bend of wire.bends) {
+        points.push(bend);
+      }
+    } else if (wire.angle !== 45) {
+      const laneOffset = WIRE_LAYOUT.laneStart + index % WIRE_LAYOUT.laneCount * WIRE_LAYOUT.laneStep;
+      let lane = (first.y + last.y) / 2 + laneOffset;
+      if (Math.abs(first.y - last.y) < WIRE_LAYOUT.sameRowDistance) {
+        lane = first.y - laneOffset;
+      }
+      points.push({ x: first.x, y: lane });
+      points.push({ x: last.x, y: lane });
+    }
+    points.push(last);
+    if (wire.angle === 45) {
+      return angleWirePath(points);
+    }
+    return points;
+  }
+  function wireDisplayPaths(wires) {
+    const basePaths = [];
+    for (let index = 0; index < wires.length; index = index + 1) {
+      basePaths.push(wirePoints(wires[index], index));
+    }
+    return basePaths;
+  }
+  function segmentDistance(point, first, last) {
+    const horizontal = last.x - first.x;
+    const vertical = last.y - first.y;
+    const length = horizontal * horizontal + vertical * vertical;
+    if (length === 0) {
+      return Math.hypot(point.x - first.x, point.y - first.y);
+    }
+    let portion = ((point.x - first.x) * horizontal + (point.y - first.y) * vertical) / length;
+    portion = Math.max(0, Math.min(1, portion));
+    return Math.hypot(point.x - first.x - portion * horizontal, point.y - first.y - portion * vertical);
+  }
+  function hitCandidates(point, state2, endpoints2) {
+    const candidates = [];
+    const displayPaths = wireDisplayPaths(state2.project.wires);
+    if (point.y >= PORT_LAYOUT.inputY + PICK.buttonTop && point.y <= PORT_LAYOUT.inputY + PICK.buttonBottom) {
+      for (let index = 0; index < IO_LIMIT; index = index + 1) {
+        const location = endpointPosition("K" + index);
+        if (Math.abs(point.x - location.x) <= PICK.switchHalfWidth) {
+          return [{ kind: "switch", id: index }];
+        }
+      }
+      for (const name of ["P+", "P-"]) {
+        const location = endpointPosition(name);
+        if (Math.abs(point.x - location.x) <= PICK.pulseHalfWidth) {
+          return [{ kind: "pulse", id: name }];
+        }
+      }
+    }
+    for (let index = state2.project.wires.length - 1; index >= 0; index = index - 1) {
+      const wire = state2.project.wires[index];
+      const points = displayPaths[index];
+      for (let segment = 1; segment < points.length; segment = segment + 1) {
+        if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
+          candidates.push({ kind: "wire", id: wire.id });
+          break;
+        }
+      }
+    }
+    const positions = fixedPositions(endpoints2);
+    const radiusSquared = PICK.nodeRadius * PICK.nodeRadius;
+    for (let index = 0; index < positions.length; index = index + 1) {
+      const location = positions[index];
+      const horizontal = point.x - location.x;
+      const vertical = point.y - location.y;
+      if (horizontal * horizontal + vertical * vertical <= radiusSquared) {
+        candidates.push({ kind: "node", id: endpoints2[index] });
+      }
+    }
+    for (const chip of state2.project.chips) {
+      const bounds = chipBounds(chip);
+      if (point.x >= bounds.x && point.x <= bounds.x + bounds.width && point.y >= bounds.y && point.y <= bounds.y + bounds.height) {
+        candidates.push({ kind: "chip", id: chip.id });
+      }
+    }
+    return candidates;
+  }
+  function hitTest(point, state2, endpoints2) {
+    const candidates = hitCandidates(point, state2, endpoints2);
+    if (candidates.length > 0) {
+      return candidates[0];
+    }
+    return null;
+  }
+  function objectSelected(state2, kind, id) {
+    if (state2.selection && state2.selection.length > 0) {
+      for (const target of state2.selection) {
+        if (target.kind === kind && target.id === id) {
+          return true;
+        }
+      }
+      return false;
+    }
+    return Boolean(state2.selected && state2.selected.kind === kind && state2.selected.id === id);
+  }
+  function nearestEndpoint(point, endpoints2) {
+    let nearest = "";
+    let distance = PICK.endpointRadius;
+    for (const name of endpoints2) {
+      const location = endpointPosition(name);
+      const current = Math.hypot(point.x - location.x, point.y - location.y);
+      if (current < distance) {
+        distance = current;
+        nearest = name;
+      }
+    }
+    return nearest;
+  }
+  function wireHandleAt(point, project, selected) {
+    if (!selected || selected.kind !== "wire") {
+      return null;
+    }
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+      const wire = project.wires[index];
+      if (wire.id !== selected.id) {
+        continue;
+      }
+      const points = wirePoints(wire, index);
+      for (let handle = 0; handle < points.length; handle = handle + 1) {
+        if (Math.hypot(point.x - points[handle].x, point.y - points[handle].y) <= PICK.handleRadius) {
+          return { wire: wire.id, handle, points };
+        }
+      }
+    }
+    return null;
+  }
+
+  // src/storage/storage.mjs
+  var STORAGE_KEY = "breadboard-lab-v1";
+  var LIMITS = {
+    chips: 40,
+    // 单个实验的芯片数量上限
+    wires: 800,
+    // 单个实验的导线及上拉节点数量上限
+    bends: 24,
+    // 每根导线的转折点数量上限
+    fileBytes: 2e6,
+    // 导入文件字节数上限
+    nameLength: 80
+    // 实验名称字符数上限
+  };
+  var FILE_BOUNDS = { width: 1300, height: 1280 };
+  var LEGACY_COMPLEMENT_PORT_COUNT = 7;
+  function validWireBend(bend) {
+    if (!bend || !Number.isFinite(bend.x) || !Number.isFinite(bend.y)) {
+      return false;
+    }
+    const fitsWidth = bend.x >= 0 && bend.x <= FILE_BOUNDS.width;
+    const fitsHeight = bend.y >= 0 && bend.y <= FILE_BOUNDS.height;
+    return fitsWidth && fitsHeight;
+  }
+  function legacyNode(name, wiringVersion) {
+    if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
+      return name;
+    }
+    return baseNode(name, 2);
+  }
+  function connectionRoot(parents, name) {
+    if (!parents.has(name)) {
+      parents.set(name, name);
+    }
+    let root = name;
+    while (parents.get(root) !== root) {
+      root = parents.get(root);
+    }
+    return root;
+  }
+  function verifyPortMigration(original, migrated) {
+    const before = /* @__PURE__ */ new Map();
+    const after = /* @__PURE__ */ new Map();
+    for (const wire of original.wires) {
+      const first = connectionRoot(before, legacyNode(wire.from, original.wiringVersion));
+      const last = connectionRoot(before, legacyNode(wire.to, original.wiringVersion));
+      before.set(last, first);
+    }
+    for (const wire of migrated.wires) {
+      const first = connectionRoot(after, baseNode(wire.from));
+      const last = connectionRoot(after, baseNode(wire.to));
+      after.set(last, first);
+    }
+    const terminals = ["P+", "P-", "VCC", "GND"];
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      terminals.push("K" + bit, "L" + bit);
+    }
+    for (const chip of migrated.chips) {
+      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
+        terminals.push(pinHole(chip, pin));
+      }
+    }
+    const forward = /* @__PURE__ */ new Map();
+    const reverse = /* @__PURE__ */ new Map();
+    for (const name of terminals) {
+      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
+      const newGroup = connectionRoot(after, baseNode(name));
+      if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
+        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
+      }
+      forward.set(oldGroup, newGroup);
+      reverse.set(newGroup, oldGroup);
+    }
+  }
+  function migrateEndpoint(name, occupied2) {
+    if (isPhysicalHole(name)) {
+      return name;
+    }
+    const preferred = portHole(name);
+    if (preferred === "") {
+      throw new Error("\u65E0\u6CD5\u627E\u5230\u7AEF\u53E3\u5BF9\u5E94\u7684\u9762\u5305\u677F\u5B54\uFF1A" + name);
+    }
+    const parts = preferred.split(":");
+    if (preferred.startsWith("R:")) {
+      for (let index = Number(parts[2]); index >= 0; index = index - 1) {
+        const hole = parts[0] + ":" + parts[1] + ":" + index;
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    } else {
+      let rows = "JIHGF";
+      if (parts[1] === "A") {
+        rows = "ABCDE";
+      }
+      for (const row of rows) {
+        const hole = parts[0] + ":" + row + ":" + parts[2];
+        if (!occupied2.has(hole)) {
+          occupied2.add(hole);
+          return hole;
+        }
+      }
+    }
+    throw new Error(name + " \u5BF9\u5E94\u5217\u5DF2\u65E0\u7A7A\u5B54\uFF0C\u539F\u6587\u4EF6\u672A\u4FEE\u6539\uFF0C\u8BF7\u5148\u817E\u51FA\u4E00\u4E2A\u63D2\u5B54");
+  }
+  function validateProjectHeader(value) {
+    if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
+      throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
+    }
+    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
+      throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
+    }
+    if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
+      throw new Error("\u7535\u8DEF\u89C4\u6A21\u8D85\u8FC7\u9650\u5236\uFF0C\u6216\u6309\u952E\u6570\u91CF\u4E0D\u6B63\u786E");
+    }
+  }
+  function restoreProjectSettings(value, project) {
+    if (value.inputCount !== void 0 || value.outputCount !== void 0) {
+      if (!validIoCount(value.inputCount) || !validIoCount(value.outputCount)) {
+        throw new Error("\u8F93\u5165\u548C\u8F93\u51FA\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT);
+      }
+      project.inputCount = value.inputCount;
+      project.outputCount = value.outputCount;
+    }
+    if (value.mode === "complement") {
+      project.inputCount = Math.max(project.inputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+      project.outputCount = Math.max(project.outputCount, LEGACY_COMPLEMENT_PORT_COUNT);
+    }
+    if (value.notes === void 0 && value.mode === "complement") {
+      project.notes = COMPLEMENT_NOTES;
+    } else if (value.notes !== void 0) {
+      if (typeof value.notes !== "string" || value.notes.length > NOTES_LIMIT) {
+        throw new Error("\u5907\u6CE8\u5FC5\u987B\u662F\u6587\u5B57\uFF0C\u4E14\u4E0D\u80FD\u8D85\u8FC7 " + NOTES_LIMIT + " \u4E2A\u5B57\u7B26");
+      }
+      project.notes = value.notes;
+    }
+    if (typeof value.name === "string") {
+      project.name = value.name.slice(0, LIMITS.nameLength);
+    }
+    project.power = value.power === true;
+  }
+  function restorePullUps(value, project) {
+    if (value.pullUps !== void 0) {
+      if (!Array.isArray(value.pullUps) || value.pullUps.length > LIMITS.wires) {
+        throw new Error("\u4E0A\u62C9\u8282\u70B9\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E");
+      }
+      const seen = /* @__PURE__ */ new Set();
+      for (const endpoint of value.pullUps) {
+        if (!validEndpoint(endpoint) || seen.has(endpoint)) {
+          throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+        }
+        project.pullUps.push(endpoint);
+        seen.add(endpoint);
+      }
+    }
+  }
+  function restoreChips(value, project) {
+    const identifiers = /* @__PURE__ */ new Set();
+    const occupied2 = /* @__PURE__ */ new Set();
+    for (const entry of value.chips) {
+      if (!entry || typeof entry.id !== "string" || !/^U[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
+        throw new Error("\u82AF\u7247\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+      }
+      const chip = { id: entry.id, model: entry.model, section: entry.section, column: entry.column };
+      const error = placementError(project.chips, chip, "");
+      if (error !== "") {
+        throw new Error(error);
+      }
+      identifiers.add(chip.id);
+      project.chips.push(chip);
+      for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
+        occupied2.add(pinHole(chip, pin));
+      }
+    }
+    return occupied2;
+  }
+  function restoreWires(value, project, occupied2) {
+    const identifiers = /* @__PURE__ */ new Set();
+    const reserved = new Set(occupied2);
+    for (const entry of value.wires) {
+      if (entry && isPhysicalHole(entry.from)) {
+        reserved.add(entry.from);
+      }
+      if (entry && isPhysicalHole(entry.to)) {
+        reserved.add(entry.to);
+      }
+    }
+    for (const entry of value.wires) {
+      if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
+        throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
+      }
+      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
+        throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
+      }
+      if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
+        throw new Error("\u5BFC\u7EBF\u989C\u8272\u6216\u8F6C\u6298\u70B9\u4E0D\u5408\u6CD5");
+      }
+      const bends = [];
+      for (const bend of entry.bends) {
+        if (!validWireBend(bend)) {
+          throw new Error("\u5BFC\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u9762\u5305\u677F\u8303\u56F4");
+        }
+        bends.push({ x: bend.x, y: bend.y });
+      }
+      const from = migrateEndpoint(entry.from, reserved);
+      const to = migrateEndpoint(entry.to, reserved);
+      if (from !== entry.from || to !== entry.to) {
+        bends.length = 0;
+      }
+      const wire = { id: entry.id, from, to, color: entry.color, bends };
+      if (entry.angle !== void 0 && entry.angle !== 45) {
+        throw new Error("\u5BFC\u7EBF\u89D2\u5EA6\u8BBE\u7F6E\u4E0D\u6B63\u786E");
+      }
+      if (entry.angle === 45) {
+        wire.angle = 45;
+      }
+      project.wires.push(wire);
+      occupied2.add(entry.from);
+      occupied2.add(entry.to);
+      identifiers.add(entry.id);
+    }
+  }
+  function restoreSwitches(value, project) {
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      if (value.switches[index] !== 0 && value.switches[index] !== 1) {
+        throw new Error("\u6309\u952E\u72B6\u6001\u5FC5\u987B\u662F 0 \u6216 1");
+      }
+      project.switches[index] = value.switches[index];
+    }
+  }
+  function validateProject(value) {
+    validateProjectHeader(value);
+    const project = emptyProject();
+    restoreProjectSettings(value, project);
+    restorePullUps(value, project);
+    const occupied2 = restoreChips(value, project);
+    restoreWires(value, project, occupied2);
+    restoreSwitches(value, project);
+    if (value.wiringVersion !== WIRING_VERSION) {
+      verifyPortMigration(value, project);
+    }
+    return project;
+  }
+
+  // src/ui/runtime-scripts.mjs
+  var loadingScripts = /* @__PURE__ */ new Map();
+  function loadRuntimeScript(filename) {
+    if (loadingScripts.has(filename)) {
+      return loadingScripts.get(filename);
+    }
+    function startLoading(resolve, reject) {
+      const script = document.createElement("script");
+      script.src = filename;
+      script.async = true;
+      function loaded() {
+        resolve();
+      }
+      function failed() {
+        loadingScripts.delete(filename);
+        script.remove();
+        reject(new Error("\u65E0\u6CD5\u52A0\u8F7D\u672C\u5730\u8FD0\u884C\u6587\u4EF6\uFF1A" + filename));
+      }
+      script.addEventListener("load", loaded, { once: true });
+      script.addEventListener("error", failed, { once: true });
+      document.head.append(script);
+    }
+    const loading = new Promise(startLoading);
+    loadingScripts.set(filename, loading);
+    return loading;
+  }
+
+  // src/board/routing-runtime.mjs
+  var ROUTING_SCRIPT = "vendor/routing-runtime.js";
+  var initialization = null;
+  async function loadRoutingRuntime() {
+    if (typeof window === "undefined") {
+      const runtime = await import("libavoid-js");
+      await runtime.AvoidLib.load();
+      return runtime.AvoidLib.getInstance();
+    }
+    await loadRuntimeScript(ROUTING_SCRIPT);
+    return window.BreadboardRouting.loadRouting();
+  }
+  function resetInitialization(error) {
+    initialization = null;
+    throw error;
+  }
+  function initializeRouting() {
+    if (!initialization) {
+      initialization = loadRoutingRuntime().catch(resetInitialization);
+    }
+    return initialization;
+  }
+
+  // src/board/routing.mjs
+  var ROUTING = {
+    // 提高每个额外正交线段的代价，避免连续小折段
+    segmentPenalty: 2e3,
+    shapeBuffer: 5,
+    nudgingDistance: 6,
+    bottomBoundary: 1110,
+    boundaryDepth: 1e3
+  };
+  function yieldFrame(resolve) {
+    setTimeout(resolve, 0);
+  }
+  function createRouter(Avoid) {
+    const router = new Avoid.Router(Avoid.RouterFlag.OrthogonalRouting.value);
+    const parameter = Avoid.RoutingParameter;
+    router.setRoutingParameter(parameter.segmentPenalty, ROUTING.segmentPenalty);
+    router.setRoutingParameter(parameter.shapeBufferDistance, ROUTING.shapeBuffer);
+    router.setRoutingParameter(parameter.idealNudgingDistance, ROUTING.nudgingDistance);
+    router.setRoutingOption(Avoid.RoutingOption.nudgeOrthogonalTouchingColinearSegments, true);
+    router.setRoutingOption(Avoid.RoutingOption.nudgeSharedPathsWithCommonEndPoint, true);
+    router.setRoutingOption(Avoid.RoutingOption.nudgeOrthogonalSegmentsConnectedToShapes, true);
+    return router;
+  }
+  function keepObject(objects, value) {
+    objects.push(value);
+    return value;
+  }
+  function addObstacles(Avoid, router, project, objects) {
+    const bounds = [];
+    for (const chip of project.chips) {
+      bounds.push(chipBounds(chip));
+    }
+    let bottom = ROUTING.bottomBoundary;
+    for (const wire of project.wires) {
+      bottom = Math.max(bottom, endpointPosition(wire.from).y, endpointPosition(wire.to).y);
+    }
+    const depth = ROUTING.boundaryDepth;
+    const walls = [
+      { x: -depth, y: -depth, width: depth, height: BOARD.height + depth * 2 },
+      { x: BOARD.width, y: -depth, width: depth, height: BOARD.height + depth * 2 },
+      { x: 0, y: -depth, width: BOARD.width, height: depth },
+      { x: 0, y: bottom + ROUTING.shapeBuffer, width: BOARD.width, height: depth }
+    ];
+    const obstacles = bounds.concat(walls);
+    for (const obstacle of obstacles) {
+      const first = keepObject(objects, new Avoid.Point(obstacle.x, obstacle.y));
+      const last = keepObject(objects, new Avoid.Point(obstacle.x + obstacle.width, obstacle.y + obstacle.height));
+      const rectangle2 = keepObject(objects, new Avoid.Rectangle(first, last));
+      new Avoid.ShapeRef(router, rectangle2);
+    }
+    return bounds;
+  }
+  function addCheckpoints(Avoid, connection, points, objects) {
+    if (points.length === 0) {
+      return;
+    }
+    const vector = keepObject(objects, new Avoid.CheckpointVector());
+    for (const location of points) {
+      const point = keepObject(objects, new Avoid.Point(location.x, location.y));
+      const checkpoint = keepObject(objects, new Avoid.Checkpoint(point));
+      vector.push_back(checkpoint);
+    }
+    connection.setRoutingCheckpoints(vector);
+  }
+  function addConnections(Avoid, router, project, targetId, objects) {
+    const connections = /* @__PURE__ */ new Map();
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+      const wire = project.wires[index];
+      const first = endpointPosition(wire.from);
+      const last = endpointPosition(wire.to);
+      const sourcePoint = keepObject(objects, new Avoid.Point(first.x, first.y));
+      const targetPoint = keepObject(objects, new Avoid.Point(last.x, last.y));
+      const source = keepObject(objects, new Avoid.ConnEnd(sourcePoint));
+      const target = keepObject(objects, new Avoid.ConnEnd(targetPoint));
+      const connection = new Avoid.ConnRef(router, source, target);
+      connection.setRoutingType(Avoid.ConnType.ConnType_Orthogonal);
+      if (targetId !== "") {
+        let checkpoints = wire.bends;
+        if (wire.id !== targetId) {
+          checkpoints = wirePoints(wire, index).slice(1, -1);
+        }
+        addCheckpoints(Avoid, connection, checkpoints, objects);
+      }
+      connections.set(wire.id, connection);
+    }
+    return connections;
+  }
+  function readRoute(connection, wire, bounds) {
+    const route = connection.displayRoute();
+    const points = [];
+    try {
+      for (let index = 0; index < route.size(); index = index + 1) {
+        const point = route.at(index);
+        points.push({ x: point.x, y: point.y });
+        point.delete();
+      }
+    } finally {
+      route.delete();
+    }
+    if (points.length < 2) {
+      throw new Error("\u672A\u751F\u6210\u6709\u6548\u8D70\u7EBF\uFF1A" + wire.id);
+    }
+    const first = endpointPosition(wire.from);
+    const last = endpointPosition(wire.to);
+    const source = points[0];
+    const target = points[points.length - 1];
+    if (source.x !== first.x && source.y !== first.y) {
+      points.unshift({ x: source.x, y: first.y });
+    }
+    points.unshift(first);
+    if (target.x !== last.x && target.y !== last.y) {
+      points.push({ x: target.x, y: last.y });
+    }
+    points.push(last);
+    for (let index = 1; index < points.length; index = index + 1) {
+      for (const obstacle of bounds) {
+        if (segmentCrossesBounds(points[index - 1], points[index], obstacle)) {
+          throw new Error("\u8D70\u7EBF\u7A7F\u8FC7\u82AF\u7247\uFF0C\u8BF7\u8C03\u6574\u8F6C\u6298\u70B9\uFF1A" + wire.id);
+        }
+      }
+    }
+    return simplifyWirePath(points);
+  }
+  async function routeProject(project, angle, targetId) {
+    await new Promise(yieldFrame);
+    const Avoid = await initializeRouting();
+    const router = createRouter(Avoid);
+    const objects = [];
+    try {
+      const bounds = addObstacles(Avoid, router, project, objects);
+      const connections = addConnections(Avoid, router, project, targetId, objects);
+      router.processTransaction();
+      const routes = {};
+      for (const wire of project.wires) {
+        if (targetId !== "" && wire.id !== targetId) {
+          continue;
+        }
+        let points = readRoute(connections.get(wire.id), wire, bounds);
+        const preserveManualPoints = targetId !== "" && wire.bends.length > 0;
+        if (angle === 45 && !preserveManualPoints) {
+          points = shortCornerPath(points, bounds, LIMITS.bends + 2);
+        }
+        const bends = points.slice(1, -1);
+        if (bends.length === 0) {
+          bends.push({ x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 });
+        }
+        if (bends.length > LIMITS.bends) {
+          throw new Error("\u8D70\u7EBF\u8F6C\u6298\u70B9\u8D85\u51FA\u4E0A\u9650\uFF1A" + wire.id);
+        }
+        routes[wire.id] = bends;
+      }
+      return routes;
+    } finally {
+      router.delete();
+      for (let index = objects.length - 1; index >= 0; index = index - 1) {
+        objects[index].delete();
+      }
+    }
+  }
+  function routeWires(project, angle) {
+    return routeProject(project, angle, "");
+  }
+  async function routeNewWire(project, wire, angle) {
+    const candidate = Object.assign({}, project);
+    candidate.wires = project.wires.concat([wire]);
+    const routes = await routeProject(candidate, angle, wire.id);
+    return routes[wire.id];
+  }
+
+  // src/board/render.mjs
+  var DRAW = {
+    pixelRatio: 2,
+    holeRadius: 3.5,
+    wireWidth: 2.4,
+    selectedWireWidth: 5,
+    wireOutlineWidth: 2,
+    wireEndpointRadius: 4,
+    handleSize: 10,
+    chipText: 10,
+    railLabelOffset: 17,
+    railLinePadding: 10,
+    sectionTopOffset: 30,
+    sectionHeight: 234,
+    boardRadius: 8
+  };
+  var INPUT_DRAW = {
+    top: -25,
+    height: 107,
+    label: -14,
+    switchTop: 20,
+    switchSlider: 37,
+    switchTravel: 14,
+    valueLabel: 67,
+    ledTop: 9,
+    pulseCenter: 38,
+    pulseRadius: 14,
+    pulsePressedOffset: 3,
+    railLabel: 25
+  };
+  var OUTPUT_DRAW = { top: 14, height: 65, titleX: 1122, titleY: 35, ledY: 34, valueY: 40, labelY: 24 };
+  var LEVEL_DRAW = { width: 13, height: 14, fontSize: 10, railInterval: 5 };
+  var INTERNAL_DRAW = { lineWidth: 1, restingOpacity: 0.45, activeOpacity: 0.9 };
+  var COLOR_NAMES = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "level-floating", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
+  var drawingFont = "";
+  var drawingColors = null;
+  var boardLayers = null;
+  function canvasColors() {
+    if (drawingColors) {
+      return drawingColors;
+    }
+    const style = getComputedStyle(document.documentElement);
+    const colors = {};
+    for (const name of COLOR_NAMES) {
+      colors[name] = style.getPropertyValue("--color-" + name).trim();
+    }
+    drawingFont = style.getPropertyValue("--font-body").trim();
+    drawingColors = colors;
+    return colors;
+  }
+  function rectangle(context, left, top, width, height, radius, color) {
+    context.beginPath();
+    context.roundRect(left, top, width, height, radius);
+    context.fillStyle = color;
+    context.fill();
+  }
+  function label(context, content, horizontal, vertical, size, color, align) {
+    context.font = size + "px " + drawingFont;
+    context.fillStyle = color;
+    context.textAlign = align;
+    context.textBaseline = "middle";
+    context.fillText(content, horizontal, vertical);
+  }
+  function polyline(context, points, color, width) {
+    context.beginPath();
+    context.moveTo(points[0].x, points[0].y);
+    for (let index = 1; index < points.length; index = index + 1) {
+      context.lineTo(points[index].x, points[index].y);
+    }
+    context.strokeStyle = color;
+    context.lineWidth = width;
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.stroke();
+  }
+  function circle(context, horizontal, vertical, radius, color) {
+    context.beginPath();
+    context.arc(horizontal, vertical, radius, 0, Math.PI * 2);
+    context.fillStyle = color;
+    context.fill();
+  }
+  function allEndpoints() {
+    const endpoints2 = [];
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+      for (const row of ROWS) {
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          endpoints2.push(holeId(section, row, column));
+        }
+      }
+      for (const row of BUS_ROWS) {
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          if (busHasHole(column)) {
+            endpoints2.push(holeId(section, row, column));
+          }
+        }
+      }
+    }
+    for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
+      endpoints2.push("R:GND:" + index);
+      endpoints2.push("R:VCC:" + index);
+    }
+    return endpoints2;
+  }
+  function drawBreadboards(context, emphasis, colors) {
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+      const top = BOARD.startY + section * BOARD.sectionHeight - DRAW.sectionTopOffset;
+      rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, DRAW.sectionHeight, 7, colors.surface);
+      context.strokeStyle = colors.rule;
+      context.lineWidth = 1;
+      context.strokeRect(43, top + 1, 1130, 232);
+      rectangle(context, 64, rowY(section, "E") + 15, 1086, 30, 3, colors.board);
+      label(context, String(section + 1), 55, top + 116, 12, colors.muted, "center");
+      for (let column = 1; column <= BOARD.columns; column = column + 1) {
+        const horizontal = BOARD.startX + (column - 1) * BOARD.pitch;
+        if (column === 1 || column % 5 === 0) {
+          label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
+        }
+        if (emphasis > 0) {
+          context.globalAlpha = emphasis;
+          polyline(context, [{ x: horizontal, y: rowY(section, "A") }, { x: horizontal, y: rowY(section, "E") }], colors.trace, 2);
+          polyline(context, [{ x: horizontal, y: rowY(section, "F") }, { x: horizontal, y: rowY(section, "J") }], colors.trace, 2);
+          context.globalAlpha = 1;
+        }
+      }
+      for (const row of BUS_ROWS) {
+        const vertical = rowY(section, row);
+        label(context, row, 74, vertical, 9, colors.muted, "center");
+        for (const segment of BUS_SEGMENTS) {
+          const first = endpointPosition(holeId(section, row, segment[0]));
+          const last = endpointPosition(holeId(section, row, segment[1]));
+          context.globalAlpha = 0.25 + emphasis * 0.75;
+          polyline(context, [first, last], colors.accent, 2);
+          context.globalAlpha = 1;
+        }
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          if (busHasHole(column)) {
+            const location = endpointPosition(holeId(section, row, column));
+            circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
+            circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
+          }
+        }
+      }
+      for (const row of ROWS) {
+        label(context, row, 74, rowY(section, row), 9, colors.muted, "center");
+        for (let column = 1; column <= BOARD.columns; column = column + 1) {
+          const location = endpointPosition(holeId(section, row, column));
+          circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
+          circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
+        }
+      }
+    }
+    const railTop = RAIL_LAYOUT.startY - DRAW.railLinePadding;
+    const railBottom = RAIL_LAYOUT.endY + DRAW.railLinePadding;
+    const railLabel = RAIL_LAYOUT.startY - DRAW.railLabelOffset;
+    polyline(context, [{ x: RAIL_LAYOUT.groundX, y: railTop }, { x: RAIL_LAYOUT.groundX, y: railBottom }], colors.hole, 3);
+    polyline(context, [{ x: RAIL_LAYOUT.powerX, y: railTop }, { x: RAIL_LAYOUT.powerX, y: railBottom }], colors.error, 3);
+    label(context, "GND", RAIL_LAYOUT.groundX, railLabel, 11, colors.ink, "center");
+    label(context, "+5V", RAIL_LAYOUT.powerX, railLabel, 11, colors.error, "center");
+    for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
+      for (const name of ["GND", "VCC"]) {
+        const location = endpointPosition("R:" + name + ":" + index);
+        circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
+        circle(context, location.x, location.y, 3.2, colors.hole);
+      }
+    }
+  }
+  function createBoardLayer(emphasis, colors) {
+    const layer = document.createElement("canvas");
+    layer.width = BOARD.width * DRAW.pixelRatio;
+    layer.height = BOARD.height * DRAW.pixelRatio;
+    const context = layer.getContext("2d");
+    context.scale(DRAW.pixelRatio, DRAW.pixelRatio);
+    rectangle(context, 0, 0, BOARD.width, BOARD.height, DRAW.boardRadius, colors.board);
+    drawBreadboards(context, emphasis, colors);
+    return layer;
+  }
+  function drawBoardLayer(context, emphasis, colors) {
+    if (!boardLayers) {
+      boardLayers = { normal: createBoardLayer(0, colors), emphasized: null };
+    }
+    if (emphasis > 0 && !boardLayers.emphasized) {
+      boardLayers.emphasized = createBoardLayer(1, colors);
+    }
+    if (emphasis < 1) {
+      context.drawImage(boardLayers.normal, 0, 0, BOARD.width, BOARD.height);
+    }
+    if (emphasis > 0) {
+      context.globalAlpha = emphasis;
+      context.drawImage(boardLayers.emphasized, 0, 0, BOARD.width, BOARD.height);
+      context.globalAlpha = 1;
+    }
+  }
+  function drawModules(context, state2, colors) {
+    const inputY = PORT_LAYOUT.inputY;
+    rectangle(context, BOARD.panelLeft, OUTPUT_DRAW.top, BOARD.panelWidth, OUTPUT_DRAW.height, 5, colors.module);
+    rectangle(context, BOARD.panelLeft, inputY + INPUT_DRAW.top, BOARD.panelWidth, INPUT_DRAW.height, 5, colors.module);
+    label(context, "\u903B\u8F91\u6307\u793A\u706F", OUTPUT_DRAW.titleX, OUTPUT_DRAW.titleY, 12, colors["module-text"], "center");
+    for (let index = 0; index < IO_LIMIT; index = index + 1) {
+      const led = endpointPosition("L" + index);
+      const value = readEndpoint(state2.result, "L" + index);
+      rectangle(context, led.x - 8, OUTPUT_DRAW.ledY, 16, 13, 3, colors["led-off"]);
+      context.globalAlpha = state2.visual.leds["L" + index];
+      rectangle(context, led.x - 8, OUTPUT_DRAW.ledY, 16, 13, 3, colors["led-on"]);
+      context.globalAlpha = 1;
+      if (value === "X" || value === "Z") {
+        label(context, String(value), led.x, OUTPUT_DRAW.valueY, 8, colors["module-text"], "center");
+      }
+      label(context, "L" + index, led.x, OUTPUT_DRAW.labelY, 8, colors["module-text"], "center");
+      const location = endpointPosition("K" + index);
+      label(context, "K" + index, location.x, inputY + INPUT_DRAW.label, 9, colors["module-text"], "center");
+      rectangle(context, location.x - 12, inputY + INPUT_DRAW.switchTop, 24, 36, 4, colors["chip-text"]);
+      const switchTop = inputY + INPUT_DRAW.switchSlider - state2.visual.switches[index] * INPUT_DRAW.switchTravel;
+      rectangle(context, location.x - 9, switchTop, 18, 15, 2, colors.metal);
+      label(context, String(state2.project.switches[index]), location.x, inputY + INPUT_DRAW.valueLabel, 10, colors["module-text"], "center");
+      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-off"]);
+      context.globalAlpha = state2.visual.leds["K" + index];
+      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-on"]);
+      context.globalAlpha = 1;
+    }
+    for (const name of ["P+", "P-"]) {
+      const location = endpointPosition(name);
+      label(context, name, location.x, inputY + INPUT_DRAW.label, 10, colors["module-text"], "center");
+      let buttonColor = colors["chip-text"];
+      let buttonY = inputY + INPUT_DRAW.pulseCenter;
+      if (state2.pressedPulse === name) {
+        buttonColor = colors["led-on"];
+        buttonY = buttonY + INPUT_DRAW.pulsePressedOffset;
+      }
+      circle(context, location.x, buttonY, INPUT_DRAW.pulseRadius, buttonColor);
+      label(context, "\u8109\u51B2", location.x, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
+    }
+  }
+  function drawPortConnections(context, state2, colors) {
+    const emphasis = state2.visual.internals;
+    context.globalAlpha = INTERNAL_DRAW.restingOpacity + emphasis * (INTERNAL_DRAW.activeOpacity - INTERNAL_DRAW.restingOpacity);
+    const signals = ["P+", "P-"];
+    for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+      signals.push("K" + bit, "L" + bit);
+    }
+    for (const signal of signals) {
+      const location = endpointPosition(signal);
+      const first = { x: location.x, y: PORT_LAYOUT.inputY + INPUT_DRAW.top };
+      if (signal.startsWith("L")) {
+        first.y = OUTPUT_DRAW.top + OUTPUT_DRAW.height;
+      }
+      const last = endpointPosition(portHole(signal));
+      polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
+    }
+    const section = BOARD.sections - 1;
+    for (let column = 1; column <= BOARD.columns; column = column + 1) {
+      if (isInputColumn(column)) {
+        const first = endpointPosition(holeId(section, "E", column));
+        const last = endpointPosition(holeId(section, "F", column));
+        polyline(context, [first, last], colors.trace, INTERNAL_DRAW.lineWidth);
+      }
+    }
+    if (emphasis === 0) {
+      context.globalAlpha = 1;
+      return;
+    }
+    context.globalAlpha = emphasis;
+    for (const rail of ["GND", "VCC"]) {
+      const first = endpointPosition("R:" + rail + ":0");
+      const last = endpointPosition("R:" + rail + ":" + (RAIL_LAYOUT.count - 1));
+      let color = colors.ink;
+      if (rail === "VCC") {
+        color = colors.error;
+      }
+      polyline(context, [first, last], color, 4);
+      for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
+        const point = endpointPosition("R:" + rail + ":" + index);
+        circle(context, point.x, point.y, 2, color);
+      }
+    }
+    context.globalAlpha = 1;
+  }
+  function drawLevel(context, name, point, state2, colors) {
+    const value = readEndpoint(state2.result, name);
+    let background = colors["level-floating"];
+    let foreground = colors.ink;
+    if (value === 1) {
+      background = colors.success;
+      foreground = colors.surface;
+    } else if (value === 0) {
+      background = colors.ink;
+      foreground = colors.surface;
+    } else if (value === "X") {
+      background = colors.unknown;
+    }
+    rectangle(context, point.x - LEVEL_DRAW.width / 2, point.y - LEVEL_DRAW.height / 2, LEVEL_DRAW.width, LEVEL_DRAW.height, 2, colors.surface);
+    rectangle(context, point.x - LEVEL_DRAW.width / 2 + 1, point.y - LEVEL_DRAW.height / 2 + 1, LEVEL_DRAW.width - 2, LEVEL_DRAW.height - 2, 1, background);
+    label(context, String(value), point.x, point.y, LEVEL_DRAW.fontSize, foreground, "center");
+  }
+  function drawNodeLevels(context, state2, colors) {
+    if (!state2.showLevels) {
+      return;
+    }
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+      for (let column = 1; column <= BOARD.columns; column = column + 1) {
+        for (const row of ["C", "H"]) {
+          const name = holeId(section, row, column);
+          drawLevel(context, name, endpointPosition(name), state2, colors);
+        }
+      }
+      for (const row of BUS_ROWS) {
+        for (const segment of BUS_SEGMENTS) {
+          const name = holeId(section, row, segment[0]);
+          drawLevel(context, name, endpointPosition(name), state2, colors);
+        }
+      }
+    }
+    for (const rail of ["GND", "VCC"]) {
+      for (let index = 0; index < RAIL_LAYOUT.count; index = index + LEVEL_DRAW.railInterval) {
+        const name = "R:" + rail + ":" + index;
+        drawLevel(context, name, endpointPosition(name), state2, colors);
+      }
+    }
+  }
+  function drawChip(context, chip, state2, colors) {
+    const bounds = chipBounds(chip);
+    const model = CHIP_MODELS[chip.model];
+    for (let pin = 1; pin <= model.count; pin = pin + 1) {
+      const location = endpointPosition(pinHole(chip, pin));
+      let edge = bounds.y + bounds.height;
+      if (pin > model.count / 2) {
+        edge = bounds.y;
+      }
+      polyline(context, [location, { x: location.x, y: edge }], colors.metal, 5);
+    }
+    rectangle(context, bounds.x, bounds.y, bounds.width, bounds.height, 3, colors.chip);
+    circle(context, bounds.x, bounds.y + 16, 6, colors.board);
+    label(context, chip.id + "  " + chip.model, bounds.x + bounds.width / 2 + 3, bounds.y + 16, DRAW.chipText, colors["chip-text"], "center");
+    for (let pin = 1; pin <= model.count; pin = pin + 1) {
+      const location = endpointPosition(pinHole(chip, pin));
+      let vertical = bounds.y + bounds.height - 3;
+      if (pin > model.count / 2) {
+        vertical = bounds.y + 4;
+      }
+      label(context, String(pin), location.x, vertical, 6, colors["chip-text"], "center");
+    }
+    if (objectSelected(state2, "chip", chip.id)) {
+      context.strokeStyle = colors.accent;
+      context.lineWidth = 2;
+      context.strokeRect(bounds.x - 3, bounds.y - 3, bounds.width + 6, bounds.height + 6);
+    }
+  }
+  function drawWires(context, state2, colors) {
+    const displayPaths = wireDisplayPaths(state2.project.wires);
+    for (let index = 0; index < state2.project.wires.length; index = index + 1) {
+      const wire = state2.project.wires[index];
+      const points = displayPaths[index];
+      let width = DRAW.wireWidth;
+      const selected = objectSelected(state2, "wire", wire.id);
+      if (selected) {
+        width = DRAW.selectedWireWidth;
+      }
+      polyline(context, points, colors.surface, width + DRAW.wireOutlineWidth);
+      polyline(context, points, wire.color, width);
+      const first = points[0];
+      const last = points[points.length - 1];
+      circle(context, first.x, first.y, DRAW.wireEndpointRadius, wire.color);
+      circle(context, last.x, last.y, DRAW.wireEndpointRadius, wire.color);
+      if (selected && state2.tool === "select") {
+        for (const point of points) {
+          rectangle(context, point.x - DRAW.handleSize / 2, point.y - DRAW.handleSize / 2, DRAW.handleSize, DRAW.handleSize, 2, colors.surface);
+          context.strokeStyle = wire.color;
+          context.lineWidth = 2;
+          context.strokeRect(point.x - DRAW.handleSize / 2, point.y - DRAW.handleSize / 2, DRAW.handleSize, DRAW.handleSize);
+        }
+      }
+    }
+    if (state2.pending) {
+      let points = [endpointPosition(state2.pending.from)];
+      for (const bend of state2.pending.bends) {
+        points.push(bend);
+      }
+      if (state2.pointer) {
+        points.push(state2.pointer);
+      }
+      if (state2.wireAngle === 45) {
+        points = angleWirePath(points);
+      }
+      context.setLineDash([6, 4]);
+      polyline(context, points, state2.wireColor, 2.5);
+      context.setLineDash([]);
+    }
+  }
+  function drawHighlights(context, state2, endpoints2, colors) {
+    let selectedNode = "";
+    if (state2.selected && state2.selected.kind === "node") {
+      selectedNode = nodeFor(state2.result.topology, state2.selected.id);
+    }
+    if (selectedNode !== "") {
+      for (const name of endpoints2) {
+        const root = nodeFor(state2.result.topology, name);
+        if (root !== selectedNode) {
+          continue;
+        }
+        const location = endpointPosition(name);
+        context.strokeStyle = colors.accent;
+        context.lineWidth = 2;
+        context.beginPath();
+        context.arc(location.x, location.y, 6.2, 0, Math.PI * 2);
+        context.stroke();
+      }
+    }
+    if (state2.hovered) {
+      const location = endpointPosition(state2.hovered);
+      context.strokeStyle = colors.accent;
+      context.lineWidth = 2;
+      context.strokeRect(location.x - 8, location.y - 8, 16, 16);
+    }
+  }
+  function renderBoard(canvas2, state2, endpoints2) {
+    const context = canvas2.getContext("2d");
+    context.setTransform(DRAW.pixelRatio, 0, 0, DRAW.pixelRatio, 0, 0);
+    const colors = canvasColors();
+    context.clearRect(0, 0, BOARD.width, BOARD.height);
+    drawBoardLayer(context, state2.visual.internals, colors);
+    drawModules(context, state2, colors);
+    drawPortConnections(context, state2, colors);
+    for (const chip of state2.project.chips) {
+      drawChip(context, chip, state2, colors);
+    }
+    drawWires(context, state2, colors);
+    drawHighlights(context, state2, endpoints2, colors);
+    drawNodeLevels(context, state2, colors);
+    if (state2.placing) {
+      label(context, "\u653E\u7F6E " + state2.placing, 650, 1105, 17, colors.accent, "center");
+    }
+  }
+
   // src/simulation/diagnostics.mjs
   function pinDescription(chip, pin) {
     return "\u7B2C " + pin + " \u811A " + CHIP_MODELS[chip.model].labels[pin] + "\uFF08" + endpointLabel(pinHole(chip, pin)) + "\uFF09";
@@ -11934,7 +11984,6 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   }
 
   // src/version.mjs
-  var APP_VERSION = "1.10.0";
   var CLOCK_SETTINGS = { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" };
 
   // src/ui/inspection-layout.mjs
@@ -15635,6 +15684,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     openLogicDiagram(state.project, state.result);
   }
   function keyDown(event) {
+    if (element("announcement-dialog").open) {
+      return;
+    }
     if (element("export-dialog").open) {
       return;
     }
@@ -15800,7 +15852,6 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     const ioObserver = new ResizeObserver(updateIoLayout);
     ioObserver.observe(document.querySelector(".io-strip"));
     refreshIcons();
-    element("app-version").textContent = "v" + APP_VERSION;
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);
     if (restored.warning !== "") {
@@ -15809,6 +15860,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (restored.removedCount > 0) {
       toast("\u5DF2\u6574\u7406 " + restored.removedCount + " \u4EFD\u91CD\u590D\u7A7A\u767D\u6216\u8865\u7801\u5B9E\u9A8C\uFF0C\u6574\u7406\u524D\u7684\u5217\u8868\u5DF2\u5907\u4EFD", "info");
     }
+    startAnnouncement();
   }
   start();
 })();

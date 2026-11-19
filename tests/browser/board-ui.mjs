@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readImageDownload } from "../helpers/downloads.mjs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 import { BOARD, endpointPosition, portHole } from "../../src/board/board.mjs";
 
 // 记录画布真正绘制的文字，检查节点标签而不依赖颜色猜测
@@ -153,7 +154,8 @@ async function main() {
     const browser = await chromium.launch({ headless: true, channel: "msedge" });
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
-        await page.goto(pathToFileURL(path.join(process.cwd(), "index.html")).href);
+        const address = pathToFileURL(path.join(process.cwd(), "index.html"));
+        await openWorkbench(page, address.href);
         await page.locator("#new-experiment").click();
         const hoverHole = endpointPosition("B0:A:4");
         assert.equal(await page.evaluate(countHoverPaints, hoverHole), 1);

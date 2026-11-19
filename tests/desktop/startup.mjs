@@ -6,6 +6,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
+import { dismissStartupAnnouncement } from "../helpers/announcement.mjs";
 
 // 可指定已安装程序或便携EXE，每次使用独立临时存档，不影响个人实验
 const ROOT = process.cwd();
@@ -110,6 +111,7 @@ async function measureStartup() {
         const ready = Math.round(performance.now() - started);
         const navigation = await page.evaluate(navigationTiming);
         // 耗时记录后验证真实运算，避免把显示了窗口但无法操作的启动算作成功
+        await dismissStartupAnnouncement(page);
         assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
         await page.locator("[data-bit='0']").click();
         await page.locator("#pulse-negative").click();

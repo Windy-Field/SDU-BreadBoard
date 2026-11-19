@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { confirmBrowserDownload } from "../helpers/downloads.mjs";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 import { RAM_INPUTS, RAM_EXPERIMENT_ID } from "../../src/experiments/ram-preset.mjs";
 import { APP_VERSION } from "../../src/version.mjs";
 
@@ -101,14 +102,14 @@ async function main() {
     page.on("pageerror", collectError.bind(null, errors));
     try {
         const url = pathToFileURL(path.join(process.cwd(), "index.html"));
-        await page.goto(url.href);
+        await openWorkbench(page, url.href);
         await page.waitForSelector("#experiment-picker-trigger");
         const options = await page.locator("#experiment-picker option").allTextContents();
         assert.deepEqual(options, ["双符号位补码运算器", "实验三 RAM字扩展"]);
         await page.locator("#experiment-picker-trigger").click();
         await page.locator("#experiment-picker-option-1").click();
         assert.equal(await page.locator("#experiment-picker").inputValue(), RAM_EXPERIMENT_ID);
-        assert.equal(await page.locator("#app-version").textContent(), "v" + APP_VERSION);
+        assert.equal(await page.locator("#app-version").textContent(), "Version: " + APP_VERSION);
         assert.equal(await page.locator("#quick-switches button").count(), 16);
         assert.equal(await page.locator("#binary-result").textContent(), "ZZZZ ZZZZ");
         assert.equal(await page.locator("#issue-count").textContent(), "0");

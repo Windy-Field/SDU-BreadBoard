@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 
 // 输入输出配置和校名图片在桌面与窄屏中均需完整显示
 const VIEWPORTS = [1600, 1280, 1050, 960, 768, 375, 320];
@@ -66,7 +67,7 @@ async function main() {
     const page = await browser.newPage();
     try {
         const url = pathToFileURL(path.join(process.cwd(), "index.html"));
-        await page.goto(url.href);
+        await openWorkbench(page, url.href);
         await page.waitForFunction(logoReady);
         const logoPath = path.join(process.cwd(), "assets", "branding", "sdu-logo-red.png");
         const logoFile = fs.readFileSync(logoPath);

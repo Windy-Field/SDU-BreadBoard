@@ -36,12 +36,12 @@ const PAGE_OUTPUT = "index.html";
 // 同步页面默认版本和脚本地址，版本号只从版本模块读取
 function updatePageVersion() {
     const source = fs.readFileSync(PAGE_OUTPUT, "utf8");
-    const footer = /(<span id="app-version">)v[0-9.]+(<\/span>)/;
+    const footer = /(<span id="app-version">Version: )[0-9.]+(<\/span>)/;
     const script = /src="application\.js(?:\?v=[0-9.]+)?"/;
     if (!footer.test(source) || !script.test(source)) {
         throw new Error("页面缺少版本显示或运行脚本入口");
     }
-    const updatedFooter = source.replace(footer, "$1v" + APP_VERSION + "$2");
+    const updatedFooter = source.replace(footer, "$1" + APP_VERSION + "$2");
     const updatedPage = updatedFooter.replace(script, 'src="application.js?v=' + APP_VERSION + '"');
     if (updatedPage !== source) {
         fs.writeFileSync(PAGE_OUTPUT, updatedPage);

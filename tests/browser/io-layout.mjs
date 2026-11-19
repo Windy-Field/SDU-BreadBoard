@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 
 // 覆盖常见桌面、平板与手机尺寸，并检查少量及完整24位端口
 const VIEWPORTS = [1920, 1700, 1600, 1280, 1050, 768, 375, 320];
@@ -104,7 +105,7 @@ async function main() {
     const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
     try {
         const url = pathToFileURL(path.join(process.cwd(), "index.html"));
-        await page.goto(url.href);
+        await openWorkbench(page, url.href);
         await page.waitForSelector("#quick-switches button");
         for (const width of VIEWPORTS) {
             await page.setViewportSize({ width: width, height: 1080 });

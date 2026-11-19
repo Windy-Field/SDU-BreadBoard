@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pngDimensions, readImageDownload } from "../helpers/downloads.mjs";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 import { buildLogicDiagram } from "../../src/diagram/logic-diagram.mjs";
 import { complementPreset } from "../../src/experiments/presets.mjs";
 import { createRuntime, simulate } from "../../src/simulation/engine.mjs";
@@ -279,7 +280,8 @@ async function main() {
         await page.context().setOffline(true);
         const errors = [];
         page.on("pageerror", collectError.bind(null, errors));
-        await page.goto(pathToFileURL(path.join(ROOT, "index.html")).href);
+        const address = pathToFileURL(path.join(ROOT, "index.html"));
+        await openWorkbench(page, address.href);
         await page.waitForSelector(".chip-option");
         assert.equal(await page.locator("#export-workspace").count(), 0);
         assert.equal(await page.locator(".library-section #view-logic-diagram").count(), 1);

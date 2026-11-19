@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 import { emptyProject } from "../../src/board/board.mjs";
 
 const ROOT = process.cwd();
@@ -162,7 +163,8 @@ async function main() {
     const errors = [];
     page.on("pageerror", collectError.bind(null, errors));
     try {
-        await page.goto(pathToFileURL(path.join(ROOT, "index.html")).href);
+        const address = pathToFileURL(path.join(ROOT, "index.html"));
+        await openWorkbench(page, address.href);
         await page.waitForSelector("#experiment-picker-trigger");
         await testSearchField(page);
         await testTextSelection(page);

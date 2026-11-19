@@ -11,6 +11,7 @@ import { renderBoardIo, updateIoLayout } from "./ui/board-io.mjs";
 import { encodeCanvasImage } from "./ui/image-export.mjs";
 import { bindExportDialog, bindFileExport } from "./ui/export-dialog.mjs";
 import { bindTooltips } from "./ui/tooltip.mjs";
+import { startAnnouncement } from "./ui/announcement.mjs";
 import { COMPLEMENT_RESET_INPUT } from "./experiments/presets.mjs";
 import { routeWires, routeNewWire } from "./board/routing.mjs";
 import { DRAW, allEndpoints, renderBoard } from "./board/render.mjs";
@@ -21,7 +22,7 @@ import { markdownFragment } from "./ui/notes.mjs";
 import { inspectCircuit } from "./simulation/diagnostics.mjs";
 import { CHIP_REFERENCES, sortedChipNames } from "./chips/catalog.mjs";
 import { WORKSPACE_KEY, READ_ONLY_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, loadWorkspace } from "./storage/workspace.mjs";
-import { APP_VERSION, CLOCK_SETTINGS } from "./version.mjs";
+import { CLOCK_SETTINGS } from "./version.mjs";
 import { applyInspectionSizes, configureInspectionDivider, resetInspectionLayout } from "./ui/inspection-layout.mjs";
 import { openLogicDiagram, bindLogicDiagram } from "./diagram/logic-diagram-view.mjs";
 import { bindViewportPan } from "./ui/viewport-pan.mjs";
@@ -2674,6 +2675,9 @@ function showLogicDiagram() {
 
 // 处理全局快捷键，文本输入时不抢占普通编辑操作
 function keyDown(event) {
+    if (element("announcement-dialog").open) {
+        return;
+    }
     if (element("export-dialog").open) {
         return;
     }
@@ -2856,7 +2860,6 @@ function start() {
     const ioObserver = new ResizeObserver(updateIoLayout);
     ioObserver.observe(document.querySelector(".io-strip"));
     refreshIcons();
-    element("app-version").textContent = "v" + APP_VERSION;
     updateClock();
     window.setInterval(updateClock, SETTINGS.clockInterval);
     if (restored.warning !== "") {
@@ -2865,6 +2868,7 @@ function start() {
     if (restored.removedCount > 0) {
         toast("已整理 " + restored.removedCount + " 份重复空白或补码实验，整理前的列表已备份", "info");
     }
+    startAnnouncement();
 }
 
 start();

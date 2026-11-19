@@ -11,6 +11,7 @@ import originalPreset from "../fixtures/complement-original.json" with { type: "
 import { wirePoints, wireDisplayPaths } from "../../src/board/geometry.mjs";
 import { routeWires } from "../../src/board/routing.mjs";
 import { wiringMetrics } from "../helpers/wiring-metrics.mjs";
+import { openWorkbench } from "../helpers/announcement.mjs";
 
 const ROOT = process.cwd();
 const URL = pathToFileURL(path.join(ROOT, "index.html")).href;
@@ -59,7 +60,7 @@ async function importFixture(page, project) {
 async function testUnsavedExperimentSwitch(browser) {
     const page = await browser.newPage({ viewport: { width: 375, height: 900 } });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const picker = page.locator("#experiment-picker");
         const dialog = page.locator("#switch-dialog");
         const original = await picker.inputValue();
@@ -149,7 +150,7 @@ function isFocused(button) {
 async function testWorkspaceImport(browser) {
     const page = await browser.newPage();
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const first = emptyProject();
         first.name = "备份实验甲";
         first.switches[0] = 1;
@@ -208,7 +209,7 @@ async function testWorkspaceImport(browser) {
 async function testNoticeLifecycle(browser) {
     const page = await browser.newPage({ reducedMotion: "reduce" });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const power = page.locator("#power-toggle");
         await power.uncheck();
         const pulse = page.locator("#pulse-positive");
@@ -240,7 +241,7 @@ async function testNoticeLifecycle(browser) {
 async function testPulseButtons(browser) {
     const page = await browser.newPage();
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const project = emptyProject();
         project.name = "脉冲按钮测试";
         project.outputCount = 1;
@@ -267,7 +268,7 @@ async function testPulseButtons(browser) {
 async function testOutsideBend(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, reducedMotion: "reduce" });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const project = emptyProject();
         project.name = "导线转折点测试";
         const bend = { x: 252, y: 92 };
@@ -327,7 +328,7 @@ function checkWireAngles(project) {
 async function testAngleWiring(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         await page.locator("#new-experiment").click();
         assert.equal(await page.locator("#wire-angle").inputValue(), "45");
         assert.match(await page.locator("#wire-angle-trigger").textContent(), /45°/);
@@ -664,7 +665,7 @@ async function testBatchColors(page) {
 async function testPinnedInformation(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         await page.locator("#inspect-panel [data-chip='U1']").click();
         await page.locator("#pin-chip-info").click();
         assert.equal(await page.locator("#pin-chip-info").getAttribute("aria-pressed"), "true");
@@ -711,7 +712,7 @@ async function testPinnedInformation(browser) {
 async function testPinnedCatalogInformation(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const before = await exportedProject(page);
         await page.locator(".chip-option[data-model='74LS273']").click();
         const pin = page.locator("#pin-catalog-info");
@@ -797,7 +798,7 @@ function readReferenceSize(container) {
 async function testConcurrentChipInformation(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const before = await exportedProject(page);
         await page.locator(".chip-option[data-model='74LS283']").click();
         await page.locator("#pin-catalog-info").click();
@@ -927,7 +928,7 @@ async function main() {
     const errors = [];
     page.on("pageerror", collectError.bind(null, errors));
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         await page.waitForSelector(".chip-option");
         await page.waitForTimeout(250);
         await testLibraryOrder(page);

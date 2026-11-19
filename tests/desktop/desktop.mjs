@@ -8,6 +8,7 @@ import { DESKTOP_SETTINGS } from "../../desktop/settings.mjs";
 import { APP_VERSION } from "../../src/version.mjs";
 import { plainReleaseNotes } from "../../desktop/release-notes.mjs";
 import { pngDimensions } from "../helpers/downloads.mjs";
+import { dismissStartupAnnouncement } from "../helpers/announcement.mjs";
 
 // 每次测试使用独立存档目录，可用环境变量切换为已打包的可执行文件
 const ROOT = process.cwd();
@@ -193,6 +194,7 @@ async function main() {
         const errors = [];
         page.on("pageerror", collectError.bind(null, errors));
         await page.waitForSelector(".chip-option");
+        await dismissStartupAnnouncement(page);
         await page.context().setOffline(true);
         const desktop = await application.evaluate(inspectDesktop);
         assert.equal(desktop.version, APP_VERSION);
@@ -238,6 +240,7 @@ async function main() {
         application = await launchDesktop(temporary);
         const restored = await application.firstWindow();
         await restored.waitForSelector(".chip-option");
+        assert.equal(await restored.locator("#announcement-dialog").isVisible(), false);
         assert.equal(await restored.locator("[data-bit='0']").getAttribute("aria-pressed"), "true");
         assert.equal(await restored.locator("#binary-result").textContent(), "000 0000");
         await restored.waitForFunction(routingReady);

@@ -8,6 +8,7 @@ import { chromium } from "playwright";
 import { APP_VERSION } from "../src/version.mjs";
 import { WORKSPACE_KEY } from "../src/storage/workspace.mjs";
 import { confirmBrowserDownload } from "./helpers/downloads.mjs";
+import { openWorkbench } from "./helpers/announcement.mjs";
 
 const ROOT = process.cwd();
 const POWERSHELL = "powershell.exe";
@@ -140,7 +141,7 @@ async function testOfflinePackage() {
         assert.equal(folders.length, 1);
         const packageRoot = path.join(expanded, folders[0]);
         const pageSource = fs.readFileSync(path.join(packageRoot, "index.html"), "utf8");
-        assert.ok(pageSource.includes('<span id="app-version">v' + APP_VERSION + "</span>"));
+        assert.ok(pageSource.includes('<span id="app-version">Version: ' + APP_VERSION + "</span>"));
         assert.ok(pageSource.includes('src="application.js?v=' + APP_VERSION + '"'));
         for (const required of ["index.html", "application.js", "assets/favicon.png", "assets/favicon.ico", "assets/branding/sdu-logo-red.png", "assets/pinouts/sn74ls273.png", "assets/pinouts/document/6116-1.png", "assets/pinouts/document/74ls244-1.png", "examples/ram-expansion.json", "docs/ram-wiring.md", "vendor/lucide.min.js", "vendor/elk.bundled.js", "vendor/routing-runtime.js", "vendor/elkjs.LICENSE", "styles/app.css", "styles/logic-diagram.css", "LICENSE", "START-HERE.md"]) {
             assert.ok(fs.existsSync(path.join(packageRoot, required)), "离线包缺少文件：" + required);
@@ -153,9 +154,10 @@ async function testOfflinePackage() {
         await page.context().setOffline(true);
         const errors = [];
         page.on("pageerror", collectError.bind(null, errors));
-        await page.goto(pathToFileURL(path.join(packageRoot, "index.html")).href);
+        const address = pathToFileURL(path.join(packageRoot, "index.html"));
+        await openWorkbench(page, address.href);
         await page.waitForSelector(".chip-option");
-        assert.equal(await page.locator("#app-version").textContent(), "v" + APP_VERSION);
+        assert.equal(await page.locator("#app-version").textContent(), "Version: " + APP_VERSION);
         assert.match(await page.locator("head link[rel='icon']").getAttribute("href"), /^assets\/favicon\.png/);
         assert.equal(await page.locator("head link[rel='shortcut icon']").count(), 1);
         assert.equal(await page.locator("#binary-result").textContent(), "000 0000");

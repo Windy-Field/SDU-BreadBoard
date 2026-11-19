@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readImageDownload } from "../helpers/downloads.mjs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 import { BOARD, emptyProject } from "../../src/board/board.mjs";
 
 // 测试入口和截图只指向本地项目与测试报告，不更新产品的最新页面图片
@@ -42,7 +43,7 @@ async function exportedProject(page) {
 async function testBoardSelection(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         const project = emptyProject();
         project.chips = [
             { id: "U1", model: "74LS08", section: 0, column: 10 },
@@ -133,7 +134,7 @@ function selectedNetworkIds() {
 async function testLogicSelection(browser) {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
-        await page.goto(URL);
+        await openWorkbench(page, URL);
         await page.locator("#view-logic-diagram").click();
         await page.waitForFunction(diagramReady);
         const points = await page.evaluate(visibleNetworkPoints);

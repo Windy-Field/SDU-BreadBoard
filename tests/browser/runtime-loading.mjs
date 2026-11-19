@@ -2,6 +2,7 @@ import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 
 const ROOT = process.cwd();
 
@@ -56,7 +57,7 @@ async function main() {
     try {
         await page.context().setOffline(true);
         const url = pathToFileURL(path.join(ROOT, "index.html"));
-        await page.goto(url.href);
+        await openWorkbench(page, url.href);
         await page.waitForSelector(".chip-option");
         assert.deepEqual(await page.evaluate(loadedRuntimes), { layout: false, routing: false });
         await page.evaluate(failNextLayoutLoad);

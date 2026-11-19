@@ -23,6 +23,7 @@
             <button class="icon-button" id="new-project" data-tip="新建空电路" aria-label="新建空电路"><i data-lucide="file-plus-2"></i></button>
             <button class="icon-button" id="import-project" data-tip="导入电路" aria-label="导入电路"><i data-lucide="folder-open"></i></button>
             <button class="icon-button" id="export-project" type="button" data-tip="导出电路" aria-label="导出电路" aria-haspopup="dialog"><i data-lucide="download" aria-hidden="true"></i></button>
+            <button class="icon-button" id="announcement-button" type="button" data-tip="项目公告" aria-label="项目公告" aria-haspopup="dialog"><i data-lucide="megaphone" aria-hidden="true"></i></button>
             <button class="icon-button" id="help-button" data-tip="实验说明" aria-label="实验说明"><i data-lucide="circle-help"></i></button>
             <label class="power-control"><input type="checkbox" id="power-toggle" checked><span class="power-dot"></span>电源</label>
         </div>
@@ -129,7 +130,7 @@
     </main>
     <footer class="app-footer">
         <span class="release-info">
-            <span>Octorange</span>
+            <span>Author: Octorange</span>
             <span id="app-version">Version: 1.10.0</span>
             <time id="current-time"></time>
         </span>
@@ -146,6 +147,17 @@
             <button id="switch-cancel" class="button" autofocus>取消切换</button>
             <button id="switch-without-saving" class="button">不保存并切换</button>
             <button id="switch-save" class="button primary">保存并切换</button>
+        </div>
+    </dialog>
+    <dialog id="announcement-dialog" aria-labelledby="announcement-title" aria-describedby="announcement-content">
+        <div class="dialog-heading announcement-heading">
+            <span class="announcement-icon"><i data-lucide="megaphone" aria-hidden="true"></i></span>
+            <h2 id="announcement-title">实验接线提醒</h2>
+        </div>
+        <div id="announcement-content" class="dialog-body markdown"></div>
+        <div class="dialog-actions announcement-actions">
+            <label class="announcement-preference"><input id="announcement-dismiss" type="checkbox">不再提醒</label>
+            <button id="announcement-confirm" type="button" class="button primary" autofocus>我知道了</button>
         </div>
     </dialog>
     <dialog id="help-dialog">

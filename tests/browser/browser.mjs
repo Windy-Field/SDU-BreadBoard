@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { confirmBrowserDownload, disableSavePicker, pngDimensions, readImageDownload } from "../helpers/downloads.mjs";
 import { pathToFileURL } from "node:url";
+import { openWorkbench } from "../helpers/announcement.mjs";
 import fs from "node:fs";
 
 const ROOT = process.cwd();
@@ -453,7 +454,7 @@ async function main() {
     page.on("pageerror", recordPageError.bind(null, errors));
     try {
         const url = pathToFileURL(path.join(ROOT, "index.html"));
-        await page.goto(url.href);
+        await openWorkbench(page, url.href);
         await testInitialWorkbench(page);
         await testComplementExamples(page);
         await testCircuitEditing(page);
