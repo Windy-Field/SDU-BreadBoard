@@ -6,17 +6,7 @@ SDU-BreadBoard 是基于山东大学计算机组成原理实验的面包板设�
 
 你可以从[发布页下载离线包](https://github.com/Windy-Field/SDU-BreadBoard/releases/latest)，也可以使用仓库的 **Code → Download ZIP**。将压缩包完整解压，再双击 `index.html`，即可使用
 
-需要重新打包时，你可以双击 Windows 下的 `package.cmd`。程序会在 `releases` 文件夹生成离线 ZIP，里面只包含运行文件和使用资料。[打包说明](docs/packaging.md)介绍了更新和验证方法
-
-现在也已经提供了 Windows 桌面版提供 64 位安装包和免安装程序
-
-双击 `package-desktop.cmd` 可一次生成桌面安装版和免安装版，输出到 `releases/desktop/`；首次打包需安装 Node.js LTS 并运行 `npm ci`
-
-桌面版启动后及运行期间会自动检查 GitHub 正式版，安装版后台下载并提示重启安装，免安装版提示下载新版，更新保留本地实验
-
-## 工作区导航
-
-[目录与开发入口](docs/workspace.md)按源码、桌面程序、实验、测试和发布产物分类；[文档索引](docs/README.md)集中列出操作、接线、芯片资料和开发说明
+现在也已经提供了 Windows 桌面版提供 64 位安装包和免安装程序。桌面版启动后及运行期间会自动检查 GitHub 正式版，安装版后台下载并提示重启安装，免安装版则会提示下载新版
 
 ## 最新页面
 
