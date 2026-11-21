@@ -46,7 +46,7 @@ function collectError(errors, error) {
     errors.push(error.message);
 }
 
-// 滚动父容器，检查下拉面板会收起而不会遗留在错误位置
+// 模拟父容器的滚动通知，按钮位置没变时列表应保持打开
 function scrollSidebar() {
     const sidebar = document.querySelector(".library");
     sidebar.dispatchEvent(new Event("scroll"));
@@ -186,9 +186,9 @@ async function main() {
         assert.equal(size.topLayer, true);
         assert.equal(size.contentFits, true);
         assert.ok(size.widthDifference <= 1, "下拉列表应与选择框等宽");
-        assert.equal(size.panelPadding, "2px", "列表左右内边距应为2px");
-        assert.equal(size.optionPadding, "2px", "选项左右内边距应为2px");
-        assert.ok(size.textGap <= 7, "选项文字不应叠加宽滚动条留白");
+        assert.equal(size.panelPadding, "3px", "列表左右内边距应为3px");
+        assert.equal(size.optionPadding, "3px", "选项左右内边距应为3px");
+        assert.ok(size.textGap <= 9, "选项文字不应叠加宽滚动条留白");
         assert.ok(Math.abs(size.leftGap - size.rightGap) <= 1, "下拉选项左右留白不对称");
         assert.ok(size.left >= 0 && size.right <= size.viewportWidth);
         assert.ok(size.top >= 0 && size.bottom <= size.viewportHeight);
@@ -196,7 +196,7 @@ async function main() {
         assert.equal(await page.locator("#experiment-picker-option-0").evaluate(readSelectionStyle), "none");
         await page.waitForTimeout(180);
         await page.screenshot({ path: path.join(SCREENSHOTS, "dropdown-desktop.png"), fullPage: true });
-        await page.locator("#experiment-picker-option-2").click();
+        await page.getByRole("option", { name: /带有完整长名称/ }).click();
         assert.equal(await page.locator("#experiment-picker").inputValue(), "sample-1");
         assert.match(await trigger.textContent(), /完整长名称/);
         await trigger.focus();
@@ -217,7 +217,8 @@ async function main() {
         assert.equal(await trigger.getAttribute("aria-expanded"), "false");
         await trigger.click();
         await page.evaluate(scrollSidebar);
-        assert.equal(await trigger.getAttribute("aria-expanded"), "false");
+        assert.equal(await trigger.getAttribute("aria-expanded"), "true");
+        await trigger.press("Escape");
         await page.locator("#read-only-toggle").check();
         await trigger.click();
         await page.locator("#experiment-picker-option-0").click();
@@ -231,7 +232,7 @@ async function main() {
             assert.equal(size.topLayer, true);
             assert.equal(size.contentFits, true);
             assert.ok(size.widthDifference <= 1, "窄屏下拉列表应与选择框等宽");
-            assert.ok(size.textGap <= 7, "窄屏选项文字不应叠加宽滚动条留白");
+            assert.ok(size.textGap <= 9, "窄屏选项文字不应叠加宽滚动条留白");
             assert.ok(Math.abs(size.leftGap - size.rightGap) <= 1, "窄屏下拉选项左右留白不对称");
             assert.ok(size.left >= 0 && size.right <= size.viewportWidth);
             assert.ok(size.top >= 0 && size.bottom <= size.viewportHeight);

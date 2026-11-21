@@ -40,7 +40,7 @@ function hideTooltip() {
     anchor = null;
 }
 
-// 优先放在控件下方，空间不足时换到上方，并把提示限制在视口内
+// 普通提示放在控件下方，长帮助优先放在上方，给下方表单留出空间
 function positionTooltip(trigger) {
     const bounds = trigger.getBoundingClientRect();
     const size = tip.getBoundingClientRect();
@@ -53,7 +53,8 @@ function positionTooltip(trigger) {
     const above = bounds.top - TOOLTIP.gap - size.height;
     const bottomLimit = viewportHeight - TOOLTIP.edge - size.height;
     let top = below;
-    if (below > bottomLimit && above >= TOOLTIP.edge) {
+    const preferAbove = trigger.hasAttribute("data-tip-click");
+    if ((preferAbove || below > bottomLimit) && above >= TOOLTIP.edge) {
         top = above;
     }
     top = Math.max(TOOLTIP.edge, Math.min(top, bottomLimit));
@@ -62,7 +63,7 @@ function positionTooltip(trigger) {
 }
 
 // 在浏览器顶层显示提示，且放在所属对话框内以免被模态窗口遮蔽
-function showTooltip() {
+function showTooltip(animate = true) {
     stopTimer();
     if (!anchor || !anchor.isConnected || anchor.getClientRects().length === 0) {
         hideTooltip();
@@ -72,8 +73,12 @@ function showTooltip() {
     if (!host) {
         host = document.body;
     }
-    host.append(tip);
+    if (tip.parentElement !== host) {
+        host.append(tip);
+    }
     tip.textContent = anchor.dataset.tip;
+    tip.classList.toggle("help-tip", anchor.hasAttribute("data-tip-click"));
+    tip.classList.toggle("instant-tip", !animate);
     tip.showPopover();
     positionTooltip(anchor);
     describedAnchor = anchor;
@@ -142,7 +147,7 @@ function focusTooltip(event) {
     if (trigger !== anchor || !tip.matches(":popover-open")) {
         hideTooltip();
         anchor = trigger;
-        showTooltip();
+        showTooltip(false);
     }
 }
 
@@ -151,6 +156,20 @@ function blurTooltip(event) {
     if (anchor && anchor.contains(event.target) && !anchor.contains(event.relatedTarget)) {
         hideTooltip();
     }
+}
+
+// 有专门帮助按钮的提示也能点开，方便触屏用户阅读
+function clickTooltip(event) {
+    const trigger = tooltipAnchor(event.target);
+    if (!trigger || !trigger.hasAttribute("data-tip-click")) {
+        return;
+    }
+    if (trigger === anchor && tip.matches(":popover-open")) {
+        return;
+    }
+    hideTooltip();
+    anchor = trigger;
+    showTooltip(event.detail !== 0);
 }
 
 // Escape 优先收起可见提示，下一次按键仍可关闭原对话框
@@ -181,6 +200,7 @@ export function bindTooltips() {
     document.addEventListener("pointerdown", hideTooltip, true);
     document.addEventListener("focusin", focusTooltip);
     document.addEventListener("focusout", blurTooltip);
+    document.addEventListener("click", clickTooltip);
     document.addEventListener("keydown", dismissTooltip, true);
     document.addEventListener("close", closeDialogTooltip, true);
     window.addEventListener("scroll", hideTooltip, true);

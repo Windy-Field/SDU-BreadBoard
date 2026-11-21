@@ -1,8 +1,9 @@
 import { chipBounds, wireDisplayPaths, objectSelected } from "./geometry.mjs";
 import { angleWirePath } from "./wire-path.mjs";
-import { BOARD, PORT_LAYOUT, RAIL_LAYOUT, IO_LIMIT, ROWS, BUS_ROWS, BUS_SEGMENTS, busHasHole, isInputColumn, endpointPosition, portHole, holeId, pinHole, rowY } from "./board.mjs";
+import { BOARD, PORT_LAYOUT, INPUT_RESET_COLUMN, RAIL_LAYOUT, IO_LIMIT, ROWS, BUS_ROWS, BUS_SEGMENTS, busHasHole, isInputColumn, endpointPosition, portHole, holeId, pinHole, rowY, columnX } from "./board.mjs";
 import { CHIP_MODELS } from "../chips/chips.mjs";
 import { readEndpoint, nodeFor } from "../simulation/engine.mjs";
+import { isWeakBoardInput } from "../simulation/board-signals.mjs";
 
 // 绘图参数：尺寸与字号为逻辑像素，像素倍率只影响清晰度
 export const DRAW = {
@@ -18,18 +19,23 @@ export const DRAW = {
     railLinePadding: 10,
     sectionTopOffset: 30,
     sectionHeight: 234,
+    sectionOutlineWidth: 1.6,
     boardRadius: 8
 };
+// 卡槽从 E 排向下偏移，列号在槽内居中并与插孔对齐
+const TRENCH_DRAW = { topOffset: 15, height: 30, labelSize: 10 };
 // 输入模块相对端口的偏移，调整位置时不改变电气端点
 const INPUT_DRAW = {
     top: -25,
     height: 107,
-    label: -14,
+    switchLabel: 0,
+    pulseLabel: 13,
     switchTop: 20,
     switchSlider: 37,
     switchTravel: 14,
     valueLabel: 67,
     ledTop: 9,
+    weakLedOpacity: 0.38,
     pulseCenter: 38,
     pulseRadius: 14,
     pulsePressedOffset: 3,
@@ -41,6 +47,8 @@ const OUTPUT_DRAW = { top: 14, height: 65, titleX: 1122, titleY: 35, ledY: 34, v
 const LEVEL_DRAW = { width: 13, height: 14, fontSize: 10, railInterval: 5 };
 // 板内固定连线常显为细线，开启内部连通后加深，不属于用户导线
 const INTERNAL_DRAW = { lineWidth: 1, restingOpacity: 0.45, activeOpacity: 0.9 };
+// 隐藏导线用细虚线和空心端点表示，保留位置但不盖住正常导线
+const HIDDEN_WIRE_DRAW = { width: 1.6, selectedWidth: 3, dash: [7, 5], endpointRadius: 3 };
 // 从样式读取的语义颜色名称，画布与界面共用配色
 const COLOR_NAMES = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "level-floating", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
 let drawingFont = "";
@@ -131,14 +139,17 @@ function drawBreadboards(context, emphasis, colors) {
         const top = BOARD.startY + section * BOARD.sectionHeight - DRAW.sectionTopOffset;
         rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, DRAW.sectionHeight, 7, colors.surface);
         context.strokeStyle = colors.rule;
-        context.lineWidth = 1;
+        context.lineWidth = DRAW.sectionOutlineWidth;
         context.strokeRect(43, top + 1, 1130, 232);
-        rectangle(context, 64, rowY(section, "E") + 15, 1086, 30, 3, colors.board);
+        const trenchTop = rowY(section, "E") + TRENCH_DRAW.topOffset;
+        const trenchCenter = trenchTop + TRENCH_DRAW.height / 2;
+        rectangle(context, 64, trenchTop, 1086, TRENCH_DRAW.height, 3, colors.board);
         label(context, String(section + 1), 55, top + 116, 12, colors.muted, "center");
         for (let column = 1; column <= BOARD.columns; column = column + 1) {
-            const horizontal = BOARD.startX + (column - 1) * BOARD.pitch;
-            if (column === 1 || column % 5 === 0) {
-                label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
+            const horizontal = columnX(column);
+            // 隔一列标一个数字，给双位数留出阅读空间
+            if (column % 2 === 1) {
+                label(context, String(column), horizontal, trenchCenter, TRENCH_DRAW.labelSize, colors.muted, "center");
             }
             if (emphasis > 0) {
                 context.globalAlpha = emphasis;
@@ -240,19 +251,24 @@ function drawModules(context, state, colors) {
         }
         label(context, "L" + index, led.x, OUTPUT_DRAW.labelY, 8, colors["module-text"], "center");
         const location = endpointPosition("K" + index);
-        label(context, "K" + index, location.x, inputY + INPUT_DRAW.label, 9, colors["module-text"], "center");
+        label(context, "K" + index, location.x, inputY + INPUT_DRAW.switchLabel, 9, colors["module-text"], "center");
         rectangle(context, location.x - 12, inputY + INPUT_DRAW.switchTop, 24, 36, 4, colors["chip-text"]);
         const switchTop = inputY + INPUT_DRAW.switchSlider - state.visual.switches[index] * INPUT_DRAW.switchTravel;
         rectangle(context, location.x - 9, switchTop, 18, 15, 2, colors.metal);
         label(context, String(state.project.switches[index]), location.x, inputY + INPUT_DRAW.valueLabel, 10, colors["module-text"], "center");
         rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-off"]);
-        context.globalAlpha = state.visual.leds["K" + index];
+        let brightness = state.visual.leds["K" + index];
+        if (state.runtime && isWeakBoardInput(state.project, state.runtime.triState, index)) {
+            brightness = brightness * INPUT_DRAW.weakLedOpacity;
+        }
+        context.globalAlpha = brightness;
         rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-on"]);
         context.globalAlpha = 1;
     }
+    drawInputReset(context, state, colors);
     for (const name of ["P+", "P-"]) {
         const location = endpointPosition(name);
-        label(context, name, location.x, inputY + INPUT_DRAW.label, 10, colors["module-text"], "center");
+        label(context, name, location.x, inputY + INPUT_DRAW.pulseLabel, 10, colors["module-text"], "center");
         let buttonColor = colors["chip-text"];
         let buttonY = inputY + INPUT_DRAW.pulseCenter;
         if (state.pressedPulse === name) {
@@ -262,6 +278,21 @@ function drawModules(context, state, colors) {
         circle(context, location.x, buttonY, INPUT_DRAW.pulseRadius, buttonColor);
         label(context, "脉冲", location.x, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
     }
+}
+
+// 在输入开关和脉冲之间画复位键，按钮按下时沿用脉冲键的位移反馈
+function drawInputReset(context, state, colors) {
+    const buttonX = columnX(INPUT_RESET_COLUMN);
+    const inputY = PORT_LAYOUT.inputY;
+    let buttonY = inputY + INPUT_DRAW.pulseCenter;
+    let buttonColor = colors.metal;
+    if (state.pressedPulse === "reset") {
+        buttonY = buttonY + INPUT_DRAW.pulsePressedOffset;
+        buttonColor = colors["led-on"];
+    }
+    circle(context, buttonX, buttonY, INPUT_DRAW.pulseRadius, colors["chip-text"]);
+    circle(context, buttonX, buttonY, INPUT_DRAW.pulseRadius - 3, buttonColor);
+    label(context, "复位", buttonX, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
 }
 
 // 用细线连接板载标识与对应孔列，内部连通模式同时强调两条电源轨
@@ -388,11 +419,46 @@ function drawChip(context, chip, state, colors) {
     }
 }
 
+// 先画隐藏导线的原路径和端点，正常导线会盖在虚线上方
+function drawHiddenWires(context, state, paths) {
+    if (state.hiddenWires.size === 0) {
+        return;
+    }
+    const wires = state.project.wires;
+    context.save();
+    for (let index = 0; index < wires.length; index = index + 1) {
+        const wire = wires[index];
+        if (!state.hiddenWires.has(wire.id)) {
+            continue;
+        }
+        let width = HIDDEN_WIRE_DRAW.width;
+        if (objectSelected(state, "wire", wire.id)) {
+            width = HIDDEN_WIRE_DRAW.selectedWidth;
+        }
+        const points = paths[index];
+        context.setLineDash(HIDDEN_WIRE_DRAW.dash);
+        polyline(context, points, wire.color, width);
+        context.setLineDash([]);
+        context.beginPath();
+        const first = points[0];
+        const last = points[points.length - 1];
+        context.arc(first.x, first.y, HIDDEN_WIRE_DRAW.endpointRadius, 0, Math.PI * 2);
+        context.moveTo(last.x + HIDDEN_WIRE_DRAW.endpointRadius, last.y);
+        context.arc(last.x, last.y, HIDDEN_WIRE_DRAW.endpointRadius, 0, Math.PI * 2);
+        context.stroke();
+    }
+    context.restore();
+}
+
 // 绘制导线，选中的线加粗；端点圆圈与普通交叉区分
 function drawWires(context, state, colors) {
     const displayPaths = wireDisplayPaths(state.project.wires);
+    drawHiddenWires(context, state, displayPaths);
     for (let index = 0; index < state.project.wires.length; index = index + 1) {
         const wire = state.project.wires[index];
+        if (state.hiddenWires.has(wire.id)) {
+            continue;
+        }
         const points = displayPaths[index];
         let width = DRAW.wireWidth;
         const selected = objectSelected(state, "wire", wire.id);

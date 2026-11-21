@@ -1,5 +1,6 @@
 import { element, node } from "./dom.mjs";
 import { readEndpoint } from "../simulation/engine.mjs";
+import { isWeakBoardInput, TRISTATE_CONTROL } from "../simulation/board-signals.mjs";
 
 // 二进制输出每四位分组，便于从右向左核对端口
 const BINARY_GROUP_SIZE = 4;
@@ -42,8 +43,11 @@ function setLedState(led, name, value) {
 }
 
 // 根据实验当前的输入位数更新开关、指示灯和十进制输入值
-function renderInputs(project, result, onToggle) {
-    const count = project.inputCount;
+function renderInputs(project, result, onToggle, triState) {
+    let count = project.inputCount;
+    if (triState) {
+        count = Math.max(count, TRISTATE_CONTROL + 1);
+    }
     ensureInputControls(count, onToggle);
     const switches = element("quick-switches");
     let number = 0;
@@ -54,6 +58,7 @@ function renderInputs(project, result, onToggle) {
         button.setAttribute("aria-pressed", String(value === 1));
         const led = button.parentElement.querySelector(".io-led");
         const name = "K" + bit;
+        led.classList.toggle("weak", isWeakBoardInput(project, triState, bit));
         setLedState(led, name, readEndpoint(result, name));
         number = number * 2 + value;
     }
@@ -160,10 +165,12 @@ export function updateIoLayout() {
 }
 
 // 按当前实验和仿真结果刷新输入输出条，onToggle 接收被点击的输入位编号
-export function renderBoardIo(project, result, onToggle) {
-    renderInputs(project, result, onToggle);
-    element("input-count").value = String(project.inputCount);
-    element("output-count").value = String(project.outputCount);
+export function renderBoardIo(project, result, onToggle, triState, updateLayout = true) {
+    renderInputs(project, result, onToggle, triState);
     renderOutputs(project, result);
-    updateIoLayout();
+    if (updateLayout) {
+        element("input-count").value = String(project.inputCount);
+        element("output-count").value = String(project.outputCount);
+        updateIoLayout();
+    }
 }

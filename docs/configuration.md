@@ -1,6 +1,6 @@
 # 参数位置
 
-当你修改参数并重新运行 `npm run build` 后，离线页面就会使用新的配置
+改好参数后，重新运行 `npm run build`，离线页面就会用上新的配置。
 
 | 文件 | 参数内容 |
 | --- | --- |
@@ -13,6 +13,7 @@
 | `src/board/board.mjs` | 实物孔距、母线分段、电源轨、端口数量、默认显示位数、备注上限和线色 |
 | `src/storage/storage.mjs` | 导入大小、芯片和导线数量、转折点上限、名称长度及旧文件坐标范围 |
 | `src/storage/workspace.mjs` | 本地存储键、工作区文件版本和实验编号规则 |
+| `src/storage/workspace-settings.mjs` | 桌面与网页共用的本机地址、存档文件名、大小限制和刷新间隔 |
 | `src/board/geometry.mjs` | 选择范围、吸附距离、默认折线通道和芯片外框 |
 | `src/board/wire-path.mjs` | 路径坐标比较容差、短斜角的最大孔距与相邻线段占比 |
 | `src/board/render.mjs` | 画布像素倍率、线宽、灯和按键模块的显示位置 |

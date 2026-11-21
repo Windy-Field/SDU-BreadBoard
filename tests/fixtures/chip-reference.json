@@ -734,8 +734,7 @@
       }
     },
     "images": [
-      "74ls138-1.png",
-      "74ls138-2.png"
+      "sn74ls138.png"
     ]
   },
   "74LS139": {
@@ -1642,52 +1641,52 @@
         "description": "方式控制S0"
       },
       "2": {
-        "label": "CP",
-        "description": "时钟输入（上升沿）"
+        "label": "SR",
+        "description": "右移串入"
       },
       "10": {
         "label": "S1",
         "description": "方式控制S1"
       },
       "3": {
-        "label": "SR",
-        "description": "右移串入"
-      },
-      "11": {
-        "label": "SL",
-        "description": "左移串入"
-      },
-      "4": {
         "label": "A",
         "description": "并行输入A"
       },
-      "12": {
-        "label": "QA",
-        "description": "输出QA"
+      "11": {
+        "label": "CP",
+        "description": "时钟输入（上升沿）"
       },
-      "5": {
+      "4": {
         "label": "B",
         "description": "并行输入B"
       },
-      "13": {
-        "label": "QB",
-        "description": "输出QB"
+      "12": {
+        "label": "QD",
+        "description": "输出QD"
       },
-      "6": {
+      "5": {
         "label": "C",
         "description": "并行输入C"
       },
-      "14": {
+      "13": {
         "label": "QC",
         "description": "输出QC"
       },
-      "7": {
+      "6": {
         "label": "D",
         "description": "并行输入D"
       },
+      "14": {
+        "label": "QB",
+        "description": "输出QB"
+      },
+      "7": {
+        "label": "SL",
+        "description": "左移串入"
+      },
       "15": {
-        "label": "QD",
-        "description": "输出QD"
+        "label": "QA",
+        "description": "输出QA"
       },
       "8": {
         "label": "GND",
@@ -1699,8 +1698,7 @@
       }
     },
     "images": [
-      "74ls194-1.png",
-      "74ls194-2.png"
+      "sn74ls194a.png"
     ]
   }
 }

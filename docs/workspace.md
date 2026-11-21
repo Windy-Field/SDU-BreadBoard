@@ -7,7 +7,7 @@
 | `index.html` | 网页入口，可直接用浏览器打开 |
 | `application.js` | 构建生成的网页脚本，不手动编辑 |
 | `src/` | 网页、芯片和实验源码 |
-| `desktop/` | Electron 桌面入口、更新检查与发布说明 |
+| `desktop/` | Electron 桌面入口、本机共享存档服务与更新检查 |
 | `styles/` | 页面样式、设计参数和逻辑图样式 |
 | `assets/` | 运行所需图片、芯片引脚图、数据手册和展示截图 |
 | `vendor/` | 第三方运行文件及许可证 |
@@ -30,8 +30,8 @@
 | `src/chips/` | 芯片引脚、组合逻辑、时序状态、RAM 状态和资料目录 |
 | `src/simulation/` | 电气网络仿真、电路诊断和时序记录 |
 | `src/board/` | 面包板结构、画布绘制、几何命中与自动走线 |
-| `src/experiments/` | 补码与 RAM 实验、公共接线、旧布局迁移和固定走线 JSON |
-| `src/storage/` | 实验文件校验、导入兼容与多实验存档 |
+| `src/experiments/` | 补码、RAM 和时序系统示例，共用接线规则、旧布局迁移和固定走线 JSON |
+| `src/storage/` | 实验文件校验、导入兼容、工作区配置与网页同步 |
 | `src/diagram/` | 逻辑图网络提取、自动布局与图纸交互 |
 | `src/ui/` | DOM 工具、板载输入输出、时序面板、资料、备注、提示和通用交互 |
 | `src/version.mjs` | 版本与时钟配置，版本需与根目录 `package.json` 保持一致 |
@@ -57,6 +57,7 @@
 | 路径 | 内容 |
 | --- | --- |
 | `releases/*.zip` | 当前网页离线包 |
+| `releases/personal/` | 含个人存档的快照包，只留在本地 |
 | `releases/desktop/*-Setup-x64.exe` | 当前桌面安装包 |
 | `releases/desktop/*-Portable-x64.exe` | 当前桌面免安装程序 |
 | `releases/desktop/latest.yml`、`*.blockmap` | 与当前安装包配套的自动更新文件 |

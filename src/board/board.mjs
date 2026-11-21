@@ -19,7 +19,11 @@ export const BOARD = {
     busHolePeriod: 6
 };
 // 输入输出端口的位置，横坐标沿用面包板列网格
-export const PORT_LAYOUT = { lowestColumn: 49, columnStep: 2, positiveColumn: 53, negativeColumn: 57, outputY: 68, inputY: 1105 };
+export const PORT_LAYOUT = { lowestColumn: 49, columnStep: 2, positiveColumn: 55, negativeColumn: 57, outputY: 68, inputY: 1105 };
+// 复位键借用空档对齐排版，没有对应的电气端点
+export const INPUT_RESET_COLUMN = 53;
+// 旧存档的 P+ 接在第 53 列，导入时需要按旧列号核对连通关系
+const PREVIOUS_POSITIVE_COLUMN = 53;
 // 右侧两列各保留 60 孔，首尾孔分别对齐第一块 X 排和最后一块 Y 排
 export const RAIL_LAYOUT = {
     groundX: 1210,
@@ -38,8 +42,8 @@ export const IO_LIMIT = 24;
 export const NOTES_LIMIT = 50000;
 // 新实验默认显示的端口数与供电状态
 export const PROJECT_DEFAULTS = { inputCount: 8, outputCount: 8, power: true };
-// 接线布局版本，3 表示第四块板的输入对应列跨沟槽接通
-export const WIRING_VERSION = 3;
+// 布局 3 桥接第四块的输入列，布局 4 将 P+ 移到第 55 列
+export const WIRING_VERSION = 4;
 // 新建实验时使用的备注模板
 export const GENERAL_NOTES = "# 电路说明\n\n## 功能\n\n填写这个电路的用途\n\n## 输入口\n\n| 端口 | 作用 |\n| --- | --- |\n| K0 | 待填写 |\n\n## 输出口\n\n| 端口 | 作用 |\n| --- | --- |\n| L0 | 待填写 |\n\n## 操作步骤\n\n1. 检查供电和接线\n2. 设置输入，观察输出\n";
 // 调色板默认颜色，排列顺序就是界面中的显示顺序
@@ -122,8 +126,16 @@ export function validEndpoint(name) {
     return Number.isInteger(column) && column >= 1 && column <= BOARD.columns;
 }
 
-// 将板载信号名称对应到真实插孔，输出接最上块上半列，输入和脉冲接最下块下半列
-export function portHole(name) {
+// 返回指定布局中 P+ 对应的列号，默认使用当前布局
+export function positivePulseColumn(wiringVersion = WIRING_VERSION) {
+    if (wiringVersion < WIRING_VERSION) {
+        return PREVIOUS_POSITIVE_COLUMN;
+    }
+    return PORT_LAYOUT.positiveColumn;
+}
+
+// 将板载信号对应到指定布局的插孔，输出在最上块，输入和脉冲在最下块
+export function portHole(name, wiringVersion = WIRING_VERSION) {
     if (/^[KL]\d+$/.test(name)) {
         const bit = Number(name.slice(1));
         if (bit >= IO_LIMIT) {
@@ -136,7 +148,7 @@ export function portHole(name) {
         return holeId(BOARD.sections - 1, "J", column);
     }
     if (name === "P+") {
-        return holeId(BOARD.sections - 1, "J", PORT_LAYOUT.positiveColumn);
+        return holeId(BOARD.sections - 1, "J", positivePulseColumn(wiringVersion));
     }
     if (name === "P-") {
         return holeId(BOARD.sections - 1, "J", PORT_LAYOUT.negativeColumn);
@@ -153,8 +165,8 @@ export function isPhysicalHole(name) {
 }
 
 // 判断某列是否直接接输入或脉冲信号，供连通计算与固定细线绘制共用
-export function isInputColumn(column) {
-    if (column === PORT_LAYOUT.positiveColumn || column === PORT_LAYOUT.negativeColumn) {
+export function isInputColumn(column, wiringVersion = WIRING_VERSION) {
+    if (column === positivePulseColumn(wiringVersion) || column === PORT_LAYOUT.negativeColumn) {
         return true;
     }
     for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
@@ -169,7 +181,7 @@ export function isInputColumn(column) {
 // 返回内部连通组；旧布局版本仅用于导入比较，不影响当前实验的真实连接
 export function baseNode(name, wiringVersion = WIRING_VERSION) {
     if (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-") {
-        const hole = portHole(name);
+        const hole = portHole(name, wiringVersion);
         if (hole !== "") {
             return baseNode(hole, wiringVersion);
         }
@@ -193,7 +205,7 @@ export function baseNode(name, wiringVersion = WIRING_VERSION) {
     }
     // 输入板占据第四块板的一半，对应列的上下五孔归入同一输入节点
     const section = Number(parts[0].slice(1));
-    if (wiringVersion >= 3 && section === BOARD.sections - 1 && isInputColumn(Number(parts[2]))) {
+    if (wiringVersion >= 3 && section === BOARD.sections - 1 && isInputColumn(Number(parts[2]), wiringVersion)) {
         side = "lower";
     }
     return parts[0] + ":" + side + ":" + parts[2];

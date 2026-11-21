@@ -1,6 +1,6 @@
 {
   "name": "sdu-breadboard",
-  "version": "1.10.0",
+  "version": "1.12.2",
   "private": true,
   "type": "module",
   "main": "desktop/main.mjs",
@@ -11,8 +11,9 @@
     "lint": "node tests/style.mjs",
     "test": "node --test tests/unit/engine.test.mjs tests/unit/extra-chips.test.mjs tests/unit/memory.test.mjs tests/unit/preset-routes.test.mjs tests/unit/chip-audit.test.mjs tests/unit/diagnostics.test.mjs tests/unit/wire-angle.test.mjs tests/unit/logic-diagram.test.mjs tests/unit/selection.test.mjs tests/unit/timing-trace.test.mjs",
     "route:preset": "node scripts/route-preset.mjs",
-    "test:ui": "node tests/browser/announcement.mjs && node tests/browser/browser.mjs && node tests/browser/interaction.mjs && node tests/browser/select-control.mjs && node tests/browser/board-ui.mjs && node tests/browser/logic-diagram-browser.mjs && node tests/browser/selection-browser.mjs && node tests/browser/ram-browser.mjs && node tests/browser/runtime-loading.mjs && node tests/browser/branding.mjs && node tests/browser/io-layout.mjs && node tests/browser/timing-browser.mjs",
+    "test:ui": "node tests/browser/announcement.mjs && node tests/browser/hidden-wires.mjs && node tests/browser/object-inspector.mjs && node tests/browser/browser.mjs && node tests/browser/interaction.mjs && node tests/browser/select-control.mjs && node tests/browser/board-ui.mjs && node tests/browser/logic-diagram-browser.mjs && node tests/browser/selection-browser.mjs && node tests/browser/ram-browser.mjs && node tests/browser/runtime-loading.mjs && node tests/browser/branding.mjs && node tests/browser/io-layout.mjs && node tests/browser/timing-browser.mjs && node tests/browser/timing-system.mjs",
     "package": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1",
+    "package:personal": "node scripts/package-personal.mjs",
     "test:package": "node tests/package.mjs",
     "desktop": "electron .",
     "desktop:package": "npm run build && electron-builder --config electron-builder.json --win --x64 --publish never",

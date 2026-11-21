@@ -10,7 +10,7 @@
     <meta name="author" content="Octorange/Windy-Field">
     <link rel="stylesheet" href="styles/app.css">
     <script src="vendor/lucide.min.js" defer></script>
-    <script src="application.js?v=1.10.0" defer></script>
+    <script src="application.js?v=1.12.2" defer></script>
 </head>
 <body>
     <header class="app-header">
@@ -23,8 +23,9 @@
             <button class="icon-button" id="new-project" data-tip="新建空电路" aria-label="新建空电路"><i data-lucide="file-plus-2"></i></button>
             <button class="icon-button" id="import-project" data-tip="导入电路" aria-label="导入电路"><i data-lucide="folder-open"></i></button>
             <button class="icon-button" id="export-project" type="button" data-tip="导出电路" aria-label="导出电路" aria-haspopup="dialog"><i data-lucide="download" aria-hidden="true"></i></button>
+            <button class="icon-button" id="export-workspace" type="button" data-tip="导出全部已保存实验" aria-label="导出全部已保存实验" aria-haspopup="dialog"><i data-lucide="archive" aria-hidden="true"></i></button>
             <button class="icon-button" id="announcement-button" type="button" data-tip="项目公告" aria-label="项目公告" aria-haspopup="dialog"><i data-lucide="megaphone" aria-hidden="true"></i></button>
-            <button class="icon-button" id="help-button" data-tip="实验说明" aria-label="实验说明"><i data-lucide="circle-help"></i></button>
+            <button class="icon-button" id="help-button" data-tip="实验说明" aria-label="实验说明" aria-haspopup="dialog"><i data-lucide="circle-help" aria-hidden="true"></i></button>
             <label class="power-control"><input type="checkbox" id="power-toggle" checked><span class="power-dot"></span>电源</label>
         </div>
     </header>
@@ -40,6 +41,10 @@
                 <button id="diagnose-circuit" class="preset-button"><i data-lucide="stethoscope" aria-hidden="true"></i><span>诊断电路</span></button>
                 <button id="arrange-wires" class="preset-button"><i data-lucide="route" aria-hidden="true"></i><span>整理走线</span></button>
                 <button id="view-logic-diagram" class="preset-button"><i data-lucide="circuit-board" aria-hidden="true"></i><span>显示逻辑电路图</span></button>
+                <button id="open-shared-workbench" class="preset-button" type="button" hidden><i data-lucide="globe" aria-hidden="true"></i><span>打开共享网页版</span></button>
+                <button id="migrate-workspace" class="preset-button" type="button" hidden><i data-lucide="folder-open" aria-hidden="true"></i><span>迁入浏览器备份</span></button>
+                <input id="import-workspace" type="file" accept=".json,application/json" hidden>
+                <p id="shared-status" class="experiment-picker-label" role="status"></p>
             </section>
             <div class="library-footer"><a class="sidebar-action" href="assets/reference-board.jpg" target="_blank" rel="noopener"><i data-lucide="image" aria-hidden="true"></i><span>原板对照图</span></a></div>
         </aside>
@@ -58,6 +63,8 @@
                     <button id="undo" class="icon-button" data-tip="撤销" aria-label="撤销"><i data-lucide="undo-2"></i></button>
                     <button id="redo" class="icon-button" data-tip="重做" aria-label="重做"><i data-lucide="redo-2"></i></button>
                     <button id="cancel-wire" class="icon-button" data-tip="取消当前接线" aria-label="取消当前接线" disabled><i data-lucide="x"></i></button>
+                    <button id="hide-selected" type="button" class="icon-button" data-tip="隐藏所选导线 Ctrl+H" aria-label="隐藏所选导线" aria-keyshortcuts="Control+H" disabled><i data-lucide="eye-off" aria-hidden="true"></i></button>
+                    <button id="hidden-objects" type="button" class="icon-button" data-tip="已隐藏导线 Ctrl+Shift+H" aria-label="已隐藏导线：0" aria-haspopup="dialog" aria-keyshortcuts="Control+Shift+H"><i data-lucide="layers" aria-hidden="true"></i><span id="hidden-object-count" aria-hidden="true">0</span></button>
                     <span class="toolbar-divider"></span>
                     <button id="zoom-out" class="icon-button" data-tip="缩小" aria-label="缩小"><i data-lucide="minus"></i></button>
                     <output id="zoom-label">100%</output>
@@ -78,7 +85,14 @@
                 </div>
                 <div class="result-block"><span id="output-label" class="field-label">输出 L5…L0</span><output id="binary-result">XX XXXX</output><span id="result-meaning" class="result-meaning">等待清零</span><div id="output-leds" class="io-leds"></div></div>
                 <div class="input-block"><span id="input-label" class="field-label">输入 K4…K0</span><div id="quick-switches" class="quick-switches"></div><span id="input-decimal" class="input-decimal">0</span></div>
-                <div class="operation-block"><button id="pulse-positive" class="button pulse-button" data-pulse="P+" aria-label="P正单脉冲"><i data-lucide="activity" aria-hidden="true"></i>P+ 单脉冲</button><button id="pulse-negative" class="button pulse-button" data-pulse="P-" aria-label="P负单脉冲"><i data-lucide="activity" aria-hidden="true"></i>P− 单脉冲</button></div>
+                <div class="operation-block">
+                    <button id="pulse-positive" class="button pulse-button" data-pulse="P+" aria-label="P正单脉冲"><i data-lucide="activity" aria-hidden="true"></i><span id="pulse-positive-label">P+ 单脉冲</span></button>
+                    <button id="pulse-negative" class="button pulse-button" data-pulse="P-" aria-label="P负单脉冲"><i data-lucide="activity" aria-hidden="true"></i><span id="pulse-negative-label">P− 单脉冲</span></button>
+                    <div class="input-board-actions">
+                        <button id="reset-inputs" class="button" type="button" data-tip="把 K0～K23 归零，停止脉冲输出，P− 恢复为 1。"><i data-lucide="rotate-ccw" aria-hidden="true"></i>复位</button>
+                        <button id="pulse-options" class="button" type="button" aria-haspopup="dialog">脉冲设置</button>
+                    </div>
+                </div>
             </section>
         </section>
         <aside class="inspector" aria-label="电路检查">
@@ -103,14 +117,12 @@
                     <button id="timing-stop" type="button" class="button"><i data-lucide="square" aria-hidden="true"></i>停止</button>
                     <button id="timing-clear" type="button" class="icon-button" aria-label="清除记录" data-tip="清除记录"><i data-lucide="trash-2" aria-hidden="true"></i></button>
                 </div>
-                <label for="timing-signal">监测信号 <span id="timing-signal-count"></span></label>
-                <div class="timing-picker">
-                    <select id="timing-signal"></select>
-                    <button id="timing-add" type="button" class="icon-button" aria-label="添加信号" data-tip="添加信号"><i data-lucide="plus" aria-hidden="true"></i></button>
-                </div>
-                <ul id="timing-signals" class="timing-signals"></ul>
+                <div class="timing-signal-heading"><label for="timing-signal">监测信号</label><span id="timing-signal-count"></span></div>
+                <select id="timing-signal" multiple aria-label="监测信号" aria-describedby="timing-signal-hint"></select>
+                <p id="timing-signal-hint" class="timing-key">按勾选顺序排列，换信号后需重新记录。</p>
+                <ol id="timing-signals" class="timing-signals" aria-label="波形信号顺序"></ol>
                 <div class="timing-chart-heading">
-                    <h3>波形</h3><span>事件序号（非实物时间）</span>
+                    <h3>波形</h3><span>横轴为事件序号</span>
                     <button id="timing-export" type="button" class="icon-button" aria-label="导出波形" data-tip="导出波形" aria-haspopup="dialog" disabled><i data-lucide="download" aria-hidden="true"></i></button>
                 </div>
                 <div id="timing-chart" class="timing-chart" tabindex="0" aria-label="波形图，可水平滚动">
@@ -131,7 +143,7 @@
     <footer class="app-footer">
         <span class="release-info">
             <span>Author: Octorange</span>
-            <span id="app-version">Version: 1.10.0</span>
+            <span id="app-version">Version: 1.12.2</span>
             <time id="current-time"></time>
         </span>
         <span id="action-status" role="status">就绪</span>
@@ -149,6 +161,53 @@
             <button id="switch-save" class="button primary">保存并切换</button>
         </div>
     </dialog>
+    <dialog id="hidden-objects-dialog" aria-labelledby="hidden-objects-title">
+        <div class="dialog-heading">
+            <h2 id="hidden-objects-title">已隐藏导线</h2>
+            <button id="close-hidden-objects" type="button" class="icon-button" aria-label="关闭已隐藏导线列表"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="hidden-objects-filter">
+            <label class="search-field">
+                <i data-lucide="search" aria-hidden="true"></i>
+                <input id="hidden-objects-search" type="search" placeholder="搜索编号、端口或孔位" aria-label="搜索编号、端口或孔位" autofocus>
+            </label>
+        </div>
+        <ul id="hidden-objects-list" class="hidden-objects-list"></ul>
+        <p id="hidden-objects-empty" class="hidden-objects-empty" role="status" hidden></p>
+        <div class="dialog-actions">
+            <button id="restore-all-objects" type="button" class="button"><i data-lucide="eye" aria-hidden="true"></i>全部恢复</button>
+        </div>
+    </dialog>
+    <dialog id="pulse-dialog" aria-labelledby="pulse-title">
+        <div class="dialog-heading">
+            <h2 id="pulse-title">脉冲设置</h2>
+            <button id="pulse-help" type="button" class="icon-button" aria-label="实物实验板开启方式" data-tip-click data-tip="实物连续脉冲：按住 CLK 和 K4～K0 的选速键，再按复位。松开后，按 CLK 启停。指导书给出 1～32 Hz 的范围，未列按键对照表。&#10;实物三态：按住 K8，再按复位。K8 为 0 时 K7～K0 可由外部驱动，为 1 时恢复普通输出。"><i data-lucide="circle-help" aria-hidden="true"></i></button>
+        </div>
+        <form id="pulse-form">
+            <div class="dialog-body pulse-settings-body">
+                <section class="pulse-setting" aria-labelledby="continuous-label">
+                    <label class="pulse-mode"><span id="continuous-label">连续脉冲</span><input id="continuous-pulse" type="checkbox" autofocus></label>
+                    <div class="pulse-frequency">
+                        <label for="pulse-frequency">频率</label>
+                        <div class="pulse-frequency-field">
+                            <input id="pulse-frequency" type="number" aria-describedby="pulse-frequency-range pulse-frequency-unit" required>
+                            <span id="pulse-frequency-unit">Hz</span>
+                        </div>
+                    </div>
+                    <span id="pulse-frequency-range" class="pulse-frequency-range"></span>
+                    <p>应用后，点 P+ 或 P− 启停连续脉冲。两路电平互补。改频率前请先退出连续模式。</p>
+                </section>
+                <section class="pulse-setting" aria-labelledby="tristate-label">
+                    <label class="pulse-mode"><span id="tristate-label">三态模式</span><input id="tristate-inputs" type="checkbox"></label>
+                    <p>K8 为 0 时，K7～K0 提供弱上拉或弱下拉，可由外部信号驱动。K8 切回 1 后恢复普通输出。</p>
+                </section>
+            </div>
+            <div class="dialog-actions">
+                <button id="cancel-pulse-settings" class="button" type="button">取消</button>
+                <button class="button primary" type="submit">应用</button>
+            </div>
+        </form>
+    </dialog>
     <dialog id="announcement-dialog" aria-labelledby="announcement-title" aria-describedby="announcement-content">
         <div class="dialog-heading announcement-heading">
             <span class="announcement-icon"><i data-lucide="megaphone" aria-hidden="true"></i></span>
@@ -160,19 +219,56 @@
             <button id="announcement-confirm" type="button" class="button primary" autofocus>我知道了</button>
         </div>
     </dialog>
-    <dialog id="help-dialog">
-        <div class="dialog-heading"><h2>实验说明</h2><button id="close-help" class="icon-button" aria-label="关闭"><i data-lucide="x"></i></button></div>
-        <div class="dialog-body">
-            <p>你可以在“我的实验”中新建独立实验，或切回已保存的实验。输入和输出各可显示 1～24 位，端口作用可以写在 Markdown 备注里</p>
-            <p>点击器件库中的芯片后，你可以查看功能和引脚图，同时进入放置模式。接着点击面包板即可放置，芯片缺口朝左，跨 E/F 沟槽。再次点击同一型号或按 Esc 可以取消放置。接线时依次选择起点和终点，点击空白可增加转折点，每个孔只插一根线</p>
-            <p>同列 A～E 相通，F～J 相通。第四块的输入与脉冲对应列以固定细线桥接上下五孔组，其余列分开。X、Y 各分为 1～17、19～41、43～59 三段，段与段之间分开；母线每五个孔后留一格空位。最右侧外侧两列从左到右为 GND、+5V，同列上下相通。输入输出板没有接线孔，输出只接最上块 A～E，输入和脉冲接第四块对应列的 A～J</p>
-            <p>普通滚轮上下移动画布；按住 Ctrl 再滚动时，以鼠标位置为中心缩放。按住鼠标左键拖动可平移画布，拖动时显示抓握小手；选择模式下，已选导线的端点和转折点仍用于调整接线。你也可以使用工具栏的缩放和适应宽度按钮</p>
-            <p>选中芯片后可查看引脚图、脚号、电平和位置。点击图钉可同时固定多份资料，拖动分隔条或点击方向按钮可调整上下空间；资料只在“对象”页显示，未固定资料在取消选择后关闭。原厂图片的缺口朝上，画布里的芯片缺口朝左，请按脚号核对。端点名称 B1:G:3 表示从上往下第 2 块面包板 G 行第 3 列</p>
-            <p>标题旁的“只读”开关保护接线和备注，你仍可以调整输入、发脉冲、查看资料和导出实验。左侧“诊断电路”检查当前电路的供电、短路、驱动冲突、悬空输入与时序状态，不会发出脉冲或改变接线；“整理走线”在确认后调整路径，不改端点、线色和备注，也可以撤销</p>
-            <p>补码示例中，K0～K3 是数值位，K4 是符号位，K5 为 0 时加、1 时减。你把 K6 切到 0 再切回 1 即可清零。按住 P− 后松开，寄存器在恢复上升沿保存结果。L5、L4 是两个符号位，L6 指示溢出，所有 LED 均在已知高电平时点亮</p>
-            <p>仿真采用理想数字逻辑，显示 0、1、X 未知、Z 悬空。导入、重新打开或结构撤销后，你需要给寄存器重新清零。电流、器件延迟、按键抖动和芯片损坏属于实物实验条件</p>
-            <p>自动保存默认关闭。选择“不保存并切换”会放弃当前改动；从未保存的实验会从列表中移除。关闭或刷新前，仍会提醒你有未保存的内容。导入整份备份后，第一次保存也会写入仍在列表中的备份实验。</p>
-            <p>快捷键：Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Delete 请求删除选中对象，Ctrl+S 保存当前实验和待写入的备份。你可以按住 Ctrl 多选器件和导线，在选择模式下拖动导线端点或转折点。面包板与逻辑图均支持右键按住拖动框选，Ctrl 加框选追加选择，Escape 取消选框；逻辑图还可 Ctrl 加左键增减网络选择。</p>
+    <dialog id="help-dialog" aria-labelledby="help-title">
+        <div class="dialog-heading help-heading">
+            <i data-lucide="book-open" aria-hidden="true"></i>
+            <h2 id="help-title">实验说明</h2>
+            <button id="close-help" type="button" class="icon-button" aria-label="关闭" autofocus><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="dialog-body help-body" tabindex="0" role="region" aria-label="实验说明正文">
+            <section class="help-topic">
+                <h3>开始实验</h3>
+                <p>你可以在「我的实验」新建电路，也可以打开一份已保存的实验接着做。内置实验的端口用途和操作步骤写在右侧的「备注」里，打开实验后就能查看。</p>
+                <p>如果你要自己搭电路，可以先按需要调整输入和输出的显示位数，两者都支持 1～24 位。接好线后，可以把各端口的用途记在 Markdown 备注里。保存实验时，备注也会一起保存。</p>
+            </section>
+            <section class="help-topic">
+                <h3>放置芯片与接线</h3>
+                <p>你可以先在器件库选好芯片型号，查看引脚图，再点板面上要放的位置。芯片会跨在 E/F 沟槽两侧，缺口朝左。放下芯片之前，再点一次同一型号或按 <kbd>Esc</kbd>，就能取消放置。</p>
+                <p>芯片放好后，你就可以依次点起点和终点来接线。每个插孔只能插一根线。如果导线需要绕开器件，你可以在选终点前点一处空白，加一个转折点。</p>
+            </section>
+            <section class="help-topic">
+                <h3>面包板内部连接</h3>
+                <p>孔位编号标出了板块、行和列。比如 B1:G:3 指的是从上往下第 2 块板的 G 行第 3 列。同一列里的 A～E 和 F～J 各自相通。</p>
+                <p>你可以通过面包板插孔给输入输出端口接线。最下方那块板上，输入和脉冲对应列的上下两组插孔已经接通，所以 A～J 的空孔里都能取到信号。输出灯接在最上方那块板对应列的 A～E。</p>
+                <p>你可以用右侧外缘的两列插孔接电源和地。左列是 GND，右列是 +5V，两列各自上下连通。如果你用板上的 X、Y 母线分配电源，要留意每条母线分成第 1～17、19～41、43～59 列三段。段与段不通，母线每五个孔后还留着一格空位。</p>
+            </section>
+            <section class="help-topic">
+                <h3>移动画布与查看资料</h3>
+                <p>你可以用滚轮上下移动板面，也可以按住左键拖动。拖动时，光标会变成抓握的小手。想看清某处，就把鼠标移到那里，按住 <kbd>Ctrl</kbd> 滚动。你也可以用工具栏的按钮缩放画布，或让画布适应窗口宽度。</p>
+                <p>你点选芯片后，「对象」页会显示它的位置、脚号、电平和引脚图。原厂图的缺口朝上，你可以按脚号对照板上的芯片。要同时对照多份资料，你可以分别点图钉固定，再用分隔条或方向按钮分配上下空间。你取消选择后，没固定的资料会收起来。</p>
+            </section>
+            <section class="help-topic">
+                <h3>脉冲与时序</h3>
+                <p>你可以在「时序」里勾选要观察的端口或芯片引脚，最多选 8 路。点「开始」后，时序面板就会记录所选信号的电平变化，并按勾选顺序排列各路波形。</p>
+                <p>需要连续发脉冲时，你可以在「脉冲设置」勾选「连续脉冲」，填好频率后点「应用」。接着点 P+ 或 P− 启动，再点一次停止。「脉冲设置」右上角的问号会显示实物板的开启步骤。点「复位」后，输入开关会全部归零，脉冲也会停下来。</p>
+            </section>
+            <section class="help-topic">
+                <h3>诊断与整理</h3>
+                <p>如果输出和预期对不上，你可以先点「诊断电路」。诊断面板会列出当前供电和时序状态，也会提示短路、驱动冲突或输入悬空等问题。诊断只读取当前状态。</p>
+                <p>你要改接某根线时，可以切到选择模式，选中导线后拖动它的端点。想调整这根线的路径，可以拖动转折点。如果多根线都需要理顺，你可以点「整理走线」。程序只调整路径，保留端点、线色和备注。你也可以撤销这次整理。</p>
+            </section>
+            <section class="help-topic">
+                <h3>补码示例与电平</h3>
+                <p>打开补码示例后，你需要先把 K6 拨到 0，再拨回 1，给寄存器清零。接着用 K0～K3 输入数值位，用 K4 输入符号位，再用 K5 选加减（0 加、1 减）。按下 P− 再松开，P− 会在松开时产生上升沿，寄存器就在这一刻存下结果。L5、L4 显示符号位，L6 指示是否溢出。导入或重新打开实验后，你需要再清零一次。撤销电路结构改动后也一样。</p>
+                <p>输出区用 0、1、X、Z 分别表示低电平、高电平、未知和悬空，LED 在电平确定为高时才亮。你可以在实物实验中观察电流、器件延迟、按键抖动和芯片损坏。</p>
+            </section>
+            <section class="help-topic">
+                <h3>编辑、保存与切换</h3>
+                <p>你可以按住 <kbd>Ctrl</kbd> 多选，也可以在面包板或逻辑图上按住右键拖动来框选。框选时加按 <kbd>Ctrl</kbd> 会追加选择，按 <kbd>Esc</kbd> 可以取消框选。在逻辑图上，你还可以按住 <kbd>Ctrl</kbd> 点左键，逐个选中或取消网络。</p>
+                <p>你选好对象后，按 <kbd>Delete</kbd> 会打开删除确认框。如果需要撤销或重做改动，可以按 <kbd>Ctrl+Z</kbd> 或 <kbd>Ctrl+Shift+Z</kbd>。</p>
+                <p>自动保存默认关闭。按 <kbd>Ctrl+S</kbd> 后，程序会保存当前实验，并一并写入仍在列表里的待保存备份。还有改动没保存时，浏览器会在你关闭或刷新页面前提醒你。如果你选了「不保存并切换」，程序会丢弃本次改动，并把从未保存的实验移出列表。</p>
+                <p>如果你只想运行或查看现有实验，可以打开「只读」来保护接线和备注。你仍然可以切换输入、发脉冲、查看资料和导出。</p>
+            </section>
         </div>
     </dialog>
     <dialog id="logic-diagram-dialog" class="logic-diagram-dialog" aria-labelledby="logic-diagram-title" aria-busy="false">
@@ -205,7 +301,7 @@
         <form id="export-form">
             <div class="dialog-body export-field">
                 <label for="export-format">文件格式</label>
-                <select id="export-format" autofocus required></select>
+                <select id="export-format" aria-label="文件格式" required></select>
             </div>
             <div class="dialog-actions">
                 <button id="export-cancel" type="button" class="button">取消</button>

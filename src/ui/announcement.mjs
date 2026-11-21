@@ -3,14 +3,14 @@ import { markdownFragment } from "./notes.mjs";
 import { showToast } from "./toast.mjs";
 
 // 更新公告正文时可换一个编号，让已经关闭旧公告的用户看到新内容
-const ANNOUNCEMENT_ID = "experiment-wiring-1";
+const ANNOUNCEMENT_ID = "experiment-wiring-2";
 const DISMISSED_KEY = "breadboard-lab-dismissed-announcement";
 const ANNOUNCEMENT_MARKDOWN = [
-    "本项目提供的实验存档**仅供参考**！",
+    "欢迎使用本模拟器！你可以在**左侧栏偏下**的地方自由选择存档，打开存档后，点右侧栏最右侧的**备注**即可看到每个输入的用途、实验步骤和预期现象。",
     "",
-    "做计算机组成原理实验时，建议对照课程课件核对存档。有疑问时，可以把存档和对应的课件一起交给 AI 辅助复查。",
+    "在你接入实物电路前，请你务必**先检查芯片是否正常工作**！！安装时也一定要**检查芯片缺口朝向**，以及**电源线和地线是否接对**！",
     "",
-    "> **如果您认为此项目帮到了您，欢迎前往 https://github.com/Windy-Field/SDU-BreadBoard 为项目点个 Star~**"
+    "> **如果这个项目帮到了你，欢迎到 https://github.com/Windy-Field/SDU-BreadBoard 为项目点个 Star。**"
 ].join("\n");
 
 // 返回当前公告是否已关闭自动提醒，浏览器拒绝读取时仍可显示公告

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { CHIP_MODELS } from "../../src/chips/chips.mjs";
+import { CHIP_REFERENCES } from "../../src/chips/catalog.mjs";
 import { EXTRA_CHIPS } from "../../src/chips/extra-chips.mjs";
 import { evaluateExtra } from "../../src/chips/chip-logic.mjs";
 import { createChipState, updateChipState, stateOutputs } from "../../src/chips/chip-state.mjs";
@@ -40,7 +41,7 @@ function readNumber(outputs, order) {
     return value;
 }
 
-// 对照从 DOCX 独立提取的引脚表，而不是用实现本身生成期望值
+// 对照独立的引脚核对表，并确认界面使用的资料图片存在
 function testDocumentPins() {
     const source = JSON.parse(fs.readFileSync(new URL("../fixtures/chip-reference.json", import.meta.url), "utf8"));
     assert.equal(Object.keys(EXTRA_CHIPS).length, 18);
@@ -65,7 +66,12 @@ function testDocumentPins() {
             }
             assert.equal(implemented, expected, name + " 第 " + pin + " 脚");
         }
-        const image = new URL("../../assets/pinouts/document/" + name.toLowerCase() + "-1.png", import.meta.url);
+        const reference = CHIP_REFERENCES[name];
+        let imagePath = reference.image;
+        if (!imagePath) {
+            imagePath = "assets/pinouts/" + reference.file + ".png";
+        }
+        const image = new URL("../../" + imagePath, import.meta.url);
         assert.ok(fs.statSync(image).size > 1000);
     }
 }
@@ -342,21 +348,21 @@ function testShift() {
                 }
                 state.clocks[0] = 0;
                 pins[1] = 1;
-                pins[2] = 1;
-                pins[3] = serial & 1;
-                pins[11] = (serial >> 1) & 1;
+                pins[11] = 1;
+                pins[2] = serial & 1;
+                pins[7] = (serial >> 1) & 1;
                 writeNumber(pins, [9, 10], mode);
-                writeNumber(pins, [4, 5, 6, 7], 10);
+                writeNumber(pins, [3, 4, 5, 6], 10);
                 let expected = original;
                 if (mode === 1) {
-                    expected = ((original << 1) & 15) | pins[3];
+                    expected = ((original << 1) & 15) | pins[2];
                 } else if (mode === 2) {
-                    expected = (original >> 1) | (pins[11] << 3);
+                    expected = (original >> 1) | (pins[7] << 3);
                 } else if (mode === 3) {
                     expected = 10;
                 }
                 updateChipState(model, pins, state, true);
-                assert.equal(readNumber(stateOutputs(model, pins, state), [12, 13, 14, 15]), expected);
+                assert.equal(readNumber(stateOutputs(model, pins, state), [15, 14, 13, 12]), expected);
                 pins[1] = 0;
                 updateChipState(model, pins, state, true);
                 assert.deepEqual(state.bits, [0, 0, 0, 0]);
@@ -495,7 +501,8 @@ function testWiredSequential() {
         } else {
             runWired(harness, pins);
             pins[1] = 1;
-            pins[2] = 0;
+            const clock = model.controls.clock;
+            pins[clock] = 0;
             if (model.sequential === "counter") {
                 pins[7] = 1;
                 pins[9] = 1;
@@ -503,10 +510,10 @@ function testWiredSequential() {
             } else {
                 pins[9] = 1;
                 pins[10] = 1;
-                pins[4] = 1;
+                pins[3] = 1;
             }
             runWired(harness, pins);
-            pins[2] = 1;
+            pins[clock] = 1;
             const result = runWired(harness, pins);
             assert.equal(readEndpoint(result, pinHole(harness.chip, model.outputs[0])), 1, name);
             assert.equal(readEndpoint(runWired(harness, pins), pinHole(harness.chip, model.outputs[0])), 1, name + " 保持");

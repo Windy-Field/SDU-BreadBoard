@@ -1,10 +1,11 @@
-import { _electron as electron } from "playwright";
+import { _electron as electron, chromium } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { setTimeout as delay } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
 import { DESKTOP_SETTINGS } from "../../desktop/settings.mjs";
+import { SHARED_WORKSPACE, SHARED_WEB_ORIGIN } from "../../src/storage/workspace-settings.mjs";
 import { APP_VERSION } from "../../src/version.mjs";
 import { plainReleaseNotes } from "../../desktop/release-notes.mjs";
 import { pngDimensions } from "../helpers/downloads.mjs";
@@ -31,7 +32,7 @@ async function launchDesktop(directory) {
     if (!EXECUTABLE) {
         argumentsList.push(ROOT);
     }
-    argumentsList.push("--user-data-dir=" + directory, "--test-desktop");
+    argumentsList.push("--user-data-dir=" + directory, "--test-desktop", "--test-shared-web");
     const options = { args: argumentsList, timeout: START_TIMEOUT };
     if (EXECUTABLE) {
         options.executablePath = path.resolve(EXECUTABLE);
@@ -40,6 +41,51 @@ async function launchDesktop(directory) {
     delete environment.ELECTRON_RUN_AS_NODE;
     options.env = environment;
     return electron.launch(options);
+}
+
+// 使用独立浏览器验证双向更新和过期修订的保护
+async function testSharedWorkspace(page, directory) {
+    const keyPath = path.join(directory, SHARED_WORKSPACE.tokenFile);
+    const key = fs.readFileSync(keyPath, "utf8");
+    const browser = await chromium.launch({ headless: true, channel: "msedge" });
+    try {
+        const web = await browser.newPage();
+        const entry = SHARED_WEB_ORIGIN + "/index.html";
+        await web.goto(entry + SHARED_WORKSPACE.pairingPrefix + key);
+        await web.waitForSelector(".chip-option");
+        await dismissStartupAnnouncement(web);
+        const webTitle = web.locator("#project-name");
+        const desktopTitle = page.locator("#project-name");
+        await webTitle.fill("浏览器同步实验");
+        await web.locator("#save-project").click();
+        await waitForTitle(page, "浏览器同步实验");
+        assert.equal(await desktopTitle.inputValue(), "浏览器同步实验");
+        await desktopTitle.fill("桌面同步实验");
+        await page.locator("#save-project").click();
+        await waitForTitle(web, "桌面同步实验");
+
+        // 草稿留在原窗口，过期保存不能盖掉另一边已写盘的内容
+        await webTitle.fill("浏览器尚未保存的草稿");
+        await desktopTitle.fill("桌面较新的存档");
+        await page.locator("#save-project").click();
+        await web.getByText("共享存档有更新，当前改动已保留", { exact: true }).waitFor();
+        await web.locator("#save-project").click();
+        await web.getByText(/另一个窗口已保存更新/).waitFor();
+        assert.equal(await webTitle.inputValue(), "浏览器尚未保存的草稿");
+        assert.equal(await desktopTitle.inputValue(), "桌面较新的存档");
+        await web.close({ runBeforeUnload: false });
+    } finally {
+        await browser.close();
+    }
+}
+
+// 等待另一端读取本次保存，避免把读取旧标题误当成同步失败
+async function waitForTitle(page, title) {
+    // 在浏览器里读取可见标题，等待轮询完成
+    function hasTitle(expected) {
+        return document.getElementById("project-name").value === expected;
+    }
+    await page.waitForFunction(hasTitle, title);
 }
 
 // 读取主进程窗口与存档设置，确保页面没有获得系统访问能力
@@ -121,6 +167,14 @@ async function testDesktopExports(application, page, directory) {
     const project = JSON.parse(fs.readFileSync(exported, "utf8"));
     assert.equal(project.switches[0], 1);
     assert.equal(project.chips.length, 5);
+
+    // 顶部归档按钮应导出全部已保存实验，包含当前电路和两份内置示例
+    const backupFile = path.join(directory, "desktop-workspace.json");
+    await exportDesktopFile(application, page, "#export-workspace", backupFile, ["json"]);
+    const backup = JSON.parse(fs.readFileSync(backupFile, "utf8"));
+    const saved = backup.projects[backup.activeId];
+    assert.deepEqual(saved, project);
+    assert.equal(Object.keys(backup.projects).length, 3);
 
     const circuitImage = path.join(directory, "desktop-circuit.PNG");
     await exportDesktopFile(application, page, "#export-project", circuitImage, ["json", "png", "jpg"]);
@@ -246,6 +300,7 @@ async function main() {
         await restored.waitForFunction(routingReady);
         await restored.locator("#pulse-negative").click();
         assert.equal(await restored.locator("#binary-result").textContent(), "000 0001");
+        await testSharedWorkspace(restored, temporary);
         // 脉冲不会写入存档，改一次输入才会触发未保存退出确认
         await restored.locator("[data-bit='0']").click();
         assert.equal(await restored.locator("#save-status").textContent(), "当前实验未保存");

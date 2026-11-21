@@ -7,6 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { dismissStartupAnnouncement } from "../helpers/announcement.mjs";
+import { SHARED_WORKSPACE } from "../../src/storage/workspace-settings.mjs";
 
 // 可指定已安装程序或便携EXE，每次使用独立临时存档，不影响个人实验
 const ROOT = process.cwd();
@@ -15,6 +16,7 @@ const RUNS = Number(process.env.SDU_STARTUP_RUNS || "3");
 const START_TIMEOUT = 90000;
 const POLL_INTERVAL = 100;
 const REPORT_FILE = process.env.SDU_STARTUP_REPORT || path.join(ROOT, "reports", "startup.json");
+const WORKSPACE_SNAPSHOT = process.env.SDU_STARTUP_WORKSPACE;
 
 // 使用系统分配的空闲本地端口，减少与已运行程序冲突
 async function availablePort() {
@@ -112,6 +114,15 @@ async function measureStartup() {
         const navigation = await page.evaluate(navigationTiming);
         // 耗时记录后验证真实运算，避免把显示了窗口但无法操作的启动算作成功
         await dismissStartupAnnouncement(page);
+        if (WORKSPACE_SNAPSHOT) {
+            // 个人包应在新目录载入完整存档，实验状态以快照内容为准
+            const expected = JSON.parse(fs.readFileSync(WORKSPACE_SNAPSHOT, "utf8"));
+            const file = path.join(directory, SHARED_WORKSPACE.filename);
+            const saved = JSON.parse(fs.readFileSync(file, "utf8"));
+            assert.deepEqual(saved.workspace, expected);
+            assert.equal(await page.locator("#experiment-picker").inputValue(), expected.activeId);
+            return { ready: ready, navigation: navigation };
+        }
         assert.equal(await page.locator("#binary-result").textContent(), "000 0000");
         await page.locator("[data-bit='0']").click();
         await page.locator("#pulse-negative").click();

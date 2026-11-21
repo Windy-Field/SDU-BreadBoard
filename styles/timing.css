@@ -7,15 +7,15 @@
 .timing-header > span { text-align: right; }
 .timing-header > .timing-recording { color: var(--color-error); }
 .timing-recording::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; vertical-align: 1px; }
-.timing-controls, .timing-picker { display: flex; gap: 6px; align-items: center; }
-.timing-controls { margin: 12px 0 16px; }
+.timing-controls { display: flex; gap: 6px; align-items: center; margin: 12px 0 16px; }
 .timing-controls .button { flex: 1; white-space: nowrap; }
-.timing-picker { margin-top: 5px; }
-.timing-picker select { flex: 1; min-width: 0; font-size: 12px; }
-.timing-picker .icon-button, .timing-controls .icon-button { width: 35px; height: 35px; flex: 0 0 35px; }
-.timing-signals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; list-style: none; margin: 7px 0 16px; padding: 0; }
-.timing-signals li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 0; border-bottom: 1px solid var(--color-muted-surface); font: 11px var(--font-mono); }
-.timing-signals li > span { min-width: 0; }
+.timing-controls .icon-button { width: 35px; height: 35px; flex: 0 0 35px; }
+.timing-signal-heading { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+#timing-signal-count { color: var(--color-muted); font: 11px var(--font-mono); }
+.timing-signals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; list-style: none; margin: 7px 0 16px; padding: 0; }
+.timing-signals li { display: flex; align-items: center; gap: 5px; padding: 2px 4px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); font: 11px var(--font-mono); }
+.timing-signals li > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.timing-signals .timing-order { flex: 0 0 16px; text-align: center; color: var(--color-muted); }
 .timing-signals .icon-button { width: 26px; height: 26px; flex-basis: 26px; }
 .timing-chart { margin-top: 6px; min-height: 72px; overflow-x: auto; scroll-padding-inline-start: var(--timing-label); border: 1px solid var(--color-rule); border-radius: var(--radius-control); background: var(--color-paper); }
 .timing-chart-heading > span { margin-inline-start: auto; text-align: right; }

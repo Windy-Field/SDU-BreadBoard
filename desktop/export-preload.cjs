@@ -20,3 +20,27 @@ function discardExport(ticket) {
 contextBridge.exposeInMainWorld("breadboardExport", {
     choose: chooseExport, write: writeExport, discard: discardExport
 });
+
+// 获取桌面和本机网页共用的工作区及其修订号
+function readWorkspace() {
+    return ipcRenderer.invoke("read-shared-workspace");
+}
+
+// 将编辑后的工作区连同读取时的修订号送到主进程
+function writeWorkspace(change) {
+    return ipcRenderer.invoke("write-shared-workspace", change);
+}
+
+// 使用系统默认浏览器打开本机共享工作区
+function openSharedWeb() {
+    return ipcRenderer.invoke("open-shared-workbench");
+}
+
+// 读取个人构建附带的初始工作区，普通发行包返回空值
+function readSnapshot() {
+    return ipcRenderer.invoke("read-workspace-snapshot");
+}
+
+contextBridge.exposeInMainWorld("breadboardWorkspace", {
+    read: readWorkspace, write: writeWorkspace, openWeb: openSharedWeb, readSnapshot: readSnapshot
+});

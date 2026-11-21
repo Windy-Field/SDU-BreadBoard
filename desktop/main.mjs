@@ -1,11 +1,15 @@
-import { app, BrowserWindow, Menu, dialog, shell, protocol, net } from "electron";
+import { app, BrowserWindow, Menu, dialog, shell, protocol, net, ipcMain } from "electron";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { readFileSync } from "node:fs";
 import { DESKTOP_SETTINGS } from "./settings.mjs";
 import { startUpdates, UPDATE_SETTINGS } from "./updates.mjs";
 import { updateDialogDetail, selectReleaseNotes, plainReleaseNotes } from "./release-notes.mjs";
 import { loadDesktopPage } from "./window-load.mjs";
 import { bindNativeExport } from "./native-export.mjs";
+import { validateWorkspace } from "../src/storage/workspace.mjs";
+import { startWorkspaceService } from "./workspace-service.mjs";
+import { SHARED_WORKSPACE, SHARED_WEB_ORIGIN } from "../src/storage/workspace-settings.mjs";
 
 // 桌面程序与网页入口保持相同目录关系，安装后仍从应用内部读取资源
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -17,11 +21,73 @@ const EXPORT_PRELOAD = path.join(PROJECT_ROOT, "desktop", "export-preload.cjs");
 // 资料窗口只加载应用自带的这些格式，测试开关同时控制窗口显示与更新检查
 const REFERENCE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".pdf"];
 const TEST_MODE_SWITCH = "test-desktop";
+const TEST_SHARED_WEB_SWITCH = "test-shared-web";
 let mainWindow = null;
 let pendingUpdateInstall = null;
 let updates = null;
 let stopping = false;
 let resetNativeExport = null;
+
+// 仅让主窗口访问共享存档和本机浏览器入口
+function bindSharedWorkspace(service) {
+    // 资料窗口和子框架没有存档权限
+    function checkSender(event) {
+        const frame = event.senderFrame;
+        if (!mainWindow || !frame || event.sender !== mainWindow.webContents || frame !== mainWindow.webContents.mainFrame || frame.url !== ENTRY_URL) {
+            throw new Error("请从面包板主窗口操作共享存档");
+        }
+    }
+
+    // 用当前修订号读取共享存档
+    function loadShared(event) {
+        checkSender(event);
+        return service.read();
+    }
+
+    // 交给共享存档服务校验并保存新修订
+    function saveShared(event, change) {
+        checkSender(event);
+        return service.write(change);
+    }
+
+    // 个人快照只从打包指定的资源文件读取
+    function loadSnapshot(event) {
+        checkSender(event);
+        if (!app.isPackaged) {
+            return null;
+        }
+        const filename = path.join(process.resourcesPath, SHARED_WORKSPACE.snapshotFile);
+        try {
+            const content = readFileSync(filename, "utf8");
+            return validateWorkspace(JSON.parse(content));
+        } catch (error) {
+            if (error.code === "ENOENT") {
+                return null;
+            }
+            throw error;
+        }
+    }
+
+    // 配对凭证放在网址片段里，浏览器打开后自行取出
+    function openSharedWeb(event) {
+        checkSender(event);
+        if (!service.server || !service.server.listening) {
+            throw new Error("本机共享网页未启动，请检查端口是否被占用");
+        }
+        const address = SHARED_WEB_ORIGIN + "/" + DESKTOP_SETTINGS.entry + SHARED_WORKSPACE.pairingPrefix + service.token;
+        return shell.openExternal(address);
+    }
+
+    ipcMain.handle("read-shared-workspace", loadShared);
+    ipcMain.handle("write-shared-workspace", saveShared);
+    ipcMain.handle("open-shared-workbench", openSharedWeb);
+    ipcMain.handle("read-workspace-snapshot", loadSnapshot);
+}
+
+// 本机端口不可用时，桌面仍可读写共享文件
+function reportSharedWebError(error) {
+    console.warn("本机共享网页未启动：", error.message);
+}
 
 // 给导出接口提供当前主窗口，窗口关闭后返回空值
 function getMainWindow() {
@@ -338,6 +404,10 @@ function startDesktop() {
     Menu.setApplicationMenu(null);
     protocol.handle(DESKTOP_SETTINGS.scheme, serveBundledFile);
     resetNativeExport = bindNativeExport(getMainWindow, ENTRY_URL);
+    const testing = app.commandLine.hasSwitch(TEST_MODE_SWITCH);
+    const listen = !testing || app.commandLine.hasSwitch(TEST_SHARED_WEB_SWITCH);
+    const workspaceService = startWorkspaceService(app.getPath("userData"), PROJECT_ROOT, validateWorkspace, reportSharedWebError, listen);
+    bindSharedWorkspace(workspaceService);
     createMainWindow();
     mainWindow.webContents.session.on("will-download", prepareDownload);
     app.on("activate", activateApplication);

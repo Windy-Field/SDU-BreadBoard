@@ -5,6 +5,7 @@ import { chromium } from "playwright";
 import { WORKSPACE_KEY } from "../../src/storage/workspace.mjs";
 
 const ADDRESS = pathToFileURL(path.resolve("index.html")).href;
+const DISMISSED_KEY = "breadboard-lab-dismissed-announcement";
 const VIEWPORTS = [
     { width: 1600, height: 900 },
     { width: 375, height: 800 },
@@ -28,6 +29,11 @@ function readWorkspace(key) {
     return localStorage.getItem(key);
 }
 
+// 模拟用户关闭过旧版公告，刷新后仍应看到新版公告
+function dismissPreviousAnnouncement(key) {
+    localStorage.setItem(key, "experiment-wiring-1");
+}
+
 // 验证离线公告的 Markdown、关闭行为和本地提醒设置
 async function main() {
     const browser = await chromium.launch({ headless: true, channel: "msedge" });
@@ -36,14 +42,17 @@ async function main() {
         const context = page.context();
         await context.setOffline(true);
         await page.goto(ADDRESS);
+        await page.evaluate(dismissPreviousAnnouncement, DISMISSED_KEY);
+        await page.reload();
         const dialog = page.getByRole("dialog", { name: "实验接线提醒" });
         const trigger = page.getByRole("button", { name: "项目公告" });
         const confirmButton = dialog.getByRole("button", { name: "我知道了" });
         const checkbox = dialog.getByRole("checkbox", { name: "不再提醒" });
         await dialog.waitFor();
-        const emphasis = dialog.locator("p > strong");
-        assert.equal(await emphasis.first().textContent(), "仅供参考");
-        assert.match(await dialog.locator("blockquote").textContent(), /实际接线以课程要求和实物实验板为准/);
+        const notesLabel = dialog.getByText("备注", { exact: true });
+        assert.equal(await notesLabel.evaluate(readTagName), "STRONG");
+        const quotedText = dialog.locator("blockquote strong");
+        assert.match(await quotedText.textContent(), /为项目点个 Star/);
         assert.equal(await dialog.locator("svg.lucide-megaphone").count(), 1);
         assert.equal(await checkbox.isChecked(), false);
         await checkAnnouncementLayout(page, dialog, confirmButton);
@@ -77,6 +86,11 @@ async function main() {
     } finally {
         await browser.close();
     }
+}
+
+// 读取页面标签，确认文案中的 Markdown 粗体已渲染
+function readTagName(element) {
+    return element.tagName;
 }
 
 await main();

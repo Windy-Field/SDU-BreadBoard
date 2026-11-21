@@ -198,6 +198,12 @@ async function testExportCancellation(page) {
     assert.equal(await dialog.isVisible(), true);
     const formats = page.locator("#export-format option");
     assert.deepEqual(await formats.allTextContents(), ["PNG", "JPG"]);
+    const picker = page.locator("#export-format-trigger");
+    await picker.press("Enter");
+    assert.equal(await picker.getAttribute("aria-expanded"), "true");
+    await picker.press("Escape");
+    assert.equal(await picker.getAttribute("aria-expanded"), "false");
+    assert.equal(await dialog.isVisible(), true);
     await page.keyboard.press("Escape");
     assert.equal(await dialog.isVisible(), false);
     const focused = page.locator("#export-image:focus");

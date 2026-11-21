@@ -4,7 +4,65 @@ import { readImageDownload } from "../helpers/downloads.mjs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { openWorkbench } from "../helpers/announcement.mjs";
-import { BOARD, endpointPosition, portHole } from "../../src/board/board.mjs";
+import { BOARD, columnX, endpointPosition, portHole, rowY } from "../../src/board/board.mjs";
+import { APP_VERSION } from "../../src/version.mjs";
+
+// 板面底图只绘制一次，在应用启动前登记卡槽里的列号绘制位置
+function recordTrenchLabels(ranges) {
+    const original = CanvasRenderingContext2D.prototype.fillText;
+    window.trenchLabels = {};
+    window.extraColumnLabels = [];
+
+    // 记录每块板沟槽里的数字和横坐标，其他文字照常绘制
+    function recordText(text, horizontal, vertical) {
+        // 只记录底图首列及其右侧的数字，排除芯片脚号和左侧板块编号
+        if (!this.canvas.isConnected && horizontal >= ranges[0].firstColumn && /^\d+$/.test(text)) {
+            let inTrench = false;
+            for (const range of ranges) {
+                if (vertical > range.top && vertical < range.bottom) {
+                    const key = range.section + ":" + text;
+                    window.trenchLabels[key] = horizontal;
+                    inTrench = true;
+                }
+            }
+            if (!inTrench) {
+                window.extraColumnLabels.push(text);
+            }
+        }
+        original.call(this, text, horizontal, vertical);
+    }
+
+    CanvasRenderingContext2D.prototype.fillText = recordText;
+}
+
+// 返回四块面包板 E、F 两排之间的坐标范围
+function trenchRanges() {
+    const ranges = [];
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+        ranges.push({ section: section, top: rowY(section, "E"), bottom: rowY(section, "F"), firstColumn: columnX(1) });
+    }
+    return ranges;
+}
+
+// 读取底图上实际绘制的列号，而不是读取预设数据
+function readTrenchLabels() {
+    return { labels: window.trenchLabels, extra: window.extraColumnLabels };
+}
+
+// 核对每块板只标奇数列，且编号与对应插孔的横坐标一致
+async function testTrenchLabels(page) {
+    const recorded = await page.evaluate(readTrenchLabels);
+    const labels = recorded.labels;
+    assert.deepEqual(recorded.extra, [], "卡槽之外不应绘制列号");
+    const oddColumns = Math.ceil(BOARD.columns / 2);
+    assert.equal(Object.keys(labels).length, BOARD.sections * oddColumns);
+    for (let section = 0; section < BOARD.sections; section = section + 1) {
+        for (let column = 1; column <= BOARD.columns; column = column + 2) {
+            const key = section + ":" + column;
+            assert.equal(labels[key], columnX(column), "卡槽列号位置错误：" + key);
+        }
+    }
+}
 
 // 记录画布真正绘制的文字，检查节点标签而不依赖颜色猜测
 function recordLabels() {
@@ -155,7 +213,10 @@ async function main() {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     try {
         const address = pathToFileURL(path.join(process.cwd(), "index.html"));
+        await page.addInitScript(recordTrenchLabels, trenchRanges());
         await openWorkbench(page, address.href);
+        assert.equal(await page.locator("#app-version").textContent(), "Version: " + APP_VERSION);
+        await testTrenchLabels(page);
         await page.locator("#new-experiment").click();
         const hoverHole = endpointPosition("B0:A:4");
         assert.equal(await page.evaluate(countHoverPaints, hoverHole), 1);
@@ -209,7 +270,7 @@ async function main() {
         await page.locator("#to-endpoint").fill("R:VCC:0");
         await page.locator("#connect-endpoints").click();
         await page.waitForFunction(conflictLabelDrawn);
-        console.log("板面验证通过：左键平移和抓握光标、工具与只读兼容、移出释放、板载标识不可插线、真实孔连接、直连电平、内部示意和字符电平标签");
+        console.log("板面验证通过：版本号、卡槽列号、左键平移、工具与只读兼容、真实孔连接、内部示意和电平标签");
     } finally {
         await browser.close();
     }

@@ -3,6 +3,7 @@ import { baseNode, pinHole, IO_LIMIT } from "../board/board.mjs";
 import { evaluateExtra } from "../chips/chip-logic.mjs";
 import { createChipState, updateChipState, stateOutputs } from "../chips/chip-state.mjs";
 import { createMemory, memoryOutputs, updateMemory } from "../chips/chip-memory.mjs";
+import { isWeakBoardInput } from "./board-signals.mjs";
 
 // 单次组合逻辑传播的最大轮数，防止反馈振荡无限计算
 const MAX_SETTLE_PASSES = 96;
@@ -63,10 +64,15 @@ function resolveDrivers(drivers) {
         return "Z";
     }
     let result = "Z";
-    let pullUp = false;
+    let weakValue = "Z";
     for (const driver of drivers) {
-        if (driver.kind === "pull-up") {
-            pullUp = true;
+        // 多个弱源方向相反时电平不确定，但强驱动仍可决定电平
+        if (driver.kind === "pull-up" || driver.kind === "weak-input") {
+            if (weakValue === "Z") {
+                weakValue = driver.value;
+            } else if (weakValue !== driver.value) {
+                weakValue = "X";
+            }
             continue;
         }
         if (result === "Z") {
@@ -75,8 +81,8 @@ function resolveDrivers(drivers) {
             result = "X";
         }
     }
-    if (result === "Z" && pullUp) {
-        return 1;
+    if (result === "Z") {
+        return weakValue;
     }
     return result;
 }
@@ -153,15 +159,20 @@ function chipOutputs(chip, pins, registers, devices) {
 }
 
 // 登记板载电源、开关、脉冲和外接上拉，不依赖上一轮的芯片输出
-function addBoardDrivers(project, topology, pulses, drivers) {
+function addBoardDrivers(project, topology, runtime, drivers) {
     addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
     addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
     for (let index = 0; index < IO_LIMIT; index = index + 1) {
         const name = "K" + index;
-        addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
+        const node = nodeFor(topology, name);
+        if (isWeakBoardInput(project, runtime.triState, index)) {
+            addDriver(drivers, node, project.switches[index], name + "（弱驱动）", "weak-input");
+        } else {
+            addDriver(drivers, node, project.switches[index], name);
+        }
     }
-    addDriver(drivers, nodeFor(topology, "P+"), pulses.positive, "P+");
-    addDriver(drivers, nodeFor(topology, "P-"), pulses.negative, "P−");
+    addDriver(drivers, nodeFor(topology, "P+"), runtime.pulses.positive, "P+");
+    addDriver(drivers, nodeFor(topology, "P-"), runtime.pulses.negative, "P−");
     if (project.pullUps) {
         for (const endpoint of project.pullUps) {
             addDriver(drivers, nodeFor(topology, endpoint), 1, "上拉 " + endpoint, "pull-up");
@@ -216,7 +227,7 @@ function collectDrivers(project, topology, values, runtime, previousDrivers) {
     if (!project.power) {
         return drivers;
     }
-    addBoardDrivers(project, topology, runtime.pulses, drivers);
+    addBoardDrivers(project, topology, runtime, drivers);
     for (const chip of project.chips) {
         const pins = readPins(chip, topology, values);
         readBidirectionalPins(chip, pins, topology, drivers, previousDrivers);
@@ -337,14 +348,14 @@ function updateRegisters(project, topology, values, registers) {
     return changed;
 }
 
-// 检查一个节点的强驱动，外接上拉和内部弱上拉不计入冲突
+// 检查一个节点的强驱动，上拉和处于三态的板载开关不计入冲突
 function describeDriverConflict(drivers) {
     const sources = [];
     let pushPull = false;
     let high = false;
     let low = false;
     for (const driver of drivers) {
-        if (driver.kind === "pull-up") {
+        if (driver.kind === "pull-up" || driver.kind === "weak-input") {
             continue;
         }
         sources.push(driver.source);
@@ -448,7 +459,7 @@ function diagnose(project, result) {
 
 // 创建仿真运行状态；保存文件不包含这部分易失状态
 export function createRuntime() {
-    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, feedback: null };
+    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, triState: false, feedback: null };
 }
 
 // 按实际接线计算整个电路，更新运行状态并返回端点电平和诊断

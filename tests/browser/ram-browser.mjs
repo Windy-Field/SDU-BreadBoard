@@ -105,7 +105,7 @@ async function main() {
         await openWorkbench(page, url.href);
         await page.waitForSelector("#experiment-picker-trigger");
         const options = await page.locator("#experiment-picker option").allTextContents();
-        assert.deepEqual(options, ["双符号位补码运算器", "实验三 RAM字扩展"]);
+        assert.deepEqual(options, ["双符号位补码运算器", "实验三 RAM字扩展", "实验四 时序系统"]);
         await page.locator("#experiment-picker-trigger").click();
         await page.locator("#experiment-picker-option-1").click();
         assert.equal(await page.locator("#experiment-picker").inputValue(), RAM_EXPERIMENT_ID);
@@ -114,7 +114,7 @@ async function main() {
         assert.equal(await page.locator("#binary-result").textContent(), "ZZZZ ZZZZ");
         assert.equal(await page.locator("#issue-count").textContent(), "0");
         await page.locator("#tab-notes").click();
-        assert.match(await page.locator("#notes-preview").textContent(), /K13设为0，再设回1/);
+        assert.match(await page.locator("#notes-preview").textContent(), /K13 拨到 0，再拨回 1/);
         await page.locator("#tab-inspect").click();
         const samples = [[10, 85], [5, 170], [2058, 255], [2053, 0]];
         for (const sample of samples) {
@@ -155,7 +155,7 @@ async function main() {
         assert.equal(Object.hasOwn(project, "devices"), false);
         await page.reload();
         await page.waitForSelector("#experiment-picker-trigger");
-        assert.equal(await page.locator("#experiment-picker option").count(), 2);
+        assert.equal(await page.locator("#experiment-picker option").count(), 3);
         assert.equal(await page.locator("#project-name").inputValue(), "实验三 RAM字扩展");
         assert.equal(await page.locator("#binary-result").textContent(), "XXXX XXXX");
         await page.locator("#new-project").click();

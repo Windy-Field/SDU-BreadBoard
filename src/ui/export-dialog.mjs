@@ -1,5 +1,6 @@
 import { downloadFile, element, node } from "./dom.mjs";
 import { showToast } from "./toast.mjs";
+import { refreshSelect } from "./select-control.mjs";
 import { EXPORT_FILES, EXPORT_FORMATS, exportFormatForName } from "../../desktop/export-formats.mjs";
 
 let pendingExport = null;
@@ -20,7 +21,9 @@ function openDownloadDialog(file, createFile) {
         picker.append(option);
     }
     pendingExport = { file: file, createFile: createFile };
+    const trigger = refreshSelect(picker);
     dialog.showModal();
+    trigger.focus();
 }
 
 // 放弃本次导出，关闭弹窗后焦点由浏览器还给原按钮

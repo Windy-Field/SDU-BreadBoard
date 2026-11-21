@@ -1,4 +1,4 @@
-import { emptyProject, placementError, validEndpoint, isPhysicalHole, portHole, baseNode, pinHole, IO_LIMIT, validIoCount, NOTES_LIMIT, WIRING_VERSION } from "../board/board.mjs";
+import { BOARD, ROWS, emptyProject, placementError, validEndpoint, isPhysicalHole, portHole, positivePulseColumn, baseNode, pinHole, IO_LIMIT, validIoCount, NOTES_LIMIT, WIRING_VERSION } from "../board/board.mjs";
 import { CHIP_MODELS } from "../chips/chips.mjs";
 import { COMPLEMENT_NOTES } from "../experiments/presets.mjs";
 
@@ -32,7 +32,31 @@ function legacyNode(name, wiringVersion) {
     if (wiringVersion === undefined && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
         return name;
     }
-    return baseNode(name, 2);
+    if (wiringVersion === undefined) {
+        return baseNode(name, 2);
+    }
+    return baseNode(name, wiringVersion);
+}
+
+// 交换旧、新脉冲列的普通插孔，保留同列接线并给原有的第 55 列信号留出位置
+function movePulseHole(name, wiringVersion) {
+    if (!wiringVersion || wiringVersion === WIRING_VERSION) {
+        return name;
+    }
+    const parts = name.split(":");
+    if (parts[0] !== "B" + (BOARD.sections - 1) || !ROWS.includes(parts[1])) {
+        return name;
+    }
+    const oldColumn = positivePulseColumn(wiringVersion);
+    const newColumn = positivePulseColumn();
+    const column = Number(parts[2]);
+    if (column === oldColumn) {
+        return parts[0] + ":" + parts[1] + ":" + newColumn;
+    }
+    if (column === newColumn) {
+        return parts[0] + ":" + parts[1] + ":" + oldColumn;
+    }
+    return name;
 }
 
 // 在迁移核对中查找连通组，不修改原文件
@@ -72,11 +96,18 @@ function verifyPortMigration(original, migrated) {
     }
     const forward = new Map();
     const reverse = new Map();
+    const endpoints = [];
     for (const name of terminals) {
-        const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
-        const newGroup = connectionRoot(after, baseNode(name));
+        endpoints.push({ previous: name, current: name });
+    }
+    for (let index = 0; index < migrated.pullUps.length; index = index + 1) {
+        endpoints.push({ previous: original.pullUps[index], current: migrated.pullUps[index] });
+    }
+    for (const endpoint of endpoints) {
+        const oldGroup = connectionRoot(before, legacyNode(endpoint.previous, original.wiringVersion));
+        const newGroup = connectionRoot(after, baseNode(endpoint.current));
         if ((forward.has(oldGroup) && forward.get(oldGroup) !== newGroup) || (reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup)) {
-            throw new Error("旧实验在 " + name + " 对应列已有其他信号，迁移会改变连接，请先备份并调整该列接线");
+            throw new Error("旧实验在 " + endpoint.previous + " 对应列已有其他信号，迁移会改变连接，请先备份并调整该列接线");
         }
         forward.set(oldGroup, newGroup);
         reverse.set(newGroup, oldGroup);
@@ -122,7 +153,7 @@ function validateProjectHeader(value) {
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
         throw new Error("文件不是受支持的电路格式");
     }
-    if (value.wiringVersion !== undefined && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
+    if (value.wiringVersion !== undefined && ![2, 3, WIRING_VERSION].includes(value.wiringVersion)) {
         throw new Error("不支持这份文件的接线布局版本");
     }
     if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
@@ -169,7 +200,7 @@ function restorePullUps(value, project) {
             if (!validEndpoint(endpoint) || seen.has(endpoint)) {
                 throw new Error("上拉节点不合法或重复");
             }
-            project.pullUps.push(endpoint);
+            project.pullUps.push(movePulseHole(endpoint, value.wiringVersion));
             seen.add(endpoint);
         }
     }
@@ -204,17 +235,17 @@ function restoreWires(value, project, occupied) {
     const reserved = new Set(occupied);
     for (const entry of value.wires) {
         if (entry && isPhysicalHole(entry.from)) {
-            reserved.add(entry.from);
+            reserved.add(movePulseHole(entry.from, value.wiringVersion));
         }
         if (entry && isPhysicalHole(entry.to)) {
-            reserved.add(entry.to);
+            reserved.add(movePulseHole(entry.to, value.wiringVersion));
         }
     }
     for (const entry of value.wires) {
         if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
             throw new Error("导线编号不合法或重复");
         }
-        if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied.has(entry.from) || occupied.has(entry.to)) {
+        if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to) {
             throw new Error("导线端点不合法，或同一个孔被重复占用");
         }
         if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
@@ -227,8 +258,13 @@ function restoreWires(value, project, occupied) {
             }
             bends.push({ x: bend.x, y: bend.y });
         }
-        const from = migrateEndpoint(entry.from, reserved);
-        const to = migrateEndpoint(entry.to, reserved);
+        const firstHole = movePulseHole(entry.from, value.wiringVersion);
+        const lastHole = movePulseHole(entry.to, value.wiringVersion);
+        const from = migrateEndpoint(firstHole, reserved);
+        const to = migrateEndpoint(lastHole, reserved);
+        if (from === to || occupied.has(from) || occupied.has(to)) {
+            throw new Error("导线或芯片占用了同一个孔，请检查端点");
+        }
         if (from !== entry.from || to !== entry.to) {
             bends.length = 0;
         }
@@ -240,8 +276,8 @@ function restoreWires(value, project, occupied) {
             wire.angle = 45;
         }
         project.wires.push(wire);
-        occupied.add(entry.from);
-        occupied.add(entry.to);
+        occupied.add(from);
+        occupied.add(to);
         identifiers.add(entry.id);
     }
 }

@@ -1,7 +1,7 @@
 // 74LS160 和 74LS161 共用同一套接脚，计数进位只受第二路使能控制
 const COUNTER_CONTROLS = { clock: 2, reset: 1, load: 9, enable: [7, 10], data: [3, 4, 5, 6], carry: 15 };
 
-// 新增型号严格使用用户材料中的物理脚号；已有型号由 chips.mjs 原样保留
+// 记录各型号的物理脚号、信号方向和仿真所需的控制端
 export const EXTRA_CHIPS = {
     "6116": {
         title: "2K×8 静态RAM",
@@ -214,10 +214,10 @@ export const EXTRA_CHIPS = {
         count: 16,
         power: 16,
         ground: 8,
-        labels: ["", "CLR′", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"],
+        labels: ["", "CLR′", "SR", "A", "B", "C", "D", "SL", "GND", "S0", "S1", "CP", "QD", "QC", "QB", "QA", "VCC"],
         inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11],
-        outputs: [12, 13, 14, 15],
-        controls: { clock: 2, reset: 1, mode: [9, 10], right: 3, left: 11, data: [4, 5, 6, 7] },
+        outputs: [15, 14, 13, 12],
+        controls: { clock: 11, reset: 1, mode: [9, 10], right: 2, left: 7, data: [3, 4, 5, 6] },
         sequential: "shift"
     }
 };

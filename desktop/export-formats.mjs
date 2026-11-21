@@ -1,6 +1,7 @@
 // 文件名、格式和类型由网页及桌面共用，存档格式与图片格式分别列出
 export const EXPORT_FILES = {
     circuit: { title: "导出电路", name: "breadboard-circuit", formats: ["json", "png", "jpg"] },
+    workspace: { title: "导出全部已保存实验", name: "breadboard-workspace", formats: ["json"] },
     board: { title: "导出接线图", name: "breadboard-wiring", formats: ["png", "jpg"] },
     logic: { title: "导出逻辑图", name: "breadboard-logic", formats: ["svg", "png"] },
     timing: { title: "导出波形", name: "breadboard-timing", formats: ["svg", "png", "csv"] }

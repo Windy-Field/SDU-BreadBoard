@@ -2,7 +2,7 @@
 
 ## 实现与来源
 
-项目接入了 libavoid-js 0.5.0-beta.5，通过 WebAssembly 运行 libavoid 的正交布线引擎
+项目用 libavoid-js 0.5.0-beta.5 接入了 libavoid，正交布线引擎通过 WebAssembly 运行。
 
 - JS 移植项目：<https://github.com/Aksem/libavoid-js>
 - npm 版本对应提交：`5062a42fbd82fff562afeebcbb7b1ed45eed8e75`

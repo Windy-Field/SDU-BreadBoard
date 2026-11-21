@@ -3,6 +3,7 @@ import { STORAGE_KEY, validateProject } from "./storage.mjs";
 import { ramPreset, RAM_EXPERIMENT_ID, RAM_EXPERIMENT_NAME } from "../experiments/ram-preset.mjs";
 import { COMPLEMENT_NAME, complementPreset, isComplementPreset } from "../experiments/presets.mjs";
 import { centerSavedPresets } from "../experiments/preset-layout.mjs";
+import { timingPreset, TIMING_EXPERIMENT_ID, TIMING_EXPERIMENT_NAME } from "../experiments/timing-preset.mjs";
 
 // 本地列表、只读设置和清理前备份的存储键，修改前需安排旧数据迁移
 export const WORKSPACE_KEY = "breadboard-lab-workspace-v1";
@@ -37,12 +38,14 @@ export function loadWorkspace(storageOwner) {
     let warning = "";
     let removedCount = 0;
     let initializePreset = false;
+    let hasSavedWorkspace = false;
     try {
         // 获取存储对象本身也可能失败，和读写失败一起使用默认实验
         const storage = storageOwner.localStorage;
         readOnly = storage.getItem(READ_ONLY_KEY) === "true";
         const savedWorkspace = storage.getItem(WORKSPACE_KEY);
         const savedProject = storage.getItem(STORAGE_KEY);
+        hasSavedWorkspace = Boolean(savedWorkspace || savedProject);
         if (savedWorkspace) {
             workspace = validateWorkspace(JSON.parse(savedWorkspace));
             removedCount = migrateSavedWorkspace(workspace, storage);
@@ -64,10 +67,36 @@ export function loadWorkspace(storageOwner) {
         initializePreset = project.power && isComplementPreset(project);
     }
     ensureRamExperiment(workspace);
+    ensureTimingExperiment(workspace);
     return {
         workspace: workspace, project: project, readOnly: readOnly, warning: warning,
-        removedCount: removedCount, initializePreset: initializePreset
+        removedCount: removedCount, initializePreset: initializePreset, hasSavedWorkspace: hasSavedWorkspace
     };
+}
+
+// 首次打开时序功能时加入内置实验，已有存档继续使用原内容
+function ensureTimingExperiment(workspace) {
+    let ramId = "";
+    for (const id of Object.keys(workspace.projects)) {
+        const name = workspace.projects[id].name;
+        if (id === TIMING_EXPERIMENT_ID || name === TIMING_EXPERIMENT_NAME) {
+            return;
+        }
+        if (id === RAM_EXPERIMENT_ID || name === RAM_EXPERIMENT_NAME) {
+            ramId = id;
+        }
+    }
+    const projects = {};
+    for (const id of Object.keys(workspace.projects)) {
+        projects[id] = workspace.projects[id];
+        if (id === ramId) {
+            projects[TIMING_EXPERIMENT_ID] = timingPreset();
+        }
+    }
+    if (ramId === "") {
+        projects[TIMING_EXPERIMENT_ID] = timingPreset();
+    }
+    workspace.projects = projects;
 }
 
 // 升级时补入RAM实验并放在第二项，已有同名实验或固定编号的用户改动优先保留

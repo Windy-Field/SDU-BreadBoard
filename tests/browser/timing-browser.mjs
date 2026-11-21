@@ -5,11 +5,13 @@ import { openWorkbench } from "../helpers/announcement.mjs";
 import { chromium } from "playwright";
 import { pngDimensions, readImageDownload } from "../helpers/downloads.mjs";
 
-// 按用户看到的引脚名在菜单中选中信号，再点击添加按钮
+// 通过统一的多选框勾选指定引脚
 async function addPin(page, label) {
-    const picker = page.locator("#timing-signal");
-    await picker.selectOption({ label: label });
-    await page.locator("#timing-add").click();
+    const picker = page.locator("#timing-signal-trigger");
+    await picker.click();
+    const options = page.locator("#timing-signal-listbox");
+    await options.getByRole("option", { name: label, exact: true }).click();
+    await picker.press("Escape");
 }
 
 // 从事件详情读取一个信号的前值、后值和边沿
@@ -71,9 +73,9 @@ function inspectTooltip(tip) {
 // 检查截图中的侧栏和逻辑图右边缘，并覆盖键盘打开和关闭提示
 async function testTooltips(page) {
     const tip = page.locator("#workbench-tooltip:popover-open");
-    await page.locator("#timing-add").hover();
+    await page.locator("#fit-board").hover();
     await tip.waitFor();
-    assert.equal(await tip.textContent(), "添加信号");
+    assert.equal(await tip.textContent(), "适应宽度");
     assert.deepEqual(await tip.evaluate(inspectTooltip), { lines: 1, fits: true, paintable: true });
     await page.locator("#view-logic-diagram").click();
     const button = page.locator("#logic-export:enabled");
@@ -144,7 +146,7 @@ async function testTimingPanel() {
         await addPin(page, "U1 · 3脚 D0");
         await addPin(page, "U1 · 2脚 Q0");
         await page.locator("#timing-start").click();
-        assert.equal(await page.locator("#timing-signal").isDisabled(), true);
+        assert.equal(await page.locator("#timing-signal-trigger").isDisabled(), true);
 
         // 记录不依赖当前打开的标签，也不依赖动画是否正在播放
         await page.locator("#tab-notes").click();

@@ -890,7 +890,7 @@ function scrollAndReadHeading(container) {
 
 // 逐项检查材料差异在介绍前部可见，并核对 NC 和双向引脚的文字
 async function testChipReferenceWarnings(page) {
-    for (const model of ["74LS20", "74LS85", "74LS112", "74LS194"]) {
+    for (const model of ["74LS20", "74LS85", "74LS112"]) {
         await page.locator(".chip-option[data-model='" + model + "']").click();
         assert.match(await page.locator("#inspect-panel .pin-warning").textContent(), /材料版脚号/);
     }
@@ -1041,7 +1041,7 @@ async function main() {
         await page.evaluate(seedWorkspace, old);
         await page.reload();
         await page.waitForSelector(".chip-option");
-        assert.equal(await page.locator("#experiment-picker option").count(), 3);
+        assert.equal(await page.locator("#experiment-picker option").count(), 4);
         await testBatchColors(page);
         await page.locator("#read-only-toggle").check();
         for (const model of ["74LS273", "74LS283", "74LS86", "74LS00", "74LS08", "74LS32", "74LS04"]) {

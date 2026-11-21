@@ -1,4 +1,4 @@
-import { node, icon, refreshIcons } from "./dom.mjs";
+import { element, node, icon, refreshIcons } from "./dom.mjs";
 
 // 弹层位置参数，单位为像素，宽度跟随原选择框
 const SELECT_LAYOUT = {
@@ -53,9 +53,9 @@ function positionPanel(control) {
     control.panel.style.top = Math.max(SELECT_LAYOUT.margin, top) + "px";
 }
 
-// 更新键盘指向的选项，只高亮预览，确认后才切换实验
+// 更新键盘指向的选项，只高亮预览，确认后才改变选择
 function focusOption(control, index) {
-    const options = control.panel.children;
+    const options = control.items;
     if (options.length === 0) {
         return;
     }
@@ -65,23 +65,62 @@ function focusOption(control, index) {
     }
     const active = options[control.activeIndex];
     control.button.setAttribute("aria-activedescendant", active.id);
-    active.scrollIntoView({ block: "nearest" });
+    // 只滚动选项列表，避免页面滚动事件把刚打开的列表关掉
+    const panel = control.panel;
+    const firstVisible = panel.scrollTop;
+    const lastVisible = firstVisible + panel.clientHeight;
+    const firstPixel = active.offsetTop;
+    const lastPixel = firstPixel + active.offsetHeight;
+    if (firstPixel < firstVisible) {
+        panel.scrollTop = firstPixel;
+    } else if (lastPixel > lastVisible) {
+        panel.scrollTop = lastPixel - panel.clientHeight;
+    }
 }
 
-// 创建选项行，当前值使用勾选标记，长名称在面板内自然换行
+// 同步选项的可用状态和选择顺序，保持当前滚动位置
+function updateOptions(control) {
+    for (let index = 0; index < control.items.length; index = index + 1) {
+        const option = control.select.options[index];
+        const item = control.items[index];
+        item.setAttribute("aria-selected", String(option.selected));
+        item.setAttribute("aria-disabled", String(option.disabled));
+        if (control.select.multiple) {
+            item.lastElementChild.textContent = option.dataset.order || "";
+        }
+    }
+}
+
+// 创建选项行，分组标题不参与键盘选择，选中的多选项显示顺序
 function renderOptions(control) {
     control.panel.replaceChildren();
+    control.items = [];
+    let previousGroup = null;
     for (let index = 0; index < control.select.options.length; index = index + 1) {
         const option = control.select.options[index];
+        const group = option.parentElement;
+        if (group.tagName === "OPTGROUP" && group !== previousGroup) {
+            const heading = node("div", group.label, "select-group-label");
+            heading.setAttribute("role", "presentation");
+            control.panel.append(heading);
+        }
+        previousGroup = group;
         const item = node("div", "", "select-option");
         item.id = control.select.id + "-option-" + index;
         item.dataset.index = String(index);
         item.setAttribute("role", "option");
-        item.setAttribute("aria-selected", String(option.selected));
-        item.setAttribute("aria-disabled", String(option.disabled));
-        item.append(node("span", option.textContent, "select-option-label"), icon("check"));
+        item.append(node("span", option.textContent, "select-option-label"));
+        if (control.select.multiple) {
+            const mark = node("span", "", "select-order");
+            mark.setAttribute("aria-hidden", "true");
+            item.append(mark);
+        } else {
+            item.append(icon("check"));
+        }
+        control.items.push(item);
         control.panel.append(item);
     }
+    updateOptions(control);
     refreshIcons();
 }
 
@@ -94,13 +133,18 @@ function openSelect(control, keyboard) {
     openedControl = control;
     renderOptions(control);
     control.panel.classList.toggle("keyboard-open", keyboard);
+    // 模态窗口里的下拉必须放在窗口内，列表才能接收鼠标和键盘操作
+    const dialog = control.button.closest("dialog");
+    if (dialog) {
+        dialog.append(control.panel);
+    }
     control.panel.showPopover();
     control.button.setAttribute("aria-expanded", "true");
     positionPanel(control);
     focusOption(control, control.select.selectedIndex);
 }
 
-// 点击按钮展开或收起，不改变当前实验
+// 点击按钮展开或收起，不改变当前值
 function toggleSelect(control, event) {
     if (openedControl === control) {
         closeSelect(true);
@@ -109,10 +153,17 @@ function toggleSelect(control, event) {
     }
 }
 
-// 确认一个有效选项，通过原有 change 事件复用实验切换与芯片移动逻辑
+// 确认有效选项，单选后关闭，多选时保持列表打开
 function chooseOption(control, index) {
     const option = control.select.options[index];
     if (!option || option.disabled) {
+        return;
+    }
+    if (control.select.multiple) {
+        option.selected = !option.selected;
+        focusOption(control, index);
+        control.select.dispatchEvent(new Event("change", { bubbles: true }));
+        refreshSelect(control.select);
         return;
     }
     const changed = control.select.value !== option.value;
@@ -136,6 +187,10 @@ function clickOption(control, event) {
 function selectKeyDown(control, event) {
     if (event.key === "Tab") {
         closeSelect(false);
+        return;
+    }
+    // 列表收起后把 Escape 交还给所在对话框
+    if (event.key === "Escape" && openedControl !== control) {
         return;
     }
     if (!["ArrowDown", "ArrowUp", "Home", "End", "Enter", " ", "Escape"].includes(event.key)) {
@@ -198,11 +253,25 @@ function outsidePointerDown(event) {
     }
 }
 
-// 滚动外层区域或调整窗口后收起列表，避免面板脱离触发按钮
+// 外层滚动时让列表跟随触发按钮，按钮滑出可见区域后再收起
 function outsideScroll(event) {
-    if (openedControl && !openedControl.panel.contains(event.target)) {
-        closeSelect(false);
+    if (!openedControl || !event.target.contains(openedControl.button)) {
+        return;
     }
+    const control = openedControl;
+    const bounds = control.button.getBoundingClientRect();
+    let visibleTop = 0;
+    let visibleBottom = window.innerHeight;
+    if (event.target instanceof Element) {
+        const area = event.target.getBoundingClientRect();
+        visibleTop = Math.max(visibleTop, area.top);
+        visibleBottom = Math.min(visibleBottom, area.bottom);
+    }
+    if (bounds.bottom <= visibleTop || bounds.top >= visibleBottom) {
+        closeSelect(false);
+        return;
+    }
+    positionPanel(control);
 }
 
 // 窗口尺寸改变后收起列表，下一次展开时重新计算可用空间
@@ -222,8 +291,8 @@ function selectBlur(control) {
     }
 }
 
-// 为一个原生下拉控件添加统一外观，原有值、选项和 change 监听保持可用
-export function refreshSelect(select) {
+// 为原生选择框添加统一外观，返回可聚焦的触发按钮
+export function refreshSelect(select, optionsChanged = false) {
     let control = controls.get(select);
     if (!control) {
         const wrapper = node("div", "", "select-control");
@@ -248,15 +317,22 @@ export function refreshSelect(select) {
         select.classList.add("select-native");
         select.tabIndex = -1;
         select.setAttribute("aria-hidden", "true");
-        for (const label of document.querySelectorAll("label[for='" + select.id + "']")) {
-            label.htmlFor = button.id;
+        for (const caption of document.querySelectorAll("label[for='" + select.id + "']")) {
+            caption.htmlFor = button.id;
         }
-        control = { select: select, wrapper: wrapper, button: button, label: label, panel: panel, activeIndex: 0, typed: "", typedAt: 0 };
+        if (select.multiple) {
+            panel.setAttribute("aria-multiselectable", "true");
+        }
+        const description = select.getAttribute("aria-describedby");
+        if (description) {
+            button.setAttribute("aria-describedby", description);
+        }
+        control = { select: select, wrapper: wrapper, button: button, label: label, panel: panel, items: [], activeIndex: 0, typed: "", typedAt: 0 };
         controls.set(select, control);
         button.addEventListener("click", toggleSelect.bind(null, control));
         button.addEventListener("keydown", selectKeyDown.bind(null, control));
         button.addEventListener("blur", selectBlur.bind(null, control));
-        panel.addEventListener("pointerdown", keepTriggerFocus);
+        panel.addEventListener("mousedown", keepTriggerFocus);
         panel.addEventListener("click", clickOption.bind(null, control));
         select.addEventListener("change", selectChanged.bind(null, select));
     }
@@ -265,16 +341,37 @@ export function refreshSelect(select) {
     if (selected) {
         control.label.textContent = selected.textContent;
     }
+    if (select.multiple) {
+        const count = select.selectedOptions.length;
+        control.label.textContent = "选择监测信号";
+        if (count > 0) {
+            control.label.textContent = "已选 " + count + " 路信号";
+        }
+    }
     control.button.title = control.label.textContent;
     control.button.disabled = select.disabled;
     if (openedControl === control) {
-        closeSelect(false);
+        if (select.multiple && !select.disabled && !optionsChanged) {
+            updateOptions(control);
+        } else {
+            closeSelect(false);
+        }
     }
+    return control.button;
 }
 
 // 点击选项时把焦点留在组合框，避免 blur 先关闭面板使点击丢失
 function keepTriggerFocus(event) {
-    event.preventDefault();
+    if (event.target.closest(".select-option")) {
+        event.preventDefault();
+    }
+}
+
+// 模态窗口关闭时清掉选项列表，重新打开后由触发框重新定位
+function closeDialogSelect(event) {
+    if (openedControl && event.target.contains(openedControl.button)) {
+        closeSelect(false);
+    }
 }
 
 // 在界面刷新后移除已经离开文档的控件面板，防止切换芯片时积累隐藏节点
@@ -292,4 +389,5 @@ export function cleanSelectPanels() {
 
 document.addEventListener("pointerdown", outsidePointerDown);
 document.addEventListener("scroll", outsideScroll, true);
+document.addEventListener("close", closeDialogSelect, true);
 window.addEventListener("resize", resizeWindow);

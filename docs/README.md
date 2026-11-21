@@ -7,6 +7,7 @@
 | [使用说明](user-guide.md) | 面包板操作、保存、导入导出和状态说明 |
 | [补码运算器](complement-wiring.md) | 第一份实验的操作、验收和接线表 |
 | [RAM 字扩展](ram-wiring.md) | 第二份实验的读写步骤、验收和接线表 |
+| [实验四 时序系统](../examples/timing-system.json) | 可直接导入的存档，备注里有启动和观察步骤 |
 | [逻辑电路图](logic-diagram.md) | 自动生成图纸及网络查看 |
 | [下载与打包](packaging.md) | 网页离线包、桌面版、发布与自动更新 |
 

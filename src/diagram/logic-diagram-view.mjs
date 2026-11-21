@@ -1,6 +1,7 @@
 import { element, node, refreshIcons, svgElement, SVG_NAMESPACE } from "../ui/dom.mjs";
 import { copyStyledSvg, createExportPalette, encodeSvgImage } from "../ui/image-export.mjs";
 import { bindFileExport } from "../ui/export-dialog.mjs";
+import { refreshSelect } from "../ui/select-control.mjs";
 import { buildLogicDiagram } from "./logic-diagram.mjs";
 import { layoutLogicDiagram } from "./logic-diagram-layout.mjs";
 import { bindViewportPan } from "../ui/viewport-pan.mjs";
@@ -284,11 +285,15 @@ async function generateDiagram() {
     svg.replaceChildren();
     svg.removeAttribute("style");
     element("logic-network-members").replaceChildren();
-    element("logic-network").replaceChildren(node("option", "网络核对", ""));
+    const networkPicker = element("logic-network");
+    const placeholder = node("option", "网络核对", "");
+    placeholder.value = "";
+    networkPicker.replaceChildren(placeholder);
     element("logic-zoom-label").textContent = "";
     for (const id of DIAGRAM_CONTROLS) {
         element(id).disabled = true;
     }
+    refreshSelect(networkPicker);
     try {
         const diagram = buildLogicDiagram(currentProject, currentResult);
         const graph = await layoutLogicDiagram(diagram, element("logic-show-power").checked);
@@ -303,6 +308,7 @@ async function generateDiagram() {
         for (const id of DIAGRAM_CONTROLS) {
             element(id).disabled = false;
         }
+        refreshSelect(networkPicker);
     } catch (error) {
         if (generation !== request || !element("logic-diagram-dialog").open) {
             return;
@@ -423,6 +429,7 @@ function renderNetworkSelection() {
     } else if (selectedNetworks.size > 1) {
         placeholder.textContent = "已选 " + selectedNetworks.size + " 组网络";
     }
+    refreshSelect(select);
     for (const shape of element("logic-diagram").querySelectorAll("[data-net]")) {
         const selected = selectedNetworks.has(shape.dataset.net);
         shape.classList.toggle("logic-active-net", selected);

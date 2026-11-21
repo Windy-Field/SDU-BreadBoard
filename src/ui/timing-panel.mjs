@@ -1,6 +1,7 @@
 import { element, icon, node, refreshIcons, svgElement } from "./dom.mjs";
 import { encodeTimingTrace } from "./timing-export.mjs";
 import { bindFileExport } from "./export-dialog.mjs";
+import { refreshSelect } from "./select-control.mjs";
 import {
     TRACE_LIMITS, addTimingSignal, availableTimingSignals, clearTimingTrace,
     removeTimingSignal, startTimingTrace, stopTimingTrace, timingEdge
@@ -16,26 +17,12 @@ let renderedSignals = null;
 let selectedEvent = -1;
 let followLatest = true;
 
-// 返回当前已加入的孔位，供信号菜单隐藏重复选项
-function watchedEndpoints(trace) {
-    const endpoints = new Set();
-    for (const signal of trace.signals) {
-        endpoints.add(signal.endpoint);
-    }
-    return endpoints;
-}
-
-// 按板载端口和芯片分组刷新信号选项，能保留尚未添加的选项
-function renderSignalPicker(trace) {
+// 电路变化时按端口类型和芯片分组，选项顺序与板载编号一致
+function renderSignalPicker() {
     const picker = element("timing-signal");
-    const previous = picker.value;
     const groups = new Map();
-    const watched = watchedEndpoints(trace);
     picker.replaceChildren();
     for (const signal of available) {
-        if (watched.has(signal.endpoint)) {
-            continue;
-        }
         let group = groups.get(signal.group);
         if (!group) {
             group = document.createElement("optgroup");
@@ -45,16 +32,36 @@ function renderSignalPicker(trace) {
         }
         const option = node("option", signal.label, "");
         option.value = signal.endpoint;
-        option.selected = signal.endpoint === previous;
         group.append(option);
     }
+}
+
+// 把波形顺序同步到下拉，选满后仍能取消已经勾选的项
+function updateSignalPicker(trace, optionsChanged) {
+    const order = new Map();
+    for (let index = 0; index < trace.signals.length; index = index + 1) {
+        order.set(trace.signals[index].endpoint, index + 1);
+    }
+    const picker = element("timing-signal");
+    const full = trace.signals.length >= TRACE_LIMITS.signals;
+    for (const option of picker.options) {
+        option.selected = order.has(option.value);
+        option.disabled = full && !option.selected;
+        option.dataset.order = "";
+        if (option.selected) {
+            option.dataset.order = String(order.get(option.value));
+        }
+    }
+    picker.disabled = trace.recording || picker.options.length === 0;
+    refreshSelect(picker, optionsChanged);
 }
 
 // 显示监测信号及移除按钮，记录时暂时锁定信号组
 function renderSignals(trace) {
     const list = element("timing-signals");
     list.replaceChildren();
-    for (const signal of trace.signals) {
+    for (let index = 0; index < trace.signals.length; index = index + 1) {
+        const signal = trace.signals[index];
         const item = node("li", "", "");
         const button = node("button", "", "icon-button");
         const label = "移除 " + signal.label;
@@ -63,7 +70,9 @@ function renderSignals(trace) {
         button.setAttribute("aria-label", label);
         button.title = label;
         button.append(icon("x"));
-        item.append(node("span", signal.label, ""), button);
+        const order = node("span", String(index + 1), "timing-order");
+        order.setAttribute("aria-hidden", "true");
+        item.append(order, node("span", signal.label, "timing-signal-name"), button);
         list.append(item);
     }
     element("timing-signal-count").textContent = trace.signals.length + " / " + TRACE_LIMITS.signals;
@@ -248,9 +257,9 @@ export function renderTimingPanel(state) {
     const circuitChanged = trace !== renderedTrace || signature !== renderedSignature;
     if (circuitChanged) {
         available = availableTimingSignals(state.project);
+        renderSignalPicker();
     }
     if (circuitChanged || trace.signals !== renderedSignals) {
-        renderSignalPicker(trace);
         renderSignals(trace);
         renderedSignals = trace.signals;
     }
@@ -260,9 +269,7 @@ export function renderTimingPanel(state) {
     renderedTrace = trace;
     renderedSignature = signature;
     renderedRevision = trace.revision;
-    const picker = element("timing-signal");
-    picker.disabled = trace.recording || trace.signals.length >= TRACE_LIMITS.signals || picker.options.length === 0;
-    element("timing-add").disabled = picker.disabled;
+    updateSignalPicker(trace, circuitChanged);
     element("timing-start").disabled = trace.recording || trace.signals.length === 0;
     const startLabel = element("timing-start-label");
     startLabel.textContent = "开始";
@@ -281,15 +288,25 @@ export function renderTimingPanel(state) {
     renderWave(trace);
 }
 
-// 按菜单中的物理孔位添加监测项
-function addSignal(state) {
+// 保留仍勾选的信号顺序，新选中的项追加到波形末尾
+function changeSignals(state) {
+    const trace = state.timing;
     const picker = element("timing-signal");
-    for (const signal of available) {
-        if (signal.endpoint === picker.value && addTimingSignal(state.timing, signal)) {
-            renderTimingPanel(state);
-            return;
+    const selected = new Set();
+    for (const option of picker.selectedOptions) {
+        selected.add(option.value);
+    }
+    for (const signal of trace.signals) {
+        if (!selected.has(signal.endpoint)) {
+            removeTimingSignal(trace, signal.endpoint);
         }
     }
+    for (const signal of available) {
+        if (selected.has(signal.endpoint)) {
+            addTimingSignal(trace, signal);
+        }
+    }
+    renderTimingPanel(state);
 }
 
 // 依据按钮所指的孔位移除信号，并将焦点交回信号菜单
@@ -297,7 +314,7 @@ function removeSignal(state, event) {
     const button = event.target.closest("button[data-endpoint]");
     if (button && removeTimingSignal(state.timing, button.dataset.endpoint)) {
         renderTimingPanel(state);
-        element("timing-signal").focus();
+        element("timing-signal-trigger").focus();
     }
 }
 
@@ -378,7 +395,7 @@ function moveEvent(state, event) {
 // 将时序面板的操作绑定到当前应用状态，切换实验后仍读取新记录
 export function bindTimingPanel(state) {
     element("timing-panel").style.setProperty("--timing-step", WAVE.step + "px");
-    element("timing-add").addEventListener("click", addSignal.bind(null, state));
+    element("timing-signal").addEventListener("change", changeSignals.bind(null, state));
     element("timing-signals").addEventListener("click", removeSignal.bind(null, state));
     element("timing-start").addEventListener("click", startRecording.bind(null, state));
     element("timing-stop").addEventListener("click", stopRecording.bind(null, state));

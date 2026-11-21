@@ -283,7 +283,9 @@ async function main() {
         const address = pathToFileURL(path.join(ROOT, "index.html"));
         await openWorkbench(page, address.href);
         await page.waitForSelector(".chip-option");
-        assert.equal(await page.locator("#export-workspace").count(), 0);
+        const backupButton = page.locator(".header-actions #export-project + #export-workspace");
+        assert.equal(await backupButton.count(), 1);
+        assert.equal(await backupButton.locator("svg.lucide-archive").count(), 1);
         assert.equal(await page.locator(".library-section #view-logic-diagram").count(), 1);
         assert.equal(await page.getByRole("button", { name: "显示逻辑电路图", exact: true }).count(), 1);
         const before = await readProject(page);

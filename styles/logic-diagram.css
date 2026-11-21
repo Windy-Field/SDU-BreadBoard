@@ -46,7 +46,6 @@
 .logic-pin:focus-visible .logic-pin-lead { stroke: var(--color-focus); stroke-width: 3px; }
 .logic-component:focus-visible text { fill: var(--color-focus); text-decoration: underline; }
 .logic-network-inspection { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: start; gap: 10px; flex-shrink: 0; max-height: 132px; min-height: 36px; }
-#logic-network { height: 34px; font-size: 11px; }
 #logic-network-members { display: flex; flex-wrap: wrap; gap: 4px 14px; max-height: 130px; overflow: auto; font: 11px/1.8 var(--font-mono); }
 #logic-network-members strong { color: var(--color-success); }
 @media (max-width: 700px) {

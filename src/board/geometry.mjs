@@ -1,4 +1,4 @@
-import { BOARD, PORT_LAYOUT, IO_LIMIT, endpointPosition, rowY } from "./board.mjs";
+import { BOARD, PORT_LAYOUT, INPUT_RESET_COLUMN, IO_LIMIT, endpointPosition, rowY, columnX } from "./board.mjs";
 import { CHIP_MODELS } from "../chips/chips.mjs";
 import { angleWirePath } from "./wire-path.mjs";
 
@@ -77,7 +77,24 @@ function segmentDistance(point, first, last) {
     return Math.hypot(point.x - first.x - portion * horizontal, point.y - first.y - portion * vertical);
 }
 
-// 判断鼠标位置命中了按键、孔、芯片或导线，返回对象或空值
+// 返回鼠标到整条折线的最短距离，虚线也按完整路径计算
+function wireDistance(point, points) {
+    let nearest = Infinity;
+    for (let segment = 1; segment < points.length; segment = segment + 1) {
+        const distance = segmentDistance(point, points[segment - 1], points[segment]);
+        nearest = Math.min(nearest, distance);
+    }
+    return nearest;
+}
+
+// 判断画布位置是否落在输入板的复位键上
+export function isInputResetButton(point) {
+    const vertical = point.y - PORT_LAYOUT.inputY;
+    const horizontal = Math.abs(point.x - columnX(INPUT_RESET_COLUMN));
+    return vertical >= PICK.buttonTop && vertical <= PICK.buttonBottom && horizontal <= PICK.pulseHalfWidth;
+}
+
+// 判断鼠标位置命中了哪些可见对象，隐藏集合只在面包板界面提供
 export function hitCandidates(point, state, endpoints) {
     const candidates = [];
     const displayPaths = wireDisplayPaths(state.project.wires);
@@ -98,12 +115,12 @@ export function hitCandidates(point, state, endpoints) {
     // 导线先参与命中，避免接口或芯片把重叠导线挡住
     for (let index = state.project.wires.length - 1; index >= 0; index = index - 1) {
         const wire = state.project.wires[index];
+        if (state.hiddenWires && state.hiddenWires.has(wire.id)) {
+            continue;
+        }
         const points = displayPaths[index];
-        for (let segment = 1; segment < points.length; segment = segment + 1) {
-            if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
-                candidates.push({ kind: "wire", id: wire.id });
-                break;
-            }
+        if (wireDistance(point, points) < PICK.wireRadius) {
+            candidates.push({ kind: "wire", id: wire.id });
         }
     }
     const positions = fixedPositions(endpoints);
@@ -123,6 +140,33 @@ export function hitCandidates(point, state, endpoints) {
         }
     }
     return candidates;
+}
+
+// 选择模式下按距离挑线，路径重合时优先保留已选线，其次选实线
+export function nearestWire(point, wires, hiddenWires, selected) {
+    let nearest = null;
+    let nearestDistance = PICK.wireRadius;
+    for (let index = wires.length - 1; index >= 0; index = index - 1) {
+        const wire = wires[index];
+        const points = wirePoints(wire, index);
+        const distance = wireDistance(point, points);
+        if (distance >= PICK.wireRadius || distance > nearestDistance) {
+            continue;
+        }
+        if (distance === nearestDistance) {
+            const selectedWire = selected && selected.kind === "wire";
+            if (selectedWire && nearest.id === selected.id) {
+                continue;
+            }
+            const keepVisible = !hiddenWires.has(nearest.id) || hiddenWires.has(wire.id);
+            if (keepVisible && (!selectedWire || wire.id !== selected.id)) {
+                continue;
+            }
+        }
+        nearest = wire;
+        nearestDistance = distance;
+    }
+    return nearest;
 }
 
 // 返回最上层可选择对象，悬停和普通命中沿用这个入口

@@ -176,7 +176,7 @@ function testPortAlignment() {
         assert.equal(Number.isInteger(column), true);
         assert.ok(column >= 1 && column <= BOARD.columns);
     }
-    assert.equal(endpointPosition("P+").x, endpointPosition("B3:A:53").x);
+    assert.equal(endpointPosition("P+").x, endpointPosition("B3:A:55").x);
     assert.equal(endpointPosition("P-").x, endpointPosition("B3:A:57").x);
 }
 
@@ -203,7 +203,9 @@ function testDirectPorts() {
     assert.equal(readEndpoint(result, "B3:A:49"), 1);
     assert.equal(readEndpoint(result, "B3:Y:49"), "Z");
     assert.equal(baseNode("P-"), baseNode("B3:F:57"));
-    assert.equal(baseNode("P+"), baseNode("B3:J:53"));
+    assert.equal(baseNode("P+"), baseNode("B3:J:55"));
+    assert.notEqual(baseNode("B3:A:53"), baseNode("B3:J:53"));
+    assert.equal(readEndpoint(result, "B3:A:53"), "Z");
     assert.equal(allEndpoints().every(isPhysicalHole), true);
     assert.equal(isPhysicalHole("K0"), false);
     assert.equal(isPhysicalHole("L0"), false);
@@ -241,6 +243,30 @@ function testFourthBoardBridges() {
     assert.equal(readEndpoint(result, "B3:J:57"), 0);
 }
 
+// K8 为低时逐一验证弱上拉和弱下拉可被强信号覆盖，K8 为高时恢复冲突诊断
+function testBoardTriState() {
+    const project = emptyProject();
+    const runtime = createRuntime();
+    runtime.triState = true;
+    project.switches[0] = 1;
+    let result = simulate(project, runtime);
+    assert.equal(readEndpoint(result, "K0"), 1);
+    assert.equal(readEndpoint(result, "K7"), 0);
+    project.wires.push({ id: "W1", from: portHole("K0"), to: portHole("GND"), color: "#46515f", bends: [] });
+    project.wires.push({ id: "W2", from: portHole("K7"), to: portHole("VCC"), color: "#dc3545", bends: [] });
+    result = simulate(project, runtime);
+    assert.equal(readEndpoint(result, "K0"), 0);
+    assert.equal(readEndpoint(result, "K7"), 1);
+    assert.equal(result.issues.length, 0);
+    project.switches[8] = 1;
+    result = simulate(project, runtime);
+    assert.equal(readEndpoint(result, "K0"), "X");
+    assert.equal(readEndpoint(result, "K7"), "X");
+    assert.ok(result.issues.length > 0);
+}
+
+test("三态输入的弱上拉和弱下拉可被外部信号覆盖", testBoardTriState);
+
 // 旧文件转换为真实孔位，新旧端口不发生重复占用，迁移冲突会明确拒绝
 function testPortMigration() {
     const restored = validateProject(original);
@@ -264,6 +290,31 @@ function testPortMigration() {
     assert.throws(validateProject.bind(null, previous), /迁移会改变连接/);
     assert.equal(JSON.stringify(previous), snapshot);
 }
+
+// 旧版 P+ 迁到第 55 列，原本接在第 55 列的独立信号仍保留
+function testPositivePulseMigration() {
+    const previous = emptyProject();
+    previous.wiringVersion = 3;
+    previous.wires = [
+        { id: "W1", from: "B3:A:53", to: "B0:A:49", color: "#123456", bends: [] },
+        { id: "W2", from: "B3:A:55", to: "B0:A:47", color: "#123456", bends: [] }
+    ];
+    previous.pullUps = ["B3:B:55"];
+    const project = validateProject(previous);
+    assert.equal(project.wires[0].from, "B3:A:55");
+    assert.equal(project.wires[1].from, "B3:A:53");
+    assert.deepEqual(project.pullUps, ["B3:B:53"]);
+    const runtime = createRuntime();
+    runtime.pulses.positive = 1;
+    let result = simulate(project, runtime);
+    assert.equal(readEndpoint(result, "L0"), 1);
+    runtime.pulses.positive = 0;
+    result = simulate(project, runtime);
+    assert.equal(readEndpoint(result, "L0"), 0);
+    assert.equal(readEndpoint(result, "L1"), 1);
+}
+
+test("旧版 P+ 布局迁移保留原有接线和上拉", testPositivePulseMigration);
 
 // 检查新建通用模式、位数配置、旧文件迁移和 Markdown 备注往返
 function testProjectMetadata() {
@@ -421,7 +472,7 @@ function testLegacyWorkspaceStartup() {
     assert.equal(restored.warning, "");
     assert.equal(restored.initializePreset, true);
     assert.deepEqual(restored.project, project);
-    assert.equal(Object.keys(restored.workspace.projects).length, 2);
+    assert.equal(Object.keys(restored.workspace.projects).length, 3);
     assert.equal(storage.has(WORKSPACE_KEY), false);
 }
 

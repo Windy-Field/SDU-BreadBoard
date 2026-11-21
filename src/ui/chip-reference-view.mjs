@@ -23,8 +23,8 @@ export function appendChipReference(container, chip) {
     let caption = "原厂顶视图：缺口朝上；画布中的芯片缺口朝左";
     let sourceLabel = "TI 数据手册 · 第 " + reference.page + " 页";
     if (reference.image) {
-        caption = "用户材料中的引脚图；安装时请按物理脚号核对";
-        sourceLabel = "查看材料中的逻辑符号";
+        caption = "封装引脚图";
+        sourceLabel = "查看逻辑符号";
     }
     figure.append(imageLink, node("figcaption", caption, ""));
     const source = node("a", sourceLabel, "datasheet-link");

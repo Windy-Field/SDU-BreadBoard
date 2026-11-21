@@ -10,7 +10,9 @@ export function disableSavePicker() {
 export async function confirmBrowserDownload(page, selector, format) {
     await page.evaluate(disableSavePicker);
     await page.locator(selector).click();
-    await page.locator("#export-format").selectOption(format);
+    await page.locator("#export-format-trigger").click();
+    const list = page.locator("#export-format-listbox");
+    await list.getByRole("option", { name: format.toUpperCase(), exact: true }).click();
     const waiting = page.waitForEvent("download");
     await page.locator("#export-confirm").click();
     return waiting;

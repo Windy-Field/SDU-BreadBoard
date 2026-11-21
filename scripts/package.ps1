@@ -1,5 +1,6 @@
 ﻿param(
-    [string]$OutputDirectory = ''
+    [string]$OutputDirectory = '',
+    [string]$SnapshotScript = ''
 )
 
 # 输出目录由脚本参数指定；默认子目录、命名前缀和压缩方式在此配置
@@ -84,6 +85,9 @@ function New-OfflinePackage {
     $temporaryRoot = Join-Path $output $temporaryName
     Confirm-ChildPath -TargetPath $temporaryRoot -ParentPath $output
     $packageName = $PackagePrefix + $version
+    if ($SnapshotScript -ne '') {
+        $packageName = $packageName + '-personal'
+    }
     $packageRoot = Join-Path $temporaryRoot $packageName
     $archive = Get-OfflineArchivePath -Directory $output -PackageName $packageName
 
@@ -96,6 +100,14 @@ function New-OfflinePackage {
 
         # 说明文件与入口放在一起，游客解压后即可找到打开方式
         $instructions = @('# SDU 面包板离线包', '', '完整解压后，使用 Chrome 或 Edge 打开 index.html', '', '离线包已包含运行所需的文件，请保留 styles、vendor、assets 等目录', '', 'Ctrl+S 保存当前实验和待写入的导入备份；切换有改动的实验前会询问是否保存。迁移实验时可逐份导出 JSON，再到新页面导入')
+        if ($SnapshotScript -ne '') {
+            # 只把个人存档写入本次打包的副本，正常构建不读取这一份内容
+            $application = Join-Path $packageRoot 'application.js'
+            $snapshot = [System.IO.File]::ReadAllText($SnapshotScript)
+            $bundle = [System.IO.File]::ReadAllText($application)
+            [System.IO.File]::WriteAllText($application, $snapshot + [Environment]::NewLine + $bundle)
+            $instructions = @('# SDU 面包板个人离线包', '', '这个压缩包包含个人实验，请自行保管', '', '完整解压后打开 index.html。该地址没有旧存档时，会载入打包时的快照。要持续同步，请在桌面端打开共享网页版')
+        }
         $instructionsPath = Join-Path $packageRoot 'START-HERE.md'
         Set-Content -LiteralPath $instructionsPath -Value $instructions -Encoding UTF8
         Compress-Archive -LiteralPath $packageRoot -DestinationPath $archive -CompressionLevel $CompressionLevel

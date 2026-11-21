@@ -3,6 +3,7 @@
 @import url("select.css");
 @import url("logic-diagram.css");
 @import url("timing.css");
+@import url("object-inspector.css");
 :root {
     /* 工作台左右栏宽度 */
     --sidebar-width: 214px;
@@ -73,6 +74,14 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
     white-space: normal;
     overflow-wrap: anywhere;
 }
+.workbench-tooltip.help-tip { max-width: min(32em, calc(100% - var(--tooltip-edge) * 2)); white-space: pre-line; }
+.workbench-tooltip.help-tip:not(.instant-tip) {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-popover) var(--ease-out), display var(--dur-popover) allow-discrete, overlay var(--dur-popover) allow-discrete;
+}
+.workbench-tooltip.help-tip:not(.instant-tip):popover-open { opacity: 1; pointer-events: auto; }
+@starting-style { .workbench-tooltip.help-tip:not(.instant-tip):popover-open { opacity: 0; } }
 .power-control { display: flex; align-items: center; gap: 6px; border-left: 1px solid var(--color-rule); margin-left: 5px; padding-left: 14px; white-space: nowrap; cursor: pointer; }
 .power-control input { width: 15px; height: 15px; }
 .power-dot, .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-success); display: inline-block; }
@@ -110,6 +119,8 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
 .wire-angle-control { width: var(--wire-angle-width); flex: 0 0 var(--wire-angle-width); }
 .wire-angle-control .select-trigger { min-height: 34px; padding: 6px 8px; }
 .toolbar-end .icon-button { width: 29px; flex-basis: 29px; }
+.toolbar-end #hidden-objects { width: 48px; flex-basis: 48px; gap: var(--space-xs); }
+#hidden-object-count { font: 10px var(--font-mono); }
 .toolbar-divider { width: 1px; height: 21px; background: var(--color-rule); margin: 0 6px; }
 #zoom-label { font-family: var(--font-mono); font-size: 11px; width: 42px; text-align: center; }
 .board-status { display: flex; align-items: center; gap: 14px; padding: 9px 15px; font-size: 11px; flex-wrap: wrap; min-height: 35px; }
@@ -162,7 +173,6 @@ input[type="checkbox"] { accent-color: var(--color-accent); }
 .empty-inspector { padding: 18px 0; line-height: 1.8; color: var(--color-muted); font-size: 12px; }
 .empty-inspector > svg { width: 30px; height: 30px; margin-bottom: 14px; color: var(--color-accent); }
 .empty-inspector strong { display: block; color: var(--color-ink); font-size: 14px; margin-bottom: 7px; }
-.node-value { font: 600 18px var(--font-mono); margin: 12px 0; overflow-wrap: anywhere; }
 .wire-row { display: grid; grid-template-columns: 12px minmax(0, 1fr) 26px; gap: 8px; border-bottom: 1px solid var(--color-rule); align-items: center; padding: 9px 0; }
 .wire-row > span { height: 4px; border-radius: 2px; }
 .wire-row button:first-of-type { text-align: left; border: 0; padding: 0; font-size: 11px; white-space: normal; overflow-wrap: anywhere; }
@@ -206,6 +216,35 @@ dialog[open]::backdrop { transition: opacity var(--dur-dialog) var(--ease-out); 
 }
 .dialog-heading { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-rule); }
 .dialog-body { padding: 20px; display: grid; gap: 14px; line-height: 1.85; font-size: 14px; }
+#help-dialog {
+    width: min(760px, calc(100% - 32px));
+    max-height: min(760px, calc(100dvh - 32px));
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 18px 60px var(--color-shadow);
+    opacity: 0;
+    transition: opacity var(--dur-dialog) var(--ease-out), display var(--dur-dialog) allow-discrete, overlay var(--dur-dialog) allow-discrete;
+}
+#help-dialog[open] { display: flex; opacity: 1; }
+#help-dialog::backdrop { opacity: 0; transition: opacity var(--dur-dialog) var(--ease-out), display var(--dur-dialog) allow-discrete, overlay var(--dur-dialog) allow-discrete; }
+#help-dialog[open]::backdrop { opacity: 1; }
+@starting-style {
+    #help-dialog[open], #help-dialog[open]::backdrop { opacity: 0; }
+    #help-dialog[open] { transform: none; }
+}
+.help-heading { justify-content: flex-start; flex: none; gap: 10px; }
+.help-heading > svg { width: 20px; height: 20px; color: var(--color-accent); }
+.help-heading h2 { flex: 1; font-size: 17px; }
+.help-body { min-height: 0; overflow: auto; overscroll-behavior: contain; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.help-topic { display: grid; align-content: start; gap: 8px; padding: 14px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); background: var(--color-paper); }
+.help-topic h3 { font-size: 13px; color: var(--color-ink); }
+.help-topic p { color: var(--color-muted); font-size: 12px; line-height: 1.75; overflow-wrap: anywhere; }
+.help-topic kbd { padding: 1px 4px; border: 1px solid var(--color-rule); border-radius: 4px; color: var(--color-ink); background: var(--color-surface); white-space: nowrap; }
+@media (max-width: 600px) {
+    .help-heading, .help-body { padding: 12px; }
+    .help-body { grid-template-columns: minmax(0, 1fr); }
+}
 [hidden] { display: none !important; }
 button, input, select { transition: transform var(--dur-micro) var(--ease-out), opacity var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out); }
 .pinned-chip { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden; }
@@ -313,6 +352,29 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .autosave-control { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; color: var(--color-muted); font-size: 11px; }
 .release-info { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-mono); white-space: nowrap; }
 .dialog-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 20px 20px; }
+#hidden-objects-dialog { width: min(500px, calc(100% - 32px)); }
+#hidden-objects-dialog[open] { display: flex; flex-direction: column; }
+#hidden-objects-dialog .dialog-heading, #hidden-objects-dialog .dialog-actions { flex-shrink: 0; }
+#hidden-objects-dialog .dialog-heading h2 { font-size: 16px; }
+.hidden-objects-filter { flex-shrink: 0; padding: 12px 20px; }
+.hidden-objects-filter .search-field { width: 100%; margin: 0; }
+.hidden-objects-filter #hidden-objects-search { height: 100%; border: 0; padding: 0; background: transparent; }
+.hidden-objects-filter #hidden-objects-search:focus-visible { outline: none; }
+.hidden-objects-list { min-height: 0; overflow-y: auto; margin: 0; padding: 0 20px; list-style: none; }
+.hidden-object-row {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) 36px;
+    align-items: center;
+    gap: var(--space-md);
+    min-height: 48px;
+    border-bottom: 1px solid var(--color-rule);
+}
+.hidden-wire-swatch { width: 10px; height: 10px; border-radius: 50%; justify-self: center; }
+.hidden-object-description { display: grid; gap: var(--space-xs); padding-block: var(--space-sm); }
+.hidden-object-description strong { font: 600 12px var(--font-mono); }
+.hidden-object-description small { font-size: 11px; color: var(--color-muted); overflow-wrap: anywhere; }
+.hidden-objects-empty { padding: 12px 20px; color: var(--color-muted); font-size: 12px; }
+#hidden-objects-dialog .dialog-actions { border-top: 1px solid var(--color-rule); }
 #announcement-dialog {
     width: min(460px, calc(100% - 32px));
     border-top: 3px solid var(--color-success);
@@ -400,7 +462,6 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .selection-chip-details summary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 .selection-chip-body { display: grid; gap: 8px; padding-top: 8px; min-width: 0; }
 .selection-chip-body .pin-table { font-size: 10px; }
-.selection-delete { margin-top: 12px; width: 100%; }
 .catalog-place { width: 100%; margin: 4px 0 12px; }
 .inspector-content.inspection-duplicate { display: none; }
 .inspection-stack { --inspection-divider-height: 14px; display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden; }
@@ -430,6 +491,24 @@ button, input, select { transition: transform var(--dur-micro) var(--ease-out), 
 .io-settings input:not([type="checkbox"]) { width: 48px; height: 30px; padding-inline: 5px; }
 .pulse-button { width: var(--io-pulse-width); min-width: var(--io-pulse-width); background: var(--color-surface); color: var(--color-accent); border-color: var(--color-rule); }
 .pulse-button.pressed { background: var(--color-accent-soft); color: var(--color-accent); transform: translateY(2px); border-color: var(--color-accent); }
+.input-board-actions { display: flex; flex-wrap: wrap; width: 100%; gap: var(--io-pulse-gap); }
+.input-board-actions .button { min-width: 0; padding-inline: 5px; font-size: 11px; }
+#reset-inputs { flex: 1 1 64px; }
+#pulse-options { flex: 2 1 128px; }
+.input-board-actions .pressed { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent); }
+.pulse-settings-body { gap: 12px; }
+.pulse-setting { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); }
+.pulse-mode { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; cursor: pointer; }
+.pulse-mode input { margin: 0; }
+.pulse-frequency { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pulse-frequency-field { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; width: min(100%, 132px); border: 1px solid var(--color-rule); border-radius: var(--radius-control); background: var(--color-surface); }
+.pulse-frequency-field:focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.pulse-frequency-field input[type="number"] { border: 0; background: transparent; outline: 0; font-family: var(--font-mono); }
+.pulse-frequency-field span { padding-inline: 10px; border-inline-start: 1px solid var(--color-rule); font: 12px var(--font-mono); color: var(--color-muted); }
+.pulse-setting p, .pulse-frequency-range { color: var(--color-muted); font-size: 12px; line-height: 1.65; }
+#pulse-dialog { width: min(410px, calc(100% - 32px)); }
+#pulse-dialog .dialog-heading h2 { font-size: 16px; }
+.io-led.weak.on::after { opacity: 0.38; }
 /* 按工作台实际宽度换行，不让两侧栏挤压输入开关 */
 @container (max-width: 1000px) {
     .io-strip { grid-template-columns: max-content minmax(132px, 1fr) var(--io-pulse-group-width); }

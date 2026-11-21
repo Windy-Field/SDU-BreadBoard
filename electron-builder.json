@@ -7,6 +7,13 @@
   },
   "files": [
     "desktop/**/*",
+    "src/board/board.mjs",
+    "src/chips/chips.mjs",
+    "src/chips/extra-chips.mjs",
+    "src/experiments/**/*",
+    "src/storage/storage.mjs",
+    "src/storage/workspace.mjs",
+    "src/storage/workspace-settings.mjs",
     "index.html",
     "application.js",
     "styles/**/*",

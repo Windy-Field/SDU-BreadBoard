@@ -243,7 +243,7 @@ function testSequentialUnknowns() {
     const shift = createChipState(CHIP_MODELS["74LS194"]);
     shift.bits = [1, 0, 1, 0];
     shift.clocks[0] = 0;
-    updateChipState(CHIP_MODELS["74LS194"], { 1: 1, 2: "X", 9: 0, 10: 0 }, shift, true);
+    updateChipState(CHIP_MODELS["74LS194"], { 1: 1, 11: "X", 9: 0, 10: 0 }, shift, true);
     assert.deepEqual(shift.bits, [1, 0, 1, 0]);
 }
 

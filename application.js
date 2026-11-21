@@ -89,108 +89,99 @@
     "6116": {
       image: "assets/pinouts/document/6116-1.png",
       logicImage: "assets/pinouts/document/6116-2.jpeg",
-      summary: "\u4F9D\u636E\u7B2C\u4E09\u6B21\u5B9E\u9A8C\u8BFE\u4EF6\u7B2C6\u9875\uFF1A6116\u4E3A2K\xD78\u9759\u6001RAM\uFF0C24\u811A\u63A5+5V\uFF0C12\u811A\u63A5\u5730\u3002A0\uFF5EA10\u9009\u62E9\u7247\u5185\u5730\u5740\uFF0CD0\uFF5ED7\u4E3A\u53CC\u5411\u6570\u636E\u811A\u3002CE\u2032\u3001OE\u2032\u3001WE\u2032\u5747\u4F4E\u6709\u6548\u3002\u5199\u5165\u65F6CE\u2032=0\u3001WE\u2032=0\uFF1B\u8BFB\u53D6\u65F6CE\u2032=0\u3001WE\u2032=1\u3001OE\u2032=0\uFF0C\u5176\u4F59\u786E\u5B9A\u7684\u7981\u6B62\u6761\u4EF6\u4E0B\u6570\u636E\u8F93\u51FA\u4E3A\u9AD8\u963B\u3002\u4E0A\u7535\u5185\u5BB9\u672A\u77E5\uFF0C\u65AD\u7535\u540E\u4E22\u5931\u3002\u5E94\u5148\u7ED3\u675F\u5199\u5165\uFF0C\u518D\u5173\u95ED74LS244\uFF0C\u907F\u514D\u8BEF\u5199"
+      summary: "6116 \u662F\u4E00\u7247 2K\xD78 \u9759\u6001 RAM\uFF0C24 \u811A\u63A5 +5V\uFF0C12 \u811A\u63A5\u5730\u3002A0\uFF5EA10 \u7528\u6765\u9009\u5730\u5740\uFF0CD0\uFF5ED7 \u65E2\u80FD\u8F93\u5165\u4E5F\u80FD\u8F93\u51FA\u3002CE\u2032\u3001OE\u2032 \u548C WE\u2032 \u90FD\u662F\u4F4E\u7535\u5E73\u6709\u6548\u3002\u5199\u5165\u65F6\u628A CE\u2032 \u548C WE\u2032 \u7F6E 0\uFF0C\u8BFB\u51FA\u65F6\u8BBE CE\u2032=0\u3001WE\u2032=1\u3001OE\u2032=0\u3002\u5728\u786E\u5B9A\u7684\u7981\u6B62\u6761\u4EF6\u4E0B\uFF0C\u6570\u636E\u7AEF\u8FDB\u5165\u9AD8\u963B\u6001\u3002\u521A\u4E0A\u7535\u65F6\u5185\u5BB9\u672A\u77E5\uFF0C\u65AD\u7535\u540E\u4F1A\u4E22\u5931\u3002\u5148\u7ED3\u675F\u5199\u5165\uFF0C\u518D\u5173\u95ED 74LS244\uFF0C\u53EF\u4EE5\u907F\u514D\u8BEF\u5199\u3002"
     },
     "74LS244": {
       image: "assets/pinouts/document/74ls244-1.png",
       logicImage: "assets/pinouts/document/74ls244-1.png",
-      summary: "\u4F9D\u636E\u7B2C\u4E09\u6B21\u5B9E\u9A8C\u8BFE\u4EF6\u7B2C7\u9875\uFF1A\u516B\u8DEF\u540C\u76F8\u4E09\u6001\u7F13\u51B2\u5668\uFF0C\u5206\u4E3A\u4E24\u7EC4\uFF0C\u6BCF\u7EC4\u56DB\u8DEF\uFF0C\u5206\u522B\u75311\u811A\u548C19\u811A\u4F4E\u6709\u6548\u4F7F\u80FD\u63A7\u5236\u3002\u4F7F\u80FD\u4E3A0\u65F6\u8F93\u51FA\u8DDF\u968F\u672C\u7EC4\u8F93\u5165\uFF0C\u4F7F\u80FD\u4E3A1\u65F6\u672C\u7EC4\u8F93\u51FA\u5168\u90E8\u8FDB\u5165\u9AD8\u963B\u6001\u3002\u6570\u636E\u53EA\u4ECEA\u7AEF\u6D41\u5411Y\u7AEF\uFF0C\u4E24\u7EC4\u72EC\u7ACB\u300220\u811A\u63A5+5V\uFF0C10\u811A\u63A5\u5730"
+      summary: "\u516B\u8DEF\u540C\u76F8\u4E09\u6001\u7F13\u51B2\u5668\u5206\u4E3A\u4E24\u7EC4\uFF0C\u6BCF\u7EC4\u56DB\u8DEF\uFF0C\u7531 1 \u811A\u548C 19 \u811A\u5206\u522B\u4F7F\u80FD\u3002\u4F7F\u80FD\u4E3A 0 \u65F6\uFF0C\u6570\u636E\u4ECE A \u7AEF\u4F20\u5230 Y \u7AEF\uFF0C\u7535\u5E73\u4FDD\u6301\u4E0D\u53D8\u3002\u628A\u4F7F\u80FD\u7F6E 1\uFF0C\u8BE5\u7EC4\u56DB\u8DEF\u8F93\u51FA\u5C31\u8FDB\u5165\u9AD8\u963B\u6001\u3002\u4E24\u7EC4\u53EF\u4EE5\u72EC\u7ACB\u63A7\u5236\uFF0C20 \u811A\u63A5 +5V\uFF0C10 \u811A\u63A5\u5730\u3002"
     },
     "74LS03": {
       "image": "assets/pinouts/document/74ls03-1.png",
       "logicImage": "assets/pinouts/document/74ls03-2.png",
-      "summary": "\u903B\u8F91\u529F\u80FD\u4E0E74LS00\u76F8\u540C\uFF0CY=(AB)\u2032\uFF0C\u4F46\u8F93\u51FA\u7EA7\u4E3A\u96C6\u7535\u6781\u5F00\u8DEF\uFF08OC\uFF09\u7ED3\u6784\uFF0C\u4F7F\u7528\u65F6\u8F93\u51FA\u7AEF\u5FC5\u987B\u5916\u63A5\u4E0A\u62C9\u7535\u963B\u3002OC\u95E8\u53EF\u4EE5\u628A\u591A\u4E2A\u8F93\u51FA\u76F4\u63A5\u5E76\u8054\u5B9E\u73B0\u201C\u7EBF\u4E0E\u201D\uFF0C\u5E38\u7528\u4E8E\u603B\u7EBF\u9A71\u52A8\u548C\u7535\u5E73\u8F6C\u6362"
+      "summary": "\u5B83\u548C 74LS00 \u4E00\u6837\u5B9E\u73B0\u4E0E\u975E\u903B\u8F91\uFF0CY=(AB)\u2032\u3002\u8F93\u51FA\u662F\u96C6\u7535\u6781\u5F00\u8DEF\uFF08OC\uFF09\uFF0C\u9700\u8981\u5916\u63A5\u4E0A\u62C9\u7535\u963B\u3002\u591A\u4E2A OC \u8F93\u51FA\u53EF\u4EE5\u5E76\u8054\u5B9E\u73B0\u300C\u7EBF\u4E0E\u300D\uFF0C\u5E38\u7528\u4E8E\u603B\u7EBF\u9A71\u52A8\u548C\u7535\u5E73\u8F6C\u6362\u3002"
     },
     "74LS20": {
       "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1A\u7B2C 1 \u95E8\u8F93\u5165\u4E3A 1\u30012\u300112\u300113 \u811A\uFF1BTI \u6807\u51C6 DIP \u7B2C 1 \u95E8\u8F93\u5165\u4E3A 1\u30012\u30014\u30015 \u811A\uFF0C\u4E24\u8005\u4E0D\u53EF\u6DF7\u7528",
       "image": "assets/pinouts/document/74ls20-1.png",
       "logicImage": "assets/pinouts/document/74ls20-2.png",
-      "summary": "\u7247\u5185\u67092\u4E2A\u72EC\u7ACB\u76844\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(ABCD)\u2032\u3002\u5B9E\u9A8C4\u4E2D\u7528\u5B83\u4E0E74LS138\u914D\u5408\u5B9E\u73B0\u7EC4\u5408\u903B\u8F91\u51FD\u6570\uFF1B\u628A\u591A\u4F59\u8F93\u5165\u7AEF\u63A5\u9AD8\u7535\u5E73\u6216\u5C06\u8F93\u5165\u7AEF\u5E76\u63A5\uFF0C\u4E5F\u53EF\u5F53\u4F5C\u53CD\u76F8\u5668\u4F7F\u7528"
+      "summary": "\u7247\u5185\u6709\u4E24\u4E2A\u72EC\u7ACB\u7684\u56DB\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(ABCD)\u2032\u3002\u548C 74LS138 \u914D\u5408\u4F7F\u7528\uFF0C\u5C31\u80FD\u5B9E\u73B0\u7EC4\u5408\u903B\u8F91\u51FD\u6570\u3002\u8981\u628A\u5B83\u5F53\u4F5C\u53CD\u76F8\u5668\uFF0C\u53EF\u4EE5\u628A\u591A\u4F59\u7684\u8F93\u5165\u63A5\u5230\u9AD8\u7535\u5E73\uFF0C\u4E5F\u53EF\u4EE5\u628A\u8F93\u5165\u5E76\u5728\u4E00\u8D77\u3002"
     },
     "CD4011": {
       "image": "assets/pinouts/document/cd4011-1.png",
       "logicImage": "assets/pinouts/document/cd4011-2.png",
-      "summary": "CMOS\u5DE5\u827A\u7684\u56DB2\u8F93\u5165\u4E0E\u975E\u95E8\uFF0CY=(AB)\u2032\u3002\u7535\u6E90\u7535\u538B\u8303\u56F4\u5BBD\uFF083~15V\uFF09\uFF0C\u8F93\u5165\u963B\u6297\u6781\u9AD8\u3001\u9759\u6001\u529F\u8017\u6781\u5C0F\uFF0C\u4F46\u591A\u4F59\u8F93\u5165\u7AEF\u4E0D\u5141\u8BB8\u60AC\u7A7A\uFF0C\u5FC5\u987B\u63A5VDD\u6216VSS\u3002\u5B9E\u9A8C2\u4E2D\u7528\u4E8E\u6D4B\u91CFCMOS\u95E8\u7684\u7535\u538B\u4F20\u8F93\u7279\u6027\u548C\u4F20\u8F93\u5EF6\u8FDF\u65F6\u95F4"
+      "summary": "\u7247\u5185\u6709\u56DB\u4E2A\u53CC\u8F93\u5165 CMOS \u4E0E\u975E\u95E8\uFF0CY=(AB)\u2032\u3002\u5B83\u7684\u7535\u6E90\u7535\u538B\u8303\u56F4\u662F 3\uFF5E15 V\uFF0C\u8F93\u5165\u963B\u6297\u9AD8\uFF0C\u9759\u6001\u529F\u8017\u5C0F\u3002\u591A\u4F59\u7684\u8F93\u5165\u811A\u8981\u63A5 VDD \u6216 VSS\u3002\u5B9E\u9A8C 2 \u53EF\u7528\u5B83\u6D4B\u91CF\u7535\u538B\u4F20\u8F93\u7279\u6027\u548C\u4F20\u8F93\u5EF6\u8FDF\u3002"
     },
     "74LS125": {
       "image": "assets/pinouts/document/74ls125-1.png",
       "logicImage": "assets/pinouts/document/74ls125-2.png",
-      "summary": "\u7247\u5185\u67094\u4E2A\u72EC\u7ACB\u7684\u4E09\u6001\u7F13\u51B2\u95E8\uFF0C\u4F7F\u80FD\u7AEFG\u2032\u4F4E\u7535\u5E73\u6709\u6548\uFF1AG\u2032=0\u65F6Y=A\uFF08\u540C\u76F8\u8F93\u51FA\uFF09\uFF0CG\u2032=1\u65F6\u8F93\u51FA\u4E3A\u9AD8\u963B\u6001\u3002\u5E38\u7528\u4E8E\u603B\u7EBF\u7ED3\u6784\u3001\u6570\u636E\u9009\u62E9\u4E0E\u4FE1\u53F7\u9694\u79BB"
-    },
-    "74LS138": {
-      "image": "assets/pinouts/document/74ls138-1.png",
-      "logicImage": "assets/pinouts/document/74ls138-2.png",
-      "summary": "3\u4E2A\u5730\u5740\u8F93\u5165\u7AEFA2A1A0\uFF0C8\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u7684\u8F93\u51FA\u7AEFY0\u2032~Y7\u2032\uFF0C3\u4E2A\u4F7F\u80FD\u7AEFS1\uFF08\u9AD8\u6709\u6548\uFF09\u3001S2\u2032\u3001S3\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u5F53S1=1\u4E14S2\u2032+S3\u2032=0\u65F6\u8BD1\u7801\uFF0CYi\u2032=(mi\xB7S)\u2032\uFF0C\u88AB\u9009\u4E2D\u7AEF\u8F93\u51FA\u4F4E\u7535\u5E73\uFF1B\u7981\u6B62\u65F6\u8F93\u51FA\u5168\u4E3A\u9AD8\u3002\u53EF\u4F5C\u5730\u5740\u8BD1\u7801\u5668\u3001\u8109\u51B2\u5206\u914D\u5668\uFF0C\u914D\u4E0E\u975E\u95E8\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u7EC4\u5408\u903B\u8F91\u51FD\u6570"
+      "summary": "\u7247\u5185\u6709\u56DB\u4E2A\u72EC\u7ACB\u7684\u540C\u76F8\u4E09\u6001\u7F13\u51B2\u95E8\u3002G\u2032 \u4E3A 0 \u65F6\uFF0CY \u8DDF\u968F A\uFF0C\u7535\u5E73\u4FDD\u6301\u4E0D\u53D8\u3002G\u2032 \u4E3A 1 \u65F6\uFF0CY \u8FDB\u5165\u9AD8\u963B\u6001\u3002\u5B83\u5E38\u7528\u4E8E\u603B\u7EBF\u3001\u6570\u636E\u9009\u62E9\u548C\u4FE1\u53F7\u9694\u79BB\u3002"
     },
     "74LS139": {
       "image": "assets/pinouts/document/74ls139-1.png",
       "logicImage": "assets/pinouts/document/74ls139-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A\u5B8C\u5168\u72EC\u7ACB\u76842\u7EBF-4\u7EBF\u8BD1\u7801\u5668\uFF0C\u5404\u6709\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u5730\u5740\u7AEF1A/1B\uFF082A/2B\uFF0CA\u4E3A\u4F4E\u4F4D\u3001B\u4E3A\u9AD8\u4F4D\uFF09\u548C4\u4E2A\u4F4E\u7535\u5E73\u6709\u6548\u8F93\u51FA\u7AEF\u3002\u5F53G\u2032=0\u65F6\u6309\u5730\u5740\u9009\u4E2D\u4E00\u4E2A\u8F93\u51FA\u4E3A\u4F4E\u7535\u5E73\u3002\u7528\u4E24\u7247\u534A\u7247\u5E76\u63A5\u5730\u5740\u3001A2\u4F5C\u7247\u9009\uFF08\u7ECF\u53CD\u76F8\uFF09\u53EF\u6269\u5C55\u62103\u7EBF-8\u7EBF\u8BD1\u7801\u5668"
+      "summary": "\u7247\u5185\u6709\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E8C\u7EBF\u56DB\u7EBF\u8BD1\u7801\u5668\u3002\u6BCF\u7EC4\u90FD\u6709\u81EA\u5DF1\u7684\u4F4E\u6709\u6548\u4F7F\u80FD\u811A\u3001\u4E24\u4E2A\u5730\u5740\u811A\u548C\u56DB\u4E2A\u4F4E\u6709\u6548\u8F93\u51FA\u811A\u3002A \u662F\u5730\u5740\u4F4E\u4F4D\uFF0CB \u662F\u9AD8\u4F4D\u3002G\u2032 \u4E3A 0 \u65F6\uFF0C\u5730\u5740\u9009\u4E2D\u7684\u4E00\u8DEF\u8F93\u51FA\u4F4E\u7535\u5E73\u3002\u628A\u4E24\u7EC4\u7684\u5730\u5740\u811A\u5E76\u63A5\uFF0C\u518D\u7528 A2 \u53CA\u5176\u53CD\u76F8\u4FE1\u53F7\u9009\u901A\u5176\u4E2D\u4E00\u7EC4\uFF0C\u5C31\u80FD\u7EC4\u6210\u4E09\u7EBF\u516B\u7EBF\u8BD1\u7801\u5668\u3002"
     },
     "74LS151": {
       "image": "assets/pinouts/document/74ls151-1.png",
       "logicImage": "assets/pinouts/document/74ls151-2.png",
-      "summary": "8\u4E2A\u6570\u636E\u7AEFD0~D7\u30013\u4E2A\u5730\u5740\u7AEFC\uFF08\u6700\u9AD8\u4F4D\uFF09\u3001B\u3001A\uFF08\u6700\u4F4E\u4F4D\uFF09\u3001\u4F4E\u7535\u5E73\u6709\u6548\u7684\u4F7F\u80FD\u7AEFG\u2032\uFF0C\u4EE5\u53CA\u4E92\u8865\u8F93\u51FAY\u3001W\u2032\u3002G\u2032=0\u65F6Y=Di\uFF08i=CBA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u51FD\u6570\uFF1A\u6309F(mi)\u7684\u53D6\u503C\u628ADi\u63A51\u62160\u5373\u53EF"
+      "summary": "D0\uFF5ED7 \u662F\u516B\u8DEF\u6570\u636E\u8F93\u5165\uFF0C\u5730\u5740 C\u3001B\u3001A \u4ECE\u9AD8\u4F4D\u5230\u4F4E\u4F4D\u6392\u5217\uFF0CY \u548C W\u2032 \u662F\u4E92\u8865\u8F93\u51FA\u3002G\u2032 \u4E3A 0 \u65F6\uFF0CY \u8F93\u51FA\u5730\u5740\u9009\u4E2D\u7684\u6570\u636E Di\uFF08i=CBA\uFF09\u3002G\u2032 \u4E3A 1 \u65F6\uFF0CY \u8F93\u51FA 0\u3002\u628A\u5404\u4E2A Di \u6309 F(mi) \u7684\u53D6\u503C\u63A5\u5230 0 \u6216 1\uFF0C\u5C31\u80FD\u5B9E\u73B0\u4EFB\u610F\u4E09\u53D8\u91CF\u51FD\u6570\u3002"
     },
     "74LS153": {
       "image": "assets/pinouts/document/74ls153-1.png",
       "logicImage": "assets/pinouts/document/74ls153-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A4\u90091\u9009\u62E9\u5668\uFF0C\u5171\u7528\u5730\u5740\u7AEFA\uFF08\u4F4E\u4F4D\uFF09\u3001B\uFF08\u9AD8\u4F4D\uFF09\uFF0C\u5404\u6709\u72EC\u7ACB\u7684\u4F7F\u80FD\u7AEF1G\u2032/2G\u2032\u548C\u6570\u636E\u8F93\u5165\u7AEF1C0~1C3\u30012C0~2C3\u3002G\u2032=0\u65F6Y=Ci\uFF08i=BA\uFF09\uFF0CG\u2032=1\u65F6Y=0\u3002\u53EF\u7528\u4E24\u7247\uFF08\u6216\u591A\u6B21\u590D\u7528\uFF09\u5B9E\u73B0\u56DB\u53D8\u91CF\u51FD\u6570"
+      "summary": "\u4E24\u7EC4\u56DB\u9009\u4E00\u9009\u62E9\u5668\u5171\u7528\u5730\u5740\u7AEF A\uFF08\u4F4E\u4F4D\uFF09\u548C B\uFF08\u9AD8\u4F4D\uFF09\uFF0C\u5404\u6709\u81EA\u5DF1\u7684\u4F7F\u80FD\u811A 1G\u2032\u30012G\u2032 \u548C\u6570\u636E\u8F93\u5165\u3002\u67D0\u7EC4\u7684 G\u2032 \u4E3A 0 \u65F6\uFF0CY \u8F93\u51FA\u5730\u5740\u9009\u4E2D\u7684 Ci\uFF08i=BA\uFF09\uFF0CG\u2032 \u4E3A 1 \u65F6\uFF0CY \u8F93\u51FA 0\u3002\u7528\u4E24\u7247\u82AF\u7247\u6216\u591A\u6B21\u590D\u7528\uFF0C\u53EF\u4EE5\u5B9E\u73B0\u56DB\u53D8\u91CF\u51FD\u6570\u3002"
     },
     "74LS85": {
       "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1AA2 \u4E3A 14 \u811A\uFF0CB2 \u4E3A 13 \u811A\uFF1BTI \u6807\u51C6 DIP \u4E3A A2 13\u3001B2 14\uFF0C\u4E24\u8005\u4E0D\u53EF\u6DF7\u7528",
       "image": "assets/pinouts/document/74ls85-1.png",
       "logicImage": "assets/pinouts/document/74ls85-2.png",
-      "summary": "\u6BD4\u8F83A3A2A1A0\u4E0EB3B2B1B0\uFF0C\u8F93\u51FAA>B\u3001A=B\u3001A<B\u4E09\u4E2A\u9AD8\u7535\u5E73\u6709\u6548\u4FE1\u53F7\u30022~4\u811A\u4E3A\u7EA7\u8054\u8F93\u5165\uFF0C\u5355\u7247\u4F7F\u7528\u65F6A>B\u3001A<B\u8F93\u5165\u63A50\u3001A=B\u8F93\u5165\u63A51\uFF1B\u4E24\u7247\u7EA7\u8054\u53EF\u6269\u5C55\u62108\u4F4D\u6BD4\u8F83\u5668"
+      "summary": "\u7528\u6765\u6BD4\u8F83 A3A2A1A0 \u548C B3B2B1B0\uFF0C\u4E09\u4E2A\u9AD8\u6709\u6548\u8F93\u51FA\u5206\u522B\u8868\u793A A>B\u3001A=B \u548C A<B\u30022\uFF5E4 \u811A\u662F\u7EA7\u8054\u8F93\u5165\u3002\u5355\u7247\u4F7F\u7528\u65F6\uFF0C\u628A A>B\u3001A<B \u8F93\u5165\u7F6E 0\uFF0C\u628A A=B \u8F93\u5165\u7F6E 1\u3002\u4E24\u7247\u7EA7\u8054\u540E\u53EF\u4EE5\u6BD4\u8F83\u516B\u4F4D\u6570\u3002"
     },
     "74LS48": {
       "image": "assets/pinouts/document/74ls48-1.png",
       "logicImage": "assets/pinouts/document/74ls48-2.png",
-      "summary": "\u628A8421BCD\u7801\uFF08D\u4E3A\u6700\u9AD8\u4F4D\u3001A\u4E3A\u6700\u4F4E\u4F4D\uFF09\u8BD1\u6210\u4E03\u6BB5\u5B57\u5F62\uFF0C\u8F93\u51FAa~g\u9AD8\u7535\u5E73\u6709\u6548\uFF0C\u53EF\u76F4\u63A5\u9A71\u52A8\u5171\u9634\u6781\u6570\u7801\u7BA1\uFF0C\u5185\u90E8\u67092k\u03A9\u4E0A\u62C9\u7535\u963B\u3002\u5177\u6709LT\u2032\u706F\u6D4B\u8BD5\u3001RBI\u2032\u706D\u96F6\u8F93\u5165\u3001BI\u2032/RBO\u2032\u706D\u706F\u8F93\u5165/\u52A8\u6001\u706D\u706F\u8F93\u51FA\u529F\u80FD"
+      "summary": "\u628A 8421 BCD \u7801\uFF08D \u662F\u6700\u9AD8\u4F4D\uFF0CA \u662F\u6700\u4F4E\u4F4D\uFF09\u8F6C\u6362\u4E3A\u4E03\u6BB5\u5B57\u5F62\u3002a\uFF5Eg \u8F93\u51FA\u9AD8\u7535\u5E73\u6709\u6548\uFF0C\u5185\u90E8\u6709 2 k\u03A9 \u4E0A\u62C9\u7535\u963B\uFF0C\u53EF\u4EE5\u76F4\u63A5\u9A71\u52A8\u5171\u9634\u6781\u6570\u7801\u7BA1\u3002LT\u2032 \u7528\u4E8E\u706F\u6D4B\u8BD5\uFF0CRBI\u2032 \u7528\u4E8E\u706D\u96F6\uFF0CBI\u2032/RBO\u2032 \u53EF\u7528\u4F5C\u706D\u706F\u8F93\u5165\u6216\u52A8\u6001\u706D\u706F\u8F93\u51FA\u3002"
     },
     "74LS74": {
       "image": "assets/pinouts/document/74ls74-1.png",
       "logicImage": "assets/pinouts/document/74ls74-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0A\u5347\u6CBF\u89E6\u53D1D\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3002CP\u4E0A\u5347\u6CBF\u5230\u6765\u65F6Q*=D\u3002\u53EF\u6784\u6210\u79FB\u4F4D\u5BC4\u5B58\u5668\u3001\u8BA1\u6570\u5668\u548C\u5206\u9891\u7535\u8DEF"
+      "summary": "\u7247\u5185\u6709\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0A\u5347\u6CBF D \u89E6\u53D1\u5668\u3002SD\u2032 \u548C RD\u2032 \u5206\u522B\u7528\u4E8E\u5F02\u6B65\u7F6E\u4F4D\u548C\u590D\u4F4D\uFF0C\u90FD\u662F\u4F4E\u7535\u5E73\u6709\u6548\u3002CP \u5230\u4E86\u4E0A\u5347\u6CBF\uFF0CQ \u5C31\u4F1A\u4FDD\u5B58 D \u7684\u7535\u5E73\u3002\u5B83\u53EF\u4EE5\u7528\u6765\u642D\u5EFA\u79FB\u4F4D\u5BC4\u5B58\u5668\u3001\u8BA1\u6570\u5668\u548C\u5206\u9891\u7535\u8DEF\u3002"
     },
     "74LS112": {
       "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1A\u7B2C\u4E8C\u8DEF Q \u4E3A 7 \u811A\uFF0CQ\u2032 \u4E3A 9 \u811A\uFF1BTI \u6807\u51C6 DIP \u4E3A Q 9\u3001Q\u2032 7\uFF0C\u7B2C\u4E00\u8DEF\u811A\u53F7\u76F8\u540C",
       "image": "assets/pinouts/document/74ls112-1.png",
       "logicImage": "assets/pinouts/document/74ls112-2.png",
-      "summary": "\u7247\u5185\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0B\u964D\u6CBF\u89E6\u53D1JK\u89E6\u53D1\u5668\uFF0C\u5E26\u5F02\u6B65\u7F6E\u4F4D\u7AEFSD\u2032\u548C\u5F02\u6B65\u590D\u4F4D\u7AEFRD\u2032\uFF08\u5747\u4F4E\u6709\u6548\uFF09\u3002J=K=1\u65F6CP\u4E0B\u964D\u6CBF\u7FFB\u8F6C\uFF08T\u2032\u529F\u80FD\uFF09\uFF0C\u53EF\u6784\u6210\u8BA1\u6570\u5668\uFF1B\u4E0E74LS74\u914D\u5408\u53EF\u505A\u89E6\u53D1\u5668\u76F8\u4E92\u8F6C\u6362\u5B9E\u9A8C"
+      "summary": "\u7247\u5185\u6709\u4E24\u4E2A\u72EC\u7ACB\u7684\u4E0B\u964D\u6CBF JK \u89E6\u53D1\u5668\uFF0CSD\u2032 \u548C RD\u2032 \u5206\u522B\u7528\u4E8E\u5F02\u6B65\u7F6E\u4F4D\u548C\u590D\u4F4D\uFF0C\u90FD\u662F\u4F4E\u7535\u5E73\u6709\u6548\u3002J\u3001K \u90FD\u4E3A 1 \u65F6\uFF0CCP \u6BCF\u51FA\u73B0\u4E00\u6B21\u4E0B\u964D\u6CBF\uFF0CQ \u5C31\u7FFB\u8F6C\u4E00\u6B21\uFF08T\u2032 \u529F\u80FD\uFF09\u3002\u5B83\u53EF\u7528\u4E8E\u8BA1\u6570\uFF0C\u4E5F\u53EF\u4E0E 74LS74 \u914D\u5408\u505A\u89E6\u53D1\u5668\u76F8\u4E92\u8F6C\u6362\u5B9E\u9A8C\u3002"
     },
     "CD4027": {
       "image": "assets/pinouts/document/cd4027-1.png",
       "logicImage": "assets/pinouts/document/cd4027-2.png",
-      "summary": "CMOS\u53CCJK\u4E3B\u4ECE\u89E6\u53D1\u5668\uFF0C\u4E0A\u5347\u6CBF\u89E6\u53D1\uFF0C\u7F6E\u4F4D\u7AEFSET\u548C\u590D\u4F4D\u7AEFRESET\u4E3A\u9AD8\u7535\u5E73\u6709\u6548\uFF08\u4E0E\u65F6\u949F\u65E0\u5173\uFF09\u3002\u7535\u6E903~15V\uFF0C\u8F93\u5165\u963B\u6297\u9AD8\u3001\u529F\u8017\u4F4E\u3002\u6CE8\u610F\u5176\u7F6E\u4F4D/\u590D\u4F4D\u6781\u6027\u548C\u5F15\u811A\u6392\u5217\u4E0E74LS112\u4E0D\u540C"
+      "summary": "\u8FD9\u662F CMOS \u53CC JK \u4E3B\u4ECE\u89E6\u53D1\u5668\uFF0C\u5728\u4E0A\u5347\u6CBF\u89E6\u53D1\u3002SET \u548C RESET \u90FD\u662F\u9AD8\u7535\u5E73\u6709\u6548\uFF0C\u4E0D\u9700\u8981\u7B49\u5F85\u65F6\u949F\u3002\u5B83\u7684\u7535\u6E90\u8303\u56F4\u4E3A 3\uFF5E15 V\uFF0C\u8F93\u5165\u963B\u6297\u9AD8\uFF0C\u529F\u8017\u4F4E\u3002\u7F6E\u4F4D\u3001\u590D\u4F4D\u6781\u6027\u548C\u811A\u4F4D\u4E0E 74LS112 \u4E0D\u540C\u3002"
     },
     "74LS160": {
       "image": "assets/pinouts/document/74ls160-1.png",
       "logicImage": "assets/pinouts/document/74ls160-2.png",
-      "summary": "\u6A2110\u540C\u6B65\u52A0\u8BA1\u6570\u5668\u3002\u5177\u6709\u5F02\u6B65\u6E05\u96F6CLR\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\uFF08\u4F4E\u6709\u6548\uFF09\u3001\u8BA1\u6570\u4F7F\u80FDENP/ENT\u548C\u8FDB\u4F4D\u8F93\u51FARCO\u3002ENP\u3001ENT\u5747\u4E3A\u9AD8\u7535\u5E73\u65F6\u5728CP\u4E0A\u5347\u6CBF\u8BA1\u6570\uFF1BRCO\u5728\u8BA1\u6570\u503C\u4E3A9\u4E14ENT=1\u65F6\u8F93\u51FA\u9AD8\u7535\u5E73"
+      "summary": "\u8FD9\u7247\u8BA1\u6570\u5668\u6309\u6A21 10 \u540C\u6B65\u52A0\u8BA1\u6570\u3002CLR\u2032 \u548C LOAD\u2032 \u90FD\u662F\u4F4E\u7535\u5E73\u6709\u6548\uFF0C\u5206\u522B\u7528\u4E8E\u5F02\u6B65\u6E05\u96F6\u548C\u540C\u6B65\u7F6E\u6570\u3002ENP \u548C ENT \u90FD\u4E3A\u9AD8\u7535\u5E73\u65F6\uFF0C\u6BCF\u4E2A CP \u4E0A\u5347\u6CBF\u8BA1\u6570\u4E00\u6B21\u3002\u8BA1\u5230 9 \u4E14 ENT \u4E3A 1 \u65F6\uFF0CRCO \u8F93\u51FA\u9AD8\u7535\u5E73\u3002"
     },
     "74LS161": {
       "image": "assets/pinouts/document/74ls161-1.png",
       "logicImage": "assets/pinouts/document/74ls161-2.png",
-      "summary": "\u6A2116\u540C\u6B65\u52A0\u8BA1\u6570\u5668\uFF0C\u5F15\u811A\u4E0E74LS160\u5B8C\u5168\u76F8\u540C\u3002\u5F02\u6B65\u6E05\u96F6CLR\u2032\u3001\u540C\u6B65\u7F6E\u6570LOAD\u2032\u3001\u4F7F\u80FDENP/ENT\uFF0C\u8FDB\u4F4D\u8F93\u51FARCO\u3002\u53EF\u7528\u4E8E\u6784\u6210\u4EFB\u610F\u8FDB\u5236\u8BA1\u6570\u5668\uFF08\u53CD\u9988\u6E05\u96F6\u6CD5\u6216\u7F6E\u6570\u6CD5\uFF09"
-    },
-    "74LS194": {
-      "pinWarning": "\u6750\u6599\u7248\u811A\u53F7\uFF1ACP \u4E3A 2 \u811A\uFF0CSR \u4E3A 3 \u811A\uFF0CSL \u4E3A 11 \u811A\uFF0CQA\uFF5EQD \u4E3A 12\uFF5E15 \u811A\uFF1BTI \u6807\u51C6 DIP \u4E3A CP 11\u3001SR 2\u3001SL 7\u3001QA\uFF5EQD 15\uFF5E12\uFF0C\u63A5\u5B9E\u7269\u65F6\u4E0D\u80FD\u76F4\u63A5\u5957\u7528\u672C\u6A21\u578B\u811A\u53F7",
-      "image": "assets/pinouts/document/74ls194-1.png",
-      "logicImage": "assets/pinouts/document/74ls194-2.png",
-      "summary": "4\u4F4D\u53CC\u5411\u79FB\u4F4D\u5BC4\u5B58\u5668\u3002S1S0=00\u4FDD\u6301\u300101\u53F3\u79FB\u300110\u5DE6\u79FB\u300111\u5E76\u884C\u7F6E\u6570\uFF1BSR\u4E3A\u53F3\u79FB\u4E32\u5165\u7AEF\uFF0CSL\u4E3A\u5DE6\u79FB\u4E32\u5165\u7AEF\uFF0CCLR\u2032\u4E3A\u5F02\u6B65\u6E05\u96F6\uFF08\u4F4E\u6709\u6548\uFF09\u3002\u53EF\u6784\u6210\u73AF\u5F62\u3001\u626D\u73AF\u5F62\u8BA1\u6570\u5668\u53CA\u4E32\u5E76\u8F6C\u6362\u7535\u8DEF"
+      "summary": "\u8FD9\u7247\u8BA1\u6570\u5668\u6309\u6A21 16 \u540C\u6B65\u52A0\u8BA1\u6570\uFF0C\u811A\u4F4D\u4E0E 74LS160 \u76F8\u540C\u3002CLR\u2032 \u548C LOAD\u2032 \u90FD\u662F\u4F4E\u7535\u5E73\u6709\u6548\uFF0C\u5206\u522B\u7528\u4E8E\u5F02\u6B65\u6E05\u96F6\u548C\u540C\u6B65\u7F6E\u6570\u3002ENP\u3001ENT \u7528\u4E8E\u4F7F\u80FD\u8BA1\u6570\uFF0CRCO \u7528\u4E8E\u8F93\u51FA\u8FDB\u4F4D\u3002\u7528\u53CD\u9988\u6E05\u96F6\u6216\u7F6E\u6570\uFF0C\u53EF\u4EE5\u5F97\u5230\u5176\u4ED6\u8BA1\u6570\u6A21\u6570\u3002"
     }
   };
 
   // src/chips/catalog.mjs
   var CHIP_REFERENCES = {
-    "74LS273": { file: "sn74ls273", page: 1, summary: "\u5B83\u80FD\u540C\u65F6\u4FDD\u5B58\u516B\u4F4D\u6570\u636E\u3002\u6E05\u96F6\u811A\u62C9\u4F4E\u65F6\uFF0C\u5168\u90E8\u8F93\u51FA\u53D8\u4E3A 0\uFF1B\u6E05\u96F6\u811A\u4FDD\u6301\u9AD8\u7535\u5E73\u65F6\uFF0C\u65F6\u949F\u4E0A\u5347\u6CBF\u628A D \u8F93\u5165\u4FDD\u5B58\u5230 Q \u8F93\u51FA" },
-    "74LS283": { file: "sn74ls283", page: 1, summary: "\u5B83\u628A\u4E24\u4E2A\u56DB\u4F4D\u6570\u4E0E\u8F93\u5165\u8FDB\u4F4D C0 \u76F8\u52A0\uFF0C\u8F93\u51FA\u56DB\u4F4D\u548C\u4EE5\u53CA\u8FDB\u4F4D C4\u3002A1\u3001B1\u3001\u03A31 \u5BF9\u5E94\u6700\u4F4E\u4F4D" },
-    "74LS86": { file: "sn74ls86a", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u5F02\u6216\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u4E0D\u540C\u65F6\u8F93\u51FA 1\uFF0C\u76F8\u540C\u65F6\u8F93\u51FA 0\u3002\u539F\u5382 LS86A \u8D44\u6599\u4E2D\u7684\u8FD9\u7EC4 DIP \u5F15\u811A\u4E0E\u5B9E\u9A8C\u6750\u6599\u4E00\u81F4" },
-    "74LS00": { file: "sn74ls00", page: 3, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u975E\u95E8\u3002\u53EA\u6709\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\uFF0C\u8F93\u51FA\u624D\u662F 0\u3002\u8BF7\u6309\u672C\u578B\u53F7\u7684\u811A\u540D\u63A5\u7EBF" },
-    "74LS08": { file: "sn74ls08", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u95E8\u3002\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1 \u65F6\u8F93\u51FA 1\uFF0C\u5176\u4F59\u60C5\u51B5\u8F93\u51FA 0" },
-    "74LS32": { file: "sn74ls32", page: 1, summary: "\u5B83\u5305\u542B\u56DB\u4E2A\u72EC\u7ACB\u7684\u6216\u95E8\u3002\u81F3\u5C11\u4E00\u4E2A\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 1" },
-    "74LS04": { file: "sn74ls04", page: 1, summary: "\u5B83\u5305\u542B\u516D\u4E2A\u72EC\u7ACB\u7684\u975E\u95E8\u3002\u8F93\u5165\u4E3A 0 \u65F6\u8F93\u51FA 1\uFF0C\u8F93\u5165\u4E3A 1 \u65F6\u8F93\u51FA 0" }
+    "74LS273": { file: "sn74ls273", page: 1, summary: "\u8FD9\u7247\u5BC4\u5B58\u5668\u80FD\u540C\u65F6\u4FDD\u5B58\u516B\u4F4D\u6570\u636E\u3002\u628A\u6E05\u96F6\u811A\u62C9\u4F4E\uFF0C\u516B\u8DEF\u8F93\u51FA\u90FD\u4F1A\u7ACB\u5373\u53D8\u6210 0\u3002\u6E05\u96F6\u811A\u4E3A\u9AD8\u7535\u5E73\u65F6\uFF0C\u5BC4\u5B58\u5668\u5728\u65F6\u949F\u4E0A\u5347\u6CBF\u628A D \u4E0A\u7684\u6570\u636E\u5B58\u4E0B\u6765\uFF0C\u518D\u4ECE Q \u8F93\u51FA\u3002" },
+    "74LS283": { file: "sn74ls283", page: 1, summary: "\u628A\u4E24\u4E2A\u56DB\u4F4D\u6570\u548C\u8F93\u5165\u8FDB\u4F4D C0 \u52A0\u8D77\u6765\uFF0C\u5C31\u5F97\u5230\u56DB\u4F4D\u548C\u4E0E\u8F93\u51FA\u8FDB\u4F4D C4\u3002A1\u3001B1 \u548C \u03A31 \u90FD\u5BF9\u5E94\u6700\u4F4E\u4F4D\u3002" },
+    "74LS86": { file: "sn74ls86a", page: 1, summary: "\u7247\u5185\u6709\u56DB\u4E2A\u72EC\u7ACB\u7684\u5F02\u6216\u95E8\u3002\u6BCF\u4E2A\u95E8\u5728\u4E24\u4E2A\u8F93\u5165\u4E0D\u540C\u65F6\u8F93\u51FA 1\uFF0C\u76F8\u540C\u65F6\u8F93\u51FA 0\u3002\u56FE\u4E2D\u7684 TI LS86A DIP \u811A\u4F4D\u4E0E\u5B9E\u9A8C\u6750\u6599\u4E00\u81F4\u3002" },
+    "74LS00": { file: "sn74ls00", page: 3, summary: "\u7247\u5185\u6709\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u975E\u95E8\u3002\u5BF9\u6BCF\u4E2A\u95E8\u6765\u8BF4\uFF0C\u53EA\u6709\u4E24\u4E2A\u8F93\u5165\u90FD\u662F 1\uFF0C\u8F93\u51FA\u624D\u4F1A\u53D8\u6210 0\u3002\u63A5\u7EBF\u65F6\u53EF\u4EE5\u6309\u56FE\u4E2D\u7684\u811A\u540D\u627E\u5230\u5BF9\u5E94\u5F15\u811A\u3002" },
+    "74LS08": { file: "sn74ls08", page: 1, summary: "\u7247\u5185\u6709\u56DB\u4E2A\u72EC\u7ACB\u7684\u4E0E\u95E8\u3002\u5BF9\u6BCF\u4E2A\u95E8\u6765\u8BF4\uFF0C\u4E24\u4E2A\u8F93\u5165\u90FD\u4E3A 1 \u65F6\uFF0C\u8F93\u51FA\u624D\u662F 1\uFF0C\u5176\u4F59\u60C5\u51B5\u4E0B\u8F93\u51FA 0\u3002" },
+    "74LS32": { file: "sn74ls32", page: 1, summary: "\u7247\u5185\u6709\u56DB\u4E2A\u72EC\u7ACB\u7684\u6216\u95E8\u3002\u5BF9\u6BCF\u4E2A\u95E8\u6765\u8BF4\uFF0C\u53EA\u8981\u81F3\u5C11\u6709\u4E00\u4E2A\u8F93\u5165\u662F 1\uFF0C\u8F93\u51FA\u5C31\u662F 1\u3002" },
+    "74LS04": { file: "sn74ls04", page: 1, summary: "\u7247\u5185\u7684\u516D\u4E2A\u975E\u95E8\u5404\u81EA\u5DE5\u4F5C\u3002\u6BCF\u4E2A\u95E8\u90FD\u4F1A\u628A\u8F93\u5165\u53CD\u8FC7\u6765\uFF0C\u8F93\u5165 0 \u5C31\u8F93\u51FA 1\uFF0C\u8F93\u5165 1 \u5C31\u8F93\u51FA 0\u3002" },
+    "74LS138": { file: "sn74ls138", page: 1, summary: "A\u3001B\u3001C \u5206\u522B\u662F\u5730\u5740\u7684\u4F4E\u4F4D\u3001\u4E2D\u95F4\u4F4D\u548C\u9AD8\u4F4D\u3002G1=1 \u4E14 G2A\u2032\u3001G2B\u2032 \u90FD\u4E3A 0 \u65F6\uFF0C\u5730\u5740\u9009\u4E2D\u7684\u90A3\u4E00\u8DEF\u8F93\u51FA\u4F4E\u7535\u5E73\uFF0C\u5176\u4F59\u4E03\u8DEF\u8F93\u51FA\u9AD8\u7535\u5E73\u3002\u7981\u6B62\u8BD1\u7801\u65F6\uFF0C\u516B\u8DEF\u90FD\u4FDD\u6301\u9AD8\u7535\u5E73\u3002" },
+    "74LS194": { file: "sn74ls194a", page: 1, summary: "\u8FD9\u7247\u56DB\u4F4D\u5BC4\u5B58\u5668\u53EF\u4EE5\u5411\u5DE6\u6216\u5411\u53F3\u79FB\u4F4D\u3002\u628A CLR\u2032 \u62C9\u4F4E\u5C31\u4F1A\u7ACB\u5373\u6E05\u96F6\u3002CLK \u51FA\u73B0\u4E0A\u5347\u6CBF\u65F6\uFF0CS1S0 \u4E3A 00 \u5C31\u4FDD\u6301\u539F\u503C\uFF0C\u4E3A 01 \u5C31\u53F3\u79FB\uFF08SR \u4E32\u5165 QA\uFF09\uFF0C\u4E3A 10 \u5C31\u5DE6\u79FB\uFF08SL \u4E32\u5165 QD\uFF09\uFF0C\u4E3A 11 \u5C31\u5E76\u884C\u88C5\u8F7D\u3002" }
   };
   for (const model of Object.keys(DOCUMENT_REFERENCES)) {
     CHIP_REFERENCES[model] = DOCUMENT_REFERENCES[model];
@@ -232,8 +223,8 @@
     let caption = "\u539F\u5382\u9876\u89C6\u56FE\uFF1A\u7F3A\u53E3\u671D\u4E0A\uFF1B\u753B\u5E03\u4E2D\u7684\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6";
     let sourceLabel = "TI \u6570\u636E\u624B\u518C \xB7 \u7B2C " + reference.page + " \u9875";
     if (reference.image) {
-      caption = "\u7528\u6237\u6750\u6599\u4E2D\u7684\u5F15\u811A\u56FE\uFF1B\u5B89\u88C5\u65F6\u8BF7\u6309\u7269\u7406\u811A\u53F7\u6838\u5BF9";
-      sourceLabel = "\u67E5\u770B\u6750\u6599\u4E2D\u7684\u903B\u8F91\u7B26\u53F7";
+      caption = "\u5C01\u88C5\u5F15\u811A\u56FE";
+      sourceLabel = "\u67E5\u770B\u903B\u8F91\u7B26\u53F7";
     }
     figure.append(imageLink, node("figcaption", caption, ""));
     const source = node("a", sourceLabel, "datasheet-link");
@@ -483,7 +474,7 @@
     control.panel.style.top = Math.max(SELECT_LAYOUT.margin, top) + "px";
   }
   function focusOption(control, index) {
-    const options = control.panel.children;
+    const options = control.items;
     if (options.length === 0) {
       return;
     }
@@ -493,21 +484,57 @@
     }
     const active = options[control.activeIndex];
     control.button.setAttribute("aria-activedescendant", active.id);
-    active.scrollIntoView({ block: "nearest" });
+    const panel = control.panel;
+    const firstVisible = panel.scrollTop;
+    const lastVisible = firstVisible + panel.clientHeight;
+    const firstPixel = active.offsetTop;
+    const lastPixel = firstPixel + active.offsetHeight;
+    if (firstPixel < firstVisible) {
+      panel.scrollTop = firstPixel;
+    } else if (lastPixel > lastVisible) {
+      panel.scrollTop = lastPixel - panel.clientHeight;
+    }
+  }
+  function updateOptions(control) {
+    for (let index = 0; index < control.items.length; index = index + 1) {
+      const option = control.select.options[index];
+      const item = control.items[index];
+      item.setAttribute("aria-selected", String(option.selected));
+      item.setAttribute("aria-disabled", String(option.disabled));
+      if (control.select.multiple) {
+        item.lastElementChild.textContent = option.dataset.order || "";
+      }
+    }
   }
   function renderOptions(control) {
     control.panel.replaceChildren();
+    control.items = [];
+    let previousGroup = null;
     for (let index = 0; index < control.select.options.length; index = index + 1) {
       const option = control.select.options[index];
+      const group = option.parentElement;
+      if (group.tagName === "OPTGROUP" && group !== previousGroup) {
+        const heading = node("div", group.label, "select-group-label");
+        heading.setAttribute("role", "presentation");
+        control.panel.append(heading);
+      }
+      previousGroup = group;
       const item = node("div", "", "select-option");
       item.id = control.select.id + "-option-" + index;
       item.dataset.index = String(index);
       item.setAttribute("role", "option");
-      item.setAttribute("aria-selected", String(option.selected));
-      item.setAttribute("aria-disabled", String(option.disabled));
-      item.append(node("span", option.textContent, "select-option-label"), icon("check"));
+      item.append(node("span", option.textContent, "select-option-label"));
+      if (control.select.multiple) {
+        const mark = node("span", "", "select-order");
+        mark.setAttribute("aria-hidden", "true");
+        item.append(mark);
+      } else {
+        item.append(icon("check"));
+      }
+      control.items.push(item);
       control.panel.append(item);
     }
+    updateOptions(control);
     refreshIcons();
   }
   function openSelect(control, keyboard) {
@@ -518,6 +545,10 @@
     openedControl = control;
     renderOptions(control);
     control.panel.classList.toggle("keyboard-open", keyboard);
+    const dialog = control.button.closest("dialog");
+    if (dialog) {
+      dialog.append(control.panel);
+    }
     control.panel.showPopover();
     control.button.setAttribute("aria-expanded", "true");
     positionPanel(control);
@@ -533,6 +564,13 @@
   function chooseOption(control, index) {
     const option = control.select.options[index];
     if (!option || option.disabled) {
+      return;
+    }
+    if (control.select.multiple) {
+      option.selected = !option.selected;
+      focusOption(control, index);
+      control.select.dispatchEvent(new Event("change", { bubbles: true }));
+      refreshSelect(control.select);
       return;
     }
     const changed = control.select.value !== option.value;
@@ -552,6 +590,9 @@
   function selectKeyDown(control, event) {
     if (event.key === "Tab") {
       closeSelect(false);
+      return;
+    }
+    if (event.key === "Escape" && openedControl !== control) {
       return;
     }
     if (!["ArrowDown", "ArrowUp", "Home", "End", "Enter", " ", "Escape"].includes(event.key)) {
@@ -610,9 +651,23 @@
     }
   }
   function outsideScroll(event) {
-    if (openedControl && !openedControl.panel.contains(event.target)) {
-      closeSelect(false);
+    if (!openedControl || !event.target.contains(openedControl.button)) {
+      return;
     }
+    const control = openedControl;
+    const bounds = control.button.getBoundingClientRect();
+    let visibleTop = 0;
+    let visibleBottom = window.innerHeight;
+    if (event.target instanceof Element) {
+      const area = event.target.getBoundingClientRect();
+      visibleTop = Math.max(visibleTop, area.top);
+      visibleBottom = Math.min(visibleBottom, area.bottom);
+    }
+    if (bounds.bottom <= visibleTop || bounds.top >= visibleBottom) {
+      closeSelect(false);
+      return;
+    }
+    positionPanel(control);
   }
   function resizeWindow() {
     closeSelect(false);
@@ -625,7 +680,7 @@
       closeSelect(false);
     }
   }
-  function refreshSelect(select) {
+  function refreshSelect(select, optionsChanged = false) {
     let control = controls.get(select);
     if (!control) {
       const wrapper = node("div", "", "select-control");
@@ -650,15 +705,22 @@
       select.classList.add("select-native");
       select.tabIndex = -1;
       select.setAttribute("aria-hidden", "true");
-      for (const label3 of document.querySelectorAll("label[for='" + select.id + "']")) {
-        label3.htmlFor = button.id;
+      for (const caption of document.querySelectorAll("label[for='" + select.id + "']")) {
+        caption.htmlFor = button.id;
       }
-      control = { select, wrapper, button, label: label2, panel, activeIndex: 0, typed: "", typedAt: 0 };
+      if (select.multiple) {
+        panel.setAttribute("aria-multiselectable", "true");
+      }
+      const description = select.getAttribute("aria-describedby");
+      if (description) {
+        button.setAttribute("aria-describedby", description);
+      }
+      control = { select, wrapper, button, label: label2, panel, items: [], activeIndex: 0, typed: "", typedAt: 0 };
       controls.set(select, control);
       button.addEventListener("click", toggleSelect.bind(null, control));
       button.addEventListener("keydown", selectKeyDown.bind(null, control));
       button.addEventListener("blur", selectBlur.bind(null, control));
-      panel.addEventListener("pointerdown", keepTriggerFocus);
+      panel.addEventListener("mousedown", keepTriggerFocus);
       panel.addEventListener("click", clickOption.bind(null, control));
       select.addEventListener("change", selectChanged.bind(null, select));
     }
@@ -667,14 +729,33 @@
     if (selected) {
       control.label.textContent = selected.textContent;
     }
+    if (select.multiple) {
+      const count = select.selectedOptions.length;
+      control.label.textContent = "\u9009\u62E9\u76D1\u6D4B\u4FE1\u53F7";
+      if (count > 0) {
+        control.label.textContent = "\u5DF2\u9009 " + count + " \u8DEF\u4FE1\u53F7";
+      }
+    }
     control.button.title = control.label.textContent;
     control.button.disabled = select.disabled;
     if (openedControl === control) {
-      closeSelect(false);
+      if (select.multiple && !select.disabled && !optionsChanged) {
+        updateOptions(control);
+      } else {
+        closeSelect(false);
+      }
     }
+    return control.button;
   }
   function keepTriggerFocus(event) {
-    event.preventDefault();
+    if (event.target.closest(".select-option")) {
+      event.preventDefault();
+    }
+  }
+  function closeDialogSelect(event) {
+    if (openedControl && event.target.contains(openedControl.button)) {
+      closeSelect(false);
+    }
   }
   function cleanSelectPanels() {
     for (const panel of document.querySelectorAll(".select-panel")) {
@@ -689,6 +770,7 @@
   }
   document.addEventListener("pointerdown", outsidePointerDown);
   document.addEventListener("scroll", outsideScroll, true);
+  document.addEventListener("close", closeDialogSelect, true);
   window.addEventListener("resize", resizeWindow);
 
   // vendor/logic.mjs
@@ -1882,10 +1964,10 @@
       count: 16,
       power: 16,
       ground: 8,
-      labels: ["", "CLR\u2032", "CP", "SR", "A", "B", "C", "D", "GND", "S0", "S1", "SL", "QA", "QB", "QC", "QD", "VCC"],
+      labels: ["", "CLR\u2032", "SR", "A", "B", "C", "D", "SL", "GND", "S0", "S1", "CP", "QD", "QC", "QB", "QA", "VCC"],
       inputs: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11],
-      outputs: [12, 13, 14, 15],
-      controls: { clock: 2, reset: 1, mode: [9, 10], right: 3, left: 11, data: [4, 5, 6, 7] },
+      outputs: [15, 14, 13, 12],
+      controls: { clock: 11, reset: 1, mode: [9, 10], right: 2, left: 7, data: [3, 4, 5, 6] },
       sequential: "shift"
     }
   };
@@ -2043,7 +2125,9 @@
     busBottomOffset: 193,
     busHolePeriod: 6
   };
-  var PORT_LAYOUT = { lowestColumn: 49, columnStep: 2, positiveColumn: 53, negativeColumn: 57, outputY: 68, inputY: 1105 };
+  var PORT_LAYOUT = { lowestColumn: 49, columnStep: 2, positiveColumn: 55, negativeColumn: 57, outputY: 68, inputY: 1105 };
+  var INPUT_RESET_COLUMN = 53;
+  var PREVIOUS_POSITIVE_COLUMN = 53;
   var RAIL_LAYOUT = {
     groundX: 1210,
     powerX: 1242,
@@ -2057,7 +2141,7 @@
   var IO_LIMIT = 24;
   var NOTES_LIMIT = 5e4;
   var PROJECT_DEFAULTS = { inputCount: 8, outputCount: 8, power: true };
-  var WIRING_VERSION = 3;
+  var WIRING_VERSION = 4;
   var GENERAL_NOTES = "# \u7535\u8DEF\u8BF4\u660E\n\n## \u529F\u80FD\n\n\u586B\u5199\u8FD9\u4E2A\u7535\u8DEF\u7684\u7528\u9014\n\n## \u8F93\u5165\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| K0 | \u5F85\u586B\u5199 |\n\n## \u8F93\u51FA\u53E3\n\n| \u7AEF\u53E3 | \u4F5C\u7528 |\n| --- | --- |\n| L0 | \u5F85\u586B\u5199 |\n\n## \u64CD\u4F5C\u6B65\u9AA4\n\n1. \u68C0\u67E5\u4F9B\u7535\u548C\u63A5\u7EBF\n2. \u8BBE\u7F6E\u8F93\u5165\uFF0C\u89C2\u5BDF\u8F93\u51FA\n";
   var WIRE_COLORS = ["#dc3545", "#1976d2", "#16845b", "#d68a0b", "#8b55c5", "#0d939d", "#d44f93", "#46515f", "#93a619", "#e26c2b", "#8494a7", "#65483d"];
   function validIoCount(count) {
@@ -2123,7 +2207,13 @@
     }
     return Number.isInteger(column) && column >= 1 && column <= BOARD.columns;
   }
-  function portHole(name) {
+  function positivePulseColumn(wiringVersion = WIRING_VERSION) {
+    if (wiringVersion < WIRING_VERSION) {
+      return PREVIOUS_POSITIVE_COLUMN;
+    }
+    return PORT_LAYOUT.positiveColumn;
+  }
+  function portHole(name, wiringVersion = WIRING_VERSION) {
     if (/^[KL]\d+$/.test(name)) {
       const bit = Number(name.slice(1));
       if (bit >= IO_LIMIT) {
@@ -2136,7 +2226,7 @@
       return holeId(BOARD.sections - 1, "J", column);
     }
     if (name === "P+") {
-      return holeId(BOARD.sections - 1, "J", PORT_LAYOUT.positiveColumn);
+      return holeId(BOARD.sections - 1, "J", positivePulseColumn(wiringVersion));
     }
     if (name === "P-") {
       return holeId(BOARD.sections - 1, "J", PORT_LAYOUT.negativeColumn);
@@ -2149,8 +2239,8 @@
   function isPhysicalHole(name) {
     return validEndpoint(name) && (name.startsWith("B") || name.startsWith("R:"));
   }
-  function isInputColumn(column) {
-    if (column === PORT_LAYOUT.positiveColumn || column === PORT_LAYOUT.negativeColumn) {
+  function isInputColumn(column, wiringVersion = WIRING_VERSION) {
+    if (column === positivePulseColumn(wiringVersion) || column === PORT_LAYOUT.negativeColumn) {
       return true;
     }
     for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
@@ -2163,7 +2253,7 @@
   }
   function baseNode(name, wiringVersion = WIRING_VERSION) {
     if (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-") {
-      const hole = portHole(name);
+      const hole = portHole(name, wiringVersion);
       if (hole !== "") {
         return baseNode(hole, wiringVersion);
       }
@@ -2186,7 +2276,7 @@
       side = "lower";
     }
     const section = Number(parts[0].slice(1));
-    if (wiringVersion >= 3 && section === BOARD.sections - 1 && isInputColumn(Number(parts[2]))) {
+    if (wiringVersion >= 3 && section === BOARD.sections - 1 && isInputColumn(Number(parts[2]), wiringVersion)) {
       side = "lower";
     }
     return parts[0] + ":" + side + ":" + parts[2];
@@ -2293,6 +2383,155 @@
   }
   function copyProject(project) {
     return structuredClone(project);
+  }
+
+  // src/ui/hidden-wires.mjs
+  var EXACT_IDENTIFIER = /^(?:[wukl]\d+|u\d+-\d+|p[+-])$/;
+  function endpointAliases(project) {
+    const aliases = /* @__PURE__ */ new Map();
+    for (const prefix of ["K", "L"]) {
+      for (let bit = 0; bit < IO_LIMIT; bit = bit + 1) {
+        addAlias(aliases, prefix + bit, prefix + bit, project.wiringVersion);
+      }
+    }
+    for (const name of ["P+", "P-", "GND", "VCC"]) {
+      addAlias(aliases, name, name, project.wiringVersion);
+    }
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      for (let pin = 1; pin <= model.count; pin = pin + 1) {
+        const hole = pinHole(chip, pin);
+        const name = chip.id + "-" + pin;
+        addAlias(aliases, hole, name, project.wiringVersion);
+      }
+    }
+    return aliases;
+  }
+  function addAlias(aliases, endpoint, name, wiringVersion) {
+    const group = baseNode(endpoint, wiringVersion);
+    if (!aliases.has(group)) {
+      aliases.set(group, []);
+    }
+    const names = aliases.get(group);
+    names.push(name);
+  }
+  function describeEndpoint(endpoint, aliases, wiringVersion) {
+    const group = baseNode(endpoint, wiringVersion);
+    const names = aliases.get(group);
+    const label2 = endpointLabel(endpoint);
+    if (names) {
+      return names.join(" / ") + " \xB7 " + label2;
+    }
+    return label2;
+  }
+  function hiddenRows(state2) {
+    const rows = [];
+    if (state2.hiddenWires.size === 0) {
+      return rows;
+    }
+    const aliases = endpointAliases(state2.project);
+    const wiringVersion = state2.project.wiringVersion;
+    for (const wire of state2.project.wires) {
+      if (!state2.hiddenWires.has(wire.id)) {
+        continue;
+      }
+      const first = describeEndpoint(wire.from, aliases, wiringVersion);
+      const last = describeEndpoint(wire.to, aliases, wiringVersion);
+      rows.push({ id: wire.id, detail: first + " \u2192 " + last, holes: wire.from + " " + wire.to, color: wire.color });
+    }
+    return rows;
+  }
+  function createHiddenRow(row, restore) {
+    const item = node("li", "", "hidden-object-row");
+    const swatch = node("span", "", "hidden-wire-swatch");
+    swatch.style.backgroundColor = row.color;
+    item.append(swatch);
+    const description = node("span", "", "hidden-object-description");
+    description.append(node("strong", row.id, ""), node("small", row.detail, ""));
+    const button = node("button", "", "icon-button");
+    button.type = "button";
+    button.setAttribute("aria-label", "\u6062\u590D " + row.id);
+    button.dataset.tip = "\u6062\u590D " + row.id;
+    button.append(icon("eye"));
+    button.addEventListener("click", restore.bind(null, row.id));
+    item.append(description, button);
+    return item;
+  }
+  function matchesSearch(row, terms) {
+    const text2 = row.id + " " + row.detail + " " + row.holes;
+    const searchable = text2.toLowerCase();
+    const identifiers = searchable.split(/[\s/·→]+/);
+    for (const term of terms) {
+      if (EXACT_IDENTIFIER.test(term)) {
+        if (!identifiers.includes(term)) {
+          return false;
+        }
+      } else if (!searchable.includes(term)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function bindHiddenWires(state2, onRestore, onRestoreAll) {
+    const dialog = element("hidden-objects-dialog");
+    const search = element("hidden-objects-search");
+    const list = element("hidden-objects-list");
+    const empty = element("hidden-objects-empty");
+    let rows = [];
+    let matches = [];
+    function restore(id) {
+      dialog.close();
+      onRestore(id);
+    }
+    function filterRows() {
+      const query = search.value.trim();
+      const lowerCaseQuery = query.toLowerCase();
+      const terms = lowerCaseQuery.split(/\s+/);
+      const items = document.createDocumentFragment();
+      matches = [];
+      for (const row of rows) {
+        if (matchesSearch(row, terms)) {
+          matches.push(row);
+          items.append(createHiddenRow(row, restore));
+        }
+      }
+      list.replaceChildren(items);
+      list.scrollTop = 0;
+      empty.hidden = matches.length > 0;
+      empty.textContent = "\u6CA1\u6709\u5339\u914D\u7684\u5BFC\u7EBF";
+      if (rows.length === 0) {
+        empty.textContent = "\u5F53\u524D\u6CA1\u6709\u9690\u85CF\u5BFC\u7EBF";
+      }
+      refreshIcons();
+    }
+    function openList() {
+      rows = hiddenRows(state2);
+      search.value = "";
+      element("restore-all-objects").disabled = rows.length === 0;
+      filterRows();
+      dialog.showModal();
+      search.focus();
+    }
+    function restoreMatch(event) {
+      if (event.key === "Enter" && !event.isComposing && matches.length === 1) {
+        event.preventDefault();
+        const row = matches[0];
+        restore(row.id);
+      }
+    }
+    function closeList() {
+      dialog.close();
+    }
+    function restoreAll() {
+      dialog.close();
+      onRestoreAll();
+    }
+    element("hidden-objects").addEventListener("click", openList);
+    element("close-hidden-objects").addEventListener("click", closeList);
+    element("restore-all-objects").addEventListener("click", restoreAll);
+    search.addEventListener("input", filterRows);
+    search.addEventListener("keydown", restoreMatch);
+    return openList;
   }
 
   // src/chips/chip-logic.mjs
@@ -2813,6 +3052,17 @@
     return changed;
   }
 
+  // src/simulation/board-signals.mjs
+  var TRISTATE_CONTROL = 8;
+  var TRISTATE_FIRST_INPUT = 0;
+  var TRISTATE_LAST_INPUT = 7;
+  function isWeakBoardInput(project, triState, index) {
+    if (!triState || project.switches[TRISTATE_CONTROL] === 1) {
+      return false;
+    }
+    return index >= TRISTATE_FIRST_INPUT && index <= TRISTATE_LAST_INPUT;
+  }
+
   // src/simulation/engine.mjs
   var MAX_SETTLE_PASSES = 96;
   var MAX_SEQUENTIAL_PASSES = 12;
@@ -2859,10 +3109,14 @@
       return "Z";
     }
     let result = "Z";
-    let pullUp = false;
+    let weakValue = "Z";
     for (const driver of drivers) {
-      if (driver.kind === "pull-up") {
-        pullUp = true;
+      if (driver.kind === "pull-up" || driver.kind === "weak-input") {
+        if (weakValue === "Z") {
+          weakValue = driver.value;
+        } else if (weakValue !== driver.value) {
+          weakValue = "X";
+        }
         continue;
       }
       if (result === "Z") {
@@ -2871,8 +3125,8 @@
         result = "X";
       }
     }
-    if (result === "Z" && pullUp) {
-      return 1;
+    if (result === "Z") {
+      return weakValue;
     }
     return result;
   }
@@ -2937,15 +3191,20 @@
     }
     return outputs;
   }
-  function addBoardDrivers(project, topology, pulses, drivers) {
+  function addBoardDrivers(project, topology, runtime, drivers) {
     addDriver(drivers, nodeFor(topology, "VCC"), 1, "+5V");
     addDriver(drivers, nodeFor(topology, "GND"), 0, "GND");
     for (let index = 0; index < IO_LIMIT; index = index + 1) {
       const name = "K" + index;
-      addDriver(drivers, nodeFor(topology, name), project.switches[index], name);
+      const node2 = nodeFor(topology, name);
+      if (isWeakBoardInput(project, runtime.triState, index)) {
+        addDriver(drivers, node2, project.switches[index], name + "\uFF08\u5F31\u9A71\u52A8\uFF09", "weak-input");
+      } else {
+        addDriver(drivers, node2, project.switches[index], name);
+      }
     }
-    addDriver(drivers, nodeFor(topology, "P+"), pulses.positive, "P+");
-    addDriver(drivers, nodeFor(topology, "P-"), pulses.negative, "P\u2212");
+    addDriver(drivers, nodeFor(topology, "P+"), runtime.pulses.positive, "P+");
+    addDriver(drivers, nodeFor(topology, "P-"), runtime.pulses.negative, "P\u2212");
     if (project.pullUps) {
       for (const endpoint of project.pullUps) {
         addDriver(drivers, nodeFor(topology, endpoint), 1, "\u4E0A\u62C9 " + endpoint, "pull-up");
@@ -2993,7 +3252,7 @@
     if (!project.power) {
       return drivers;
     }
-    addBoardDrivers(project, topology, runtime.pulses, drivers);
+    addBoardDrivers(project, topology, runtime, drivers);
     for (const chip of project.chips) {
       const pins = readPins(chip, topology, values);
       readBidirectionalPins(chip, pins, topology, drivers, previousDrivers);
@@ -3106,7 +3365,7 @@
     let high = false;
     let low = false;
     for (const driver of drivers) {
-      if (driver.kind === "pull-up") {
+      if (driver.kind === "pull-up" || driver.kind === "weak-input") {
         continue;
       }
       sources.push(driver.source);
@@ -3201,7 +3460,7 @@
     return issues;
   }
   function createRuntime() {
-    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, feedback: null };
+    return { registers: {}, devices: {}, pulses: { positive: 0, negative: 1 }, triState: false, feedback: null };
   }
   function simulate(project, runtime) {
     const topology = buildTopology(project);
@@ -3253,6 +3512,121 @@
     }
     result.issues = diagnose(project, result);
     return result;
+  }
+
+  // src/ui/object-inspector.mjs
+  var LEVELS = {
+    "0": { label: "\u4F4E\u7535\u5E73", tone: "low" },
+    "1": { label: "\u9AD8\u7535\u5E73", tone: "high" },
+    X: { label: "\u672A\u77E5\u6216\u51B2\u7A81", tone: "unknown" },
+    Z: { label: "\u60AC\u7A7A", tone: "floating" }
+  };
+  function objectSection(title) {
+    const section = node("section", "", "object-section");
+    section.append(node("h3", title, "object-section-title"));
+    return section;
+  }
+  function objectFact(label2, value) {
+    const fact = node("div", "", "object-fact");
+    fact.append(node("dt", label2, ""), node("dd", value, ""));
+    return fact;
+  }
+  function objectAction(symbol, label2, action) {
+    const button = node("button", "", "button object-action");
+    button.type = "button";
+    button.append(icon(symbol), node("span", label2, ""));
+    button.addEventListener("click", action);
+    return button;
+  }
+  function objectLevel(value, expanded = false) {
+    const level = LEVELS[value];
+    const badge = node("span", "", "object-level " + level.tone);
+    badge.append(node("b", String(value), ""));
+    if (expanded) {
+      badge.append(node("span", " \xB7 " + level.label, ""));
+    } else {
+      badge.setAttribute("aria-label", String(value) + " " + level.label);
+    }
+    return badge;
+  }
+  function networkRow(name, detail, value, onSelect = null) {
+    const row = node("li", "", "object-network-row");
+    let label2 = node("span", "", "object-network-label");
+    if (onSelect) {
+      label2 = node("button", "", "object-network-label");
+      label2.type = "button";
+      label2.addEventListener("click", onSelect);
+    }
+    label2.append(node("strong", name, ""));
+    if (detail !== "") {
+      label2.append(node("small", detail, ""));
+    }
+    row.append(label2);
+    if (value !== null) {
+      row.append(objectLevel(value));
+    } else if (onSelect) {
+      row.append(icon("chevron-right"));
+    }
+    return row;
+  }
+  function wireEndpoints(wire, result, onInspectEndpoint) {
+    const section = objectSection("\u5BFC\u7EBF\u7AEF\u70B9");
+    const list = node("ul", "", "object-network-list wire-endpoints");
+    for (const endpoint of [wire.from, wire.to]) {
+      const value = readEndpoint(result, endpoint);
+      const label2 = endpointLabel(endpoint);
+      const action = onInspectEndpoint.bind(null, endpoint);
+      list.append(networkRow(label2, endpoint, value, action));
+    }
+    section.append(list);
+    return section;
+  }
+  function networkDrivers(result, root) {
+    const section = objectSection("\u9A71\u52A8\u6765\u6E90");
+    const drivers = result.drivers[root];
+    if (!drivers || drivers.length === 0) {
+      section.append(node("p", "\u65E0\u6709\u6548\u9A71\u52A8", "object-empty"));
+      return section;
+    }
+    const list = node("ul", "", "object-network-list");
+    for (const driver of drivers) {
+      list.append(networkRow(driver.source, "", driver.value));
+    }
+    section.append(list);
+    return section;
+  }
+  function networkMembers(project, result, root, wireId, onInspectWire) {
+    const section = objectSection("\u540C\u7F51\u8FDE\u63A5");
+    const list = node("ul", "", "object-network-list");
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      for (let pin = 1; pin <= model.count; pin = pin + 1) {
+        const hole = pinHole(chip, pin);
+        if (nodeFor(result.topology, hole) === root) {
+          const name = chip.id + "-" + pin + " \xB7 " + model.labels[pin];
+          list.append(networkRow(name, chip.model, null));
+        }
+      }
+    }
+    for (const wire of project.wires) {
+      if (wire.id !== wireId && nodeFor(result.topology, wire.from) === root) {
+        const route = endpointLabel(wire.from) + " \u2192 " + endpointLabel(wire.to);
+        const action = onInspectWire.bind(null, wire.id);
+        list.append(networkRow(wire.id, route, null, action));
+      }
+    }
+    if (list.childElementCount === 0) {
+      section.append(node("p", "\u6CA1\u6709\u5176\u4ED6\u5BFC\u7EBF\u6216\u82AF\u7247\u811A", "object-empty"));
+    } else {
+      section.append(list);
+    }
+    return section;
+  }
+  function appendNetworkDetails(container, state2, endpoint, wireId, onInspectWire) {
+    const result = state2.result;
+    const root = nodeFor(result.topology, endpoint);
+    container.append(networkDrivers(result, root));
+    container.append(networkMembers(state2.project, result, root, wireId, onInspectWire));
   }
 
   // src/simulation/timing-trace.mjs
@@ -3677,6 +4051,7 @@
   // desktop/export-formats.mjs
   var EXPORT_FILES = {
     circuit: { title: "\u5BFC\u51FA\u7535\u8DEF", name: "breadboard-circuit", formats: ["json", "png", "jpg"] },
+    workspace: { title: "\u5BFC\u51FA\u5168\u90E8\u5DF2\u4FDD\u5B58\u5B9E\u9A8C", name: "breadboard-workspace", formats: ["json"] },
     board: { title: "\u5BFC\u51FA\u63A5\u7EBF\u56FE", name: "breadboard-wiring", formats: ["png", "jpg"] },
     logic: { title: "\u5BFC\u51FA\u903B\u8F91\u56FE", name: "breadboard-logic", formats: ["svg", "png"] },
     timing: { title: "\u5BFC\u51FA\u6CE2\u5F62", name: "breadboard-timing", formats: ["svg", "png", "csv"] }
@@ -3718,7 +4093,9 @@
       picker.append(option);
     }
     pendingExport = { file, createFile };
+    const trigger = refreshSelect(picker);
     dialog.showModal();
+    trigger.focus();
   }
   function cancelExport() {
     pendingExport = null;
@@ -3852,23 +4229,11 @@
   var renderedSignals = null;
   var selectedEvent = -1;
   var followLatest = true;
-  function watchedEndpoints(trace) {
-    const endpoints2 = /* @__PURE__ */ new Set();
-    for (const signal of trace.signals) {
-      endpoints2.add(signal.endpoint);
-    }
-    return endpoints2;
-  }
-  function renderSignalPicker(trace) {
+  function renderSignalPicker() {
     const picker = element("timing-signal");
-    const previous = picker.value;
     const groups = /* @__PURE__ */ new Map();
-    const watched = watchedEndpoints(trace);
     picker.replaceChildren();
     for (const signal of available) {
-      if (watched.has(signal.endpoint)) {
-        continue;
-      }
       let group = groups.get(signal.group);
       if (!group) {
         group = document.createElement("optgroup");
@@ -3878,14 +4243,32 @@
       }
       const option = node("option", signal.label, "");
       option.value = signal.endpoint;
-      option.selected = signal.endpoint === previous;
       group.append(option);
     }
+  }
+  function updateSignalPicker(trace, optionsChanged) {
+    const order = /* @__PURE__ */ new Map();
+    for (let index = 0; index < trace.signals.length; index = index + 1) {
+      order.set(trace.signals[index].endpoint, index + 1);
+    }
+    const picker = element("timing-signal");
+    const full = trace.signals.length >= TRACE_LIMITS.signals;
+    for (const option of picker.options) {
+      option.selected = order.has(option.value);
+      option.disabled = full && !option.selected;
+      option.dataset.order = "";
+      if (option.selected) {
+        option.dataset.order = String(order.get(option.value));
+      }
+    }
+    picker.disabled = trace.recording || picker.options.length === 0;
+    refreshSelect(picker, optionsChanged);
   }
   function renderSignals(trace) {
     const list = element("timing-signals");
     list.replaceChildren();
-    for (const signal of trace.signals) {
+    for (let index = 0; index < trace.signals.length; index = index + 1) {
+      const signal = trace.signals[index];
       const item = node("li", "", "");
       const button = node("button", "", "icon-button");
       const label2 = "\u79FB\u9664 " + signal.label;
@@ -3894,7 +4277,9 @@
       button.setAttribute("aria-label", label2);
       button.title = label2;
       button.append(icon("x"));
-      item.append(node("span", signal.label, ""), button);
+      const order = node("span", String(index + 1), "timing-order");
+      order.setAttribute("aria-hidden", "true");
+      item.append(order, node("span", signal.label, "timing-signal-name"), button);
       list.append(item);
     }
     element("timing-signal-count").textContent = trace.signals.length + " / " + TRACE_LIMITS.signals;
@@ -4063,9 +4448,9 @@
     const circuitChanged = trace !== renderedTrace || signature !== renderedSignature;
     if (circuitChanged) {
       available = availableTimingSignals(state2.project);
+      renderSignalPicker();
     }
     if (circuitChanged || trace.signals !== renderedSignals) {
-      renderSignalPicker(trace);
       renderSignals(trace);
       renderedSignals = trace.signals;
     }
@@ -4075,9 +4460,7 @@
     renderedTrace = trace;
     renderedSignature = signature;
     renderedRevision = trace.revision;
-    const picker = element("timing-signal");
-    picker.disabled = trace.recording || trace.signals.length >= TRACE_LIMITS.signals || picker.options.length === 0;
-    element("timing-add").disabled = picker.disabled;
+    updateSignalPicker(trace, circuitChanged);
     element("timing-start").disabled = trace.recording || trace.signals.length === 0;
     const startLabel = element("timing-start-label");
     startLabel.textContent = "\u5F00\u59CB";
@@ -4095,20 +4478,30 @@
     status.classList.toggle("timing-recording", trace.recording);
     renderWave(trace);
   }
-  function addSignal(state2) {
+  function changeSignals(state2) {
+    const trace = state2.timing;
     const picker = element("timing-signal");
-    for (const signal of available) {
-      if (signal.endpoint === picker.value && addTimingSignal(state2.timing, signal)) {
-        renderTimingPanel(state2);
-        return;
+    const selected = /* @__PURE__ */ new Set();
+    for (const option of picker.selectedOptions) {
+      selected.add(option.value);
+    }
+    for (const signal of trace.signals) {
+      if (!selected.has(signal.endpoint)) {
+        removeTimingSignal(trace, signal.endpoint);
       }
     }
+    for (const signal of available) {
+      if (selected.has(signal.endpoint)) {
+        addTimingSignal(trace, signal);
+      }
+    }
+    renderTimingPanel(state2);
   }
   function removeSignal(state2, event) {
     const button = event.target.closest("button[data-endpoint]");
     if (button && removeTimingSignal(state2.timing, button.dataset.endpoint)) {
       renderTimingPanel(state2);
-      element("timing-signal").focus();
+      element("timing-signal-trigger").focus();
     }
   }
   function startRecording(state2) {
@@ -4175,7 +4568,7 @@
   }
   function bindTimingPanel(state2) {
     element("timing-panel").style.setProperty("--timing-step", WAVE.step + "px");
-    element("timing-add").addEventListener("click", addSignal.bind(null, state2));
+    element("timing-signal").addEventListener("change", changeSignals.bind(null, state2));
     element("timing-signals").addEventListener("click", removeSignal.bind(null, state2));
     element("timing-start").addEventListener("click", startRecording.bind(null, state2));
     element("timing-stop").addEventListener("click", stopRecording.bind(null, state2));
@@ -4219,8 +4612,11 @@
     led.setAttribute("aria-label", text2);
     led.title = text2;
   }
-  function renderInputs(project, result, onToggle) {
-    const count = project.inputCount;
+  function renderInputs(project, result, onToggle, triState) {
+    let count = project.inputCount;
+    if (triState) {
+      count = Math.max(count, TRISTATE_CONTROL + 1);
+    }
     ensureInputControls(count, onToggle);
     const switches = element("quick-switches");
     let number = 0;
@@ -4231,6 +4627,7 @@
       button.setAttribute("aria-pressed", String(value === 1));
       const led = button.parentElement.querySelector(".io-led");
       const name = "K" + bit;
+      led.classList.toggle("weak", isWeakBoardInput(project, triState, bit));
       setLedState(led, name, readEndpoint(result, name));
       number = number * 2 + value;
     }
@@ -4327,12 +4724,14 @@
     const availableWidth = strip.clientWidth - paddingStart - paddingEnd;
     strip.classList.toggle("pulses-stacked", requiredWidth > availableWidth);
   }
-  function renderBoardIo(project, result, onToggle) {
-    renderInputs(project, result, onToggle);
-    element("input-count").value = String(project.inputCount);
-    element("output-count").value = String(project.outputCount);
+  function renderBoardIo(project, result, onToggle, triState, updateLayout = true) {
+    renderInputs(project, result, onToggle, triState);
     renderOutputs(project, result);
-    updateIoLayout();
+    if (updateLayout) {
+      element("input-count").value = String(project.inputCount);
+      element("output-count").value = String(project.outputCount);
+      updateIoLayout();
+    }
   }
 
   // src/ui/tooltip.mjs
@@ -4380,14 +4779,15 @@
     const above = bounds.top - TOOLTIP.gap - size.height;
     const bottomLimit = viewportHeight - TOOLTIP.edge - size.height;
     let top = below;
-    if (below > bottomLimit && above >= TOOLTIP.edge) {
+    const preferAbove = trigger.hasAttribute("data-tip-click");
+    if ((preferAbove || below > bottomLimit) && above >= TOOLTIP.edge) {
       top = above;
     }
     top = Math.max(TOOLTIP.edge, Math.min(top, bottomLimit));
     tip.style.left = left + "px";
     tip.style.top = top + "px";
   }
-  function showTooltip() {
+  function showTooltip(animate = true) {
     stopTimer2();
     if (!anchor || !anchor.isConnected || anchor.getClientRects().length === 0) {
       hideTooltip();
@@ -4397,8 +4797,12 @@
     if (!host) {
       host = document.body;
     }
-    host.append(tip);
+    if (tip.parentElement !== host) {
+      host.append(tip);
+    }
     tip.textContent = anchor.dataset.tip;
+    tip.classList.toggle("help-tip", anchor.hasAttribute("data-tip-click"));
+    tip.classList.toggle("instant-tip", !animate);
     tip.showPopover();
     positionTooltip(anchor);
     describedAnchor = anchor;
@@ -4461,13 +4865,25 @@
     if (trigger !== anchor || !tip.matches(":popover-open")) {
       hideTooltip();
       anchor = trigger;
-      showTooltip();
+      showTooltip(false);
     }
   }
   function blurTooltip(event) {
     if (anchor && anchor.contains(event.target) && !anchor.contains(event.relatedTarget)) {
       hideTooltip();
     }
+  }
+  function clickTooltip(event) {
+    const trigger = tooltipAnchor(event.target);
+    if (!trigger || !trigger.hasAttribute("data-tip-click")) {
+      return;
+    }
+    if (trigger === anchor && tip.matches(":popover-open")) {
+      return;
+    }
+    hideTooltip();
+    anchor = trigger;
+    showTooltip(event.detail !== 0);
   }
   function dismissTooltip(event) {
     if (event.key !== "Escape" || !anchor) {
@@ -4492,6 +4908,7 @@
     document.addEventListener("pointerdown", hideTooltip, true);
     document.addEventListener("focusin", focusTooltip);
     document.addEventListener("focusout", blurTooltip);
+    document.addEventListener("click", clickTooltip);
     document.addEventListener("keydown", dismissTooltip, true);
     document.addEventListener("close", closeDialogTooltip, true);
     window.addEventListener("scroll", hideTooltip, true);
@@ -8009,14 +8426,14 @@ Please report this to https://github.com/markedjs/marked.`, e) {
   }
 
   // src/ui/announcement.mjs
-  var ANNOUNCEMENT_ID = "experiment-wiring-1";
+  var ANNOUNCEMENT_ID = "experiment-wiring-2";
   var DISMISSED_KEY = "breadboard-lab-dismissed-announcement";
   var ANNOUNCEMENT_MARKDOWN = [
-    "\u672C\u9879\u76EE\u63D0\u4F9B\u7684\u5B9E\u9A8C\u5B58\u6863**\u4EC5\u4F9B\u53C2\u8003**\uFF01",
+    "\u6B22\u8FCE\u4F7F\u7528\u672C\u6A21\u62DF\u5668\uFF01\u4F60\u53EF\u4EE5\u5728**\u5DE6\u4FA7\u680F\u504F\u4E0B**\u7684\u5730\u65B9\u81EA\u7531\u9009\u62E9\u5B58\u6863\uFF0C\u6253\u5F00\u5B58\u6863\u540E\uFF0C\u70B9\u53F3\u4FA7\u680F\u6700\u53F3\u4FA7\u7684**\u5907\u6CE8**\u5373\u53EF\u770B\u5230\u6BCF\u4E2A\u8F93\u5165\u7684\u7528\u9014\u3001\u5B9E\u9A8C\u6B65\u9AA4\u548C\u9884\u671F\u73B0\u8C61\u3002",
     "",
-    "\u505A\u8BA1\u7B97\u673A\u7EC4\u6210\u539F\u7406\u5B9E\u9A8C\u65F6\uFF0C\u5EFA\u8BAE\u5BF9\u7167\u8BFE\u7A0B\u8BFE\u4EF6\u6838\u5BF9\u5B58\u6863\u3002\u6709\u7591\u95EE\u65F6\uFF0C\u53EF\u4EE5\u628A\u5B58\u6863\u548C\u5BF9\u5E94\u7684\u8BFE\u4EF6\u4E00\u8D77\u4EA4\u7ED9 AI \u8F85\u52A9\u590D\u67E5\u3002",
+    "\u5728\u4F60\u63A5\u5165\u5B9E\u7269\u7535\u8DEF\u524D\uFF0C\u8BF7\u4F60\u52A1\u5FC5**\u5148\u68C0\u67E5\u82AF\u7247\u662F\u5426\u6B63\u5E38\u5DE5\u4F5C**\uFF01\uFF01\u5B89\u88C5\u65F6\u4E5F\u4E00\u5B9A\u8981**\u68C0\u67E5\u82AF\u7247\u7F3A\u53E3\u671D\u5411**\uFF0C\u4EE5\u53CA**\u7535\u6E90\u7EBF\u548C\u5730\u7EBF\u662F\u5426\u63A5\u5BF9**\uFF01",
     "",
-    "> **\u5B9E\u9645\u63A5\u7EBF\u4EE5\u8BFE\u7A0B\u8981\u6C42\u548C\u5B9E\u7269\u5B9E\u9A8C\u677F\u4E3A\u51C6\uFF01**"
+    "> **\u5982\u679C\u8FD9\u4E2A\u9879\u76EE\u5E2E\u5230\u4E86\u4F60\uFF0C\u6B22\u8FCE\u5230 https://github.com/Windy-Field/SDU-BreadBoard \u4E3A\u9879\u76EE\u70B9\u4E2A Star\u3002**"
   ].join("\n");
   function isAnnouncementDismissed() {
     try {
@@ -8926,7 +9343,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
 
 ## \u529F\u80FD
 
-\u8FD9\u4E2A\u7535\u8DEF\u5B9E\u73B0\u4E86\u8FDE\u7EED\u8865\u7801\u52A0\u3001\u51CF\u8FD0\u7B97\u3002U1\uFF0874LS273\uFF09\u4FDD\u5B58\u4E86 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D**\uFF0C\u5171\u516D\u4F4D\uFF0C\u5E76\u628A\u7ED3\u679C\u53CD\u9988\u7ED9\u4E0B\u4E00\u8F6E\u8FD0\u7B97\u3002U2\u3001U3\uFF0874LS283\uFF09\u8BA1\u7B97\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u8F93\u5165\u53D6\u53CD\u548C\u6EA2\u51FA\u5224\u65AD
+\u8FD9\u4E2A\u7535\u8DEF\u53EF\u4EE5\u8FDE\u7EED\u505A\u8865\u7801\u52A0\u51CF\u3002U2\u3001U3\uFF0874LS283\uFF09\u7B97\u51FA\u6570\u503C\u4F4D\u548C\u7B26\u53F7\u4F4D\uFF0CU4\u3001U5\uFF0874LS86\uFF09\u8D1F\u8D23\u5BF9\u8F93\u5165\u53D6\u53CD\u5E76\u5224\u65AD\u662F\u5426\u6EA2\u51FA\u3002U1\uFF0874LS273\uFF09\u628A\u7B97\u51FA\u7684 **\u4E24\u4E2A\u7B26\u53F7\u4F4D\u548C\u56DB\u4E2A\u6570\u503C\u4F4D** \u5B58\u4E0B\u6765\uFF0C\u4F9B\u4E0B\u4E00\u8F6E\u63A5\u7740\u7B97\u3002
 
 ## \u8F93\u5165\u53E3
 
@@ -8958,7 +9375,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
 2. \u8BBE\u7F6E K4\uFF5EK0 \u548C\u52A0\u51CF\u63A7\u5236 K5\uFF0C\u5E76\u4FDD\u6301\u8F93\u5165\u7A33\u5B9A
 3. \u53D1\u51FA\u4E00\u6B21\u5B8C\u6574 P\u2212 \u8109\u51B2\u540E\uFF0C\u8BFB\u53D6 L5\uFF5EL0 \u7684\u516D\u4F4D\u7ED3\u679C\uFF0CL6 \u5355\u72EC\u6307\u793A\u6EA2\u51FA
 
-\u7D2F\u8BA1\u7ED3\u679C\u5728\u6709\u6548\u8109\u51B2\u5230\u6765\u540E\u66F4\u65B0\uFF0C\u8C03\u6574\u8F93\u5165\u65F6\u4FDD\u6301\u539F\u503C\u3002\u4F60\u53EF\u4EE5\u91CD\u590D\u8F93\u5165\u548C\u53D1\u8109\u51B2\uFF0C\u8FDE\u7EED\u5B8C\u6210\u8FD0\u7B97
+\u8C03\u6574\u8F93\u5165\u65F6\uFF0C\u5BC4\u5B58\u5668\u91CC\u7684\u7D2F\u8BA1\u503C\u4FDD\u6301\u539F\u6837\u3002\u53D1\u51FA\u6709\u6548\u8109\u51B2\u540E\uFF0C\u7ED3\u679C\u624D\u4F1A\u66F4\u65B0\u3002\u6BCF\u8F93\u5165\u4E00\u4E2A\u6570\uFF0C\u518D\u53D1\u4E00\u6B21\u8109\u51B2\uFF0C\u5C31\u80FD\u63A5\u7740\u7B97\u4E0B\u4E00\u6B65\u3002
 
 ## \u9A8C\u6536
 
@@ -8977,7 +9394,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
 
 \u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u4E86\u82AF\u7247\u5916\u6846\uFF0C\u901A\u8FC7\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u5EFA\u7ACB\u8FDE\u63A5\uFF0C\u4EA4\u53C9\u5904\u4FDD\u6301\u7EDD\u7F18\u3002\u5F53\u4F60\u786E\u8BA4\u5DE6\u4FA7\u7684\u201C\u6574\u7406\u8D70\u7EBF\u201D\u64CD\u4F5C\u540E\uFF0C\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u8DEF\u5F84\uFF0C\u5E76\u4FDD\u7559\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\uFF0C\u6574\u4E2A\u64CD\u4F5C\u652F\u6301\u64A4\u9500
 
-\u5F53\u4F60\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u5BC4\u5B58\u5668\u7684\u6613\u5931\u72B6\u6001\u4F1A\u91CD\u7F6E\uFF0C\u9700\u8981\u518D\u6B21\u6E05\u96F6\u3002\u7535\u8DEF\u91C7\u7528\u4E86\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u5C5E\u4E8E\u5B9E\u7269\u5B9E\u9A8C\u7684\u89C2\u5BDF\u8303\u56F4
+\u91CD\u65B0\u52A0\u8F7D\u6587\u4EF6\u3001\u65AD\u7535\u6216\u64A4\u9500\u540E\uFF0C\u9700\u8981\u518D\u7ED9\u5BC4\u5B58\u5668\u6E05\u96F6\u3002\u8FD9\u91CC\u7528\u7684\u662F\u7406\u60F3\u6570\u5B57\u903B\u8F91\u6A21\u578B\uFF0C\u7535\u6D41\u3001\u6309\u952E\u6296\u52A8\u548C\u5B9E\u9645\u4F20\u64AD\u65F6\u5EF6\u8981\u5728\u5B9E\u7269\u5B9E\u9A8C\u4E2D\u89C2\u5BDF\u3002
 `;
   function complementPreset() {
     const project = emptyProject();
@@ -9270,39 +9687,52 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     portion = Math.max(0, Math.min(1, portion));
     return Math.hypot(point.x - first.x - portion * horizontal, point.y - first.y - portion * vertical);
   }
+  function wireDistance(point, points) {
+    let nearest = Infinity;
+    for (let segment = 1; segment < points.length; segment = segment + 1) {
+      const distance = segmentDistance(point, points[segment - 1], points[segment]);
+      nearest = Math.min(nearest, distance);
+    }
+    return nearest;
+  }
+  function isInputResetButton(point) {
+    const vertical = point.y - PORT_LAYOUT.inputY;
+    const horizontal = Math.abs(point.x - columnX(INPUT_RESET_COLUMN));
+    return vertical >= PICK.buttonTop && vertical <= PICK.buttonBottom && horizontal <= PICK.pulseHalfWidth;
+  }
   function hitCandidates(point, state2, endpoints2) {
     const candidates = [];
     const displayPaths = wireDisplayPaths(state2.project.wires);
     if (point.y >= PORT_LAYOUT.inputY + PICK.buttonTop && point.y <= PORT_LAYOUT.inputY + PICK.buttonBottom) {
       for (let index = 0; index < IO_LIMIT; index = index + 1) {
-        const location = endpointPosition("K" + index);
-        if (Math.abs(point.x - location.x) <= PICK.switchHalfWidth) {
+        const location2 = endpointPosition("K" + index);
+        if (Math.abs(point.x - location2.x) <= PICK.switchHalfWidth) {
           return [{ kind: "switch", id: index }];
         }
       }
       for (const name of ["P+", "P-"]) {
-        const location = endpointPosition(name);
-        if (Math.abs(point.x - location.x) <= PICK.pulseHalfWidth) {
+        const location2 = endpointPosition(name);
+        if (Math.abs(point.x - location2.x) <= PICK.pulseHalfWidth) {
           return [{ kind: "pulse", id: name }];
         }
       }
     }
     for (let index = state2.project.wires.length - 1; index >= 0; index = index - 1) {
       const wire = state2.project.wires[index];
+      if (state2.hiddenWires && state2.hiddenWires.has(wire.id)) {
+        continue;
+      }
       const points = displayPaths[index];
-      for (let segment = 1; segment < points.length; segment = segment + 1) {
-        if (segmentDistance(point, points[segment - 1], points[segment]) < PICK.wireRadius) {
-          candidates.push({ kind: "wire", id: wire.id });
-          break;
-        }
+      if (wireDistance(point, points) < PICK.wireRadius) {
+        candidates.push({ kind: "wire", id: wire.id });
       }
     }
     const positions = fixedPositions(endpoints2);
     const radiusSquared = PICK.nodeRadius * PICK.nodeRadius;
     for (let index = 0; index < positions.length; index = index + 1) {
-      const location = positions[index];
-      const horizontal = point.x - location.x;
-      const vertical = point.y - location.y;
+      const location2 = positions[index];
+      const horizontal = point.x - location2.x;
+      const vertical = point.y - location2.y;
       if (horizontal * horizontal + vertical * vertical <= radiusSquared) {
         candidates.push({ kind: "node", id: endpoints2[index] });
       }
@@ -9314,6 +9744,31 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       }
     }
     return candidates;
+  }
+  function nearestWire(point, wires, hiddenWires, selected) {
+    let nearest = null;
+    let nearestDistance = PICK.wireRadius;
+    for (let index = wires.length - 1; index >= 0; index = index - 1) {
+      const wire = wires[index];
+      const points = wirePoints(wire, index);
+      const distance = wireDistance(point, points);
+      if (distance >= PICK.wireRadius || distance > nearestDistance) {
+        continue;
+      }
+      if (distance === nearestDistance) {
+        const selectedWire = selected && selected.kind === "wire";
+        if (selectedWire && nearest.id === selected.id) {
+          continue;
+        }
+        const keepVisible = !hiddenWires.has(nearest.id) || hiddenWires.has(wire.id);
+        if (keepVisible && (!selectedWire || wire.id !== selected.id)) {
+          continue;
+        }
+      }
+      nearest = wire;
+      nearestDistance = distance;
+    }
+    return nearest;
   }
   function hitTest(point, state2, endpoints2) {
     const candidates = hitCandidates(point, state2, endpoints2);
@@ -9337,8 +9792,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     let nearest = "";
     let distance = PICK.endpointRadius;
     for (const name of endpoints2) {
-      const location = endpointPosition(name);
-      const current = Math.hypot(point.x - location.x, point.y - location.y);
+      const location2 = endpointPosition(name);
+      const current = Math.hypot(point.x - location2.x, point.y - location2.y);
       if (current < distance) {
         distance = current;
         nearest = name;
@@ -9393,7 +9848,29 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     if (wiringVersion === void 0 && (/^[KL]\d+$/.test(name) || name === "P+" || name === "P-")) {
       return name;
     }
-    return baseNode(name, 2);
+    if (wiringVersion === void 0) {
+      return baseNode(name, 2);
+    }
+    return baseNode(name, wiringVersion);
+  }
+  function movePulseHole(name, wiringVersion) {
+    if (!wiringVersion || wiringVersion === WIRING_VERSION) {
+      return name;
+    }
+    const parts = name.split(":");
+    if (parts[0] !== "B" + (BOARD.sections - 1) || !ROWS.includes(parts[1])) {
+      return name;
+    }
+    const oldColumn = positivePulseColumn(wiringVersion);
+    const newColumn = positivePulseColumn();
+    const column = Number(parts[2]);
+    if (column === oldColumn) {
+      return parts[0] + ":" + parts[1] + ":" + newColumn;
+    }
+    if (column === newColumn) {
+      return parts[0] + ":" + parts[1] + ":" + oldColumn;
+    }
+    return name;
   }
   function connectionRoot(parents, name) {
     if (!parents.has(name)) {
@@ -9429,11 +9906,18 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     }
     const forward = /* @__PURE__ */ new Map();
     const reverse = /* @__PURE__ */ new Map();
+    const endpoints2 = [];
     for (const name of terminals) {
-      const oldGroup = connectionRoot(before, legacyNode(name, original.wiringVersion));
-      const newGroup = connectionRoot(after, baseNode(name));
+      endpoints2.push({ previous: name, current: name });
+    }
+    for (let index = 0; index < migrated.pullUps.length; index = index + 1) {
+      endpoints2.push({ previous: original.pullUps[index], current: migrated.pullUps[index] });
+    }
+    for (const endpoint of endpoints2) {
+      const oldGroup = connectionRoot(before, legacyNode(endpoint.previous, original.wiringVersion));
+      const newGroup = connectionRoot(after, baseNode(endpoint.current));
       if (forward.has(oldGroup) && forward.get(oldGroup) !== newGroup || reverse.has(newGroup) && reverse.get(newGroup) !== oldGroup) {
-        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + name + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
+        throw new Error("\u65E7\u5B9E\u9A8C\u5728 " + endpoint.previous + " \u5BF9\u5E94\u5217\u5DF2\u6709\u5176\u4ED6\u4FE1\u53F7\uFF0C\u8FC1\u79FB\u4F1A\u6539\u53D8\u8FDE\u63A5\uFF0C\u8BF7\u5148\u5907\u4EFD\u5E76\u8C03\u6574\u8BE5\u5217\u63A5\u7EBF");
       }
       forward.set(oldGroup, newGroup);
       reverse.set(newGroup, oldGroup);
@@ -9475,7 +9959,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     if (!value || value.version !== 1 || !Array.isArray(value.chips) || !Array.isArray(value.wires) || !Array.isArray(value.switches)) {
       throw new Error("\u6587\u4EF6\u4E0D\u662F\u53D7\u652F\u6301\u7684\u7535\u8DEF\u683C\u5F0F");
     }
-    if (value.wiringVersion !== void 0 && value.wiringVersion !== 2 && value.wiringVersion !== WIRING_VERSION) {
+    if (value.wiringVersion !== void 0 && ![2, 3, WIRING_VERSION].includes(value.wiringVersion)) {
       throw new Error("\u4E0D\u652F\u6301\u8FD9\u4EFD\u6587\u4EF6\u7684\u63A5\u7EBF\u5E03\u5C40\u7248\u672C");
     }
     if (value.chips.length > LIMITS.chips || value.wires.length > LIMITS.wires || value.switches.length !== IO_LIMIT) {
@@ -9517,7 +10001,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         if (!validEndpoint(endpoint) || seen.has(endpoint)) {
           throw new Error("\u4E0A\u62C9\u8282\u70B9\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
         }
-        project.pullUps.push(endpoint);
+        project.pullUps.push(movePulseHole(endpoint, value.wiringVersion));
         seen.add(endpoint);
       }
     }
@@ -9547,17 +10031,17 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     const reserved = new Set(occupied2);
     for (const entry of value.wires) {
       if (entry && isPhysicalHole(entry.from)) {
-        reserved.add(entry.from);
+        reserved.add(movePulseHole(entry.from, value.wiringVersion));
       }
       if (entry && isPhysicalHole(entry.to)) {
-        reserved.add(entry.to);
+        reserved.add(movePulseHole(entry.to, value.wiringVersion));
       }
     }
     for (const entry of value.wires) {
       if (!entry || typeof entry.id !== "string" || !/^W[1-9][0-9]*$/.test(entry.id) || identifiers.has(entry.id)) {
         throw new Error("\u5BFC\u7EBF\u7F16\u53F7\u4E0D\u5408\u6CD5\u6216\u91CD\u590D");
       }
-      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to || occupied2.has(entry.from) || occupied2.has(entry.to)) {
+      if (!validEndpoint(entry.from) || !validEndpoint(entry.to) || entry.from === entry.to) {
         throw new Error("\u5BFC\u7EBF\u7AEF\u70B9\u4E0D\u5408\u6CD5\uFF0C\u6216\u540C\u4E00\u4E2A\u5B54\u88AB\u91CD\u590D\u5360\u7528");
       }
       if (typeof entry.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(entry.color) || !Array.isArray(entry.bends) || entry.bends.length > LIMITS.bends) {
@@ -9570,8 +10054,13 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         }
         bends.push({ x: bend.x, y: bend.y });
       }
-      const from = migrateEndpoint(entry.from, reserved);
-      const to = migrateEndpoint(entry.to, reserved);
+      const firstHole = movePulseHole(entry.from, value.wiringVersion);
+      const lastHole = movePulseHole(entry.to, value.wiringVersion);
+      const from = migrateEndpoint(firstHole, reserved);
+      const to = migrateEndpoint(lastHole, reserved);
+      if (from === to || occupied2.has(from) || occupied2.has(to)) {
+        throw new Error("\u5BFC\u7EBF\u6216\u82AF\u7247\u5360\u7528\u4E86\u540C\u4E00\u4E2A\u5B54\uFF0C\u8BF7\u68C0\u67E5\u7AEF\u70B9");
+      }
       if (from !== entry.from || to !== entry.to) {
         bends.length = 0;
       }
@@ -9583,8 +10072,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         wire.angle = 45;
       }
       project.wires.push(wire);
-      occupied2.add(entry.from);
-      occupied2.add(entry.to);
+      occupied2.add(from);
+      occupied2.add(to);
       identifiers.add(entry.id);
     }
   }
@@ -9717,8 +10206,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       return;
     }
     const vector = keepObject(objects, new Avoid.CheckpointVector());
-    for (const location of points) {
-      const point = keepObject(objects, new Avoid.Point(location.x, location.y));
+    for (const location2 of points) {
+      const point = keepObject(objects, new Avoid.Point(location2.x, location2.y));
       const checkpoint = keepObject(objects, new Avoid.Checkpoint(point));
       vector.push_back(checkpoint);
     }
@@ -9843,17 +10332,21 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     railLinePadding: 10,
     sectionTopOffset: 30,
     sectionHeight: 234,
+    sectionOutlineWidth: 1.6,
     boardRadius: 8
   };
+  var TRENCH_DRAW = { topOffset: 15, height: 30, labelSize: 10 };
   var INPUT_DRAW = {
     top: -25,
     height: 107,
-    label: -14,
+    switchLabel: 0,
+    pulseLabel: 13,
     switchTop: 20,
     switchSlider: 37,
     switchTravel: 14,
     valueLabel: 67,
     ledTop: 9,
+    weakLedOpacity: 0.38,
     pulseCenter: 38,
     pulseRadius: 14,
     pulsePressedOffset: 3,
@@ -9862,6 +10355,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
   var OUTPUT_DRAW = { top: 14, height: 65, titleX: 1122, titleY: 35, ledY: 34, valueY: 40, labelY: 24 };
   var LEVEL_DRAW = { width: 13, height: 14, fontSize: 10, railInterval: 5 };
   var INTERNAL_DRAW = { lineWidth: 1, restingOpacity: 0.45, activeOpacity: 0.9 };
+  var HIDDEN_WIRE_DRAW = { width: 1.6, selectedWidth: 3, dash: [7, 5], endpointRadius: 3 };
   var COLOR_NAMES = ["board", "hole", "hole-edge", "chip", "chip-text", "module", "module-text", "metal", "trace", "led-on", "led-off", "unknown", "level-floating", "ink", "muted", "rule", "accent", "paper", "surface", "error", "success"];
   var drawingFont = "";
   var drawingColors = null;
@@ -9937,14 +10431,16 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       const top = BOARD.startY + section * BOARD.sectionHeight - DRAW.sectionTopOffset;
       rectangle(context, BOARD.panelLeft, top, BOARD.panelWidth, DRAW.sectionHeight, 7, colors.surface);
       context.strokeStyle = colors.rule;
-      context.lineWidth = 1;
+      context.lineWidth = DRAW.sectionOutlineWidth;
       context.strokeRect(43, top + 1, 1130, 232);
-      rectangle(context, 64, rowY(section, "E") + 15, 1086, 30, 3, colors.board);
+      const trenchTop = rowY(section, "E") + TRENCH_DRAW.topOffset;
+      const trenchCenter = trenchTop + TRENCH_DRAW.height / 2;
+      rectangle(context, 64, trenchTop, 1086, TRENCH_DRAW.height, 3, colors.board);
       label(context, String(section + 1), 55, top + 116, 12, colors.muted, "center");
       for (let column = 1; column <= BOARD.columns; column = column + 1) {
-        const horizontal = BOARD.startX + (column - 1) * BOARD.pitch;
-        if (column === 1 || column % 5 === 0) {
-          label(context, String(column), horizontal, top + 3, 9, colors.muted, "center");
+        const horizontal = columnX(column);
+        if (column % 2 === 1) {
+          label(context, String(column), horizontal, trenchCenter, TRENCH_DRAW.labelSize, colors.muted, "center");
         }
         if (emphasis > 0) {
           context.globalAlpha = emphasis;
@@ -9965,18 +10461,18 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         }
         for (let column = 1; column <= BOARD.columns; column = column + 1) {
           if (busHasHole(column)) {
-            const location = endpointPosition(holeId(section, row, column));
-            circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
-            circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
+            const location2 = endpointPosition(holeId(section, row, column));
+            circle(context, location2.x, location2.y, DRAW.holeRadius + 1, colors["hole-edge"]);
+            circle(context, location2.x, location2.y, DRAW.holeRadius, colors.hole);
           }
         }
       }
       for (const row of ROWS) {
         label(context, row, 74, rowY(section, row), 9, colors.muted, "center");
         for (let column = 1; column <= BOARD.columns; column = column + 1) {
-          const location = endpointPosition(holeId(section, row, column));
-          circle(context, location.x, location.y, DRAW.holeRadius + 1, colors["hole-edge"]);
-          circle(context, location.x, location.y, DRAW.holeRadius, colors.hole);
+          const location2 = endpointPosition(holeId(section, row, column));
+          circle(context, location2.x, location2.y, DRAW.holeRadius + 1, colors["hole-edge"]);
+          circle(context, location2.x, location2.y, DRAW.holeRadius, colors.hole);
         }
       }
     }
@@ -9989,9 +10485,9 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     label(context, "+5V", RAIL_LAYOUT.powerX, railLabel, 11, colors.error, "center");
     for (let index = 0; index < RAIL_LAYOUT.count; index = index + 1) {
       for (const name of ["GND", "VCC"]) {
-        const location = endpointPosition("R:" + name + ":" + index);
-        circle(context, location.x, location.y, 4.4, colors["hole-edge"]);
-        circle(context, location.x, location.y, 3.2, colors.hole);
+        const location2 = endpointPosition("R:" + name + ":" + index);
+        circle(context, location2.x, location2.y, 4.4, colors["hole-edge"]);
+        circle(context, location2.x, location2.y, 3.2, colors.hole);
       }
     }
   }
@@ -10037,29 +10533,47 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         label(context, String(value), led.x, OUTPUT_DRAW.valueY, 8, colors["module-text"], "center");
       }
       label(context, "L" + index, led.x, OUTPUT_DRAW.labelY, 8, colors["module-text"], "center");
-      const location = endpointPosition("K" + index);
-      label(context, "K" + index, location.x, inputY + INPUT_DRAW.label, 9, colors["module-text"], "center");
-      rectangle(context, location.x - 12, inputY + INPUT_DRAW.switchTop, 24, 36, 4, colors["chip-text"]);
+      const location2 = endpointPosition("K" + index);
+      label(context, "K" + index, location2.x, inputY + INPUT_DRAW.switchLabel, 9, colors["module-text"], "center");
+      rectangle(context, location2.x - 12, inputY + INPUT_DRAW.switchTop, 24, 36, 4, colors["chip-text"]);
       const switchTop = inputY + INPUT_DRAW.switchSlider - state2.visual.switches[index] * INPUT_DRAW.switchTravel;
-      rectangle(context, location.x - 9, switchTop, 18, 15, 2, colors.metal);
-      label(context, String(state2.project.switches[index]), location.x, inputY + INPUT_DRAW.valueLabel, 10, colors["module-text"], "center");
-      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-off"]);
-      context.globalAlpha = state2.visual.leds["K" + index];
-      rectangle(context, location.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-on"]);
+      rectangle(context, location2.x - 9, switchTop, 18, 15, 2, colors.metal);
+      label(context, String(state2.project.switches[index]), location2.x, inputY + INPUT_DRAW.valueLabel, 10, colors["module-text"], "center");
+      rectangle(context, location2.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-off"]);
+      let brightness = state2.visual.leds["K" + index];
+      if (state2.runtime && isWeakBoardInput(state2.project, state2.runtime.triState, index)) {
+        brightness = brightness * INPUT_DRAW.weakLedOpacity;
+      }
+      context.globalAlpha = brightness;
+      rectangle(context, location2.x - 6, inputY + INPUT_DRAW.ledTop, 12, 6, 2, colors["led-on"]);
       context.globalAlpha = 1;
     }
+    drawInputReset(context, state2, colors);
     for (const name of ["P+", "P-"]) {
-      const location = endpointPosition(name);
-      label(context, name, location.x, inputY + INPUT_DRAW.label, 10, colors["module-text"], "center");
+      const location2 = endpointPosition(name);
+      label(context, name, location2.x, inputY + INPUT_DRAW.pulseLabel, 10, colors["module-text"], "center");
       let buttonColor = colors["chip-text"];
       let buttonY = inputY + INPUT_DRAW.pulseCenter;
       if (state2.pressedPulse === name) {
         buttonColor = colors["led-on"];
         buttonY = buttonY + INPUT_DRAW.pulsePressedOffset;
       }
-      circle(context, location.x, buttonY, INPUT_DRAW.pulseRadius, buttonColor);
-      label(context, "\u8109\u51B2", location.x, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
+      circle(context, location2.x, buttonY, INPUT_DRAW.pulseRadius, buttonColor);
+      label(context, "\u8109\u51B2", location2.x, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
     }
+  }
+  function drawInputReset(context, state2, colors) {
+    const buttonX = columnX(INPUT_RESET_COLUMN);
+    const inputY = PORT_LAYOUT.inputY;
+    let buttonY = inputY + INPUT_DRAW.pulseCenter;
+    let buttonColor = colors.metal;
+    if (state2.pressedPulse === "reset") {
+      buttonY = buttonY + INPUT_DRAW.pulsePressedOffset;
+      buttonColor = colors["led-on"];
+    }
+    circle(context, buttonX, buttonY, INPUT_DRAW.pulseRadius, colors["chip-text"]);
+    circle(context, buttonX, buttonY, INPUT_DRAW.pulseRadius - 3, buttonColor);
+    label(context, "\u590D\u4F4D", buttonX, inputY + INPUT_DRAW.valueLabel, 9, colors["module-text"], "center");
   }
   function drawPortConnections(context, state2, colors) {
     const emphasis = state2.visual.internals;
@@ -10069,8 +10583,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       signals.push("K" + bit, "L" + bit);
     }
     for (const signal of signals) {
-      const location = endpointPosition(signal);
-      const first = { x: location.x, y: PORT_LAYOUT.inputY + INPUT_DRAW.top };
+      const location2 = endpointPosition(signal);
+      const first = { x: location2.x, y: PORT_LAYOUT.inputY + INPUT_DRAW.top };
       if (signal.startsWith("L")) {
         first.y = OUTPUT_DRAW.top + OUTPUT_DRAW.height;
       }
@@ -10151,23 +10665,23 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     const bounds = chipBounds(chip);
     const model = CHIP_MODELS[chip.model];
     for (let pin = 1; pin <= model.count; pin = pin + 1) {
-      const location = endpointPosition(pinHole(chip, pin));
+      const location2 = endpointPosition(pinHole(chip, pin));
       let edge = bounds.y + bounds.height;
       if (pin > model.count / 2) {
         edge = bounds.y;
       }
-      polyline(context, [location, { x: location.x, y: edge }], colors.metal, 5);
+      polyline(context, [location2, { x: location2.x, y: edge }], colors.metal, 5);
     }
     rectangle(context, bounds.x, bounds.y, bounds.width, bounds.height, 3, colors.chip);
     circle(context, bounds.x, bounds.y + 16, 6, colors.board);
     label(context, chip.id + "  " + chip.model, bounds.x + bounds.width / 2 + 3, bounds.y + 16, DRAW.chipText, colors["chip-text"], "center");
     for (let pin = 1; pin <= model.count; pin = pin + 1) {
-      const location = endpointPosition(pinHole(chip, pin));
+      const location2 = endpointPosition(pinHole(chip, pin));
       let vertical = bounds.y + bounds.height - 3;
       if (pin > model.count / 2) {
         vertical = bounds.y + 4;
       }
-      label(context, String(pin), location.x, vertical, 6, colors["chip-text"], "center");
+      label(context, String(pin), location2.x, vertical, 6, colors["chip-text"], "center");
     }
     if (objectSelected(state2, "chip", chip.id)) {
       context.strokeStyle = colors.accent;
@@ -10175,10 +10689,43 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       context.strokeRect(bounds.x - 3, bounds.y - 3, bounds.width + 6, bounds.height + 6);
     }
   }
+  function drawHiddenWires(context, state2, paths) {
+    if (state2.hiddenWires.size === 0) {
+      return;
+    }
+    const wires = state2.project.wires;
+    context.save();
+    for (let index = 0; index < wires.length; index = index + 1) {
+      const wire = wires[index];
+      if (!state2.hiddenWires.has(wire.id)) {
+        continue;
+      }
+      let width = HIDDEN_WIRE_DRAW.width;
+      if (objectSelected(state2, "wire", wire.id)) {
+        width = HIDDEN_WIRE_DRAW.selectedWidth;
+      }
+      const points = paths[index];
+      context.setLineDash(HIDDEN_WIRE_DRAW.dash);
+      polyline(context, points, wire.color, width);
+      context.setLineDash([]);
+      context.beginPath();
+      const first = points[0];
+      const last = points[points.length - 1];
+      context.arc(first.x, first.y, HIDDEN_WIRE_DRAW.endpointRadius, 0, Math.PI * 2);
+      context.moveTo(last.x + HIDDEN_WIRE_DRAW.endpointRadius, last.y);
+      context.arc(last.x, last.y, HIDDEN_WIRE_DRAW.endpointRadius, 0, Math.PI * 2);
+      context.stroke();
+    }
+    context.restore();
+  }
   function drawWires(context, state2, colors) {
     const displayPaths = wireDisplayPaths(state2.project.wires);
+    drawHiddenWires(context, state2, displayPaths);
     for (let index = 0; index < state2.project.wires.length; index = index + 1) {
       const wire = state2.project.wires[index];
+      if (state2.hiddenWires.has(wire.id)) {
+        continue;
+      }
       const points = displayPaths[index];
       let width = DRAW.wireWidth;
       const selected = objectSelected(state2, "wire", wire.id);
@@ -10227,19 +10774,19 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
         if (root !== selectedNode) {
           continue;
         }
-        const location = endpointPosition(name);
+        const location2 = endpointPosition(name);
         context.strokeStyle = colors.accent;
         context.lineWidth = 2;
         context.beginPath();
-        context.arc(location.x, location.y, 6.2, 0, Math.PI * 2);
+        context.arc(location2.x, location2.y, 6.2, 0, Math.PI * 2);
         context.stroke();
       }
     }
     if (state2.hovered) {
-      const location = endpointPosition(state2.hovered);
+      const location2 = endpointPosition(state2.hovered);
       context.strokeStyle = colors.accent;
       context.lineWidth = 2;
-      context.strokeRect(location.x - 8, location.y - 8, 16, 16);
+      context.strokeRect(location2.x - 8, location2.y - 8, 16, 16);
     }
   }
   function renderBoard(canvas2, state2, endpoints2) {
@@ -11568,13 +12115,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
 
 ## \u5199\u5165
 
-1. \u6253\u5F00\u7535\u6E90\uFF0C\u5C06K13\u3001K14\u3001K15\u90FD\u8BBE\u4E3A1
-2. \u8BBE\u7F6EK12\u9009\u7247\u3001K11\uFF5EK8\u5730\u5740\u3001K7\uFF5EK0\u6570\u636E
-3. K15\u8BBE\u4E3A0\uFF0C\u63A5\u5165\u6570\u636E
-4. K13\u8BBE\u4E3A0\uFF0C\u518D\u8BBE\u56DE1\uFF0C\u5B8C\u6210\u5199\u5165
-5. K15\u8BBE\u56DE1\uFF0C\u9694\u79BB\u6570\u636E
+1. \u6253\u5F00\u7535\u6E90\uFF0C\u628A K13\u3001K14 \u548C K15 \u90FD\u62E8\u5230 1\u3002
+2. \u7528 K12 \u9009\u82AF\u7247\uFF0C\u7528 K11\uFF5EK8 \u8BBE\u5730\u5740\uFF0C\u518D\u7528 K7\uFF5EK0 \u8BBE\u6570\u636E\u3002
+3. \u628A K15 \u62E8\u5230 0\uFF0C\u8BA9\u6570\u636E\u5F00\u5173\u63A5\u5230\u603B\u7EBF\u4E0A\u3002
+4. \u628A K13 \u62E8\u5230 0\uFF0C\u518D\u62E8\u56DE 1\uFF0C\u6570\u636E\u5C31\u5199\u8FDB\u53BB\u4E86\u3002
+5. \u628A K15 \u62E8\u56DE 1\uFF0C\u5C06\u6570\u636E\u5F00\u5173\u4E0E\u603B\u7EBF\u9694\u5F00\u3002
 
-\u91CD\u590D\u6B65\u9AA42\uFF5E5\uFF0C\u5148\u5199\u5B8C\u4E0B\u9762\u56DB\u7EC4\u6570\u636E
+\u91CD\u590D\u7B2C 2\uFF5E5 \u6B65\uFF0C\u628A\u4E0B\u9762\u56DB\u7EC4\u6570\u636E\u90FD\u5199\u5B8C\u3002
 
 ## \u9A8C\u6536\u6570\u636E
 
@@ -11587,13 +12134,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
 
 ## \u8BFB\u53D6
 
-\u4FDD\u6301K13=1\u3001K15=1\uFF0C\u628AK14\u8BBE\u4E3A0\u3002\u53EA\u5207\u6362K12\u548CK11\uFF5EK8\uFF0C\u68C0\u67E5L7\uFF5EL0\u662F\u5426\u4E0E\u8868\u4E2D\u6570\u636E\u4E00\u81F4
+\u4FDD\u6301 K13 \u548C K15 \u4E3A 1\uFF0C\u628A K14 \u62E8\u5230 0\u3002\u63A5\u7740\u53EA\u5207\u6362\u9009\u7247 K12 \u548C\u5730\u5740 K11\uFF5EK8\uFF0C\u770B\u770B L7\uFF5EL0 \u663E\u793A\u7684\u6570\u636E\u548C\u8868\u4E2D\u662F\u5426\u4E00\u81F4\u3002
 
-\u518D\u6B21\u5199\u5165\u524D\uFF0C\u5148\u628AK14\u8BBE\u56DE1\u3002\u4E0D\u9700\u8981\u4F7F\u7528P+\u6216P\u2212
+\u8981\u518D\u6B21\u5199\u5165\uFF0C\u5148\u628A K14 \u62E8\u56DE 1\u3002\u6574\u4E2A\u8FC7\u7A0B\u7528\u4E0D\u5230 P+ \u6216 P\u2212\u3002
 
 ## \u63D0\u9192
 
-\u5148\u505C\u6B62\u5199\u5165\uFF0C\u518D\u9694\u79BB\u6570\u636E\u3002Z\u8868\u793A\u603B\u7EBF\u672A\u8F93\u51FA\uFF0C\u672A\u5199\u5165\u7684\u5730\u5740\u8BFB\u51FAX\u3002\u65AD\u7535\u3001\u5237\u65B0\u6216\u5207\u6362\u5B9E\u9A8C\u540E\u9700\u91CD\u65B0\u5199\u5165\uFF0C\u4FDD\u5B58\u5B58\u6863\u4E0D\u4FDD\u5B58RAM\u6570\u636E
+\u5148\u7ED3\u675F\u5199\u5165\uFF0C\u518D\u5C06\u6570\u636E\u5F00\u5173\u4E0E\u603B\u7EBF\u9694\u5F00\u3002Z \u8868\u793A\u603B\u7EBF\u6CA1\u6709\u88AB\u9A71\u52A8\uFF0C\u8BFB\u5230\u6CA1\u5199\u8FC7\u7684\u5730\u5740\u4F1A\u663E\u793A X\u3002\u5B9E\u9A8C\u5B58\u6863\u53EA\u8BB0\u5F55\u63A5\u7EBF\u7B49\u8BBE\u7F6E\uFF0CRAM \u91CC\u7684\u6570\u636E\u5728\u65AD\u7535\u3001\u5237\u65B0\u6216\u5207\u6362\u5B9E\u9A8C\u540E\u9700\u8981\u91CD\u65B0\u5199\u5165\u3002
 `;
   function connectPower(project, usage) {
     let power = "VCC";
@@ -11828,6 +12375,739 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     return updated;
   }
 
+  // src/experiments/timing-routes.json
+  var timing_routes_default = {
+    W1: [
+      {
+        x: 1242,
+        y: 658.00000027
+      },
+      {
+        x: 288,
+        y: 658.00000027
+      }
+    ],
+    W2: [
+      {
+        x: 1210,
+        y: 738.5999997480001
+      },
+      {
+        x: 414,
+        y: 738.5999997480001
+      }
+    ],
+    W3: [
+      {
+        x: 274,
+        y: 646
+      },
+      {
+        x: 274,
+        y: 411
+      }
+    ],
+    W4: [
+      {
+        x: 414,
+        y: 754.7999997480001
+      },
+      {
+        x: 433.99999994000007,
+        y: 754.7999997480001
+      },
+      {
+        x: 433.99999994000007,
+        y: 480.2857142857143
+      },
+      {
+        x: 414,
+        y: 480.2857142857143
+      }
+    ],
+    W5: [
+      {
+        x: 288,
+        y: 387.33333333333326
+      },
+      {
+        x: 779.20000034,
+        y: 387.33333333333326
+      },
+      {
+        x: 779.20000034,
+        y: 661
+      }
+    ],
+    W6: [
+      {
+        x: 414,
+        y: 513.2857142857144
+      },
+      {
+        x: 608.25,
+        y: 513.2857142857144
+      },
+      {
+        x: 608.25,
+        y: 726
+      },
+      {
+        x: 918,
+        y: 726
+      }
+    ],
+    W7: [
+      {
+        x: 783.4000003399999,
+        y: 646
+      },
+      {
+        x: 783.4000003399999,
+        y: 417.33333333333326
+      },
+      {
+        x: 810,
+        y: 417.33333333333326
+      }
+    ],
+    W8: [
+      {
+        x: 918,
+        y: 761.3999997480001
+      },
+      {
+        x: 937.9999996199999,
+        y: 761.3999997480001
+      },
+      {
+        x: 937.9999996199999,
+        y: 491
+      }
+    ],
+    W9: [
+      {
+        x: 810,
+        y: 399.33333333333326
+      },
+      {
+        x: 602.25,
+        y: 399.33333333333326
+      },
+      {
+        x: 602.25,
+        y: 743.999999748
+      },
+      {
+        x: 396,
+        y: 743.999999748
+      }
+    ],
+    W10: [
+      {
+        x: 396,
+        y: 749.3999997480001
+      },
+      {
+        x: 428,
+        y: 749.3999997480001
+      },
+      {
+        x: 428,
+        y: 664.00000027
+      },
+      {
+        x: 396,
+        y: 664.00000027
+      }
+    ],
+    W11: [
+      {
+        x: 381,
+        y: 646
+      },
+      {
+        x: 381,
+        y: 491
+      }
+    ],
+    W12: [
+      {
+        x: 378,
+        y: 507.2857142857144
+      },
+      {
+        x: 900,
+        y: 507.2857142857144
+      }
+    ],
+    W13: [
+      {
+        x: 943.9999996199999,
+        y: 506
+      },
+      {
+        x: 943.9999996199999,
+        y: 399.33333333333326
+      },
+      {
+        x: 828,
+        y: 399.33333333333326
+      }
+    ],
+    W14: [
+      {
+        x: 828,
+        y: 393.33333333333326
+      },
+      {
+        x: 596.25,
+        y: 393.33333333333326
+      },
+      {
+        x: 596.25,
+        y: 486.2857142857143
+      },
+      {
+        x: 324,
+        y: 486.2857142857143
+      }
+    ],
+    W15: [
+      {
+        x: 324,
+        y: 510.2857142857143
+      },
+      {
+        x: 342,
+        y: 510.2857142857143
+      }
+    ],
+    W16: [
+      {
+        x: 342,
+        y: 510.2857142857143
+      },
+      {
+        x: 363,
+        y: 510.2857142857143
+      },
+      {
+        x: 363,
+        y: 491
+      }
+    ],
+    W17: [
+      {
+        x: 360,
+        y: 504.2857142857143
+      },
+      {
+        x: 268.00000006,
+        y: 504.2857142857143
+      },
+      {
+        x: 268.00000006,
+        y: 741
+      }
+    ],
+    W18: [
+      {
+        x: 324,
+        y: 754.7999997480001
+      },
+      {
+        x: 342,
+        y: 754.7999997480001
+      }
+    ],
+    W19: [
+      {
+        x: 342,
+        y: 754.7999997480001
+      },
+      {
+        x: 360,
+        y: 754.7999997480001
+      }
+    ],
+    W20: [
+      {
+        x: 360,
+        y: 754.7999997480001
+      },
+      {
+        x: 378,
+        y: 754.7999997480001
+      }
+    ],
+    W21: [
+      {
+        x: 378,
+        y: 770.999999748
+      },
+      {
+        x: 813,
+        y: 770.999999748
+      },
+      {
+        x: 813,
+        y: 741
+      }
+    ],
+    W22: [
+      {
+        x: 1062,
+        y: 734.3999997480001
+      },
+      {
+        x: 306,
+        y: 734.3999997480001
+      }
+    ],
+    W23: [
+      {
+        x: 306,
+        y: 760.1999997480001
+      },
+      {
+        x: 614.25,
+        y: 760.1999997480001
+      },
+      {
+        x: 614.25,
+        y: 670.00000027
+      },
+      {
+        x: 882,
+        y: 670.00000027
+      }
+    ],
+    W24: [
+      {
+        x: 357,
+        y: 661
+      },
+      {
+        x: 357,
+        y: 498.2857142857143
+      },
+      {
+        x: 288,
+        y: 498.2857142857143
+      }
+    ],
+    W25: [
+      {
+        x: 375,
+        y: 661
+      },
+      {
+        x: 375,
+        y: 492.2857142857143
+      },
+      {
+        x: 306,
+        y: 492.2857142857143
+      }
+    ],
+    W26: [
+      {
+        x: 807,
+        y: 1036
+      },
+      {
+        x: 807,
+        y: 730.1999997480001
+      },
+      {
+        x: 288,
+        y: 730.1999997480001
+      }
+    ],
+    W27: [
+      {
+        x: 288,
+        y: 765.5999997480001
+      },
+      {
+        x: 792,
+        y: 765.5999997480001
+      }
+    ],
+    W28: [
+      {
+        x: 774,
+        y: 664.00000027
+      },
+      {
+        x: 918,
+        y: 664.00000027
+      }
+    ],
+    W29: [
+      {
+        x: 918,
+        y: 483.2857142857144
+      },
+      {
+        x: 810,
+        y: 483.2857142857144
+      }
+    ],
+    W30: [
+      {
+        x: 828,
+        y: 652.00000027
+      },
+      {
+        x: 414,
+        y: 652.00000027
+      }
+    ],
+    W31: [
+      {
+        x: 810,
+        y: 676
+      },
+      {
+        x: 932,
+        y: 676
+      },
+      {
+        x: 932,
+        y: 755.3999997480001
+      },
+      {
+        x: 900,
+        y: 755.3999997480001
+      }
+    ],
+    W32: [
+      {
+        x: 954,
+        y: 751.1999997480001
+      },
+      {
+        x: 882,
+        y: 751.1999997480001
+      }
+    ],
+    W33: [
+      {
+        x: 864,
+        y: 652.00000027
+      },
+      {
+        x: 955.9999996199999,
+        y: 652.00000027
+      },
+      {
+        x: 955.9999996199999,
+        y: 116
+      }
+    ],
+    W34: [
+      {
+        x: 306,
+        y: 417.33333333333326
+      },
+      {
+        x: 615,
+        y: 417.33333333333326
+      },
+      {
+        x: 615,
+        y: 501.2857142857144
+      },
+      {
+        x: 846,
+        y: 501.2857142857144
+      }
+    ],
+    W35: [
+      {
+        x: 864,
+        y: 477.2857142857144
+      },
+      {
+        x: 796,
+        y: 477.2857142857144
+      },
+      {
+        x: 796,
+        y: 122
+      },
+      {
+        x: 810,
+        y: 122
+      }
+    ],
+    W36: [
+      {
+        x: 918,
+        y: 746.999999748
+      },
+      {
+        x: 864,
+        y: 746.999999748
+      }
+    ],
+    W37: [
+      {
+        x: 846,
+        y: 646.00000027
+      },
+      {
+        x: 949.9999996199999,
+        y: 646.00000027
+      },
+      {
+        x: 949.9999996199999,
+        y: 116
+      }
+    ],
+    W38: [
+      {
+        x: 324,
+        y: 423.33333333333326
+      },
+      {
+        x: 609,
+        y: 423.33333333333326
+      },
+      {
+        x: 609,
+        y: 495.2857142857144
+      },
+      {
+        x: 882,
+        y: 495.2857142857144
+      }
+    ],
+    W39: [
+      {
+        x: 900,
+        y: 489.2857142857144
+      },
+      {
+        x: 774,
+        y: 489.2857142857144
+      }
+    ],
+    W40: [
+      {
+        x: 882,
+        y: 742.7999997480001
+      },
+      {
+        x: 846,
+        y: 742.7999997480001
+      }
+    ],
+    W41: [
+      {
+        x: 828,
+        y: 646.00000027
+      },
+      {
+        x: 787.60000034,
+        y: 646.00000027
+      },
+      {
+        x: 787.60000034,
+        y: 116
+      }
+    ],
+    W42: [
+      {
+        x: 342,
+        y: 405.33333333333326
+      },
+      {
+        x: 900,
+        y: 405.33333333333326
+      }
+    ],
+    W43: [
+      {
+        x: 918,
+        y: 110
+      },
+      {
+        x: 738,
+        y: 110
+      }
+    ],
+    W44: [
+      {
+        x: 846,
+        y: 742.7999997480001
+      },
+      {
+        x: 828,
+        y: 742.7999997480001
+      }
+    ],
+    W45: [
+      {
+        x: 810,
+        y: 640.00000027
+      },
+      {
+        x: 791.80000034,
+        y: 640.00000027
+      },
+      {
+        x: 791.80000034,
+        y: 128
+      },
+      {
+        x: 846,
+        y: 128
+      }
+    ],
+    W46: [
+      {
+        x: 360,
+        y: 411.33333333333326
+      },
+      {
+        x: 864,
+        y: 411.33333333333326
+      }
+    ],
+    W47: [
+      {
+        x: 882,
+        y: 104
+      },
+      {
+        x: 702,
+        y: 104
+      }
+    ]
+  };
+
+  // src/experiments/timing-preset.mjs
+  var TIMING_EXPERIMENT_ID = "timing-system-example";
+  var TIMING_EXPERIMENT_NAME = "\u5B9E\u9A8C\u56DB \u65F6\u5E8F\u7CFB\u7EDF";
+  var TIMING_CHIPS = [
+    { id: "U1", model: "74LS161", section: 2, column: 12 },
+    { id: "U2", model: "74LS138", section: 1, column: 12 },
+    { id: "U3", model: "74LS194", section: 2, column: 40 },
+    { id: "U4", model: "74LS04", section: 1, column: 41 }
+  ];
+  var PORTS = { reset: 4, load: 5, inputs: 6, outputs: 8, firstPhase: 4 };
+  var DATA_PINS = [6, 5, 4, 3];
+  var BEAT_PINS = [12, 13, 14, 15];
+  var HIGH_PINS = ["U1-7", "U1-10", "U2-6", "U3-10"];
+  var LOW_PINS = ["U4-13", "U2-3", "U2-4", "U2-5", "U1-3", "U1-4", "U1-5", "U1-6", "U3-2"];
+  var COLORS = {
+    power: WIRE_COLORS[0],
+    ground: WIRE_COLORS[7],
+    data: WIRE_COLORS[2],
+    control: WIRE_COLORS[4],
+    clock: WIRE_COLORS[6],
+    beat: WIRE_COLORS[1],
+    phase: WIRE_COLORS[5]
+  };
+  var TIMING_NOTES = `# \u5B9E\u9A8C\u56DB \u65F6\u5E8F\u7CFB\u7EDF
+
+## \u7AEF\u53E3\u5206\u914D
+
+| \u7AEF\u53E3 | \u7528\u9014 |
+| --- | --- |
+| K3\uFF5EK0 | \u5E76\u884C\u8F93\u5165 A\u3001B\u3001C\u3001D\uFF0C\u9884\u7F6E 0001 |
+| K4 | 0 \u6E05\u96F6\u8BA1\u6570\u5668\u548C\u79FB\u4F4D\u5BC4\u5B58\u5668\uFF0C1 \u89E3\u9664\u6E05\u96F6 |
+| K5 | 1 \u5E76\u884C\u88C5\u8F7D\uFF0C0 \u5FAA\u73AF\u5DE6\u79FB |
+| P+ | \u8BA1\u6570\u65F6\u949F\uFF0C\u6309\u4E0B\u65F6\u8BA1\u6570\u4E00\u6B21 |
+| L0\uFF5EL3 | \u8282\u62CD M0\uFF5EM3\uFF0C\u5BF9\u5E94 QD\u3001QC\u3001QB\u3001QA |
+| L4\uFF5EL7 | \u5DE5\u4F5C\u8109\u51B2 T0\uFF5ET3\uFF0C\u9AD8\u7535\u5E73\u6709\u6548 |
+
+## \u542F\u52A8\u4E0E\u89C2\u5BDF
+
+1. \u6253\u5F00\u7535\u6E90\uFF0C\u5148\u7528\u5355\u8109\u51B2\u6A21\u5F0F\u3002\u628A K4 \u62E8\u5230 0 \u6E05\u96F6\uFF0CK5 \u62E8\u5230 1\uFF0CK3\uFF5EK0 \u8BBE\u4E3A 0001\u3002
+2. \u628A K4 \u62E8\u56DE 1\uFF0C\u518D\u70B9\u4E00\u6B21 P+\u3002\u8BA1\u6570\u5668\u88C5\u5165 0\uFF0C\u79FB\u4F4D\u5BC4\u5B58\u5668\u88C5\u5165 0001\uFF0C\u8FD9\u65F6 M0 \u548C T0 \u4F1A\u540C\u65F6\u4EAE\u8D77\u3002
+3. \u628A K5 \u62E8\u5230 0\u3002\u5728\u53F3\u4FA7\u300C\u65F6\u5E8F\u300D\u53D6\u6D88\u52FE\u9009 P\u2212 \u548C K0\uFF08\u5217\u8868\u4E2D\u5199\u4F5C P- \u548C K0\uFF09\uFF0C\u4FDD\u7559 L0\uFF0C\u518D\u4F9D\u6B21\u52FE\u9009 L1\uFF5EL7\u3002L0\uFF5EL3 \u5BF9\u5E94 M0\uFF5EM3\uFF0CL4\uFF5EL7 \u5BF9\u5E94 T0\uFF5ET3\u3002\u70B9\u300C\u5F00\u59CB\u300D\u540E\u9010\u6B21\u70B9\u51FB P+\uFF0C\u4E5F\u53EF\u4EE5\u5F00\u542F\u8FDE\u7EED\u8109\u51B2\u6765\u8BB0\u5F55\u6BCF\u4E00\u62CD\u7684\u53D8\u5316\u3002
+4. \u91CD\u65B0\u6253\u5F00\u5B58\u6863\u6216\u65AD\u7535\u540E\uFF0C\u4ECE\u7B2C 1 \u6B65\u505A\u8D77\u3002
+
+| \u5DE5\u4F5C\u76F8 | \u987A\u5E8F\u70B9\u4EAE\u7684\u8282\u62CD |
+| --- | --- |
+| T0 | M0\u3001M1\u3001M2\u3001M3 |
+| T1 | M0\u3001M1\u3001M2\u3001M3 |
+| T2 | M0\u3001M1\u3001M2\u3001M3 |
+| T3 | M0\u3001M1\u3001M2\u3001M3 |
+
+\u88C5\u8F7D\u5B8C\u6210\u65F6\u4EAE\u8D77\u7684\u662F M0 \u548C T0\u3002U3 \u7684 QA \u63A5\u56DE SL\uFF0C\u6240\u4EE5\u8282\u62CD\u4F1A\u5FAA\u73AF\u3002U1 \u7684\u9AD8\u4E24\u4F4D Q2\u3001Q3 \u51B3\u5B9A\u5F53\u524D\u662F\u54EA\u4E00\u76F8\uFF0C\u6BCF\u56DB\u62CD\u5207\u5230\u4E0B\u4E00\u76F8\u3002\u5230\u4E86 T3 \u7684 M3\uFF0C\u518D\u53D1\u4E00\u4E2A\u8109\u51B2\u5C31\u56DE\u5230 T0\u3001M0\u3002
+`;
+  function connectPower2(project, usage) {
+    let supply = "VCC";
+    let ground = "GND";
+    for (const chip of project.chips) {
+      const model = CHIP_MODELS[chip.model];
+      const supplyPin = chip.id + "-" + model.power;
+      const groundPin = chip.id + "-" + model.ground;
+      connect(project, usage, supply, supplyPin, COLORS.power);
+      connect(project, usage, ground, groundPin, COLORS.ground);
+      supply = supplyPin;
+      ground = groundPin;
+    }
+    for (const pin of HIGH_PINS) {
+      connect(project, usage, supply, pin, COLORS.power);
+      supply = pin;
+    }
+    for (const pin of LOW_PINS) {
+      connect(project, usage, ground, pin, COLORS.ground);
+      ground = pin;
+    }
+  }
+  function connectClock(project, usage) {
+    connect(project, usage, "P+", "U1-2", COLORS.clock);
+    connect(project, usage, "U1-2", "U3-11", COLORS.clock);
+    connect(project, usage, "U1-12", "U2-1", COLORS.phase);
+    connect(project, usage, "U1-11", "U2-2", COLORS.phase);
+    connect(project, usage, "K" + PORTS.reset, "U1-1", COLORS.control);
+    connect(project, usage, "U1-1", "U3-1", COLORS.control);
+    connect(project, usage, "K" + PORTS.load, "U3-9", COLORS.control);
+    connect(project, usage, "U3-9", "U4-1", COLORS.control);
+    connect(project, usage, "U4-2", "U1-9", COLORS.control);
+  }
+  function connectOutputs(project, usage) {
+    connect(project, usage, "U3-15", "U3-7", COLORS.beat);
+    const inverter = CHIP_MODELS["74LS04"];
+    const decoder = CHIP_MODELS["74LS138"];
+    for (let bit = 0; bit < BEAT_PINS.length; bit = bit + 1) {
+      const dataPin = DATA_PINS[bit];
+      const beatPin = BEAT_PINS[bit];
+      const gate = inverter.gates[bit + 1];
+      connect(project, usage, "K" + bit, "U3-" + dataPin, COLORS.data);
+      connect(project, usage, "U3-" + beatPin, "L" + bit, COLORS.beat);
+      connect(project, usage, "U2-" + decoder.outputs[bit], "U4-" + gate[0], COLORS.phase);
+      connect(project, usage, "U4-" + gate[2], "L" + (bit + PORTS.firstPhase), COLORS.phase);
+    }
+  }
+  function timingPreset() {
+    const project = emptyProject();
+    project.name = TIMING_EXPERIMENT_NAME;
+    project.notes = TIMING_NOTES;
+    project.inputCount = PORTS.inputs;
+    project.outputCount = PORTS.outputs;
+    project.switches[0] = 1;
+    project.switches[PORTS.load] = 1;
+    project.chips = structuredClone(TIMING_CHIPS);
+    const usage = {};
+    connectPower2(project, usage);
+    connectClock(project, usage);
+    connectOutputs(project, usage);
+    for (const wire of project.wires) {
+      if (Object.hasOwn(timing_routes_default, wire.id)) {
+        wire.bends = structuredClone(timing_routes_default[wire.id]);
+      }
+    }
+    return project;
+  }
+
   // src/storage/workspace.mjs
   var WORKSPACE_KEY = "breadboard-lab-workspace-v1";
   var READ_ONLY_KEY = "breadboard-lab-read-only";
@@ -11854,11 +13134,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     let warning = "";
     let removedCount = 0;
     let initializePreset = false;
+    let hasSavedWorkspace = false;
     try {
       const storage = storageOwner.localStorage;
       readOnly2 = storage.getItem(READ_ONLY_KEY) === "true";
       const savedWorkspace = storage.getItem(WORKSPACE_KEY);
       const savedProject = storage.getItem(STORAGE_KEY);
+      hasSavedWorkspace = Boolean(savedWorkspace || savedProject);
       if (savedWorkspace) {
         workspace2 = validateWorkspace(JSON.parse(savedWorkspace));
         removedCount = migrateSavedWorkspace(workspace2, storage);
@@ -11880,14 +13162,39 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       initializePreset = project.power && isComplementPreset(project);
     }
     ensureRamExperiment(workspace2);
+    ensureTimingExperiment(workspace2);
     return {
       workspace: workspace2,
       project,
       readOnly: readOnly2,
       warning,
       removedCount,
-      initializePreset
+      initializePreset,
+      hasSavedWorkspace
     };
+  }
+  function ensureTimingExperiment(workspace2) {
+    let ramId = "";
+    for (const id of Object.keys(workspace2.projects)) {
+      const name = workspace2.projects[id].name;
+      if (id === TIMING_EXPERIMENT_ID || name === TIMING_EXPERIMENT_NAME) {
+        return;
+      }
+      if (id === RAM_EXPERIMENT_ID || name === RAM_EXPERIMENT_NAME) {
+        ramId = id;
+      }
+    }
+    const projects = {};
+    for (const id of Object.keys(workspace2.projects)) {
+      projects[id] = workspace2.projects[id];
+      if (id === ramId) {
+        projects[TIMING_EXPERIMENT_ID] = timingPreset();
+      }
+    }
+    if (ramId === "") {
+      projects[TIMING_EXPERIMENT_ID] = timingPreset();
+    }
+    workspace2.projects = projects;
   }
   function ensureRamExperiment(workspace2) {
     for (const id of Object.keys(workspace2.projects)) {
@@ -11981,6 +13288,70 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       throw new Error("\u5F53\u524D\u5B9E\u9A8C\u4E0D\u5728\u5217\u8868\u4E2D\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u5B9E\u9A8C");
     }
     return workspace2;
+  }
+
+  // src/storage/workspace-settings.mjs
+  var SHARED_WORKSPACE = {
+    host: "127.0.0.1",
+    port: 49183,
+    route: "/local-workspace",
+    filename: "shared-workspace.json",
+    snapshotFile: "personal-workspace.json",
+    tokenFile: "shared-web-key.txt",
+    pairingPrefix: "#workspace=",
+    maxBytes: 4 * 1024 * 1024,
+    refreshInterval: 1500,
+    timeout: 4e3
+  };
+  var SHARED_WEB_ORIGIN = "http://" + SHARED_WORKSPACE.host + ":" + SHARED_WORKSPACE.port;
+
+  // src/storage/shared-workspace.mjs
+  var PAIRING_KEY = "breadboard-shared-web-key";
+  var PAIRING_TOKEN = /^[a-f0-9-]{72}$/;
+  function webToken() {
+    const prefix = SHARED_WORKSPACE.pairingPrefix;
+    if (location.hash.startsWith(prefix)) {
+      const token = location.hash.slice(prefix.length);
+      if (PAIRING_TOKEN.test(token)) {
+        localStorage.setItem(PAIRING_KEY, token);
+        history.replaceState(null, "", location.pathname + location.search);
+        return token;
+      }
+    }
+    return localStorage.getItem(PAIRING_KEY) || "";
+  }
+  function sharedWorkspaceClient() {
+    if (window.breadboardWorkspace) {
+      return window.breadboardWorkspace;
+    }
+    if (location.origin !== SHARED_WEB_ORIGIN) {
+      return null;
+    }
+    const token = webToken();
+    async function request(method, change) {
+      const options = {
+        method,
+        headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(SHARED_WORKSPACE.timeout),
+        cache: "no-store"
+      };
+      if (change) {
+        options.body = JSON.stringify(change);
+      }
+      const response = await fetch(SHARED_WORKSPACE.route, options);
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error);
+      }
+      return result;
+    }
+    function read() {
+      return request("GET");
+    }
+    function write(change) {
+      return request("PUT", change);
+    }
+    return { read, write };
   }
 
   // src/version.mjs
@@ -13133,11 +14504,15 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     svg2.replaceChildren();
     svg2.removeAttribute("style");
     element("logic-network-members").replaceChildren();
-    element("logic-network").replaceChildren(node("option", "\u7F51\u7EDC\u6838\u5BF9", ""));
+    const networkPicker = element("logic-network");
+    const placeholder = node("option", "\u7F51\u7EDC\u6838\u5BF9", "");
+    placeholder.value = "";
+    networkPicker.replaceChildren(placeholder);
     element("logic-zoom-label").textContent = "";
     for (const id of DIAGRAM_CONTROLS) {
       element(id).disabled = true;
     }
+    refreshSelect(networkPicker);
     try {
       const diagram = buildLogicDiagram(currentProject, currentResult);
       const graph = await layoutLogicDiagram(diagram, element("logic-show-power").checked);
@@ -13151,6 +14526,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       for (const id of DIAGRAM_CONTROLS) {
         element(id).disabled = false;
       }
+      refreshSelect(networkPicker);
     } catch (error) {
       if (generation !== request || !element("logic-diagram-dialog").open) {
         return;
@@ -13248,6 +14624,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     } else if (selectedNetworks.size > 1) {
       placeholder.textContent = "\u5DF2\u9009 " + selectedNetworks.size + " \u7EC4\u7F51\u7EDC";
     }
+    refreshSelect(select);
     for (const shape of element("logic-diagram").querySelectorAll("[data-net]")) {
       const selected = selectedNetworks.has(shape.dataset.net);
       shape.classList.toggle("logic-active-net", selected);
@@ -13388,7 +14765,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   };
   var PROJECT_JSON_INDENT = 2;
   var PLACEMENT_OFFSET = 30;
-  var PULSE_SETTINGS = { feedbackDuration: 160 };
+  var PULSE_SETTINGS = { feedbackDuration: 160, minimumHz: 1, maximumHz: 32 };
   var BOARD_PAN_OPTIONS = {
     buttons: [0],
     activeClass: "board-panning",
@@ -13410,6 +14787,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     wireAngle: SETTINGS.wireAngle,
     selected: null,
     selection: [],
+    hiddenWires: /* @__PURE__ */ new Set(),
     fixedItems: [],
     placing: "",
     pending: null,
@@ -13441,19 +14819,31 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   var dirtyExperiments = /* @__PURE__ */ new Set();
   var importedExperiments = /* @__PURE__ */ new Set();
   var savedExperiments = null;
+  var sharedClient = null;
+  var sharedRevision = "";
+  var sharedReady = false;
+  var sharedNotice = "";
+  var readingShared = false;
+  var pendingWrites = 0;
+  var writeQueue = Promise.resolve();
   var autoSave = false;
   var confirmationAction = null;
   var switchAction = null;
+  var openHiddenWires = null;
   var drag = null;
   var boardPan = null;
   var boardSelection = null;
   var ignoreClick = false;
+  var lastClickedWire = "";
   var cycle = { x: -100, y: -100, signature: "", index: 0 };
   var catalogModel = "";
   var heldPulse = "";
   var pulsePointerId = null;
   var pulsePointerTarget = null;
   var pulseTimer = 0;
+  var continuousTimer = null;
+  var continuousMode = false;
+  var pulseFrequency = PULSE_SETTINGS.minimumHz;
   var recentAction = "";
   var diagnosticToastId = "";
   var saveToastId = "";
@@ -13481,7 +14871,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     }
   }
   function beforeLeave(event) {
-    if (dirtyExperiments.size > 0) {
+    if (dirtyExperiments.size > 0 || pendingWrites > 0) {
       event.preventDefault();
       event.returnValue = "";
     }
@@ -13509,36 +14899,43 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       action();
     }
   }
-  function deleteCurrentExperiment() {
-    delete workspace.projects[activeExperiment];
-    delete savedExperiments.projects[activeExperiment];
-    dirtyExperiments.delete(activeExperiment);
-    importedExperiments.delete(activeExperiment);
+  async function removeExperiment(id) {
+    if (!Object.hasOwn(workspace.projects, id)) {
+      return false;
+    }
+    const nextSaved = copyProject(savedExperiments);
+    delete nextSaved.projects[id];
+    const savedIds = Object.keys(nextSaved.projects);
+    if (savedIds.length === 0) {
+      keepExperiment(nextSaved, newExperimentId(), emptyProject());
+    } else if (nextSaved.activeId === id) {
+      nextSaved.activeId = savedIds[0];
+    }
+    try {
+      await persistWorkspace(nextSaved);
+    } catch (error) {
+      reportSaveFailure(error);
+      return false;
+    }
+    savedExperiments = nextSaved;
+    delete workspace.projects[id];
+    dirtyExperiments.delete(id);
+    importedExperiments.delete(id);
+    if (activeExperiment !== id) {
+      render();
+      return true;
+    }
     const ids = Object.keys(workspace.projects);
     if (ids.length === 0) {
-      activeExperiment = newExperimentId();
-      state.project = emptyProject();
+      workspace.projects = copyProject(nextSaved.projects);
+      openExperiment(nextSaved.activeId);
     } else {
-      activeExperiment = ids[0];
-      state.project = copyProject(workspace.projects[activeExperiment]);
+      openExperiment(ids[0]);
     }
-    keepExperiment(workspace, activeExperiment, state.project);
-    const savedIds = Object.keys(savedExperiments.projects);
-    if (savedIds.length > 0) {
-      savedExperiments.activeId = savedIds[0];
-    } else {
-      const blankId = newExperimentId();
-      keepExperiment(savedExperiments, blankId, emptyProject());
-    }
-    state.saveFailed = false;
-    resetExperiment();
-    try {
-      localStorage.setItem(WORKSPACE_KEY, JSON.stringify(savedExperiments));
-    } catch (error) {
-      state.saveFailed = true;
-      renderSaveStatus();
-      toast("\u5B9E\u9A8C\u5DF2\u4ECE\u5217\u8868\u79FB\u9664\uFF0C\u4F60\u53EF\u4EE5\u5728\u6D4F\u89C8\u5668\u5B58\u50A8\u6062\u590D\u540E\u4FDD\u5B58", "warning");
-    }
+    return true;
+  }
+  function deleteCurrentExperiment() {
+    queueWorkspaceWrite(removeExperiment.bind(null, activeExperiment));
   }
   function quickDelete() {
     if (editingLocked()) {
@@ -13638,8 +15035,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     dirtyExperiments.delete(activeExperiment);
     finishExperimentSwitch();
   }
-  function saveAndSwitch() {
-    if (saveLocal()) {
+  async function saveAndSwitch() {
+    const action = switchAction;
+    const saved = await saveLocal();
+    if (!action || switchAction !== action) {
+      return;
+    }
+    if (saved && !dirtyExperiments.has(activeExperiment)) {
       finishExperimentSwitch();
       toast("\u4E0A\u4E00\u4EFD\u5B9E\u9A8C\u5DF2\u4FDD\u5B58", "info");
     } else {
@@ -13659,8 +15061,16 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     state.project = copyProject(workspace.projects[id]);
     state.saveFailed = false;
     resetExperiment();
+    if (state.project.power && isComplementPreset(state.project)) {
+      initializeDefaultPreset();
+      render();
+    }
   }
   function resetExperiment() {
+    state.hiddenWires.clear();
+    continuousMode = false;
+    pulseFrequency = PULSE_SETTINGS.minimumHz;
+    state.runtime.triState = false;
     resetRuntime();
     state.result = null;
     state.timing = createTimingTrace();
@@ -13746,54 +15156,95 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     recentAction = message;
     updateActionStatus();
   }
-  function remember() {
-    state.undo.push(copyProject(state.project));
+  function historyEntry(project) {
+    return { project, hiddenWires: new Set(state.hiddenWires) };
+  }
+  function rememberChange(project) {
+    state.undo.push(historyEntry(project));
     if (state.undo.length > SETTINGS.historyLimit) {
       state.undo.shift();
     }
     state.redo = [];
   }
-  function saveLocal() {
+  function remember() {
+    rememberChange(copyProject(state.project));
+  }
+  function queueWorkspaceWrite(action) {
+    pendingWrites = pendingWrites + 1;
+    async function runWrite() {
+      try {
+        return await action();
+      } finally {
+        pendingWrites = pendingWrites - 1;
+      }
+    }
+    writeQueue = writeQueue.then(runWrite, runWrite);
+    return writeQueue;
+  }
+  async function persistWorkspace(nextSaved) {
+    if (!sharedClient) {
+      localStorage.setItem(WORKSPACE_KEY, JSON.stringify(nextSaved));
+      return;
+    }
+    if (!sharedReady) {
+      throw new Error("\u5C1A\u672A\u8FDE\u63A5\u5171\u4EAB\u5B58\u6863\uFF0C\u8BF7\u4ECE\u684C\u9762\u7248\u6253\u5F00\u5171\u4EAB\u7F51\u9875\u7248");
+    }
+    const result = await sharedClient.write({ revision: sharedRevision, workspace: nextSaved });
+    if (result.conflict) {
+      throw new Error("\u53E6\u4E00\u4E2A\u7A97\u53E3\u5DF2\u4FDD\u5B58\u66F4\u65B0\u3002\u8BF7\u5148\u5BFC\u51FA\u5F53\u524D\u7535\u8DEF\uFF0C\u518D\u91CD\u65B0\u6253\u5F00\u5171\u4EAB\u5DE5\u4F5C\u533A");
+    }
+    sharedRevision = result.revision;
+  }
+  function reportSaveFailure(error) {
+    if (!state.saveFailed) {
+      dismissToast(saveToastId);
+      saveToastId = showToast("\u4FDD\u5B58\u5931\u8D25\u3002" + error.message, "warning");
+    }
+    state.saveFailed = true;
+    renderSaveStatus();
+  }
+  async function saveSelectedExperiments(id, projects) {
     try {
-      validateProject(state.project);
-      keepExperiment(workspace, activeExperiment, state.project);
       const nextSaved = copyProject(savedExperiments);
-      for (const id of importedExperiments) {
-        if (id !== activeExperiment) {
-          const project = workspace.projects[id];
-          keepExperiment(nextSaved, id, project);
+      for (const key of Object.keys(projects)) {
+        nextSaved.projects[key] = validateProject(projects[key]);
+      }
+      nextSaved.activeId = id;
+      await persistWorkspace(nextSaved);
+      savedExperiments = nextSaved;
+      for (const key of Object.keys(projects)) {
+        if (JSON.stringify(workspace.projects[key]) === JSON.stringify(projects[key])) {
+          importedExperiments.delete(key);
+          dirtyExperiments.delete(key);
         }
       }
-      keepExperiment(nextSaved, activeExperiment, state.project);
-      localStorage.setItem(WORKSPACE_KEY, JSON.stringify(nextSaved));
-      savedExperiments = nextSaved;
-      for (const id of importedExperiments) {
-        dirtyExperiments.delete(id);
-      }
-      importedExperiments.clear();
-      dirtyExperiments.delete(activeExperiment);
       dismissToast(saveToastId);
       saveToastId = "";
       state.saveFailed = false;
       renderSaveStatus();
       return true;
-    } catch {
-      if (!state.saveFailed) {
-        dismissToast(saveToastId);
-        saveToastId = showToast("\u4FDD\u5B58\u5931\u8D25\uFF0C\u5F53\u524D\u6539\u52A8\u672A\u5199\u5165\u672C\u673A\u3002\u8BF7\u91CD\u8BD5\uFF0C\u6216\u5BFC\u51FA JSON \u5907\u4EFD\u3002", "warning");
-        state.saveFailed = true;
-      }
-      renderSaveStatus();
+    } catch (error) {
+      reportSaveFailure(error);
       return false;
     }
   }
-  function saveCurrentExperiment() {
-    if (saveLocal()) {
+  function saveLocal() {
+    keepExperiment(workspace, activeExperiment, state.project);
+    const projects = {};
+    for (const id of importedExperiments) {
+      projects[id] = copyProject(workspace.projects[id]);
+    }
+    projects[activeExperiment] = copyProject(state.project);
+    return queueWorkspaceWrite(saveSelectedExperiments.bind(null, activeExperiment, projects));
+  }
+  async function saveCurrentExperiment() {
+    if (await saveLocal()) {
       toast("\u5F53\u524D\u5B9E\u9A8C\u5DF2\u4FDD\u5B58", "info");
     }
   }
   function renderSaveStatus() {
     const status = element("save-status");
+    element("shared-status").textContent = sharedNotice;
     if (state.saveFailed) {
       status.textContent = "\u672C\u5730\u4FDD\u5B58\u5931\u8D25";
     } else if (dirtyExperiments.has(activeExperiment)) {
@@ -14128,13 +15579,23 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     return { x: (event.clientX - bounds.left) / bounds.width * BOARD.width, y: (event.clientY - bounds.top) / bounds.height * BOARD.height };
   }
   function clickBoard(event) {
+    const previousWire = lastClickedWire;
+    lastClickedWire = "";
     if (ignoreClick) {
       ignoreClick = false;
       return;
     }
     const point = canvasPoint(event);
+    if (isInputResetButton(point)) {
+      resetInputs();
+      return;
+    }
     if (state.placing !== "") {
       placeChip(point);
+      return;
+    }
+    if (state.tool === "select" && event.detail > 1 && previousWire !== "") {
+      toggleClickedWire(event, point, previousWire);
       return;
     }
     const target = cycleTarget(point);
@@ -14145,6 +15606,14 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (target && target.kind === "pulse") {
       pulse(target.id);
       return;
+    }
+    if (state.tool === "select") {
+      const wire = nearestWire(point, state.project.wires, state.hiddenWires, state.selected);
+      const cycleToOtherObject = target && target.kind !== "wire" && cycle.index > 0;
+      if (wire && !cycleToOtherObject) {
+        selectClickedWire(event, wire);
+        return;
+      }
     }
     if (readOnly) {
       selectTarget(target, event.ctrlKey || event.metaKey);
@@ -14176,6 +15645,36 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     } else {
       selectTarget(target, event.ctrlKey || event.metaKey);
     }
+    render();
+  }
+  function toggleClickedWire(event, point, previousWire) {
+    if (event.detail !== 2 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+      return;
+    }
+    const wire = nearestWire(point, state.project.wires, state.hiddenWires, state.selected);
+    if (!wire || wire.id !== previousWire) {
+      return;
+    }
+    if (state.hiddenWires.has(wire.id)) {
+      restoreHiddenWire(wire.id);
+    } else {
+      hideWires([{ kind: "wire", id: wire.id }]);
+    }
+  }
+  function selectClickedWire(event, wire) {
+    const multiple = event.ctrlKey || event.metaKey;
+    if (event.detail === 1 && !multiple && !event.shiftKey && !event.altKey) {
+      lastClickedWire = wire.id;
+    }
+    const target = { kind: "wire", id: wire.id };
+    if (multiple || selectedTargetIndex(target) < 0 || state.selection.length > 1) {
+      if (!multiple) {
+        state.selection = [];
+        state.selected = null;
+      }
+      selectTarget(target, multiple);
+    }
+    state.activeTab = "inspect";
     render();
   }
   function cycleTarget(point) {
@@ -14253,7 +15752,11 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (state.placing !== "" || state.tool === "place") {
       return;
     }
-    const target = hitTest(canvasPoint(event), state, endpoints);
+    const point = canvasPoint(event);
+    if (isInputResetButton(point)) {
+      return;
+    }
+    const target = hitTest(point, state, endpoints);
     if (target && target.kind === "pulse") {
       startPointerPulse(event, target.id);
       return;
@@ -14261,7 +15764,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (state.tool !== "select" || readOnly || event.ctrlKey || event.metaKey) {
       return;
     }
-    const point = canvasPoint(event);
+    if (state.selected && state.hiddenWires.has(state.selected.id)) {
+      return;
+    }
     const handle = wireHandleAt(point, state.project, state.selected);
     if (handle) {
       if (handle.handle > 0 && handle.handle < handle.points.length - 1 && handle.points.length - 2 > LIMITS.bends) {
@@ -14299,8 +15804,12 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     }
     const paths = wireDisplayPaths(state.project.wires);
     for (let index = 0; index < paths.length; index = index + 1) {
+      const wire = state.project.wires[index];
+      if (state.hiddenWires.has(wire.id)) {
+        continue;
+      }
       if (pathIntersectsRectangle(paths[index], area)) {
-        targets.push({ kind: "wire", id: state.project.wires[index].id });
+        targets.push({ kind: "wire", id: wire.id });
       }
     }
     if (!multiple) {
@@ -14331,15 +15840,15 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     drag.moved = true;
     const wire = findWire(drag.wire);
     if (drag.handle > 0 && drag.handle < drag.points.length - 1) {
-      const location = { x: Math.round(point.x), y: Math.round(point.y) };
-      if (!validWireBend(location) || point.y > BOARD.height) {
+      const location2 = { x: Math.round(point.x), y: Math.round(point.y) };
+      if (!validWireBend(location2) || point.y > BOARD.height) {
         return;
       }
       const bends = [];
       for (let index = 1; index < drag.points.length - 1; index = index + 1) {
         let bend = drag.points[index];
         if (index === drag.handle) {
-          bend = location;
+          bend = location2;
         }
         bends.push(bend);
       }
@@ -14399,8 +15908,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       render();
       return;
     }
-    state.undo.push(current.original);
-    state.redo = [];
+    rememberChange(current.original);
     commit();
   }
   function cancelPointer(event) {
@@ -14432,7 +15940,20 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     let hovered = "";
     let status = "\u9762\u5305\u677F";
     let title = "";
-    if (target && target.kind === "node") {
+    let wire = null;
+    if (state.tool === "select" && !isInputResetButton(point)) {
+      wire = nearestWire(point, state.project.wires, state.hiddenWires, state.selected);
+    }
+    if (wire && state.hiddenWires.has(wire.id)) {
+      status = wire.id + " \xB7 \u53CC\u51FB\u663E\u793A";
+      title = status;
+    } else if (wire) {
+      status = wire.id + " \xB7 \u53CC\u51FB\u9690\u85CF";
+      title = status;
+    } else if (isInputResetButton(point)) {
+      status = "\u590D\u4F4D\u8F93\u5165";
+      title = status;
+    } else if (target && target.kind === "node") {
       hovered = target.id;
       const value = readEndpoint(state.result, target.id);
       status = endpointLabel(target.id) + " \xB7 " + value;
@@ -14562,6 +16083,94 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     }
     return null;
   }
+  function hideSelectedWires() {
+    hideWires(state.selection);
+  }
+  function hideWires(targets) {
+    if (drag || !hasVisibleWires(targets)) {
+      return;
+    }
+    rememberChange(null);
+    for (const target of targets) {
+      if (target.kind === "wire") {
+        state.hiddenWires.add(target.id);
+      }
+    }
+    const remaining = [];
+    for (const target of state.selection) {
+      if (target.kind !== "wire" || !state.hiddenWires.has(target.id)) {
+        remaining.push(target);
+      }
+    }
+    state.selection = remaining;
+    state.selected = null;
+    if (remaining.length > 0) {
+      state.selected = remaining[remaining.length - 1];
+    }
+    clearBoardHover();
+    element("hidden-objects").focus({ preventScroll: true });
+    render();
+  }
+  function hasVisibleWires(targets) {
+    for (const target of targets) {
+      if (target.kind === "wire" && !state.hiddenWires.has(target.id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function locateBoardPoint(point) {
+    const viewport = element("board-viewport");
+    const boardBounds = canvas.getBoundingClientRect();
+    const viewportBounds = viewport.getBoundingClientRect();
+    const scale = boardBounds.width / BOARD.width;
+    const left = viewport.scrollLeft + boardBounds.left - viewportBounds.left + point.x * scale;
+    const top = viewport.scrollTop + boardBounds.top - viewportBounds.top + point.y * scale;
+    viewport.scrollLeft = left - viewport.clientWidth / 2;
+    viewport.scrollTop = top - viewport.clientHeight / 2;
+    viewport.scrollIntoView({ block: "nearest", inline: "nearest" });
+    canvas.focus({ preventScroll: true });
+  }
+  function wireCenter(wire) {
+    const index = state.project.wires.indexOf(wire);
+    const points = wirePoints(wire, index);
+    const middle = Math.floor((points.length - 1) / 2);
+    const first = points[middle];
+    const last = points[middle + 1];
+    return { x: (first.x + last.x) / 2, y: (first.y + last.y) / 2 };
+  }
+  function restoreHiddenWire(id, locate = false) {
+    const wire = findWire(id);
+    if (!wire || !state.hiddenWires.has(id)) {
+      return;
+    }
+    rememberChange(null);
+    state.hiddenWires.delete(id);
+    state.pending = null;
+    state.placing = "";
+    state.tool = "select";
+    state.activeTab = "inspect";
+    state.selection = [];
+    state.selected = null;
+    selectTarget({ kind: "wire", id }, false);
+    clearBoardHover();
+    render();
+    if (locate) {
+      const point = wireCenter(wire);
+      locateBoardPoint(point);
+    }
+  }
+  function restoreFromHiddenList(id) {
+    restoreHiddenWire(id, true);
+  }
+  function restoreAllHiddenWires() {
+    if (state.hiddenWires.size === 0) {
+      return;
+    }
+    rememberChange(null);
+    state.hiddenWires.clear();
+    render();
+  }
   function deleteSelected() {
     if (editingLocked()) {
       return;
@@ -14584,6 +16193,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     const removed = /* @__PURE__ */ new Set();
     for (const target of targets) {
       removed.add(target.kind + ":" + target.id);
+      if (target.kind === "wire") {
+        state.hiddenWires.delete(target.id);
+      }
     }
     for (const wire of state.project.wires) {
       if (!removed.has("wire:" + wire.id)) {
@@ -14621,12 +16233,40 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     }
     commit("\u5207\u6362 K" + index);
   }
-  function startPulse(kind) {
+  function resetInputs() {
+    const action = "\u590D\u4F4D\u8F93\u5165";
+    const switches = state.project.switches;
+    const changed = switches.includes(1);
+    if (changed) {
+      remember();
+      switches.fill(0);
+    }
+    stopContinuousPulse();
+    heldPulse = "";
+    pulsePointerId = null;
+    pulsePointerTarget = null;
+    state.runtime.pulses.positive = 0;
+    state.runtime.pulses.negative = 1;
+    window.clearTimeout(pulseTimer);
+    state.pressedPulse = "reset";
+    recentAction = "\u8F93\u5165\u5DF2\u590D\u4F4D";
+    if (changed) {
+      commit(action);
+    } else {
+      calculate(true, action);
+      render();
+    }
+    pulseTimer = window.setTimeout(clearPulseFeedback, PULSE_SETTINGS.feedbackDuration);
+  }
+  function canPulse() {
     if (!state.project.power) {
       powerToastId = showToast("\u7535\u6E90\u5DF2\u5173\u95ED\uFF0C\u8BF7\u5148\u6253\u5F00\u7535\u6E90\u518D\u53D1\u8109\u51B2", "warning");
       return false;
     }
-    if (heldPulse !== "") {
+    return true;
+  }
+  function startPulse(kind) {
+    if (heldPulse !== "" || !canPulse()) {
       return false;
     }
     window.clearTimeout(pulseTimer);
@@ -14663,12 +16303,16 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     renderBoard(canvas, state, endpoints);
   }
   function pulse(kind) {
+    if (continuousMode) {
+      toggleContinuousPulse();
+      return;
+    }
     if (startPulse(kind)) {
       finishPulse();
     }
   }
   function startPointerPulse(event, kind) {
-    if (event.button !== 0 || !startPulse(kind)) {
+    if (continuousMode || event.button !== 0 || !startPulse(kind)) {
       return;
     }
     pulsePointerId = event.pointerId;
@@ -14687,8 +16331,89 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     return true;
   }
   function clickPulseButton(event) {
-    if (event.detail === 0) {
+    if (continuousMode || event.detail === 0) {
       pulse(event.currentTarget.dataset.pulse);
+    }
+  }
+  function clockContinuousPulse() {
+    const pulses = state.runtime.pulses;
+    pulses.positive = 1 - pulses.positive;
+    pulses.negative = 1 - pulses.positive;
+    calculate(false, "\u8FDE\u7EED\u8109\u51B2 \xB7 P+=" + pulses.positive + "\uFF0CP\u2212=" + pulses.negative);
+    renderCircuitStatus();
+    renderBoardIo(state.project, state.result, toggleSwitch, state.runtime.triState, false);
+    if (state.activeTab === "timing") {
+      renderTimingPanel(state);
+    } else if (state.activeTab === "diagnostics") {
+      renderDiagnostics();
+    } else if (state.activeTab === "inspect" && (state.selected || state.fixedItems.length > 0)) {
+      renderPanels();
+    }
+    renderBoard(canvas, state, endpoints);
+  }
+  function stopContinuousPulse() {
+    if (continuousTimer === null) {
+      return;
+    }
+    window.clearInterval(continuousTimer);
+    continuousTimer = null;
+    state.runtime.pulses.positive = 0;
+    state.runtime.pulses.negative = 1;
+  }
+  function toggleContinuousPulse() {
+    if (continuousTimer !== null) {
+      stopContinuousPulse();
+      recentAction = "\u8FDE\u7EED\u8109\u51B2\u5DF2\u505C\u6B62";
+      calculate(false, recentAction);
+    } else {
+      if (!canPulse()) {
+        return;
+      }
+      window.clearTimeout(pulseTimer);
+      state.pressedPulse = "";
+      const halfPeriod = 500 / pulseFrequency;
+      continuousTimer = window.setInterval(clockContinuousPulse, halfPeriod);
+      recentAction = "\u8FDE\u7EED\u8109\u51B2\u8FD0\u884C\u4E2D \xB7 " + pulseFrequency + " Hz";
+      clockContinuousPulse();
+    }
+    render();
+  }
+  function openPulseSettings() {
+    finishPulse();
+    element("continuous-pulse").checked = continuousMode;
+    const frequency = element("pulse-frequency");
+    frequency.value = String(pulseFrequency);
+    frequency.disabled = continuousMode;
+    element("tristate-inputs").checked = state.runtime.triState;
+    element("pulse-dialog").showModal();
+  }
+  function closePulseSettings() {
+    element("pulse-dialog").close();
+  }
+  function applyPulseSettings(event) {
+    event.preventDefault();
+    const frequency = element("pulse-frequency");
+    if (!frequency.disabled) {
+      const enteredHz = frequency.valueAsNumber;
+      if (!Number.isInteger(enteredHz) || enteredHz < PULSE_SETTINGS.minimumHz || enteredHz > PULSE_SETTINGS.maximumHz) {
+        frequency.reportValidity();
+        return;
+      }
+      pulseFrequency = enteredHz;
+    }
+    continuousMode = element("continuous-pulse").checked;
+    if (!continuousMode) {
+      stopContinuousPulse();
+    }
+    state.runtime.triState = element("tristate-inputs").checked;
+    closePulseSettings();
+    recentAction = "\u5DF2\u66F4\u65B0\u8109\u51B2\u8BBE\u7F6E";
+    calculate(true, recentAction);
+    render();
+  }
+  function stopHiddenClock() {
+    if (document.hidden && continuousTimer !== null) {
+      toggleContinuousPulse();
     }
   }
   function changePower(event) {
@@ -14697,6 +16422,8 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (state.project.power) {
       dismissToast(powerToastId);
       powerToastId = "";
+    } else {
+      stopContinuousPulse();
     }
     let action = "\u5173\u95ED\u7535\u6E90";
     if (state.project.power) {
@@ -14705,15 +16432,29 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     commit(action);
   }
   function restoreHistory(source, destination) {
-    if (editingLocked()) {
+    if (drag || source.length === 0) {
       return;
     }
-    if (source.length === 0) {
+    const entry = source[source.length - 1];
+    let current = null;
+    if (entry.project) {
+      if (editingLocked()) {
+        return;
+      }
+      current = copyProject(state.project);
+    }
+    destination.push(historyEntry(current));
+    source.pop();
+    state.hiddenWires = entry.hiddenWires;
+    lastClickedWire = "";
+    if (!entry.project) {
+      state.selection = [];
+      state.selected = null;
+      clearBoardHover();
+      render();
       return;
     }
-    const current = copyProject(state.project);
-    destination.push(current);
-    state.project = source.pop();
+    state.project = entry.project;
     resetRuntime();
     resetTimingCircuit(state.timing, state.project, "\u4EFF\u771F\u5DF2\u91CD\u7F6E\uFF0C\u539F\u8BB0\u5F55\u5DF2\u6E05\u9664");
     state.result = null;
@@ -14726,11 +16467,14 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     restoreHistory(state.redo, state.undo);
   }
   function resetRuntime() {
+    stopContinuousPulse();
+    const triState = state.runtime.triState;
     heldPulse = "";
     pulsePointerId = null;
     pulsePointerTarget = null;
     drag = null;
     ignoreClick = false;
+    lastClickedWire = "";
     clearBoardHover();
     cancelTween("board");
     boardTransitionLast = null;
@@ -14738,6 +16482,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     state.pressedPulse = "";
     window.clearTimeout(pulseTimer);
     state.runtime = createRuntime();
+    state.runtime.triState = triState;
     state.pending = null;
     state.placing = "";
     if (state.tool === "place") {
@@ -14785,6 +16530,50 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     const content = JSON.stringify(state.project, null, PROJECT_JSON_INDENT);
     return new Blob([content], { type: "application/json" });
   }
+  function createWorkspaceFile() {
+    const content = JSON.stringify(savedExperiments, null, PROJECT_JSON_INDENT);
+    return new Blob([content], { type: "application/json" });
+  }
+  async function openSharedWorkbench() {
+    try {
+      await window.breadboardWorkspace.openWeb();
+    } catch (error) {
+      toast(error.message, "warning");
+    }
+  }
+  async function writeImportedWorkspace(candidate) {
+    try {
+      if (sharedRevision !== "" || dirtyExperiments.size > 0) {
+        throw new Error("\u5171\u4EAB\u5DE5\u4F5C\u533A\u5DF2\u88AB\u4FEE\u6539\uFF0C\u8BF7\u7528\u300C\u5BFC\u5165\u7535\u8DEF\u300D\u8FFD\u52A0\u5907\u4EFD");
+      }
+      await persistWorkspace(candidate);
+      applySharedWorkspace(candidate, candidate.activeId);
+      toast("\u6D4F\u89C8\u5668\u5B58\u6863\u5DF2\u8FC1\u5165\u5171\u4EAB\u5DE5\u4F5C\u533A", "info");
+    } catch (error) {
+      reportSaveFailure(error);
+    }
+  }
+  async function migrateBrowserWorkspace(event) {
+    const input = event.currentTarget;
+    const file = input.files[0];
+    input.value = "";
+    if (!file) {
+      return;
+    }
+    try {
+      if (file.size > SHARED_WORKSPACE.maxBytes) {
+        throw new Error("\u5DE5\u4F5C\u533A\u5907\u4EFD\u8D85\u51FA\u4E86\u5171\u4EAB\u5B58\u6863\u7684\u5927\u5C0F\u9650\u5236");
+      }
+      const source = await file.text();
+      const candidate = validateWorkspace(JSON.parse(source));
+      if (sharedRevision !== "" || pendingWrites > 0 || dirtyExperiments.size > 0) {
+        throw new Error("\u5F53\u524D\u5DF2\u6709\u5171\u4EAB\u5B58\u6863\u6216\u672A\u4FDD\u5B58\u6539\u52A8\uFF0C\u8BF7\u7528\u300C\u5BFC\u5165\u7535\u8DEF\u300D\u8FFD\u52A0\u5907\u4EFD");
+      }
+      await queueWorkspaceWrite(writeImportedWorkspace.bind(null, candidate));
+    } catch (error) {
+      toast(error.message, "warning");
+    }
+  }
   function chooseImport() {
     element("import-file").click();
   }
@@ -14795,7 +16584,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     stageChanges();
     resetExperiment();
   }
-  function importWorkspaceBackup(parsed) {
+  async function importWorkspaceBackup(parsed) {
     const imported = validateWorkspace(parsed);
     for (const id of Object.keys(imported.projects)) {
       const newId = newExperimentId();
@@ -14806,7 +16595,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     }
     let saved = false;
     if (autoSave) {
-      saved = saveLocal();
+      saved = await saveLocal();
     }
     render();
     if (saved) {
@@ -14830,7 +16619,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       const content = await file.text();
       const parsed = JSON.parse(content);
       if (parsed.projects) {
-        importWorkspaceBackup(parsed);
+        await importWorkspaceBackup(parsed);
       } else {
         const candidate = validateProject(parsed);
         requestExperimentSwitch(openNewExperiment.bind(null, candidate));
@@ -14930,9 +16719,8 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     table.append(row);
   }
   function inspectPin(event) {
-    state.selected = { kind: "node", id: event.currentTarget.dataset.endpoint };
-    state.selection = [];
-    render();
+    const endpoint = event.currentTarget.dataset.endpoint;
+    inspectEndpoint(endpoint);
   }
   function createChipHeading(title, buttonId, target, handler) {
     const heading = node("div", "", "inspection-heading");
@@ -14946,17 +16734,62 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     return heading;
   }
   function renderChipPanel(container, chip, prefix = "") {
+    const model = CHIP_MODELS[chip.model];
     const title = chip.id + " \xB7 " + chip.model;
     const heading = createChipHeading(title, prefix + "pin-chip-info", chip.id, togglePinnedChip);
     heading.lastElementChild.dataset.chip = chip.id;
+    const locate = node("button", "", "icon-button");
+    const bounds = chipBounds(chip);
+    const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+    locate.setAttribute("aria-label", "\u5B9A\u4F4D\u82AF\u7247");
+    locate.dataset.tip = "\u5B9A\u4F4D\u82AF\u7247";
+    locate.append(icon("locate-fixed"));
+    locate.addEventListener("click", locateBoardPoint.bind(null, center));
     const remove = node("button", "", "icon-button");
     remove.setAttribute("aria-label", "\u5220\u9664\u82AF\u7247");
     remove.append(icon("trash-2"));
     remove.dataset.chip = chip.id;
     remove.addEventListener("click", deletePanelChip);
+    heading.insertBefore(locate, heading.lastElementChild);
     heading.insertBefore(remove, heading.lastElementChild);
-    container.append(heading, node("p", CHIP_MODELS[chip.model].title + " \xB7 \u7F3A\u53E3\u671D\u5DE6", "inspection-meta"));
-    appendChipReference(container, chip);
+    container.append(heading, node("p", model.title + " \xB7 DIP-" + model.count, "object-subtitle"));
+    appendChipOverview(container, chip);
+    const pins = objectSection("\u5B9E\u65F6\u5F15\u811A");
+    appendChipPinTable(pins, chip);
+    container.append(pins);
+    appendChipPositionEditor(container, chip, prefix);
+    const reference = objectSection("\u5F15\u811A\u56FE\u4E0E\u8D44\u6599");
+    appendChipReference(reference, chip);
+    container.append(reference);
+    remove.disabled = readOnly;
+  }
+  function appendChipOverview(container, chip) {
+    const model = CHIP_MODELS[chip.model];
+    const lastColumn = chip.column + model.count / 2 - 1;
+    const position = "\u7B2C " + (chip.section + 1) + " \u5757 \xB7 " + chip.column + "\u2013" + lastColumn + " \u5217";
+    const facts = node("dl", "", "object-facts");
+    const supply = objectFact("\u4F9B\u7535", "");
+    supply.lastElementChild.className = "chip-supply";
+    facts.append(objectFact("\u677F\u4E0A\u4F4D\u7F6E", position), supply);
+    container.append(facts);
+    refreshChipSupply(container, chip);
+  }
+  function refreshChipSupply(container, chip) {
+    const target = container.querySelector(".chip-supply");
+    const model = CHIP_MODELS[chip.model];
+    const power = readEndpoint(state.result, pinHole(chip, model.power));
+    const ground = readEndpoint(state.result, pinHole(chip, model.ground));
+    let text2 = "\u4F9B\u7535\u5F02\u5E38";
+    if (!state.project.power) {
+      text2 = "\u7535\u6E90\u5173\u95ED";
+    } else if (power === 1 && ground === 0) {
+      text2 = "\u4F9B\u7535\u6B63\u5E38";
+    }
+    target.textContent = text2;
+    target.dataset.supply = text2;
+  }
+  function appendChipPositionEditor(container, chip, prefix) {
+    const panel = objectSection("\u8C03\u6574\u4F4D\u7F6E");
     const controls2 = node("div", "", "move-fields");
     controls2.dataset.chip = chip.id;
     const sectionLabel = node("label", "\u677F\u5757", "");
@@ -14979,22 +16812,24 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     column.max = String(BOARD.columns);
     column.value = String(chip.column);
     columnLabel.append(column);
-    const move = node("button", "\u79FB\u52A8\u82AF\u7247", "button");
-    move.addEventListener("click", moveChip);
+    const move = objectAction("move", "\u79FB\u52A8\u82AF\u7247", moveChip);
     controls2.append(sectionLabel, columnLabel, move);
     move.disabled = readOnly;
-    remove.disabled = readOnly;
     section.disabled = readOnly;
     column.disabled = readOnly;
-    container.append(controls2);
+    panel.append(controls2);
+    container.append(panel);
     section.setAttribute("aria-label", "\u82AF\u7247\u6240\u5728\u677F\u5757");
     refreshSelect(section);
-    appendChipPinTable(container, chip);
   }
   function appendChipPinTable(container, chip) {
-    const table = node("table", "", "pin-table");
+    const table = node("table", "", "pin-table object-pin-table");
     const head = document.createElement("tr");
-    head.append(node("th", "\u811A", ""), node("th", "\u540D\u79F0", ""), node("th", "\u7535\u5E73", ""), node("th", "\u4F4D\u7F6E", ""));
+    for (const label2 of ["\u811A", "\u540D\u79F0", "\u7535\u5E73", "\u4F4D\u7F6E"]) {
+      const cell = node("th", label2, "");
+      cell.scope = "col";
+      head.append(cell);
+    }
     table.append(head);
     for (let pin = 1; pin <= CHIP_MODELS[chip.model].count; pin = pin + 1) {
       appendPinRow(table, chip, pin);
@@ -15046,42 +16881,84 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     return chip !== null && chip.model === catalogModel;
   }
   function renderSelectedWire(container, wire) {
-    const route = endpointLabel(wire.from) + " \u2192 " + endpointLabel(wire.to);
     const level = readEndpoint(state.result, wire.from);
-    const remove = node("button", "\u5220\u9664\u5BFC\u7EBF", "button");
+    const hidden = state.hiddenWires.has(wire.id);
+    let visibility = "\u5B9E\u7EBF\u663E\u793A";
+    if (hidden) {
+      visibility = "\u5DF2\u9690\u85CF \xB7 \u865A\u7EBF";
+    }
+    const heading = node("div", "", "object-heading");
+    heading.append(icon("cable"), node("h2", wire.id, ""), objectLevel(level, true));
+    const facts = node("dl", "", "object-facts");
+    const color = objectFact("\u7EBF\u8272", wire.color);
+    const swatch = node("span", "", "object-swatch");
+    swatch.style.backgroundColor = wire.color;
+    color.lastElementChild.prepend(swatch);
+    facts.append(color, objectFact("\u663E\u793A\u72B6\u6001", visibility));
+    container.append(heading, facts, wireInspectionActions(wire, hidden));
+    container.append(wireEndpoints(wire, state.result, inspectEndpoint));
+    appendNetworkDetails(container, state, wire.from, wire.id, inspectNetworkWire);
+  }
+  function wireInspectionActions(wire, hidden) {
+    const actions = node("div", "", "object-actions");
+    const locate = objectAction("locate-fixed", "\u677F\u9762\u5B9A\u4F4D", locateBoardPoint.bind(null, wireCenter(wire)));
+    const target = { kind: "wire", id: wire.id };
+    let visibility = objectAction("eye-off", "\u9690\u85CF\u5BFC\u7EBF", hideWires.bind(null, [target]));
+    if (hidden) {
+      visibility = objectAction("eye", "\u663E\u793A\u5BFC\u7EBF", restoreHiddenWire.bind(null, wire.id, false));
+    }
+    const remove = node("button", "", "icon-button object-remove object-wire-delete");
+    remove.type = "button";
+    remove.setAttribute("aria-label", "\u5220\u9664\u5BFC\u7EBF");
+    remove.dataset.tip = "\u5220\u9664\u5BFC\u7EBF";
+    remove.append(icon("trash-2"));
     remove.addEventListener("click", deleteSelected);
-    container.append(node("h2", wire.id, ""), node("p", route, "inspection-meta"));
-    container.append(node("div", String(level), "node-value"), remove);
+    remove.disabled = readOnly;
+    actions.append(locate, visibility, remove);
+    return actions;
+  }
+  function inspectNetworkWire(id) {
+    const wire = findWire(id);
+    state.selection = [];
+    state.selected = null;
+    selectTarget({ kind: "wire", id }, false);
+    element("inspect-panel").scrollTop = 0;
+    render();
+    locateBoardPoint(wireCenter(wire));
+  }
+  function inspectEndpoint(endpoint) {
+    catalogModel = "";
+    state.selected = { kind: "node", id: endpoint };
+    state.selection = [];
+    element("inspect-panel").scrollTop = 0;
+    render();
+    const point = endpointPosition(endpoint);
+    locateBoardPoint(point);
   }
   function renderSelectedNode(container, name) {
     const value = readEndpoint(state.result, name);
-    let level = "Z \xB7 \u60AC\u7A7A";
-    if (value === 1) {
-      level = "1 \xB7 \u9AD8\u7535\u5E73";
-    } else if (value === 0) {
-      level = "0 \xB7 \u4F4E\u7535\u5E73";
-    } else if (value === "X") {
-      level = "X \xB7 \u672A\u77E5\u6216\u51B2\u7A81";
+    const heading = node("div", "", "object-heading");
+    const level = objectLevel(value, true);
+    level.classList.add("node-value");
+    heading.append(icon("circle-dot"), node("h2", endpointLabel(name), ""), level);
+    const hasPullUp = state.project.pullUps.includes(name);
+    let pullUpState = "\u672A\u6DFB\u52A0";
+    let pullUpLabel = "\u6DFB\u52A0\u4E0A\u62C9";
+    if (hasPullUp) {
+      pullUpState = "\u5DF2\u6DFB\u52A0";
+      pullUpLabel = "\u79FB\u9664\u4E0A\u62C9";
     }
-    container.append(node("h2", endpointLabel(name), ""), node("p", name, "inspection-meta"));
-    container.append(node("div", level, "node-value"));
-    const pullUp = node("button", "\u4E3A\u6B64\u8282\u70B9\u6DFB\u52A0\u4E0A\u62C9", "button");
-    if (state.project.pullUps.includes(name)) {
-      pullUp.textContent = "\u79FB\u9664\u6B64\u8282\u70B9\u4E0A\u62C9";
-    }
+    const facts = node("dl", "", "object-facts");
+    facts.append(objectFact("\u5B54\u4F4D\u7F16\u53F7", name), objectFact("\u4E0A\u62C9\u8BBE\u7F6E", pullUpState));
+    const actions = node("div", "", "object-actions");
+    const point = endpointPosition(name);
+    const locate = objectAction("locate-fixed", "\u677F\u9762\u5B9A\u4F4D", locateBoardPoint.bind(null, point));
+    const pullUp = objectAction("arrow-up-to-line", pullUpLabel, togglePullUp);
     pullUp.disabled = readOnly;
     pullUp.dataset.endpoint = name;
-    pullUp.addEventListener("click", togglePullUp);
-    container.append(pullUp);
-    for (const chip of state.project.chips) {
-      const model = CHIP_MODELS[chip.model];
-      for (let pin = 1; pin <= model.count; pin = pin + 1) {
-        if (pinHole(chip, pin) === name) {
-          const description = chip.id + " \u7B2C " + pin + " \u811A \xB7 " + model.labels[pin];
-          container.append(node("p", description, "inspection-meta"));
-        }
-      }
-    }
+    actions.append(locate, pullUp);
+    container.append(heading, facts, actions);
+    appendNetworkDetails(container, state, name, "", inspectNetworkWire);
   }
   function renderInspectionSummary(container) {
     const empty = node("div", "", "empty-inspector");
@@ -15134,10 +17011,12 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       const wire = findWire(selected.id);
       if (wire) {
         renderSelectedWire(container, wire);
+        container.scrollTop = scrollTop;
         return;
       }
     } else if (selected && selected.kind === "node") {
       renderSelectedNode(container, selected.id);
+      container.scrollTop = scrollTop;
       return;
     }
     renderInspectionSummary(container);
@@ -15253,7 +17132,24 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     container.append(details);
   }
   function renderMultiInspection(container) {
-    container.append(node("p", "\u5DF2\u9009\u62E9 " + state.selection.length + " \u4E2A\u5BF9\u8C61", "inspection-meta"));
+    const heading = node("div", "", "object-heading");
+    heading.append(icon("layers"), node("h2", "\u5DF2\u9009 " + state.selection.length + " \u9879", ""));
+    const facts = node("dl", "", "object-facts");
+    let wires = 0;
+    for (const target of state.selection) {
+      if (target.kind === "wire") {
+        wires = wires + 1;
+      }
+    }
+    facts.append(objectFact("\u5668\u4EF6", String(state.selection.length - wires) + " \u7247"), objectFact("\u5BFC\u7EBF", String(wires) + " \u6839"));
+    const actions = node("div", "", "object-actions");
+    const hide = objectAction("eye-off", "\u9690\u85CF\u6240\u9009\u5BFC\u7EBF", hideSelectedWires);
+    hide.disabled = !hasVisibleWires(state.selection);
+    const remove = objectAction("trash-2", "\u5220\u9664\u6240\u9009\u5BF9\u8C61", deleteSelected);
+    remove.classList.add("object-remove");
+    remove.disabled = readOnly;
+    actions.append(hide, remove);
+    container.append(heading, facts, actions);
     const list = node("div", "", "selection-list");
     for (const target of state.selection) {
       const section = node("section", "", "selection-item");
@@ -15275,11 +17171,6 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       }
     }
     container.append(list);
-    const remove = node("button", "", "button selection-delete");
-    remove.append(icon("trash-2"), node("span", "\u5220\u9664\u6240\u9009\u5BF9\u8C61", ""));
-    remove.disabled = readOnly;
-    remove.addEventListener("click", deleteSelected);
-    container.append(remove);
   }
   function selectChipFromList(event) {
     selectTarget({ kind: "chip", id: event.currentTarget.dataset.chip }, event.ctrlKey || event.metaKey);
@@ -15300,6 +17191,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     const container = element("wires-panel");
     container.replaceChildren();
     for (const wire of state.project.wires) {
+      if (state.hiddenWires.has(wire.id)) {
+        continue;
+      }
       const row = node("div", "", "wire-row");
       const swatch = node("span", "", "");
       swatch.style.backgroundColor = wire.color;
@@ -15316,8 +17210,12 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       row.append(swatch, select, remove);
       container.append(row);
     }
-    if (state.project.wires.length === 0) {
-      container.append(node("p", "\u6682\u65E0\u5BFC\u7EBF", "empty-inspector"));
+    if (container.childElementCount === 0) {
+      let message = "\u6682\u65E0\u5BFC\u7EBF";
+      if (state.hiddenWires.size > 0) {
+        message = "\u5BFC\u7EBF\u5DF2\u5168\u90E8\u9690\u85CF";
+      }
+      container.append(node("p", message, "empty-inspector"));
     }
   }
   function renderDiagnostics() {
@@ -15458,6 +17356,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   function refreshPinnedLevels(container) {
     for (const pane of container.querySelectorAll(".inspection-pane[data-kind='chip']")) {
       const chip = findChip(pane.dataset.id);
+      refreshChipSupply(pane, chip);
       for (const cell of pane.querySelectorAll("[data-pin]")) {
         const pin = Number(cell.dataset.pin);
         const value = readEndpoint(state.result, pinHole(chip, pin));
@@ -15524,13 +17423,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   }
   function changeIoCount(event) {
     if (editingLocked()) {
-      renderBoardIo(state.project, state.result, toggleSwitch);
+      renderBoardIo(state.project, state.result, toggleSwitch, state.runtime.triState);
       return;
     }
     const count = Number(event.currentTarget.value);
     if (!validIoCount(count)) {
       toast("\u663E\u793A\u4F4D\u6570\u5FC5\u987B\u4E3A 1\uFF5E" + IO_LIMIT + "\uFF0C\u8BF7\u8F93\u5165\u6574\u6570", "warning");
-      renderBoardIo(state.project, state.result, toggleSwitch);
+      renderBoardIo(state.project, state.result, toggleSwitch, state.runtime.triState);
       return;
     }
     remember();
@@ -15581,8 +17480,8 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     state.project.notes = event.currentTarget.value;
     stageChanges();
     element("notes-status").textContent = state.project.notes.length + " / " + NOTES_LIMIT + " \xB7 \u6309 Ctrl+S \u4FDD\u5B58";
-    element("undo").disabled = state.undo.length === 0;
-    element("redo").disabled = state.redo.length === 0;
+    element("undo").disabled = !canRestoreHistory(state.undo);
+    element("redo").disabled = !canRestoreHistory(state.redo);
   }
   function renderPulseButtons() {
     for (const button of document.querySelectorAll(".pulse-button")) {
@@ -15590,6 +17489,33 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       button.classList.toggle("pressed", pressed);
       button.setAttribute("aria-pressed", String(pressed));
     }
+    element("reset-inputs").classList.toggle("pressed", state.pressedPulse === "reset");
+    let positiveLabel = "P+ \u5355\u8109\u51B2";
+    let negativeLabel = "P\u2212 \u5355\u8109\u51B2";
+    let positiveName = "P\u6B63\u5355\u8109\u51B2";
+    let negativeName = "P\u8D1F\u5355\u8109\u51B2";
+    if (continuousMode) {
+      let action = "\u542F\u52A8";
+      if (continuousTimer !== null) {
+        action = "\u505C\u6B62";
+      }
+      positiveLabel = "P+ " + action;
+      negativeLabel = "P\u2212 " + action;
+      positiveName = action + "\u8FDE\u7EED\u8109\u51B2\uFF08P+\uFF09";
+      negativeName = action + "\u8FDE\u7EED\u8109\u51B2\uFF08P\u2212\uFF09";
+    }
+    element("pulse-positive-label").textContent = positiveLabel;
+    element("pulse-positive").setAttribute("aria-label", positiveName);
+    element("pulse-negative-label").textContent = negativeLabel;
+    element("pulse-negative").setAttribute("aria-label", negativeName);
+    let settingsLabel = "\u8109\u51B2\u8BBE\u7F6E";
+    if (continuousMode) {
+      settingsLabel = settingsLabel + " \xB7 " + pulseFrequency + " Hz";
+    }
+    if (state.runtime.triState) {
+      settingsLabel = settingsLabel + " \xB7 \u4E09\u6001";
+    }
+    element("pulse-options").textContent = settingsLabel;
   }
   function renderBoardControls() {
     element("read-only-toggle").checked = readOnly;
@@ -15603,9 +17529,14 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     element("connect-endpoints").disabled = readOnly || routingBusy;
     element("project-name").value = state.project.name;
     element("power-toggle").checked = state.project.power;
-    element("undo").disabled = readOnly || state.undo.length === 0;
-    element("redo").disabled = readOnly || state.redo.length === 0;
+    element("undo").disabled = !canRestoreHistory(state.undo);
+    element("redo").disabled = !canRestoreHistory(state.redo);
     element("cancel-wire").disabled = !state.pending && state.placing === "";
+    element("hide-selected").disabled = !hasVisibleWires(state.selection);
+    const hiddenCount = state.hiddenWires.size;
+    const hiddenButton = element("hidden-objects");
+    hiddenButton.setAttribute("aria-label", "\u5DF2\u9690\u85CF\u5BFC\u7EBF\uFF1A" + hiddenCount);
+    element("hidden-object-count").textContent = String(hiddenCount);
     for (const name of BOARD_TOOLS) {
       const active = state.tool === name;
       const button = element("tool-" + name);
@@ -15624,6 +17555,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       angle.value = "45";
     }
     refreshSelect(angle);
+  }
+  function canRestoreHistory(history2) {
+    if (history2.length === 0) {
+      return false;
+    }
+    const entry = history2[history2.length - 1];
+    return !readOnly || !entry.project;
   }
   function renderCircuitStatus() {
     element("wire-count").textContent = String(state.project.wires.length);
@@ -15648,7 +17586,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     renderSaveStatus();
     renderBoardControls();
     renderCircuitStatus();
-    renderBoardIo(state.project, state.result, toggleSwitch);
+    renderBoardIo(state.project, state.result, toggleSwitch, state.runtime.triState);
     renderExperiments();
     renderPanels();
     cleanSelectPanels();
@@ -15659,7 +17597,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (recentAction !== "") {
       message = recentAction;
     }
-    if (state.pressedPulse !== "") {
+    if (state.pressedPulse === "reset") {
+      message = "\u8F93\u5165\u5DF2\u590D\u4F4D";
+    } else if (state.pressedPulse !== "") {
       message = state.pressedPulse + " \u8109\u51B2";
     } else if (state.placing !== "") {
       message = "\u5F85\u653E\u7F6E " + state.placing;
@@ -15687,7 +17627,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (element("announcement-dialog").open) {
       return;
     }
-    if (element("export-dialog").open) {
+    if (element("export-dialog").open || element("hidden-objects-dialog").open || element("pulse-dialog").open) {
       return;
     }
     const tag = event.target.tagName;
@@ -15714,7 +17654,17 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     if (editing || element("help-dialog").open) {
       return;
     }
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    const key = event.key.toLowerCase();
+    if ((event.ctrlKey || event.metaKey) && key === "h" && !event.altKey) {
+      event.preventDefault();
+      if (!event.repeat) {
+        if (event.shiftKey || state.selection.length === 0) {
+          openHiddenWires();
+        } else {
+          hideSelectedWires();
+        }
+      }
+    } else if ((event.ctrlKey || event.metaKey) && key === "z") {
       event.preventDefault();
       if (event.shiftKey) {
         redoEdit();
@@ -15730,6 +17680,8 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     const viewport = element("board-viewport");
     boardPan = bindViewportPan(viewport, BOARD_PAN_OPTIONS);
     boardSelection = bindViewportSelection(viewport, BOARD_SELECTION_OPTIONS);
+    openHiddenWires = bindHiddenWires(state, restoreFromHiddenList, restoreAllHiddenWires);
+    element("hide-selected").addEventListener("click", hideSelectedWires);
     for (const name of BOARD_TOOLS) {
       element("tool-" + name).addEventListener("click", chooseTool);
     }
@@ -15771,6 +17723,11 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     element("redo").addEventListener("click", redoEdit);
     element("new-project").addEventListener("click", newProject);
     bindFileExport("export-project", "circuit", createCircuitFile);
+    bindFileExport("export-workspace", "workspace", createWorkspaceFile);
+    element("open-shared-workbench").addEventListener("click", openSharedWorkbench);
+    const migration = element("import-workspace");
+    element("migrate-workspace").addEventListener("click", migration.click.bind(migration));
+    migration.addEventListener("change", migrateBrowserWorkspace);
     element("import-project").addEventListener("click", chooseImport);
     element("import-file").addEventListener("change", importProject);
     element("project-name").addEventListener("input", renameProject);
@@ -15785,6 +17742,16 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       button.addEventListener("click", clickPulseButton);
     }
     window.addEventListener("blur", finishPulse);
+    document.addEventListener("visibilitychange", stopHiddenClock);
+    const frequency = element("pulse-frequency");
+    frequency.min = String(PULSE_SETTINGS.minimumHz);
+    frequency.max = String(PULSE_SETTINGS.maximumHz);
+    frequency.step = "1";
+    element("pulse-frequency-range").textContent = "\u8BF7\u8F93\u5165 " + frequency.min + "\uFF5E" + frequency.max + " \u4E4B\u95F4\u7684\u6574\u6570\u3002";
+    element("reset-inputs").addEventListener("click", resetInputs);
+    element("pulse-options").addEventListener("click", openPulseSettings);
+    element("cancel-pulse-settings").addEventListener("click", closePulseSettings);
+    element("pulse-form").addEventListener("submit", applyPulseSettings);
     element("power-toggle").addEventListener("change", changePower);
     element("input-count").addEventListener("change", changeIoCount);
     element("output-count").addEventListener("change", changeIoCount);
@@ -15830,9 +17797,113 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     canvas.height = BOARD.height * DRAW.pixelRatio;
     canvas.style.height = BOARD.height + "px";
   }
-  function start() {
+  function applySharedWorkspace(value, preferredId = activeExperiment) {
+    const incoming = validateWorkspace(value);
+    let id = preferredId;
+    if (!Object.hasOwn(incoming.projects, id) || sharedRevision === "") {
+      id = incoming.activeId;
+    }
+    const changed = id !== activeExperiment || JSON.stringify(incoming.projects[id]) !== JSON.stringify(state.project);
+    savedExperiments = copyProject(incoming);
+    workspace = incoming;
+    if (changed) {
+      openExperiment(id);
+    } else {
+      workspace.activeId = id;
+      renderExperiments();
+    }
+    state.saveFailed = false;
+  }
+  async function refreshSharedWorkspace() {
+    if (readingShared || pendingWrites > 0) {
+      return;
+    }
+    readingShared = true;
+    const requestedRevision = sharedRevision;
+    try {
+      const result = await sharedClient.read();
+      sharedReady = true;
+      sharedNotice = "\u5171\u4EAB\u5B58\u6863\u5DF2\u8FDE\u63A5";
+      if (pendingWrites === 0 && requestedRevision === sharedRevision && result.workspace && result.revision !== sharedRevision) {
+        if (dirtyExperiments.size > 0 || drag || switchAction || confirmationAction) {
+          sharedNotice = "\u5171\u4EAB\u5B58\u6863\u6709\u66F4\u65B0\uFF0C\u5F53\u524D\u6539\u52A8\u5DF2\u4FDD\u7559";
+        } else {
+          applySharedWorkspace(result.workspace);
+          sharedRevision = result.revision;
+        }
+      }
+    } catch {
+      sharedReady = false;
+      sharedNotice = "\u5171\u4EAB\u5B58\u6863\u6682\u672A\u8FDE\u63A5";
+    } finally {
+      readingShared = false;
+      element("migrate-workspace").hidden = !sharedReady || sharedRevision !== "";
+      renderSaveStatus();
+    }
+  }
+  async function readInitialSharedWorkspace(restored) {
+    const current = await sharedClient.read();
+    if (current.workspace || !window.breadboardWorkspace) {
+      return current;
+    }
+    let snapshot = null;
+    if (restored.hasSavedWorkspace && restored.warning === "") {
+      snapshot = restored.workspace;
+    } else if (!restored.hasSavedWorkspace) {
+      snapshot = await sharedClient.readSnapshot();
+    }
+    if (snapshot) {
+      return sharedClient.write({ revision: current.revision, workspace: snapshot });
+    }
+    return current;
+  }
+  async function restoreInitialWorkspace(restored) {
+    try {
+      sharedClient = sharedWorkspaceClient();
+    } catch {
+      restored.warning = "\u6D4F\u89C8\u5668\u672A\u5141\u8BB8\u8BFB\u53D6\u5171\u4EAB\u914D\u5BF9\u8BBE\u7F6E";
+    }
+    if (!sharedClient) {
+      return restored;
+    }
+    try {
+      const result = await readInitialSharedWorkspace(restored);
+      if (result.workspace) {
+        const saved = validateWorkspace(result.workspace);
+        restored.workspace = saved;
+        restored.project = copyProject(saved.projects[saved.activeId]);
+        restored.initializePreset = restored.project.power && isComplementPreset(restored.project);
+      }
+      sharedRevision = result.revision;
+      sharedReady = true;
+      sharedNotice = "\u5171\u4EAB\u5B58\u6863\u5DF2\u8FDE\u63A5";
+    } catch {
+      sharedNotice = "\u5171\u4EAB\u5B58\u6863\u6682\u672A\u8FDE\u63A5";
+    }
+    element("open-shared-workbench").hidden = !window.breadboardWorkspace;
+    element("migrate-workspace").hidden = !sharedReady || sharedRevision !== "";
+    window.setInterval(refreshSharedWorkspace, SHARED_WORKSPACE.refreshInterval);
+    return restored;
+  }
+  function restorePackagedSnapshot(local) {
+    if (local.hasSavedWorkspace || !window.breadboardSnapshot) {
+      return;
+    }
+    try {
+      const snapshot = validateWorkspace(JSON.parse(window.breadboardSnapshot));
+      localStorage.setItem(WORKSPACE_KEY, JSON.stringify(snapshot));
+      local.workspace = snapshot;
+      local.project = copyProject(snapshot.projects[snapshot.activeId]);
+      local.initializePreset = local.project.power && isComplementPreset(local.project);
+    } catch {
+      local.warning = "\u4E2A\u4EBA\u5FEB\u7167\u65E0\u6CD5\u6253\u5F00\uFF0C\u5DF2\u663E\u793A\u5185\u7F6E\u793A\u4F8B";
+    }
+  }
+  async function start() {
     prepareWorkbench();
-    const restored = loadWorkspace(window);
+    const local = loadWorkspace(window);
+    restorePackagedSnapshot(local);
+    const restored = await restoreInitialWorkspace(local);
     workspace = restored.workspace;
     readOnly = restored.readOnly;
     activeExperiment = workspace.activeId;

@@ -1,7 +1,7 @@
 /* 原生 select 继续保存值，交互按钮和顶层选项面板使用统一外观 */
 :root {
     /* 下拉面板和选项的左右内边距，单位为像素 */
-    --select-padding-inline: 2px;
+    --select-padding-inline: 3px;
     /* 上下内边距保留点击高度 */
     --select-panel-padding-block: 3px;
     --select-option-padding-block: 10px;
@@ -31,5 +31,9 @@
 .select-option[aria-selected="true"] > svg { visibility: visible; }
 .select-option.focused { outline: 1px solid var(--color-accent); outline-offset: -1px; }
 .select-option[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+.select-group-label { padding: 6px calc(var(--select-padding-inline) + 4px); color: var(--color-muted); font-size: 11px; font-weight: 600; }
+.select-group-label:not(:first-child) { margin-top: 3px; border-top: 1px solid var(--color-rule); }
+.select-order { display: grid; place-items: center; flex: 0 0 18px; height: 18px; border: 1px solid var(--color-rule); border-radius: 4px; font: 11px var(--font-mono); }
+.select-option[aria-selected="true"] .select-order { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
 @media (hover: hover) { .select-trigger:hover:not(:disabled) { border-color: var(--color-accent); background: var(--color-accent-soft); } .select-option:hover:not([aria-disabled="true"]) { background: var(--color-muted-surface); color: var(--color-ink); } }
 @media (prefers-reduced-motion: reduce) { .select-panel, .select-trigger > svg { transition: none; } }
