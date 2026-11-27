@@ -20,10 +20,9 @@ export function appendChipReference(container, chip) {
     image.src = imageLink.href;
     image.alt = chip.model + " DIP 引脚图";
     imageLink.append(image);
-    let caption = "原厂顶视图：缺口朝上；画布中的芯片缺口朝左";
+    const caption = "封装顶视图。将图转向左边，让缺口朝左，就和板上的方向一致了。";
     let sourceLabel = "TI 数据手册 · 第 " + reference.page + " 页";
     if (reference.image) {
-        caption = "封装引脚图";
         sourceLabel = "查看逻辑符号";
     }
     figure.append(imageLink, node("figcaption", caption, ""));

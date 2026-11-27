@@ -3,12 +3,62 @@ import { baseNode, pinHole, copyProject } from "../board/board.mjs";
 import { complementPreset } from "./presets.mjs";
 import { ramPreset, RAM_OUTER_WIRES, RAM_NOTES, PREVIOUS_RAM_NOTES } from "./ram-preset.mjs";
 import { validateProject } from "../storage/storage.mjs";
+import { timingPreset } from "./timing-preset.mjs";
+import releasedWires from "./released-wires.json" with { type: "json" };
 
 // 只迁移此前发布的标准位置，用户自行移动或改接的实验保持原样
 const PREVIOUS_LAYOUTS = [
     { create: complementPreset, columns: [24, 16, 39, 3, 44], ram: false },
     { create: ramPreset, columns: [8, 35, 35, 12], ram: true }
 ];
+// 已发布的标准走线用于识别旧示例，用户自行调整过的路径保留在原实验中
+const RELEASED_PRESETS = [
+    { previous: releasedWires["complement-adder"], create: complementPreset },
+    { previous: releasedWires["ram-expansion"], create: ramPreset },
+    { previous: releasedWires["timing-system"], create: timingPreset }
+];
+
+// 以新版导线为底，保留用户自己选的线色
+function updatedWire(wire, expected, defaultColor) {
+    const updated = copyProject(expected);
+    if (wire.color !== defaultColor) {
+        updated.color = wire.color;
+    }
+    return updated;
+}
+
+// 逐根核对旧示例的孔位和转折点，匹配后返回新版导线与备注
+export function updateReleasedPreset(project) {
+    for (const item of RELEASED_PRESETS) {
+        const previous = item.previous;
+        if (project.wires.length !== previous.wires.length || project.pullUps.length !== 0) {
+            continue;
+        }
+        const reference = item.create();
+        if (JSON.stringify(project.chips) !== JSON.stringify(reference.chips)) {
+            continue;
+        }
+        const wires = [];
+        for (let index = 0; index < project.wires.length; index = index + 1) {
+            const wire = project.wires[index];
+            const oldWire = previous.wires[index];
+            const description = [wire.id, wire.from, wire.to, wire.bends];
+            if (wire.angle !== undefined || JSON.stringify(description) !== JSON.stringify(oldWire.slice(0, 4))) {
+                break;
+            }
+            wires.push(updatedWire(wire, reference.wires[index], oldWire[4]));
+        }
+        if (wires.length === project.wires.length) {
+            const updated = Object.assign({}, project);
+            updated.wires = wires;
+            if (project.notes === previous.notes) {
+                updated.notes = reference.notes;
+            }
+            return updated;
+        }
+    }
+    return project;
+}
 
 // 将标准导线端点映射到旧芯片位置，非芯片端点仍使用原孔位
 function previousEndpoint(endpoint, reference, columns) {
@@ -73,10 +123,7 @@ export function centerSavedPresets(workspace) {
             for (let index = 0; index < updated.wires.length; index = index + 1) {
                 const wire = updated.wires[index];
                 const expected = reference.wires[index];
-                wire.from = expected.from;
-                wire.to = expected.to;
-                wire.bends = copyProject(expected.bends);
-                delete wire.angle;
+                updated.wires[index] = updatedWire(wire, expected, "");
             }
             workspace.projects[id] = updated;
             changed = true;
@@ -125,10 +172,7 @@ function separateSavedRamWires(project) {
         if (wire.from !== oldWire.from || wire.to !== oldWire.to) {
             return null;
         }
-        wire.from = newWire.from;
-        wire.to = newWire.to;
-        wire.bends = copyProject(newWire.bends);
-        delete wire.angle;
+        updated.wires[index] = updatedWire(wire, newWire, "");
         changed = true;
     }
     if (!changed) {

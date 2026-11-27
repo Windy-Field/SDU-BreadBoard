@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { angleWirePath, shortCornerPath, simplifyWirePath, segmentCrossesBounds, WIRE_PATH } from "../../src/board/wire-path.mjs";
+import { straightenWireEnds, angleWirePath, shortCornerPath, simplifyWirePath, segmentCrossesBounds, WIRE_PATH } from "../../src/board/wire-path.mjs";
 import { wirePoints, hitTest, wireHandleAt } from "../../src/board/geometry.mjs";
 import { emptyProject, endpointPosition } from "../../src/board/board.mjs";
 import { validateProject, LIMITS } from "../../src/storage/storage.mjs";
@@ -8,7 +8,45 @@ import { routeWires, routeNewWire } from "../../src/board/routing.mjs";
 import { createRuntime, simulate, readEndpoint } from "../../src/simulation/engine.mjs";
 import { wiringMetrics } from "../helpers/wiring-metrics.mjs";
 import { complementPreset } from "../../src/experiments/presets.mjs";
+import { timingPreset } from "../../src/experiments/timing-preset.mjs";
 import { wireDisplayPaths } from "../../src/board/geometry.mjs";
+
+// 同列导线有空位时拉直，有芯片或异网导线挡住时保留原来的避让
+function testWireEndAlignment() {
+    const project = emptyProject();
+    const wire = { id: "W1", from: "B3:J:41", to: "B2:J:41", color: "#1976d2", bends: [{ x: 807, y: 1036 }, { x: 807, y: 786 }] };
+    project.wires.push(wire);
+    const oldPoints = wirePoints(wire, 0);
+    const straight = [oldPoints[0], oldPoints[oldPoints.length - 1]];
+    assert.deepEqual(straightenWireEnds(oldPoints, [oldPoints], 0, [], new Set()), straight);
+    assert.deepEqual(validateProject(project), project);
+    const obstacle = { x: 809, y: 1010, width: 8, height: 12 };
+    assert.deepEqual(straightenWireEnds(oldPoints, [oldPoints], 0, [obstacle], new Set()), oldPoints);
+    const occupied = [{ x: 810, y: 800 }, { x: 810, y: 950 }];
+    assert.deepEqual(straightenWireEnds(oldPoints, [oldPoints, occupied], 0, [], new Set()), oldPoints);
+}
+
+// 实验四第 41 列的线应该一直沿孔列走到主要转弯，两种角度都不留小折线
+async function testTimingWireExit() {
+    for (const angle of [0, 45]) {
+        const project = timingPreset();
+        const routes = await routeWires(project, angle);
+        for (let index = 0; index < project.wires.length; index = index + 1) {
+            const wire = project.wires[index];
+            wire.bends = routes[wire.id];
+            if (angle === 45) {
+                wire.angle = 45;
+            }
+            if (wire.from === "B3:J:41") {
+                const points = wirePoints(wire, index);
+                assert.equal(points[1].x, points[0].x);
+                assert.ok(points[0].y - points[1].y > 200);
+                assert.ok(points[1].x - points[2].x >= 18);
+            }
+        }
+        assert.equal(wiringMetrics(project).chipCrossings, 0);
+    }
+}
 
 // 检查路径只包含横、竖和 45° 方向，返回斜线段数量
 function assertAngles(points) {
@@ -197,6 +235,8 @@ async function testNewWireRouting() {
 }
 
 test("45°路径覆盖四个方向、轴向和折返", testAngleGeometry);
+test("对齐同列长线时避开芯片和异网导线", testWireEndAlignment);
+test("实验四第 41 列的线在直角和 45° 整理后从孔心直走", testTimingWireExit);
 test("任意方向的路径可检查芯片保护区", testCornerProtection);
 test("单个斜角最长根号二个孔距并保护相邻转弯", testShortCorners);
 test("45°导线保存、导入、命中和转折点一致", testAngleStorageAndPicking);

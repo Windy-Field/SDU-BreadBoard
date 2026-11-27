@@ -2,7 +2,7 @@ import { copyProject, GENERAL_NOTES, PROJECT_DEFAULTS } from "../board/board.mjs
 import { STORAGE_KEY, validateProject } from "./storage.mjs";
 import { ramPreset, RAM_EXPERIMENT_ID, RAM_EXPERIMENT_NAME } from "../experiments/ram-preset.mjs";
 import { COMPLEMENT_NAME, complementPreset, isComplementPreset } from "../experiments/presets.mjs";
-import { centerSavedPresets } from "../experiments/preset-layout.mjs";
+import { centerSavedPresets, updateReleasedPreset } from "../experiments/preset-layout.mjs";
 import { timingPreset, TIMING_EXPERIMENT_ID, TIMING_EXPERIMENT_NAME } from "../experiments/timing-preset.mjs";
 
 // 本地列表、只读设置和清理前备份的存储键，修改前需安排旧数据迁移
@@ -19,13 +19,13 @@ function emptyWorkspace() {
 }
 
 // 迁移已保存的实验，写回前先备份原列表，并返回删除的重复项数量
-function migrateSavedWorkspace(workspace, storage) {
-    const beforeCleanup = JSON.stringify(workspace);
+function migrateSavedWorkspace(workspace, storage, beforeCleanup) {
     const centered = centerSavedPresets(workspace);
     const removed = cleanWorkspace(workspace);
-    if (centered || removed.length > 0) {
+    const updated = JSON.stringify(workspace);
+    if (centered || removed.length > 0 || updated !== beforeCleanup) {
         storage.setItem(CLEANUP_BACKUP_KEY, beforeCleanup);
-        storage.setItem(WORKSPACE_KEY, JSON.stringify(workspace));
+        storage.setItem(WORKSPACE_KEY, updated);
     }
     return removed.length;
 }
@@ -47,11 +47,12 @@ export function loadWorkspace(storageOwner) {
         const savedProject = storage.getItem(STORAGE_KEY);
         hasSavedWorkspace = Boolean(savedWorkspace || savedProject);
         if (savedWorkspace) {
-            workspace = validateWorkspace(JSON.parse(savedWorkspace));
-            removedCount = migrateSavedWorkspace(workspace, storage);
+            const previous = JSON.parse(savedWorkspace);
+            workspace = validateWorkspace(previous);
+            removedCount = migrateSavedWorkspace(workspace, storage, JSON.stringify(previous));
             project = copyProject(workspace.projects[workspace.activeId]);
         } else if (savedProject) {
-            project = validateProject(JSON.parse(savedProject));
+            project = restoreSavedProject(JSON.parse(savedProject));
         }
     } catch (error) {
         warning = "本地电路无法恢复，已打开示例。原文件可重新导入";
@@ -187,6 +188,11 @@ export function keepExperiment(workspace, id, project) {
     workspace.projects[id] = copyProject(project);
 }
 
+// 校验单份旧电路并更新识别到的标准示例，可直接用于导入
+export function restoreSavedProject(value) {
+    return updateReleasedPreset(validateProject(value));
+}
+
 // 校验已保存的实验列表，逐一恢复电路结构
 export function validateWorkspace(value) {
     if (!value || value.version !== WORKSPACE_VERSION || typeof value.activeId !== "string" || !value.projects || typeof value.projects !== "object") {
@@ -198,7 +204,7 @@ export function validateWorkspace(value) {
         if (!EXPERIMENT_ID_PATTERN.test(id)) {
             throw new Error("实验编号格式不正确，请检查保存文件");
         }
-        workspace.projects[id] = validateProject(value.projects[id]);
+        workspace.projects[id] = restoreSavedProject(value.projects[id]);
     }
     if (!Object.hasOwn(workspace.projects, workspace.activeId)) {
         throw new Error("当前实验不在列表中，请重新选择实验");

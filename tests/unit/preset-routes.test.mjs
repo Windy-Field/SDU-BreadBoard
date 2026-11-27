@@ -9,7 +9,11 @@ import { routeWires } from "../../src/board/routing.mjs";
 import { emptyProject, portHole, isPhysicalHole, baseNode, pinHole, BOARD } from "../../src/board/board.mjs";
 import { CHIP_MODELS } from "../../src/chips/chips.mjs";
 import { ramPreset, RAM_OUTER_WIRES, RAM_NOTES, PREVIOUS_RAM_NOTES } from "../../src/experiments/ram-preset.mjs";
+import { timingPreset } from "../../src/experiments/timing-preset.mjs";
 import { centerSavedPresets } from "../../src/experiments/preset-layout.mjs";
+import { buildTopology, nodeFor } from "../../src/simulation/engine.mjs";
+import { restoreSavedProject } from "../../src/storage/workspace.mjs";
+import releasedWires from "../../src/experiments/released-wires.json" with { type: "json" };
 
 // 将旧版孔位对应到同一芯片的新位置，保持行号和该脚所在铜排不变
 function movedEndpoint(endpoint, chips) {
@@ -50,10 +54,10 @@ function testConnectionsUnchanged() {
         assert.equal(isPhysicalHole(actual.to), true);
         let expectedColor = expected.color;
         if (actual.id === "W36" || actual.id === "W37") {
-            expectedColor = "#16845b";
+            expectedColor = "#8b55c5";
         }
         if (actual.id === "W57" || actual.id === "W58" || actual.id === "W59") {
-            expectedColor = "#e26c2b";
+            expectedColor = "#0d939d";
         }
         assert.equal(actual.color, expectedColor);
         assert.ok(actual.bends.length > 0);
@@ -61,7 +65,9 @@ function testConnectionsUnchanged() {
         for (let position = 1; position < points.length; position = position + 1) {
             const first = points[position - 1];
             const last = points[position];
-            assert.ok(first.x === last.x || first.y === last.y, actual.id + " 存在斜线");
+            const horizontal = Math.abs(first.x - last.x);
+            const vertical = Math.abs(first.y - last.y);
+            assert.ok(horizontal === 0 || vertical === 0 || Math.abs(horizontal - vertical) < 0.000001, actual.id);
         }
     }
 }
@@ -236,7 +242,7 @@ function testSavedRamLayoutMigration() {
 
 test("旧RAM存档同步移动芯片与同列导线后保持标准接线", testSavedRamLayoutMigration);
 
-// 换孔只能改变同列行号，跨片长线的横向通道至少相隔9像素
+// 换孔只能改变同列行号，各组跨片长线继续使用不同的横向通道
 function testRamOuterHoles() {
     const previous = ramPreset(false);
     const current = validateProject(ramPreset());
@@ -256,14 +262,25 @@ function testRamOuterHoles() {
         const last = wire.to.split(":");
         assert.equal(first[1], last[1]);
         assert.ok(first[1] === "A" || first[1] === "J");
-        const lane = wire.bends[0].y;
-        assert.equal(lane, wire.bends[1].y);
+        const points = wirePoints(wire, index);
+        let lane = null;
+        let longest = 0;
+        for (let position = 1; position < points.length; position = position + 1) {
+            const start = points[position - 1];
+            const end = points[position];
+            const length = Math.abs(start.x - end.x);
+            if (start.y === end.y && length > longest) {
+                longest = length;
+                lane = start.y;
+            }
+        }
+        assert.ok(longest > BOARD.pitch);
         let lanes = lowerLanes;
         if (first[1] === "A") {
             lanes = upperLanes;
         }
         for (const other of lanes) {
-            assert.ok(Math.abs(lane - other) >= 9, wire.id + " 横线间距不足");
+            assert.ok(Math.abs(lane - other) >= 3, wire.id + " 横线间距不足");
         }
         lanes.push(lane);
     }
@@ -314,3 +331,54 @@ function testRamNotesUpdate() {
 }
 
 test("RAM默认说明精简后保留自定义备注和完整接线", testRamNotesUpdate);
+
+// 核对课件框图的信号来源，防止波形碰巧相同却接到了不同芯片
+function testTimingConnections() {
+    const project = validateProject(timingPreset());
+    const topology = buildTopology(project);
+    const counter = project.chips[0];
+    const decoder = project.chips[1];
+    const shifter = project.chips[2];
+    const inverter = project.chips[3];
+    const clock = nodeFor(topology, pinHole(shifter, 11));
+    assert.equal(clock, nodeFor(topology, "P+"));
+    assert.equal(clock, nodeFor(topology, pinHole(counter, 2)));
+    assert.equal(nodeFor(topology, pinHole(counter, 9)), nodeFor(topology, pinHole(inverter, 2)));
+    assert.equal(nodeFor(topology, pinHole(counter, 12)), nodeFor(topology, pinHole(decoder, 1)));
+    assert.equal(nodeFor(topology, pinHole(counter, 11)), nodeFor(topology, pinHole(decoder, 2)));
+    assert.equal(nodeFor(topology, pinHole(shifter, 15)), nodeFor(topology, pinHole(shifter, 7)));
+
+    // M 灯取自反相器，T 灯直接读取移位寄存器的四个输出
+    const inverterPins = [4, 6, 8, 10];
+    for (let index = 0; index < inverterPins.length; index = index + 1) {
+        const gateOutput = pinHole(inverter, inverterPins[index]);
+        const shiftOutput = pinHole(shifter, 12 + index);
+        assert.equal(nodeFor(topology, gateOutput), nodeFor(topology, "L" + (index + 4)));
+        assert.equal(nodeFor(topology, shiftOutput), nodeFor(topology, "L" + index));
+    }
+    assert.equal(wiringMetrics(project).chipCrossings, 0);
+}
+
+test("时序系统按课件连接译码、移位时钟和两组指示灯", testTimingConnections);
+
+// 标准旧存档更新接线和默认备注，手动调整过的走线仍按原样导入
+function testReleasedTimingMigration() {
+    const reference = timingPreset();
+    const previous = releasedWires["timing-system"];
+    const project = structuredClone(reference);
+    project.notes = previous.notes;
+    project.wires = [];
+    for (const wire of previous.wires) {
+        project.wires.push({ id: wire[0], from: wire[1], to: wire[2], bends: structuredClone(wire[3]), color: wire[4] });
+    }
+    project.switches[0] = 0;
+    const restored = restoreSavedProject(project);
+    assert.deepEqual(restored.wires, reference.wires);
+    assert.equal(restored.notes, reference.notes);
+    assert.deepEqual(restored.switches, project.switches);
+    assert.deepEqual(restoreSavedProject(restored), restored);
+    project.wires[0].bends = [{ x: 1200, y: 800 }];
+    assert.deepEqual(restoreSavedProject(project), project);
+}
+
+test("旧版标准时序存档更新接线并保留开关，手动路径仍可导入", testReleasedTimingMigration);

@@ -220,10 +220,9 @@
     image.src = imageLink.href;
     image.alt = chip.model + " DIP \u5F15\u811A\u56FE";
     imageLink.append(image);
-    let caption = "\u539F\u5382\u9876\u89C6\u56FE\uFF1A\u7F3A\u53E3\u671D\u4E0A\uFF1B\u753B\u5E03\u4E2D\u7684\u82AF\u7247\u7F3A\u53E3\u671D\u5DE6";
+    const caption = "\u5C01\u88C5\u9876\u89C6\u56FE\u3002\u5C06\u56FE\u8F6C\u5411\u5DE6\u8FB9\uFF0C\u8BA9\u7F3A\u53E3\u671D\u5DE6\uFF0C\u5C31\u548C\u677F\u4E0A\u7684\u65B9\u5411\u4E00\u81F4\u4E86\u3002";
     let sourceLabel = "TI \u6570\u636E\u624B\u518C \xB7 \u7B2C " + reference.page + " \u9875";
     if (reference.image) {
-      caption = "\u5C01\u88C5\u5F15\u811A\u56FE";
       sourceLabel = "\u67E5\u770B\u903B\u8F91\u7B26\u53F7";
     }
     figure.append(imageLink, node("figcaption", caption, ""));
@@ -8520,134 +8519,238 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     W1: [
       {
         x: 1242,
+        y: 420.0000002219999
+      },
+      {
+        x: 1224,
+        y: 402.0000002219999
+      },
+      {
+        x: 524.999999926,
         y: 402.0000002219999
       },
       {
         x: 522,
-        y: 402.0000002219999
+        y: 405.00000014799997
       }
     ],
     W2: [
       {
         x: 1210,
+        y: 514.9999999700001
+      },
+      {
+        x: 1192,
+        y: 496.9999999700001
+      },
+      {
+        x: 685.99999999,
         y: 496.9999999700001
       },
       {
         x: 684,
-        y: 496.9999999700001
+        y: 494.99999998000004
       }
     ],
     W3: [
       {
         x: 522,
+        y: 398.00000014799997
+      },
+      {
+        x: 520.999999926,
+        y: 399.0000002219999
+      },
+      {
+        x: 503.33333333113336,
         y: 399.0000002219999
       },
       {
         x: 493.9999999967,
-        y: 399.0000002219999
+        y: 408.3333335564333
       },
       {
         x: 493.9999999967,
+        y: 633.925
+      },
+      {
+        x: 475.9999999967,
+        y: 651.925
+      },
+      {
+        x: 345.02500000000003,
         y: 651.925
       },
       {
         x: 342,
-        y: 651.925
+        y: 654.9499999999999
       }
     ],
     W4: [
       {
-        x: 686.0689655172414,
-        y: 506
+        x: 684,
+        y: 708
       },
       {
-        x: 686.0689655172414,
+        x: 666,
+        y: 726
+      },
+      {
+        x: 473,
         y: 726
       },
       {
         x: 468,
-        y: 726
+        y: 731
       }
     ],
     W5: [
       {
         x: 342,
+        y: 643.5500000000001
+      },
+      {
+        x: 343.22499999999997,
+        y: 642.325
+      },
+      {
+        x: 749.775,
         y: 642.325
       },
       {
         x: 756,
-        y: 642.325
+        y: 648.5500000000001
       }
     ],
     W6: [
       {
         x: 468,
+        y: 763.99999988
+      },
+      {
+        x: 471.99999994,
+        y: 767.9999998200001
+      },
+      {
+        x: 873.0000000599999,
         y: 767.9999998200001
       },
       {
         x: 882,
-        y: 767.9999998200001
+        y: 758.99999988
       }
     ],
     W7: [
       {
         x: 756,
+        y: 426.0000002219999
+      },
+      {
+        x: 738,
+        y: 408.0000002219999
+      },
+      {
+        x: 252.99999992600002,
         y: 408.0000002219999
       },
       {
         x: 252,
-        y: 408.0000002219999
+        y: 409.00000014799997
       }
     ],
     W8: [
       {
         x: 882,
+        y: 759.99999988
+      },
+      {
+        x: 880.0000000599999,
+        y: 761.9999998200001
+      },
+      {
+        x: 692.0689655172414,
         y: 761.9999998200001
       },
       {
         x: 674.0689655172414,
-        y: 761.9999998200001
+        y: 743.9999998200001
       },
       {
         x: 674.0689655172414,
+        y: 514.9999999700001
+      },
+      {
+        x: 656.0689655172414,
+        y: 496.9999999700001
+      },
+      {
+        x: 361.99999999000005,
         y: 496.9999999700001
       },
       {
         x: 360,
-        y: 496.9999999700001
+        y: 494.99999998000004
       }
     ],
     W9: [
       {
         x: 252,
+        y: 392.00000014799997
+      },
+      {
+        x: 253.99999992600002,
+        y: 390.0000002219999
+      },
+      {
+        x: 857.000000074,
         y: 390.0000002219999
       },
       {
         x: 864,
-        y: 390.0000002219999
+        y: 397.00000014799997
       }
     ],
     W10: [
       {
         x: 360,
+        y: 511.99999998000004
+      },
+      {
+        x: 362.99999999000005,
+        y: 514.9999999700001
+      },
+      {
+        x: 964.00000001,
         y: 514.9999999700001
       },
       {
         x: 972,
-        y: 514.9999999700001
+        y: 506.99999998000004
       }
     ],
     W11: [
       {
         x: 972,
+        y: 509.99999998000004
+      },
+      {
+        x: 970.00000001,
+        y: 511.9999999700001
+      },
+      {
+        x: 753.5260663507107,
         y: 511.9999999700001
       },
       {
         x: 735.5260663507107,
-        y: 511.9999999700001
+        y: 493.9999999700001
       },
       {
         x: 735.5260663507107,
+        y: 429.0000002219999
+      },
+      {
+        x: 717.5260663507107,
         y: 411.0000002219999
       },
       {
@@ -8658,56 +8761,84 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     W12: [
       {
         x: 576,
+        y: 398.00000014799997
+      },
+      {
+        x: 574.999999926,
+        y: 399.0000002219999
+      },
+      {
+        x: 561.999999926,
         y: 399.0000002219999
       },
       {
         x: 558,
-        y: 399.0000002219999
+        y: 403.00000014799997
       }
     ],
     W13: [
       {
         x: 558,
+        y: 394.00000014799997
+      },
+      {
+        x: 558.999999926,
         y: 393.0000002219999
       },
       {
-        x: 789,
+        x: 774,
         y: 393.0000002219999
       },
       {
-        x: 789,
-        y: 661
+        x: 792,
+        y: 411.0000002219999
       }
     ],
     W14: [
       {
-        x: 795,
+        x: 794,
         y: 646
       },
       {
         x: 795,
+        y: 647
+      },
+      {
+        x: 795,
+        y: 656
+      },
+      {
+        x: 790,
         y: 661
       }
     ],
     W15: [
       {
-        x: 828,
+        x: 823,
         y: 646
+      },
+      {
+        x: 828,
+        y: 651
       }
     ],
     W16: [
       {
-        x: 846,
+        x: 841,
         y: 646
+      },
+      {
+        x: 846,
+        y: 651
       }
     ],
     W17: [
       {
-        x: 849,
-        y: 646
+        x: 846,
+        y: 429.0000002219999
       },
       {
-        x: 849,
+        x: 864,
         y: 411.0000002219999
       },
       {
@@ -8718,56 +8849,100 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     W18: [
       {
         x: 954,
+        y: 398.00000014799997
+      },
+      {
+        x: 952.999999926,
+        y: 399.0000002219999
+      },
+      {
+        x: 939.999999926,
         y: 399.0000002219999
       },
       {
         x: 936,
-        y: 399.0000002219999
+        y: 403.00000014799997
       }
     ],
     W19: [
       {
         x: 936,
+        y: 398.00000014799997
+      },
+      {
+        x: 934.999999926,
+        y: 399.0000002219999
+      },
+      {
+        x: 903.999999926,
         y: 399.0000002219999
       },
       {
         x: 900,
-        y: 399.0000002219999
+        y: 403.00000014799997
       }
     ],
     W20: [
       {
         x: 900,
+        y: 398.00000014799997
+      },
+      {
+        x: 898.999999926,
+        y: 399.0000002219999
+      },
+      {
+        x: 885.999999926,
         y: 399.0000002219999
       },
       {
         x: 882,
-        y: 399.0000002219999
+        y: 403.00000014799997
       }
     ],
     W21: [
       {
         x: 954,
+        y: 505.9999999700001
+      },
+      {
+        x: 936,
+        y: 487.9999999700001
+      },
+      {
+        x: 253.00000000999998,
         y: 487.9999999700001
       },
       {
         x: 252,
-        y: 487.9999999700001
+        y: 488.99999998000004
       }
     ],
     W22: [
       {
         x: 288,
+        y: 737.9999997600002
+      },
+      {
+        x: 306,
+        y: 755.9999997600002
+      },
+      {
+        x: 427.00000007999995,
         y: 755.9999997600002
       },
       {
         x: 432,
-        y: 755.9999997600002
+        y: 750.9999998400001
       }
     ],
     W23: [
       {
         x: 918,
+        y: 508.9999999700001
+      },
+      {
+        x: 900,
         y: 490.9999999700001
       },
       {
@@ -8778,140 +8953,260 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     W24: [
       {
         x: 342,
+        y: 492.99999998000004
+      },
+      {
+        x: 341.00000000999995,
+        y: 493.9999999700001
+      },
+      {
+        x: 332.6666666666667,
         y: 493.9999999700001
       },
       {
         x: 328,
-        y: 493.9999999700001
+        y: 498.6666666366668
       },
       {
         x: 328,
+        y: 739.3333330933335
+      },
+      {
+        x: 338.6666666666667,
+        y: 749.9999997600002
+      },
+      {
+        x: 357.00000007999995,
         y: 749.9999997600002
       },
       {
         x: 360,
-        y: 749.9999997600002
+        y: 746.9999998400001
       }
     ],
     W25: [
       {
         x: 882,
+        y: 1031
+      },
+      {
+        x: 879.5,
+        y: 1028.5
+      },
+      {
+        x: 505.9999999967,
         y: 1028.5
       },
       {
         x: 487.9999999967,
-        y: 1028.5
+        y: 1010.5
       },
       {
         x: 487.9999999967,
+        y: 435.0000002219999
+      },
+      {
+        x: 469.9999999967,
+        y: 417.0000002219999
+      },
+      {
+        x: 344.00000007399996,
         y: 417.0000002219999
       },
       {
         x: 342,
-        y: 417.0000002219999
+        y: 415.00000014799997
       }
     ],
     W26: [
       {
         x: 360,
+        y: 421
+      },
+      {
+        x: 365,
+        y: 426
+      },
+      {
+        x: 373.3333332933334,
         y: 426
       },
       {
         x: 379.99999994000007,
-        y: 426
+        y: 432.66666664666667
       },
       {
         x: 379.99999994000007,
+        y: 640.4583333533333
+      },
+      {
+        x: 373.3333332933334,
+        y: 647.125
+      },
+      {
+        x: 364.625,
         y: 647.125
       },
       {
         x: 360,
-        y: 647.125
+        y: 651.75
       }
     ],
     W27: [
       {
         x: 846,
+        y: 1035
+      },
+      {
+        x: 845.5,
+        y: 1034.5
+      },
+      {
+        x: 500,
         y: 1034.5
       },
       {
         x: 482,
-        y: 1034.5
+        y: 1016.5
       },
       {
         x: 482,
+        y: 432.0000002219999
+      },
+      {
+        x: 464,
+        y: 414.0000002219999
+      },
+      {
+        x: 289.00000007399996,
         y: 414.0000002219999
       },
       {
         x: 288,
-        y: 414.0000002219999
+        y: 413.00000014799997
       }
     ],
     W28: [
       {
         x: 306,
+        y: 417.00000014799997
+      },
+      {
+        x: 309.00000007399996,
+        y: 420.0000002219999
+      },
+      {
+        x: 414,
         y: 420.0000002219999
       },
       {
         x: 432,
-        y: 420.0000002219999
+        y: 438.0000002219999
       }
     ],
     W29: [
       {
         x: 810,
+        y: 1039
+      },
+      {
+        x: 811.5,
+        y: 1040.5
+      },
+      {
+        x: 878,
         y: 1040.5
       },
       {
         x: 896,
-        y: 1040.5
+        y: 1022.5
       },
       {
         x: 896,
+        y: 510.6666666366668
+      },
+      {
+        x: 885.3333333333334,
+        y: 499.9999999700001
+      },
+      {
+        x: 866.99999999,
         y: 499.9999999700001
       },
       {
         x: 864,
-        y: 499.9999999700001
+        y: 496.99999998000004
       }
     ],
     W30: [
       {
         x: 774,
+        y: 1039
+      },
+      {
+        x: 772.5,
+        y: 1040.5
+      },
+      {
+        x: 288,
         y: 1040.5
       },
       {
         x: 270,
-        y: 1040.5
+        y: 1022.5
       }
     ],
     W31: [
       {
-        x: 322.00000002,
+        x: 317.00000002,
         y: 506
       },
       {
         x: 322.00000002,
+        y: 501
+      },
+      {
+        x: 322.00000002,
+        y: 491.66666666
+      },
+      {
+        x: 322.66666668,
         y: 491
       }
     ],
     W32: [
       {
-        x: 374,
+        x: 357.3333333333333,
         y: 506
       },
       {
         x: 374,
+        y: 489.3333333333333
+      },
+      {
+        x: 374,
+        y: 439.6666668886666
+      },
+      {
+        x: 357.3333333333333,
+        y: 423.0000002219999
+      },
+      {
+        x: 328.00000007399996,
         y: 423.0000002219999
       },
       {
         x: 324,
-        y: 423.0000002219999
+        y: 419.00000014799997
       }
     ],
     W33: [
       {
         x: 324,
+        y: 406.00000014799997
+      },
+      {
+        x: 318.99999992600004,
         y: 411.0000002219999
       },
       {
@@ -8925,43 +9220,71 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         y: 396.0000002219999
       },
       {
-        x: 699.5260663507107,
+        x: 681.5260663507107,
         y: 396.0000002219999
       },
       {
         x: 699.5260663507107,
+        y: 414.0000002219999
+      },
+      {
+        x: 699.5260663507107,
+        y: 466.9999999700001
+      },
+      {
+        x: 717.5260663507107,
+        y: 484.9999999700001
+      },
+      {
+        x: 879.99999999,
         y: 484.9999999700001
       },
       {
         x: 882,
-        y: 484.9999999700001
+        y: 486.99999998000004
       }
     ],
     W35: [
       {
         x: 882,
+        y: 513.9999999800001
+      },
+      {
+        x: 878.00000001,
+        y: 517.9999999700001
+      },
+      {
+        x: 686.0689655172414,
         y: 517.9999999700001
       },
       {
         x: 668.0689655172414,
-        y: 517.9999999700001
+        y: 535.9999999700001
       },
       {
         x: 668.0689655172414,
+        y: 737.9999997600002
+      },
+      {
+        x: 650.0689655172414,
+        y: 755.9999997600002
+      },
+      {
+        x: 454.99999992000005,
         y: 755.9999997600002
       },
       {
         x: 450,
-        y: 755.9999997600002
+        y: 750.9999998400001
       }
     ],
     W36: [
       {
-        x: 901.9999999800001,
-        y: 491
+        x: 900,
+        y: 723
       },
       {
-        x: 901.9999999800001,
+        x: 882,
         y: 741
       }
     ],
@@ -8971,213 +9294,385 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         y: 755.9999998200001
       },
       {
-        x: 774,
+        x: 778.9999999400001,
         y: 755.9999998200001
+      },
+      {
+        x: 774,
+        y: 750.99999988
       }
     ],
     W38: [
       {
         x: 468,
+        y: 670.9499999999999
+      },
+      {
+        x: 472.97499999999997,
+        y: 675.925
+      },
+      {
+        x: 662.0689655172414,
         y: 675.925
       },
       {
         x: 680.0689655172414,
-        y: 675.925
+        y: 693.925
       },
       {
         x: 680.0689655172414,
+        y: 731.9999998200001
+      },
+      {
+        x: 698.0689655172414,
+        y: 749.9999998200001
+      },
+      {
+        x: 861.0000000599999,
         y: 749.9999998200001
       },
       {
         x: 864,
-        y: 749.9999998200001
+        y: 746.99999988
       }
     ],
     W39: [
       {
         x: 396,
+        y: 738.9999998400001
+      },
+      {
+        x: 397.00000007999995,
+        y: 737.9999997600002
+      },
+      {
+        x: 540,
         y: 737.9999997600002
       },
       {
         x: 558,
-        y: 737.9999997600002
+        y: 719.9999997600002
       }
     ],
     W40: [
       {
         x: 342,
+        y: 742.9999998400001
+      },
+      {
+        x: 342.99999992000005,
+        y: 743.9999997600002
+      },
+      {
+        x: 558,
         y: 743.9999997600002
       },
       {
         x: 576,
-        y: 743.9999997600002
+        y: 725.9999997600002
       }
     ],
     W41: [
       {
         x: 396,
+        y: 661.35
+      },
+      {
+        x: 396.175,
+        y: 661.525
+      },
+      {
+        x: 612,
         y: 661.525
       },
       {
         x: 630,
-        y: 661.525
+        y: 643.525
       }
     ],
     W42: [
       {
         x: 450,
+        y: 667.75
+      },
+      {
+        x: 453.375,
+        y: 671.125
+      },
+      {
+        x: 630,
         y: 671.125
       },
       {
         x: 648,
-        y: 671.125
+        y: 653.125
       }
     ],
     W43: [
       {
         x: 810,
+        y: 734.99999988
+      },
+      {
+        x: 806.9999999400001,
+        y: 731.9999998200001
+      },
+      {
+        x: 749.9260663507108,
         y: 731.9999998200001
       },
       {
         x: 731.9260663507108,
-        y: 731.9999998200001
+        y: 713.9999998200001
       },
       {
         x: 731.9260663507108,
+        y: 432.0000002219999
+      },
+      {
+        x: 713.9260663507108,
+        y: 414.0000002219999
+      },
+      {
+        x: 649.000000074,
         y: 414.0000002219999
       },
       {
         x: 648,
-        y: 414.0000002219999
+        y: 413.00000014799997
       }
     ],
     W44: [
       {
         x: 756,
+        y: 742.99999988
+      },
+      {
+        x: 755.0000000599999,
+        y: 743.9999998200001
+      },
+      {
+        x: 735.1507109004739,
         y: 743.9999998200001
       },
       {
         x: 724.7260663507108,
-        y: 743.9999998200001
+        y: 733.575355270237
       },
       {
         x: 724.7260663507108,
+        y: 438.0000002219999
+      },
+      {
+        x: 706.7260663507108,
+        y: 420.0000002219999
+      },
+      {
+        x: 633.000000074,
         y: 420.0000002219999
       },
       {
         x: 630,
-        y: 420.0000002219999
+        y: 417.00000014799997
       }
     ],
     W45: [
       {
         x: 540,
+        y: 713.9999997600002
+      },
+      {
+        x: 522,
+        y: 731.9999997600002
+      },
+      {
+        x: 417.00000007999995,
         y: 731.9999997600002
       },
       {
         x: 414,
-        y: 731.9999997600002
+        y: 734.9999998400001
       }
     ],
     W46: [
       {
         x: 594,
+        y: 731.9999997600002
+      },
+      {
+        x: 576,
+        y: 749.9999997600002
+      },
+      {
+        x: 380.99999992000005,
         y: 749.9999997600002
       },
       {
         x: 378,
-        y: 749.9999997600002
+        y: 746.9999998400001
       }
     ],
     W47: [
       {
         x: 612,
+        y: 638.725
+      },
+      {
+        x: 594,
+        y: 656.725
+      },
+      {
+        x: 379.425,
         y: 656.725
       },
       {
         x: 378,
-        y: 656.725
+        y: 658.15
       }
     ],
     W48: [
       {
-        x: 662.0689655172414,
-        y: 491
+        x: 666,
+        y: 648.325
       },
       {
-        x: 662.0689655172414,
+        x: 648,
+        y: 666.325
+      },
+      {
+        x: 415.77500000000003,
         y: 666.325
       },
       {
         x: 414,
-        y: 666.325
+        y: 664.5500000000001
       }
     ],
     W49: [
       {
         x: 666,
+        y: 415.00000014799997
+      },
+      {
+        x: 668.000000074,
+        y: 417.0000002219999
+      },
+      {
+        x: 710.3260663507108,
         y: 417.0000002219999
       },
       {
         x: 728.3260663507108,
-        y: 417.0000002219999
+        y: 435.0000002219999
       },
       {
         x: 728.3260663507108,
+        y: 708
+      },
+      {
+        x: 746.3260663507108,
+        y: 726
+      },
+      {
+        x: 823,
         y: 726
       },
       {
         x: 828,
-        y: 726
+        y: 731
       }
     ],
     W50: [
       {
         x: 612,
+        y: 419.00000014799997
+      },
+      {
+        x: 616.000000074,
+        y: 423.0000002219999
+      },
+      {
+        x: 703.1260663507107,
         y: 423.0000002219999
       },
       {
         x: 721.1260663507107,
-        y: 423.0000002219999
+        y: 441.0000002219999
       },
       {
         x: 721.1260663507107,
+        y: 719.9999998200001
+      },
+      {
+        x: 739.1260663507107,
+        y: 737.9999998200001
+      },
+      {
+        x: 790.9999999400001,
         y: 737.9999998200001
       },
       {
         x: 792,
-        y: 737.9999998200001
+        y: 738.99999988
       }
     ],
     W51: [
       {
         x: 540,
+        y: 501.99999998000004
+      },
+      {
+        x: 542.00000001,
+        y: 499.9999999700001
+      },
+      {
+        x: 685.1260663507107,
         y: 499.9999999700001
       },
       {
         x: 703.1260663507107,
-        y: 499.9999999700001
+        y: 481.9999999700001
       },
       {
         x: 703.1260663507107,
+        y: 128
+      },
+      {
+        x: 721.1260663507107,
+        y: 110
+      },
+      {
+        x: 952,
         y: 110
       },
       {
         x: 954,
-        y: 110
+        y: 112
       }
     ],
     W52: [
       {
         x: 594,
+        y: 503.99999998000004
+      },
+      {
+        x: 595.00000001,
+        y: 502.9999999700001
+      },
+      {
+        x: 688.7260663507108,
         y: 502.9999999700001
       },
       {
         x: 706.7260663507108,
-        y: 502.9999999700001
+        y: 484.9999999700001
       },
       {
         x: 706.7260663507108,
+        y: 134
+      },
+      {
+        x: 724.7260663507108,
         y: 116
       }
     ],
@@ -9187,68 +9682,124 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         y: 505.9999999700001
       },
       {
-        x: 710.3260663507108,
+        x: 692.3260663507108,
         y: 505.9999999700001
       },
       {
         x: 710.3260663507108,
+        y: 487.9999999700001
+      },
+      {
+        x: 710.3260663507108,
+        y: 140
+      },
+      {
+        x: 728.3260663507108,
+        y: 122
+      },
+      {
+        x: 880,
         y: 122
       },
       {
         x: 882,
-        y: 122
+        y: 120
       }
     ],
     W54: [
       {
         x: 666,
+        y: 507.99999998000004
+      },
+      {
+        x: 666.99999999,
+        y: 508.9999999700001
+      },
+      {
+        x: 825,
         y: 508.9999999700001
       },
       {
         x: 843,
-        y: 508.9999999700001
+        y: 490.9999999700001
       },
       {
         x: 843,
+        y: 117
+      },
+      {
+        x: 844,
         y: 116
       }
     ],
     W55: [
       {
         x: 666,
+        y: 390.00000014799997
+      },
+      {
+        x: 668.999999926,
+        y: 387.0000002219999
+      },
+      {
+        x: 792,
         y: 387.0000002219999
       },
       {
         x: 810,
-        y: 387.0000002219999
+        y: 369.0000002219999
       }
     ],
     W56: [
       {
         x: 612,
+        y: 388.00000014799997
+      },
+      {
+        x: 615.999999926,
+        y: 384.0000002219999
+      },
+      {
+        x: 756,
         y: 384.0000002219999
       },
       {
         x: 774,
-        y: 384.0000002219999
+        y: 366.0000002219999
       }
     ],
     W57: [
       {
         x: 666,
+        y: 378.20000014799996
+      },
+      {
+        x: 667.399999926,
+        y: 376.80000022199994
+      },
+      {
+        x: 700.3507109004738,
         y: 376.80000022199994
       },
       {
         x: 717.5260663507107,
-        y: 376.80000022199994
+        y: 393.97535567223684
       },
       {
         x: 717.5260663507107,
+        y: 463.9999999700001
+      },
+      {
+        x: 735.5260663507107,
+        y: 481.9999999700001
+      },
+      {
+        x: 914.99999999,
         y: 481.9999999700001
       },
       {
         x: 918,
-        y: 481.9999999700001
+        y: 484.99999998000004
       }
     ],
     W58: [
@@ -9257,54 +9808,90 @@ Please report this to https://github.com/markedjs/marked.`, e) {
         y: 381.0000002219999
       },
       {
-        x: 713.9260663507108,
+        x: 695.9260663507108,
         y: 381.0000002219999
       },
       {
         x: 713.9260663507108,
+        y: 399.0000002219999
+      },
+      {
+        x: 713.9260663507108,
+        y: 460.9999999700001
+      },
+      {
+        x: 731.9260663507108,
+        y: 478.9999999700001
+      },
+      {
+        x: 931.99999999,
         y: 478.9999999700001
       },
       {
         x: 936,
-        y: 478.9999999700001
+        y: 482.99999998000004
       }
     ],
     W59: [
       {
         x: 954,
+        y: 481
+      },
+      {
+        x: 949,
+        y: 476
+      },
+      {
+        x: 758.9260663507108,
         y: 476
       },
       {
         x: 740.9260663507108,
-        y: 476
+        y: 458
       },
       {
         x: 740.9260663507108,
+        y: 116.97535545023693
+      },
+      {
+        x: 739.9507109004738,
         y: 116
       }
     ],
     W60: [
       {
-        x: 739.1260663507107,
-        y: 1036
+        x: 738,
+        y: 511.9999999700001
       },
       {
-        x: 739.1260663507107,
+        x: 720,
+        y: 493.9999999700001
+      },
+      {
+        x: 522.99999999,
         y: 493.9999999700001
       },
       {
         x: 522,
-        y: 493.9999999700001
+        y: 492.99999998000004
       }
     ],
     W61: [
       {
         x: 1098,
+        y: 423.0000002219999
+      },
+      {
+        x: 1080,
+        y: 405.0000002219999
+      },
+      {
+        x: 685.999999926,
         y: 405.0000002219999
       },
       {
         x: 684,
-        y: 405.0000002219999
+        y: 407.00000014799997
       }
     ]
   };
@@ -9318,8 +9905,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
     result: WIRE_COLORS[1],
     feedback: WIRE_COLORS[3],
     output: WIRE_COLORS[5],
-    timing: WIRE_COLORS[6],
-    overflow: WIRE_COLORS[9]
+    timing: WIRE_COLORS[6]
   };
   var PRESET_CHIPS = [
     { id: "U1", model: "74LS273", section: 1, column: 25 },
@@ -9390,7 +9976,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
 
 \u7B2C\u56DB\u5757\u9762\u5305\u677F\u7528\u7EC6\u7EBF\u6865\u63A5\u4E86\u8F93\u5165\u4E0E\u8109\u51B2\u5BF9\u5E94\u5217\uFF0C\u4E0A\u4E0B A\uFF5EJ \u7684\u7A7A\u5B54\u53EF\u4EE5\u8BFB\u53D6\u540C\u4E00\u4FE1\u53F7\uFF0C\u5176\u4ED6\u5217\u53CA X/Y \u6BCD\u7EBF\u5206\u522B\u8FDE\u63A5
 
-\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u4E3A\u5730\uFF0C\u7EFF\u8272\u4E3A\u6570\u503C\u4E0E\u7B26\u53F7\u8F93\u5165\uFF08\u5305\u62EC\u53D6\u53CD\u540E\u7684\u6570\u636E\uFF09\uFF0C\u7D2B\u8272\u4E3A\u52A0\u51CF\u63A7\u5236\u548C\u8FDB\u4F4D\uFF0C\u84DD\u8272\u4E3A\u8BA1\u7B97\u7ED3\u679C\u9001\u5165\u5BC4\u5B58\u5668\uFF0C\u9EC4\u8272\u4E3A\u5BC4\u5B58\u5668\u53CD\u9988\uFF0C\u9752\u8272\u4E3A L0\uFF5EL5 \u7ED3\u679C\u8F93\u51FA\uFF0C\u6A59\u8272\u4E3A\u6EA2\u51FA\u5224\u65AD\u652F\u8DEF\u53CA L6 \u8F93\u51FA\uFF0C\u7C89\u8272\u4E3A\u6E05\u96F6\u548C\u65F6\u949F
+\u7EA2\u8272\u4E3A\u7535\u6E90\uFF0C\u6DF1\u7070\u8272\u4E3A\u5730\u3002\u7EFF\u8272\u548C\u7D2B\u8272\u5206\u522B\u6807\u51FA\u8F93\u5165\u6570\u636E\u4E0E\u52A0\u51CF\u63A7\u5236\uFF0C\u5176\u4E2D\u7B26\u53F7\u6269\u5C55\u4E5F\u7528\u4E86\u7D2B\u8272\u3002\u84DD\u8272\u5BFC\u7EBF\u628A\u8BA1\u7B97\u7ED3\u679C\u9001\u5165\u5BC4\u5B58\u5668\uFF0C\u9EC4\u8272\u5BFC\u7EBF\u628A\u4E0A\u6B21\u7684\u7ED3\u679C\u9001\u56DE\u52A0\u6CD5\u5668\u3002\u9752\u8272\u5BF9\u5E94\u8F93\u51FA\u548C\u6EA2\u51FA\u5224\u65AD\uFF0C\u7C89\u8272\u5BF9\u5E94\u6E05\u96F6\u548C\u65F6\u949F\u3002
 
 \u5BFC\u7EBF\u6CBF\u5206\u5F00\u7684\u901A\u9053\u7ED5\u5F00\u4E86\u82AF\u7247\u5916\u6846\uFF0C\u901A\u8FC7\u4E24\u7AEF\u63D2\u5165\u7684\u5B54\u5EFA\u7ACB\u8FDE\u63A5\uFF0C\u4EA4\u53C9\u5904\u4FDD\u6301\u7EDD\u7F18\u3002\u5F53\u4F60\u786E\u8BA4\u5DE6\u4FA7\u7684\u201C\u6574\u7406\u8D70\u7EBF\u201D\u64CD\u4F5C\u540E\uFF0C\u7A0B\u5E8F\u4F1A\u8C03\u6574\u5F53\u524D\u8DEF\u5F84\uFF0C\u5E76\u4FDD\u7559\u82AF\u7247\u4F4D\u7F6E\u3001\u7AEF\u70B9\u3001\u7EBF\u8272\u548C\u5907\u6CE8\uFF0C\u6574\u4E2A\u64CD\u4F5C\u652F\u6301\u64A4\u9500
 
@@ -9429,8 +10015,8 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
       control = pin;
     }
-    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
-    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.control);
+    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.control);
     connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
     for (const pair of SUM_CONNECTIONS) {
       connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
@@ -9441,14 +10027,15 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     for (let bit = 0; bit < 6; bit = bit + 1) {
       connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
     }
-    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.output);
+    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.output);
+    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.output);
     connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
     connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
     for (const wire of project.wires) {
       if (Object.hasOwn(preset_routes_default, wire.id)) {
         wire.bends = structuredClone(preset_routes_default[wire.id]);
+        wire.angle = 45;
       }
     }
     project.switches[COMPLEMENT_RESET_INPUT] = 1;
@@ -9502,6 +10089,7 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
 
   // src/board/wire-path.mjs
   var WIRE_PATH = { tolerance: 1e-6, cornerSize: BOARD.pitch, cornerPortion: 1 / 3 };
+  var END_ALIGNMENT = { maximumOffset: BOARD.pitch / 3, laneStep: BOARD.rowPitch / 2, laneSteps: 6 };
   function simplifyWirePath(points) {
     const result = [];
     for (const point of points) {
@@ -9526,6 +10114,126 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       result.push({ x: point.x, y: point.y });
     }
     return result;
+  }
+  function sameCoordinate(first, last) {
+    return Math.abs(first - last) <= WIRE_PATH.tolerance;
+  }
+  function firstSideStep(points) {
+    for (let index = 1; index <= 2 && index + 1 < points.length; index = index + 1) {
+      const start2 = points[index - 1];
+      const bend = points[index];
+      const next = points[index + 1];
+      const offset = Math.abs(start2.x - bend.x);
+      if (sameCoordinate(start2.y, bend.y) && offset > WIRE_PATH.tolerance && offset <= END_ALIGNMENT.maximumOffset) {
+        if (sameCoordinate(bend.x, next.x) && Math.abs(bend.y - next.y) > BOARD.rowPitch) {
+          return index;
+        }
+      }
+      if (!sameCoordinate(start2.x, bend.x)) {
+        break;
+      }
+    }
+    return 0;
+  }
+  function orthogonalOverlap(first, last, otherFirst, otherLast) {
+    if (sameCoordinate(first.x, last.x) && sameCoordinate(first.x, otherFirst.x) && sameCoordinate(first.x, otherLast.x)) {
+      const top = Math.max(Math.min(first.y, last.y), Math.min(otherFirst.y, otherLast.y));
+      const bottom = Math.min(Math.max(first.y, last.y), Math.max(otherFirst.y, otherLast.y));
+      return Math.max(0, bottom - top);
+    }
+    if (sameCoordinate(first.y, last.y) && sameCoordinate(first.y, otherFirst.y) && sameCoordinate(first.y, otherLast.y)) {
+      const left = Math.max(Math.min(first.x, last.x), Math.min(otherFirst.x, otherLast.x));
+      const right = Math.min(Math.max(first.x, last.x), Math.max(otherFirst.x, otherLast.x));
+      return Math.max(0, right - left);
+    }
+    return 0;
+  }
+  function clearWireTurn(lead, paths, wireIndex, obstacles, sharedHoles) {
+    for (let index = 1; index < lead.length; index = index + 1) {
+      for (const obstacle of obstacles) {
+        if (segmentCrossesBounds(lead[index - 1], lead[index], obstacle)) {
+          return false;
+        }
+      }
+    }
+    for (let index = 0; index < paths.length; index = index + 1) {
+      if (index === wireIndex) {
+        continue;
+      }
+      const other = paths[index];
+      let allowedOverlap = WIRE_PATH.tolerance;
+      if (sharedHoles.has(index)) {
+        allowedOverlap = BOARD.rowPitch;
+      }
+      for (let point = 1; point < other.length; point = point + 1) {
+        for (let segment = 1; segment < lead.length; segment = segment + 1) {
+          const overlap = orthogonalOverlap(lead[segment - 1], lead[segment], other[point - 1], other[point]);
+          if (overlap > allowedOverlap) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+  function straightenFirstTurn(points, paths, wireIndex, obstacles, sharedHoles) {
+    const step = firstSideStep(points);
+    if (step === 0 || step + 2 >= points.length) {
+      return points;
+    }
+    const hole = points[0];
+    const corner = points[step + 1];
+    const across = points[step + 2];
+    if (!sameCoordinate(corner.y, across.y)) {
+      return points;
+    }
+    const next = points[step + 3];
+    if (!next && sameCoordinate(hole.x, across.x)) {
+      const direct = [hole, across];
+      if (clearWireTurn(direct, paths, wireIndex, obstacles, sharedHoles)) {
+        return direct;
+      }
+      return points;
+    }
+    if (next && !sameCoordinate(across.x, next.x)) {
+      return points;
+    }
+    for (let distance = 0; distance <= END_ALIGNMENT.laneSteps; distance = distance + 1) {
+      for (const direction of [1, -1]) {
+        if (distance === 0 && direction < 0) {
+          continue;
+        }
+        const turnY = corner.y + distance * direction * END_ALIGNMENT.laneStep;
+        if (turnY < 0 || turnY > BOARD.height || (turnY - hole.y) * (corner.y - hole.y) <= 0) {
+          continue;
+        }
+        if (!next && distance > 0) {
+          continue;
+        }
+        if (next && step + 3 < points.length - 1 && (next.y - turnY) * (next.y - across.y) < 0) {
+          continue;
+        }
+        const lead = [hole, { x: hole.x, y: turnY }, { x: across.x, y: turnY }];
+        const tail = points.slice(step + 3);
+        const changed = lead.concat(tail);
+        const check = changed.slice(0, 4);
+        if (clearWireTurn(check, paths, wireIndex, obstacles, sharedHoles)) {
+          return simplifyWirePath(changed);
+        }
+      }
+    }
+    return points;
+  }
+  function straightenWireEnds(points, paths, wireIndex, obstacles, sharedHoles) {
+    const first = straightenFirstTurn(points, paths, wireIndex, obstacles, sharedHoles);
+    const reversed = first.slice();
+    reversed.reverse();
+    const last = straightenFirstTurn(reversed, paths, wireIndex, obstacles, sharedHoles);
+    if (last === reversed) {
+      return first;
+    }
+    last.reverse();
+    return last;
   }
   function angleWirePath(points) {
     if (points.length === 0) {
@@ -10272,6 +10980,24 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     }
     return simplifyWirePath(points);
   }
+  function neighboringWires(wires, wireIndex) {
+    const wire = wires[wireIndex];
+    const start2 = baseNode(wire.from);
+    const end = baseNode(wire.to);
+    const neighbors = /* @__PURE__ */ new Set();
+    for (let index = 0; index < wires.length; index = index + 1) {
+      if (index === wireIndex) {
+        continue;
+      }
+      const other = wires[index];
+      const otherStart = baseNode(other.from);
+      const otherEnd = baseNode(other.to);
+      if (start2 === otherStart || start2 === otherEnd || end === otherStart || end === otherEnd) {
+        neighbors.add(index);
+      }
+    }
+    return neighbors;
+  }
   async function routeProject(project, angle, targetId) {
     await new Promise(yieldFrame);
     const Avoid = await initializeRouting();
@@ -10281,13 +11007,28 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
       const bounds = addObstacles(Avoid, router, project, objects);
       const connections = addConnections(Avoid, router, project, targetId, objects);
       router.processTransaction();
+      const paths = [];
+      for (let index = 0; index < project.wires.length; index = index + 1) {
+        const wire = project.wires[index];
+        if (targetId !== "" && wire.id !== targetId) {
+          paths.push(wirePoints(wire, index));
+        } else {
+          paths.push(readRoute(connections.get(wire.id), wire, bounds));
+        }
+      }
       const routes = {};
-      for (const wire of project.wires) {
+      for (let index = 0; index < project.wires.length; index = index + 1) {
+        const wire = project.wires[index];
         if (targetId !== "" && wire.id !== targetId) {
           continue;
         }
-        let points = readRoute(connections.get(wire.id), wire, bounds);
+        let points = paths[index];
         const preserveManualPoints = targetId !== "" && wire.bends.length > 0;
+        if (!preserveManualPoints) {
+          const neighbors = neighboringWires(project.wires, index);
+          points = straightenWireEnds(points, paths, index, bounds, neighbors);
+          paths[index] = points;
+        }
         if (angle === 45 && !preserveManualPoints) {
           points = shortCornerPath(points, bounds, LIMITS.bends + 2);
         }
@@ -11111,536 +11852,936 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     W1: [
       {
         x: 1242,
+        y: 423.3599999999995
+      },
+      {
+        x: 1224,
+        y: 405.3599999999995
+      },
+      {
+        x: 253.88000000000017,
         y: 405.3599999999995
       },
       {
         x: 252,
-        y: 405.3599999999995
+        y: 407.23999999999967
       }
     ],
     W2: [
       {
         x: 1210,
+        y: 513.2857142857142
+      },
+      {
+        x: 1192,
+        y: 495.28571428571416
+      },
+      {
+        x: 451.4285714285714,
         y: 495.28571428571416
       },
       {
         x: 450,
-        y: 495.28571428571416
+        y: 493.8571428571428
       }
     ],
     W3: [
       {
         x: 252,
+        y: 396.23999999999967
+      },
+      {
+        x: 252.11999999999983,
+        y: 396.3599999999995
+      },
+      {
+        x: 769.1199999999999,
         y: 396.3599999999995
       },
       {
         x: 774,
-        y: 396.3599999999995
+        y: 401.23999999999967
       }
     ],
     W4: [
       {
         x: 450,
+        y: 511.6571428571428
+      },
+      {
+        x: 452.82857142857137,
+        y: 514.4857142857142
+      },
+      {
+        x: 964.1714285714286,
         y: 514.4857142857142
       },
       {
         x: 972,
-        y: 514.4857142857142
+        y: 506.6571428571428
       }
     ],
     W5: [
       {
         x: 774,
+        y: 400.23999999999967
+      },
+      {
+        x: 771.8800000000001,
+        y: 402.3599999999995
+      },
+      {
+        x: 756.6666667866666,
         y: 402.3599999999995
       },
       {
         x: 748.0000001799999,
-        y: 402.3599999999995
+        y: 411.0266666066662
       },
       {
         x: 748.0000001799999,
+        y: 631.3333335433333
+      },
+      {
+        x: 762.6666667866666,
+        y: 646.00000015
+      },
+      {
+        x: 787.00000005,
         y: 646.00000015
       },
       {
         x: 792,
-        y: 646.00000015
+        y: 651.0000001
       }
     ],
     W6: [
       {
-        x: 973.9999999800001,
-        y: 506
+        x: 972,
+        y: 720
       },
       {
-        x: 973.9999999800001,
+        x: 966,
+        y: 726
+      },
+      {
+        x: 959,
         y: 726
       },
       {
         x: 954,
-        y: 726
+        y: 731
       }
     ],
     W7: [
       {
         x: 792,
+        y: 650.0000001
+      },
+      {
+        x: 789.99999995,
+        y: 652.00000015
+      },
+      {
+        x: 290.99999995,
         y: 652.00000015
       },
       {
         x: 288,
-        y: 652.00000015
+        y: 655.0000001
       }
     ],
     W8: [
       {
-        x: 951,
+        x: 952,
         y: 756
       },
       {
         x: 951,
+        y: 755
+      },
+      {
+        x: 951,
+        y: 747.9999998999999
+      },
+      {
+        x: 946.99999995,
+        y: 743.9999998499999
+      },
+      {
+        x: 414.99999994999996,
         y: 743.9999998499999
       },
       {
         x: 414,
-        y: 743.9999998499999
+        y: 742.9999998999999
       }
     ],
     W9: [
       {
         x: 414,
+        y: 756.7999999
+      },
+      {
+        x: 414.39999995,
+        y: 757.1999998499999
+      },
+      {
+        x: 423.3333333333333,
         y: 757.1999998499999
       },
       {
         x: 428,
-        y: 757.1999998499999
+        y: 752.5333331833333
       },
       {
         x: 428,
+        y: 513.2857142857142
+      },
+      {
+        x: 410,
+        y: 495.28571428571416
+      },
+      {
+        x: 307.4285714285714,
         y: 495.28571428571416
       },
       {
         x: 306,
-        y: 495.28571428571416
+        y: 493.8571428571428
       }
     ],
     W10: [
       {
         x: 306,
+        y: 496
+      },
+      {
+        x: 301,
         y: 491
       }
     ],
     W11: [
       {
         x: 288,
+        y: 496
+      },
+      {
+        x: 283,
         y: 491
       }
     ],
     W12: [
       {
         x: 270,
+        y: 496
+      },
+      {
+        x: 265,
         y: 491
       }
     ],
     W13: [
       {
-        x: 238,
+        x: 242.66666666666666,
         y: 506
       },
       {
         x: 238,
+        y: 501.3333333333333
+      },
+      {
+        x: 238,
+        y: 428.0266666666662
+      },
+      {
+        x: 248.66666666666666,
+        y: 417.3599999999995
+      },
+      {
+        x: 267.88000000000017,
         y: 417.3599999999995
       },
       {
         x: 270,
-        y: 417.3599999999995
+        y: 415.23999999999967
       }
     ],
     W14: [
       {
         x: 270,
+        y: 398.23999999999967
+      },
+      {
+        x: 271.11999999999983,
+        y: 399.3599999999995
+      },
+      {
+        x: 284.11999999999983,
         y: 399.3599999999995
       },
       {
         x: 288,
-        y: 399.3599999999995
+        y: 403.23999999999967
       }
     ],
     W15: [
       {
         x: 288,
+        y: 398.23999999999967
+      },
+      {
+        x: 289.11999999999983,
+        y: 399.3599999999995
+      },
+      {
+        x: 338.11999999999983,
         y: 399.3599999999995
       },
       {
         x: 342,
-        y: 399.3599999999995
+        y: 403.23999999999967
       }
     ],
     W16: [
       {
         x: 342,
+        y: 398.23999999999967
+      },
+      {
+        x: 343.11999999999983,
+        y: 399.3599999999995
+      },
+      {
+        x: 576.1698113207547,
         y: 399.3599999999995
       },
       {
         x: 594.1698113207547,
-        y: 399.3599999999995
+        y: 417.3599999999995
       },
       {
         x: 594.1698113207547,
+        y: 462.8857142857142
+      },
+      {
+        x: 612.1698113207547,
+        y: 480.8857142857142
+      },
+      {
+        x: 824.6285714285714,
         y: 480.8857142857142
       },
       {
         x: 828,
-        y: 480.8857142857142
+        y: 484.2571428571428
       }
     ],
     W17: [
       {
         x: 828,
+        y: 502.05714285714276
+      },
+      {
+        x: 826.0285714285714,
+        y: 500.0857142857142
+      },
+      {
+        x: 813.0285714285714,
         y: 500.0857142857142
       },
       {
         x: 810,
-        y: 500.0857142857142
+        y: 497.05714285714276
       }
     ],
     W18: [
       {
         x: 810,
+        y: 502.05714285714276
+      },
+      {
+        x: 808.0285714285714,
+        y: 500.0857142857142
+      },
+      {
+        x: 795.0285714285714,
         y: 500.0857142857142
       },
       {
         x: 792,
-        y: 500.0857142857142
+        y: 497.05714285714276
       }
     ],
     W19: [
       {
         x: 792,
+        y: 502.05714285714276
+      },
+      {
+        x: 790.0285714285714,
+        y: 500.0857142857142
+      },
+      {
+        x: 777.0285714285714,
         y: 500.0857142857142
       },
       {
         x: 774,
-        y: 500.0857142857142
+        y: 497.05714285714276
       }
     ],
     W20: [
       {
-        x: 760,
+        x: 764.6666666666666,
         y: 506
       },
       {
         x: 760,
+        y: 501.3333333333333
+      },
+      {
+        x: 760,
+        y: 425.0266666666662
+      },
+      {
+        x: 770.6666666666666,
+        y: 414.3599999999995
+      },
+      {
+        x: 790.8800000000001,
         y: 414.3599999999995
       },
       {
         x: 792,
-        y: 414.3599999999995
+        y: 413.23999999999967
       }
     ],
     W21: [
       {
         x: 792,
+        y: 400.23999999999967
+      },
+      {
+        x: 794.1199999999999,
+        y: 402.3599999999995
+      },
+      {
+        x: 807.1199999999999,
         y: 402.3599999999995
       },
       {
         x: 810,
-        y: 402.3599999999995
+        y: 405.23999999999967
       }
     ],
     W22: [
       {
         x: 810,
+        y: 400.23999999999967
+      },
+      {
+        x: 812.1199999999999,
+        y: 402.3599999999995
+      },
+      {
+        x: 861.1199999999999,
         y: 402.3599999999995
       },
       {
         x: 864,
-        y: 402.3599999999995
+        y: 405.23999999999967
       }
     ],
     W23: [
       {
         x: 864,
+        y: 398.23999999999967
+      },
+      {
+        x: 862.8800000000001,
+        y: 399.3599999999995
+      },
+      {
+        x: 636.1698113207547,
         y: 399.3599999999995
       },
       {
         x: 618.1698113207547,
-        y: 399.3599999999995
+        y: 417.3599999999995
       },
       {
         x: 618.1698113207547,
+        y: 733.1999998499999
+      },
+      {
+        x: 600.1698113207547,
+        y: 751.1999998499999
+      },
+      {
+        x: 309.39999995,
         y: 751.1999998499999
       },
       {
         x: 306,
-        y: 751.1999998499999
+        y: 747.7999999
       }
     ],
     W24: [
       {
         x: 306,
+        y: 759.1999999
+      },
+      {
+        x: 307.59999995,
+        y: 760.79999985
+      },
+      {
+        x: 318,
         y: 760.79999985
       },
       {
         x: 324,
-        y: 760.79999985
+        y: 754.79999985
       }
     ],
     W25: [
       {
         x: 324,
+        y: 759.1999999
+      },
+      {
+        x: 325.59999995,
+        y: 760.79999985
+      },
+      {
+        x: 336,
         y: 760.79999985
       },
       {
         x: 342,
-        y: 760.79999985
+        y: 754.79999985
       }
     ],
     W26: [
       {
         x: 342,
+        y: 759.1999999
+      },
+      {
+        x: 343.59999995,
+        y: 760.79999985
+      },
+      {
+        x: 354,
         y: 760.79999985
       },
       {
         x: 360,
-        y: 760.79999985
+        y: 754.79999985
       }
     ],
     W27: [
       {
-        x: 274,
+        x: 278.6666666666667,
         y: 646
       },
       {
         x: 274,
+        y: 650.6666666666666
+      },
+      {
+        x: 274,
+        y: 736.79999985
+      },
+      {
+        x: 292,
+        y: 754.79999985
+      },
+      {
+        x: 373.40000005,
         y: 754.79999985
       },
       {
         x: 378,
-        y: 754.79999985
+        y: 750.1999999
       }
     ],
     W28: [
       {
         x: 666,
+        y: 508.48571428571415
+      },
+      {
+        x: 648,
+        y: 490.48571428571415
+      },
+      {
+        x: 378.17142857142863,
         y: 490.48571428571415
       },
       {
         x: 378,
-        y: 490.48571428571415
+        y: 490.6571428571428
       }
     ],
     W29: [
       {
-        x: 378,
-        y: 545
-      },
-      {
-        x: 900,
-        y: 545
+        x: 639,
+        y: 536
       }
     ],
     W30: [
       {
-        x: 630.1698113207547,
-        y: 1036
+        x: 630,
+        y: 503.6857142857142
       },
       {
-        x: 630.1698113207547,
+        x: 612,
+        y: 485.6857142857142
+      },
+      {
+        x: 361.7714285714286,
         y: 485.6857142857142
       },
       {
         x: 360,
-        y: 485.6857142857142
+        y: 487.4571428571428
       }
     ],
     W31: [
       {
         x: 360,
-        y: 554
+        y: 539.1999999999999
+      },
+      {
+        x: 361.59999999999997,
+        y: 540.8
+      },
+      {
+        x: 880.4,
+        y: 540.8
       },
       {
         x: 882,
-        y: 554
+        y: 539.1999999999999
       }
     ],
     W32: [
       {
         x: 594,
+        y: 498.8857142857142
+      },
+      {
+        x: 576,
+        y: 480.8857142857142
+      },
+      {
+        x: 345.3714285714286,
         y: 480.8857142857142
       },
       {
         x: 342,
-        y: 480.8857142857142
+        y: 484.2571428571428
       }
     ],
     W33: [
       {
         x: 342,
-        y: 563
+        y: 542.4
+      },
+      {
+        x: 345.2,
+        y: 545.6
+      },
+      {
+        x: 860.8,
+        y: 545.6
       },
       {
         x: 864,
-        y: 563
+        y: 542.4
       }
     ],
     W34: [
       {
         x: 558,
+        y: 494.0857142857142
+      },
+      {
+        x: 540,
+        y: 476.0857142857142
+      },
+      {
+        x: 328.9714285714286,
         y: 476.0857142857142
       },
       {
         x: 324,
-        y: 476.0857142857142
+        y: 481.05714285714276
       }
     ],
     W35: [
       {
         x: 324,
-        y: 572
+        y: 545.6
+      },
+      {
+        x: 328.8,
+        y: 550.4
+      },
+      {
+        x: 841.2,
+        y: 550.4
       },
       {
         x: 846,
-        y: 572
+        y: 545.6
       }
     ],
     W36: [
       {
         x: 522,
+        y: 765.5999998499999
+      },
+      {
+        x: 504,
+        y: 747.5999998499999
+      },
+      {
+        x: 290.19999994999995,
         y: 747.5999998499999
       },
       {
         x: 288,
-        y: 747.5999998499999
+        y: 745.3999998999999
       }
     ],
     W37: [
       {
-        x: 232.00000006,
+        x: 250.00000006,
         y: 661
       },
       {
         x: 232.00000006,
+        y: 643
+      },
+      {
+        x: 232.00000006,
+        y: 432.3599999999995
+      },
+      {
+        x: 250.00000006,
+        y: 414.3599999999995
+      },
+      {
+        x: 358.88000000000017,
         y: 414.3599999999995
       },
       {
         x: 360,
-        y: 414.3599999999995
+        y: 413.23999999999967
       }
     ],
     W38: [
       {
         x: 324,
+        y: 651.0000001
+      },
+      {
+        x: 328.99999995,
+        y: 646.00000015
+      },
+      {
+        x: 606.1698113207547,
         y: 646.00000015
       },
       {
         x: 624.1698113207547,
-        y: 646.00000015
+        y: 628.00000015
       },
       {
         x: 624.1698113207547,
+        y: 429.3599999999995
+      },
+      {
+        x: 642.1698113207547,
+        y: 411.3599999999995
+      },
+      {
+        x: 881.8800000000001,
         y: 411.3599999999995
       },
       {
         x: 882,
-        y: 411.3599999999995
+        y: 411.23999999999967
       }
     ],
     W39: [
       {
-        x: 957,
-        y: 1036
+        x: 954,
+        y: 765.89999985
       },
       {
-        x: 957,
-        y: 740.39999985
+        x: 936,
+        y: 747.89999985
+      },
+      {
+        x: 812.29999995,
+        y: 747.89999985
       },
       {
         x: 810,
-        y: 740.39999985
+        y: 745.5999999
       }
     ],
     W40: [
       {
         x: 828,
+        y: 653
+      },
+      {
+        x: 832,
+        y: 649
+      },
+      {
+        x: 900,
         y: 649
       },
       {
         x: 918,
-        y: 649
+        y: 631
       }
     ],
     W41: [
       {
         x: 918,
-        y: 581
+        y: 532.8
+      },
+      {
+        x: 916.4,
+        y: 531.1999999999999
+      },
+      {
+        x: 397.6,
+        y: 531.1999999999999
       },
       {
         x: 396,
-        y: 581
+        y: 532.8
       }
     ],
     W42: [
       {
         x: 396,
+        y: 502.05714285714276
+      },
+      {
+        x: 397.9714285714286,
+        y: 500.0857142857142
+      },
+      {
+        x: 582.1698113207547,
         y: 500.0857142857142
       },
       {
         x: 600.1698113207547,
-        y: 500.0857142857142
+        y: 482.0857142857142
       },
       {
         x: 600.1698113207547,
+        y: 128
+      },
+      {
+        x: 618.1698113207547,
+        y: 110
+      },
+      {
+        x: 952,
         y: 110
       },
       {
         x: 954,
-        y: 110
+        y: 112
       }
     ],
     W43: [
       {
-        x: 915,
-        y: 1036
+        x: 918,
+        y: 767.9999998499999
       },
       {
-        x: 915,
+        x: 900,
+        y: 749.9999998499999
+      },
+      {
+        x: 848.99999995,
         y: 749.9999998499999
       },
       {
         x: 846,
-        y: 749.9999998499999
+        y: 746.9999998999999
       }
     ],
     W44: [
       {
         x: 864,
+        y: 657
+      },
+      {
+        x: 866,
+        y: 655
+      },
+      {
+        x: 918,
         y: 655
       },
       {
         x: 936,
-        y: 655
+        y: 637
       }
     ],
     W45: [
       {
         x: 936,
-        y: 590
+        y: 529.6
+      },
+      {
+        x: 932.8,
+        y: 526.4
+      },
+      {
+        x: 417.2,
+        y: 526.4
       },
       {
         x: 414,
-        y: 590
+        y: 529.6
       }
     ],
     W46: [
       {
         x: 414,
+        y: 505.2571428571428
+      },
+      {
+        x: 414.3714285714286,
+        y: 504.8857142857142
+      },
+      {
+        x: 588.1698113207547,
         y: 504.8857142857142
       },
       {
         x: 606.1698113207547,
-        y: 504.8857142857142
+        y: 486.8857142857142
       },
       {
         x: 606.1698113207547,
+        y: 134
+      },
+      {
+        x: 624.1698113207547,
         y: 116
       }
     ],
@@ -11652,364 +12793,648 @@ K\u3001L\u3001P \u4FE1\u53F7\u76F4\u63A5\u8FDE\u5230\u4E86\u5BF9\u5E94\u7684\u97
     ],
     W48: [
       {
-        x: 954,
+        x: 936,
         y: 661
+      },
+      {
+        x: 954,
+        y: 643
       }
     ],
     W49: [
       {
         x: 954,
-        y: 599
+        y: 526.4
+      },
+      {
+        x: 949.2,
+        y: 521.6
+      },
+      {
+        x: 436.8,
+        y: 521.6
       },
       {
         x: 432,
-        y: 599
+        y: 526.4
       }
     ],
     W50: [
       {
         x: 432,
+        y: 508.4571428571428
+      },
+      {
+        x: 433.2285714285714,
+        y: 509.6857142857142
+      },
+      {
+        x: 594.1698113207547,
         y: 509.6857142857142
       },
       {
         x: 612.1698113207547,
-        y: 509.6857142857142
+        y: 491.6857142857142
       },
       {
         x: 612.1698113207547,
+        y: 140
+      },
+      {
+        x: 630.1698113207547,
+        y: 122
+      },
+      {
+        x: 880,
         y: 122
       },
       {
         x: 882,
-        y: 122
+        y: 120
       }
     ],
     W51: [
       {
         x: 846,
+        y: 1034.0000000000002
+      },
+      {
+        x: 846.9999999999999,
+        y: 1033.0000000000002
+      },
+      {
+        x: 903,
         y: 1033.0000000000002
       },
       {
         x: 921,
-        y: 1033.0000000000002
+        y: 1015.0000000000002
       },
       {
         x: 921,
+        y: 742
+      },
+      {
+        x: 920,
         y: 741
       }
     ],
     W52: [
       {
         x: 936,
+        y: 665
+      },
+      {
+        x: 938,
+        y: 667
+      },
+      {
+        x: 985.99999964,
         y: 667
       },
       {
         x: 1003.99999964,
-        y: 667
+        y: 649
       },
       {
         x: 1003.99999964,
+        y: 428.0266665466662
+      },
+      {
+        x: 993.3333330933334,
+        y: 417.3599999999995
+      },
+      {
+        x: 974.1199999999999,
         y: 417.3599999999995
       },
       {
         x: 972,
-        y: 417.3599999999995
+        y: 415.23999999999967
       }
     ],
     W53: [
       {
         x: 972,
-        y: 357
+        y: 368
+      },
+      {
+        x: 971,
+        y: 369
+      },
+      {
+        x: 451,
+        y: 369
       },
       {
         x: 450,
-        y: 357
+        y: 368
       }
     ],
     W54: [
       {
         x: 450,
+        y: 394.23999999999967
+      },
+      {
+        x: 450.88000000000017,
+        y: 393.3599999999995
+      },
+      {
+        x: 828,
         y: 393.3599999999995
       },
       {
         x: 846,
-        y: 393.3599999999995
+        y: 375.3599999999995
       }
     ],
     W55: [
       {
         x: 810,
+        y: 1038.0000000000002
+      },
+      {
+        x: 811.0000000000001,
+        y: 1039.0000000000002
+      },
+      {
+        x: 950,
         y: 1039.0000000000002
       },
       {
         x: 968,
-        y: 1039.0000000000002
+        y: 1021.0000000000002
       },
       {
         x: 968,
+        y: 677.6666666666666
+      },
+      {
+        x: 963.3333333333334,
+        y: 673
+      },
+      {
+        x: 958,
         y: 673
       },
       {
         x: 954,
-        y: 673
+        y: 669
       }
     ],
     W56: [
       {
         x: 936,
+        y: 738.1999999
+      },
+      {
+        x: 937.40000005,
+        y: 736.79999985
+      },
+      {
+        x: 979.99999964,
         y: 736.79999985
       },
       {
         x: 997.99999964,
-        y: 736.79999985
+        y: 718.79999985
       },
       {
         x: 997.99999964,
+        y: 429.0266665466662
+      },
+      {
+        x: 983.3333330933334,
+        y: 414.3599999999995
+      },
+      {
+        x: 955.1199999999999,
         y: 414.3599999999995
       },
       {
         x: 954,
-        y: 414.3599999999995
+        y: 413.23999999999967
       }
     ],
     W57: [
       {
-        x: 954,
-        y: 348
-      },
-      {
-        x: 432,
-        y: 348
+        x: 693,
+        y: 366
       }
     ],
     W58: [
       {
         x: 432,
+        y: 392.23999999999967
+      },
+      {
+        x: 433.88000000000017,
+        y: 390.3599999999995
+      },
+      {
+        x: 792,
         y: 390.3599999999995
       },
       {
         x: 810,
-        y: 390.3599999999995
+        y: 372.3599999999995
       }
     ],
     W59: [
       {
-        x: 772.0000000200001,
-        y: 1036
+        x: 774,
+        y: 688.00000015
       },
       {
-        x: 772.0000000200001,
+        x: 792,
+        y: 670.00000015
+      },
+      {
+        x: 914.99999995,
         y: 670.00000015
       },
       {
         x: 918,
-        y: 670.00000015
+        y: 667.0000001
       }
     ],
     W60: [
       {
         x: 900,
+        y: 735.7999999
+      },
+      {
+        x: 902.6000000500001,
+        y: 733.1999998499999
+      },
+      {
+        x: 973.99999964,
         y: 733.1999998499999
       },
       {
         x: 991.99999964,
-        y: 733.1999998499999
+        y: 715.1999998499999
       },
       {
         x: 991.99999964,
+        y: 429.3599999999995
+      },
+      {
+        x: 973.99999964,
+        y: 411.3599999999995
+      },
+      {
+        x: 936.1199999999999,
         y: 411.3599999999995
       },
       {
         x: 936,
-        y: 411.3599999999995
+        y: 411.23999999999967
       }
     ],
     W61: [
       {
         x: 936,
-        y: 339
+        y: 364
+      },
+      {
+        x: 935,
+        y: 363
+      },
+      {
+        x: 415,
+        y: 363
       },
       {
         x: 414,
-        y: 339
+        y: 364
       }
     ],
     W62: [
       {
         x: 414,
+        y: 390.23999999999967
+      },
+      {
+        x: 416.88000000000017,
+        y: 387.3599999999995
+      },
+      {
+        x: 756,
         y: 387.3599999999995
       },
       {
         x: 774,
-        y: 387.3599999999995
+        y: 369.3599999999995
       }
     ],
     W63: [
       {
         x: 738,
+        y: 682.00000015
+      },
+      {
+        x: 756,
+        y: 664.00000015
+      },
+      {
+        x: 880.99999995,
         y: 664.00000015
       },
       {
         x: 882,
-        y: 664.00000015
+        y: 663.0000001
       }
     ],
     W64: [
       {
         x: 864,
+        y: 733.3999998999999
+      },
+      {
+        x: 867.80000005,
+        y: 729.5999998499999
+      },
+      {
+        x: 968,
         y: 729.5999998499999
       },
       {
         x: 986,
-        y: 729.5999998499999
+        y: 711.5999998499999
       },
       {
         x: 986,
+        y: 426.3599999999995
+      },
+      {
+        x: 968,
+        y: 408.3599999999995
+      },
+      {
+        x: 918.8800000000001,
         y: 408.3599999999995
       },
       {
         x: 918,
-        y: 408.3599999999995
+        y: 409.23999999999967
       }
     ],
     W65: [
       {
         x: 918,
-        y: 330
+        y: 362
+      },
+      {
+        x: 916,
+        y: 360
+      },
+      {
+        x: 398,
+        y: 360
       },
       {
         x: 396,
-        y: 330
+        y: 362
       }
     ],
     W66: [
       {
         x: 396,
+        y: 388.23999999999967
+      },
+      {
+        x: 399.88000000000017,
+        y: 384.3599999999995
+      },
+      {
+        x: 720,
         y: 384.3599999999995
       },
       {
         x: 738,
-        y: 384.3599999999995
+        y: 366.3599999999995
       }
     ],
     W67: [
       {
         x: 702,
+        y: 676.00000015
+      },
+      {
+        x: 720,
+        y: 658.00000015
+      },
+      {
+        x: 845.00000005,
         y: 658.00000015
       },
       {
         x: 846,
-        y: 658.00000015
+        y: 659.0000001
       }
     ],
     W68: [
       {
         x: 828,
+        y: 738.1999999
+      },
+      {
+        x: 826.59999995,
+        y: 736.79999985
+      },
+      {
+        x: 772.0000001799999,
         y: 736.79999985
       },
       {
         x: 754.0000001799999,
-        y: 736.79999985
+        y: 718.79999985
       },
       {
         x: 754.0000001799999,
+        y: 426.3599999999995
+      },
+      {
+        x: 772.0000001799999,
+        y: 408.3599999999995
+      },
+      {
+        x: 899.1199999999999,
         y: 408.3599999999995
       },
       {
         x: 900,
-        y: 408.3599999999995
+        y: 409.23999999999967
       }
     ],
     W69: [
       {
         x: 900,
-        y: 321
+        y: 360
+      },
+      {
+        x: 897,
+        y: 357
+      },
+      {
+        x: 381,
+        y: 357
       },
       {
         x: 378,
-        y: 321
+        y: 360
       }
     ],
     W70: [
       {
         x: 378,
+        y: 386.23999999999967
+      },
+      {
+        x: 382.88000000000017,
+        y: 381.3599999999995
+      },
+      {
+        x: 684,
         y: 381.3599999999995
       },
       {
         x: 702,
-        y: 381.3599999999995
+        y: 363.3599999999995
       }
     ],
     W71: [
       {
         x: 486,
+        y: 426.3599999999995
+      },
+      {
+        x: 468,
+        y: 408.3599999999995
+      },
+      {
+        x: 306.88000000000017,
         y: 408.3599999999995
       },
       {
         x: 306,
-        y: 408.3599999999995
+        y: 409.23999999999967
       }
     ],
     W72: [
       {
         x: 306,
-        y: 312
+        y: 372
+      },
+      {
+        x: 309,
+        y: 375
+      },
+      {
+        x: 825,
+        y: 375
       },
       {
         x: 828,
-        y: 312
+        y: 372
       }
     ],
     W73: [
       {
         x: 450,
+        y: 1034.0000000000002
+      },
+      {
+        x: 450.99999999999994,
+        y: 1033.0000000000002
+      },
+      {
+        x: 459.3333333333333,
         y: 1033.0000000000002
       },
       {
         x: 464,
-        y: 1033.0000000000002
+        y: 1028.3333333333335
       },
       {
         x: 464,
+        y: 429.3599999999995
+      },
+      {
+        x: 446,
+        y: 411.3599999999995
+      },
+      {
+        x: 324.11999999999983,
         y: 411.3599999999995
       },
       {
         x: 324,
-        y: 411.3599999999995
+        y: 411.23999999999967
       }
     ],
     W74: [
       {
         x: 324,
-        y: 303
+        y: 370
+      },
+      {
+        x: 326,
+        y: 372
+      },
+      {
+        x: 844,
+        y: 372
       },
       {
         x: 846,
-        y: 303
+        y: 370
       }
     ],
     W75: [
       {
         x: 414,
+        y: 1038.0000000000002
+      },
+      {
+        x: 415.00000000000006,
+        y: 1039.0000000000002
+      },
+      {
+        x: 774,
         y: 1039.0000000000002
       },
       {
         x: 792,
-        y: 1039.0000000000002
+        y: 1021.0000000000002
       }
     ],
     W76: [
       {
-        x: 778,
+        x: 782.6666666666666,
         y: 756
       },
       {
         x: 778,
+        y: 751.3333333333334
+      },
+      {
+        x: 778,
+        y: 686.6666666666666
+      },
+      {
+        x: 788.6666666666666,
+        y: 676
+      },
+      {
+        x: 805,
         y: 676
       },
       {
         x: 810,
-        y: 676
+        y: 671
       }
     ]
   };
@@ -12240,16 +13665,1709 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       }
       if (Object.hasOwn(ram_routes_default, wire.id)) {
         wire.bends = structuredClone(ram_routes_default[wire.id]);
+        wire.angle = 45;
       }
     }
     return project;
   }
+
+  // src/experiments/timing-wires.json
+  var timing_wires_default = [
+    {
+      id: "W1",
+      from: "R:VCC:59",
+      to: "B2:D:12",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 1242,
+          y: 676.00000027
+        },
+        {
+          x: 1224,
+          y: 658.00000027
+        },
+        {
+          x: 288.99999991,
+          y: 658.00000027
+        },
+        {
+          x: 288,
+          y: 659.00000018
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W2",
+      from: "R:GND:59",
+      to: "B2:G:19",
+      color: "#46515f",
+      bends: [
+        {
+          x: 1210,
+          y: 756.5999997480001
+        },
+        {
+          x: 1192,
+          y: 738.5999997480001
+        },
+        {
+          x: 414.800000084,
+          y: 738.5999997480001
+        },
+        {
+          x: 414,
+          y: 739.399999832
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W3",
+      from: "B2:C:12",
+      to: "B1:D:12",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 278.6666666666667,
+          y: 646
+        },
+        {
+          x: 274,
+          y: 641.3333333333334
+        },
+        {
+          x: 274,
+          y: 415.6666666666667
+        },
+        {
+          x: 278.6666666666667,
+          y: 411
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W4",
+      from: "B2:H:19",
+      to: "B1:G:19",
+      color: "#46515f",
+      bends: [
+        {
+          x: 414,
+          y: 755.1999998320001
+        },
+        {
+          x: 414.40000008399994,
+          y: 754.7999997480001
+        },
+        {
+          x: 427.3333332933334,
+          y: 754.7999997480001
+        },
+        {
+          x: 433.99999994000007,
+          y: 748.1333331013334
+        },
+        {
+          x: 433.99999994000007,
+          y: 486.95238093238095
+        },
+        {
+          x: 427.3333332933334,
+          y: 480.2857142857143
+        },
+        {
+          x: 417.57142857142856,
+          y: 480.2857142857143
+        },
+        {
+          x: 414,
+          y: 483.85714285714283
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W5",
+      from: "B1:C:12",
+      to: "B2:D:40",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 288,
+          y: 390.2222222222222
+        },
+        {
+          x: 290.8888888888889,
+          y: 387.33333333333326
+        },
+        {
+          x: 761.20000034,
+          y: 387.33333333333326
+        },
+        {
+          x: 779.20000034,
+          y: 405.33333333333326
+        },
+        {
+          x: 779.20000034,
+          y: 656.7333334466666
+        },
+        {
+          x: 783.4666668933334,
+          y: 661
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W6",
+      from: "B1:H:19",
+      to: "B2:G:47",
+      color: "#46515f",
+      bends: [
+        {
+          x: 414,
+          y: 510.85714285714295
+        },
+        {
+          x: 416.4285714285715,
+          y: 513.2857142857144
+        },
+        {
+          x: 590.25,
+          y: 513.2857142857144
+        },
+        {
+          x: 608.25,
+          y: 531.2857142857144
+        },
+        {
+          x: 608.25,
+          y: 708
+        },
+        {
+          x: 626.25,
+          y: 726
+        },
+        {
+          x: 913,
+          y: 726
+        },
+        {
+          x: 918,
+          y: 731
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W7",
+      from: "B2:C:40",
+      to: "B1:D:41",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 786.2666668933333,
+          y: 646
+        },
+        {
+          x: 783.4000003399999,
+          y: 643.1333334466666
+        },
+        {
+          x: 783.4000003399999,
+          y: 426.1999998866666
+        },
+        {
+          x: 792.2666668933333,
+          y: 417.33333333333326
+        },
+        {
+          x: 807.8888888888889,
+          y: 417.33333333333326
+        },
+        {
+          x: 810,
+          y: 415.2222222222222
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W8",
+      from: "B2:H:47",
+      to: "B1:G:47",
+      color: "#46515f",
+      bends: [
+        {
+          x: 918,
+          y: 759.5999998320001
+        },
+        {
+          x: 919.799999916,
+          y: 761.3999997480001
+        },
+        {
+          x: 931.33333308,
+          y: 761.3999997480001
+        },
+        {
+          x: 937.9999996199999,
+          y: 754.7333332080002
+        },
+        {
+          x: 937.9999996199999,
+          y: 497.66666654
+        },
+        {
+          x: 931.33333308,
+          y: 491
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W9",
+      from: "B1:C:41",
+      to: "B2:G:18",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 810,
+          y: 398.2222222222222
+        },
+        {
+          x: 808.8888888888889,
+          y: 399.33333333333326
+        },
+        {
+          x: 620.25,
+          y: 399.33333333333326
+        },
+        {
+          x: 602.25,
+          y: 417.33333333333326
+        },
+        {
+          x: 602.25,
+          y: 725.999999748
+        },
+        {
+          x: 584.25,
+          y: 743.999999748
+        },
+        {
+          x: 396.99999991600004,
+          y: 743.999999748
+        },
+        {
+          x: 396,
+          y: 742.9999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W10",
+      from: "B2:H:18",
+      to: "B2:D:18",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 396,
+          y: 751.5999998320001
+        },
+        {
+          x: 398.20000008399995,
+          y: 749.3999997480001
+        },
+        {
+          x: 417.3333333333333,
+          y: 749.3999997480001
+        },
+        {
+          x: 428,
+          y: 738.7333330813335
+        },
+        {
+          x: 428,
+          y: 674.6666669366666
+        },
+        {
+          x: 417.3333333333333,
+          y: 664.00000027
+        },
+        {
+          x: 397.00000009,
+          y: 664.00000027
+        },
+        {
+          x: 396,
+          y: 663.00000018
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W11",
+      from: "B2:C:18",
+      to: "B1:G:17",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 384,
+          y: 646
+        },
+        {
+          x: 378,
+          y: 640
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W12",
+      from: "B1:H:17",
+      to: "B2:D:46",
+      color: "#dc3545",
+      bends: [
+        {
+          x: 378,
+          y: 506.85714285714295
+        },
+        {
+          x: 378.42857142857144,
+          y: 507.2857142857144
+        },
+        {
+          x: 882,
+          y: 507.2857142857144
+        },
+        {
+          x: 900,
+          y: 525.2857142857144
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W13",
+      from: "B1:H:47",
+      to: "B1:D:42",
+      color: "#46515f",
+      bends: [
+        {
+          x: 935.33333308,
+          y: 506
+        },
+        {
+          x: 943.9999996199999,
+          y: 497.33333346
+        },
+        {
+          x: 943.9999996199999,
+          y: 417.33333333333326
+        },
+        {
+          x: 925.9999996199999,
+          y: 399.33333333333326
+        },
+        {
+          x: 831.8888888888889,
+          y: 399.33333333333326
+        },
+        {
+          x: 828,
+          y: 403.2222222222222
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W14",
+      from: "B1:C:42",
+      to: "B1:G:14",
+      color: "#46515f",
+      bends: [
+        {
+          x: 828,
+          y: 394.2222222222222
+        },
+        {
+          x: 827.1111111111111,
+          y: 393.33333333333326
+        },
+        {
+          x: 614.25,
+          y: 393.33333333333326
+        },
+        {
+          x: 596.25,
+          y: 411.33333333333326
+        },
+        {
+          x: 596.25,
+          y: 468.2857142857143
+        },
+        {
+          x: 578.25,
+          y: 486.2857142857143
+        },
+        {
+          x: 325.57142857142856,
+          y: 486.2857142857143
+        },
+        {
+          x: 324,
+          y: 487.85714285714283
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W15",
+      from: "B1:H:14",
+      to: "B1:G:15",
+      color: "#46515f",
+      bends: [
+        {
+          x: 324,
+          y: 508.85714285714283
+        },
+        {
+          x: 325.42857142857144,
+          y: 510.2857142857143
+        },
+        {
+          x: 336,
+          y: 510.2857142857143
+        },
+        {
+          x: 342,
+          y: 504.2857142857143
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W16",
+      from: "B1:H:15",
+      to: "B1:G:16",
+      color: "#46515f",
+      bends: [
+        {
+          x: 342,
+          y: 508.85714285714283
+        },
+        {
+          x: 343.42857142857144,
+          y: 510.2857142857143
+        },
+        {
+          x: 354,
+          y: 510.2857142857143
+        },
+        {
+          x: 360,
+          y: 504.2857142857143
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W17",
+      from: "B1:H:16",
+      to: "B2:G:14",
+      color: "#46515f",
+      bends: [
+        {
+          x: 360,
+          y: 504.85714285714283
+        },
+        {
+          x: 359.42857142857144,
+          y: 504.2857142857143
+        },
+        {
+          x: 286.00000006,
+          y: 504.2857142857143
+        },
+        {
+          x: 268.00000006,
+          y: 522.2857142857142
+        },
+        {
+          x: 268.00000006,
+          y: 723
+        },
+        {
+          x: 286.00000006,
+          y: 741
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W18",
+      from: "B2:H:14",
+      to: "B2:G:15",
+      color: "#46515f",
+      bends: [
+        {
+          x: 324,
+          y: 755.1999998320001
+        },
+        {
+          x: 324.40000008399994,
+          y: 754.7999997480001
+        },
+        {
+          x: 337.40000008399994,
+          y: 754.7999997480001
+        },
+        {
+          x: 342,
+          y: 750.1999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W19",
+      from: "B2:H:15",
+      to: "B2:G:16",
+      color: "#46515f",
+      bends: [
+        {
+          x: 342,
+          y: 755.1999998320001
+        },
+        {
+          x: 342.40000008399994,
+          y: 754.7999997480001
+        },
+        {
+          x: 355.40000008399994,
+          y: 754.7999997480001
+        },
+        {
+          x: 360,
+          y: 750.1999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W20",
+      from: "B2:H:16",
+      to: "B2:G:17",
+      color: "#46515f",
+      bends: [
+        {
+          x: 360,
+          y: 755.1999998320001
+        },
+        {
+          x: 360.40000008399994,
+          y: 754.7999997480001
+        },
+        {
+          x: 373.40000008399994,
+          y: 754.7999997480001
+        },
+        {
+          x: 378,
+          y: 750.1999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W21",
+      from: "B2:H:17",
+      to: "B2:G:41",
+      color: "#46515f",
+      bends: [
+        {
+          x: 378,
+          y: 765.9999998320001
+        },
+        {
+          x: 382.99999991600004,
+          y: 770.999999748
+        },
+        {
+          x: 800.000000084,
+          y: 770.999999748
+        },
+        {
+          x: 810,
+          y: 760.9999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W22",
+      from: "B3:J:55",
+      to: "B2:G:13",
+      color: "#d44f93",
+      bends: [
+        {
+          x: 1062,
+          y: 752.3999997480001
+        },
+        {
+          x: 1044,
+          y: 734.3999997480001
+        },
+        {
+          x: 308.20000008399995,
+          y: 734.3999997480001
+        },
+        {
+          x: 306,
+          y: 736.5999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W23",
+      from: "B2:H:13",
+      to: "B2:D:45",
+      color: "#d44f93",
+      bends: [
+        {
+          x: 306,
+          y: 758.799999832
+        },
+        {
+          x: 307.399999916,
+          y: 760.1999997480001
+        },
+        {
+          x: 596.25,
+          y: 760.1999997480001
+        },
+        {
+          x: 614.25,
+          y: 742.1999997480001
+        },
+        {
+          x: 614.25,
+          y: 688.00000027
+        },
+        {
+          x: 632.25,
+          y: 670.00000027
+        },
+        {
+          x: 878.99999991,
+          y: 670.00000027
+        },
+        {
+          x: 882,
+          y: 667.00000018
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W24",
+      from: "B2:D:16",
+      to: "B1:G:12",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 360,
+          y: 531.2857142857142
+        },
+        {
+          x: 342,
+          y: 513.2857142857142
+        },
+        {
+          x: 295.4285714285714,
+          y: 513.2857142857142
+        },
+        {
+          x: 288,
+          y: 505.85714285714283
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W25",
+      from: "B2:D:17",
+      to: "B1:G:13",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 376,
+          y: 661
+        },
+        {
+          x: 375,
+          y: 660
+        },
+        {
+          x: 375,
+          y: 510.2857142857143
+        },
+        {
+          x: 357,
+          y: 492.2857142857143
+        },
+        {
+          x: 306.42857142857144,
+          y: 492.2857142857143
+        },
+        {
+          x: 306,
+          y: 491.85714285714283
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W26",
+      from: "B3:J:41",
+      to: "B2:G:12",
+      color: "#8b55c5",
+      bends: [
+        {
+          x: 810,
+          y: 793.1999997480001
+        },
+        {
+          x: 792,
+          y: 775.1999997480001
+        },
+        {
+          x: 299.399999916,
+          y: 775.1999997480001
+        },
+        {
+          x: 288,
+          y: 763.799999832
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W27",
+      from: "B2:H:12",
+      to: "B2:G:40",
+      color: "#8b55c5",
+      bends: [
+        {
+          x: 288,
+          y: 762.399999832
+        },
+        {
+          x: 291.199999916,
+          y: 765.5999997480001
+        },
+        {
+          x: 783.800000084,
+          y: 765.5999997480001
+        },
+        {
+          x: 792,
+          y: 757.399999832
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W28",
+      from: "B3:J:39",
+      to: "B2:D:47",
+      color: "#8b55c5",
+      bends: [
+        {
+          x: 774,
+          y: 682.00000027
+        },
+        {
+          x: 792,
+          y: 664.00000027
+        },
+        {
+          x: 916.99999991,
+          y: 664.00000027
+        },
+        {
+          x: 918,
+          y: 663.00000018
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W29",
+      from: "B2:C:47",
+      to: "B1:G:41",
+      color: "#8b55c5",
+      bends: [
+        {
+          x: 918,
+          y: 501.2857142857144
+        },
+        {
+          x: 900,
+          y: 483.2857142857144
+        },
+        {
+          x: 812.5714285714286,
+          y: 483.2857142857144
+        },
+        {
+          x: 810,
+          y: 485.85714285714295
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W30",
+      from: "B1:G:42",
+      to: "B2:D:19",
+      color: "#8b55c5",
+      bends: [
+        {
+          x: 828,
+          y: 634.00000027
+        },
+        {
+          x: 810,
+          y: 652.00000027
+        },
+        {
+          x: 416.99999991,
+          y: 652.00000027
+        },
+        {
+          x: 414,
+          y: 655.00000018
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W31",
+      from: "B2:D:41",
+      to: "B2:G:46",
+      color: "#1976d2",
+      bends: [
+        {
+          x: 810,
+          y: 671
+        },
+        {
+          x: 815,
+          y: 676
+        },
+        {
+          x: 932,
+          y: 676
+        },
+        {
+          x: 932,
+          y: 744.7333330813335
+        },
+        {
+          x: 921.3333333333334,
+          y: 755.3999997480001
+        },
+        {
+          x: 904.799999916,
+          y: 755.3999997480001
+        },
+        {
+          x: 900,
+          y: 750.5999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W32",
+      from: "B3:J:49",
+      to: "B2:G:45",
+      color: "#16845b",
+      bends: [
+        {
+          x: 954,
+          y: 769.1999997480001
+        },
+        {
+          x: 936,
+          y: 751.1999997480001
+        },
+        {
+          x: 885.3999999160001,
+          y: 751.1999997480001
+        },
+        {
+          x: 882,
+          y: 747.799999832
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W33",
+      from: "B2:D:44",
+      to: "B0:A:49",
+      color: "#1976d2",
+      bends: [
+        {
+          x: 864,
+          y: 655.00000018
+        },
+        {
+          x: 866.99999991,
+          y: 652.00000027
+        },
+        {
+          x: 936,
+          y: 652.00000027
+        },
+        {
+          x: 954,
+          y: 634.00000027
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W34",
+      from: "B1:D:13",
+      to: "B1:G:43",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 306,
+          y: 415.2222222222222
+        },
+        {
+          x: 308.1111111111111,
+          y: 417.33333333333326
+        },
+        {
+          x: 597,
+          y: 417.33333333333326
+        },
+        {
+          x: 615,
+          y: 435.33333333333326
+        },
+        {
+          x: 615,
+          y: 483.2857142857144
+        },
+        {
+          x: 633,
+          y: 501.2857142857144
+        },
+        {
+          x: 842.5714285714286,
+          y: 501.2857142857144
+        },
+        {
+          x: 846,
+          y: 497.85714285714295
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W35",
+      from: "B1:G:44",
+      to: "B0:A:41",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 864,
+          y: 481.85714285714295
+        },
+        {
+          x: 859.4285714285714,
+          y: 477.2857142857144
+        },
+        {
+          x: 796,
+          y: 477.2857142857144
+        },
+        {
+          x: 796,
+          y: 126.66666666666667
+        },
+        {
+          x: 800.6666666666666,
+          y: 122
+        },
+        {
+          x: 808,
+          y: 122
+        },
+        {
+          x: 810,
+          y: 120
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W36",
+      from: "B3:J:47",
+      to: "B2:G:44",
+      color: "#16845b",
+      bends: [
+        {
+          x: 918,
+          y: 764.999999748
+        },
+        {
+          x: 900,
+          y: 746.999999748
+        },
+        {
+          x: 865.999999916,
+          y: 746.999999748
+        },
+        {
+          x: 864,
+          y: 744.9999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W37",
+      from: "B2:D:43",
+      to: "B0:A:47",
+      color: "#1976d2",
+      bends: [
+        {
+          x: 846,
+          y: 651.00000018
+        },
+        {
+          x: 850.99999991,
+          y: 646.00000027
+        },
+        {
+          x: 931.9999996199999,
+          y: 646.00000027
+        },
+        {
+          x: 949.9999996199999,
+          y: 628.00000027
+        },
+        {
+          x: 949.9999996199999,
+          y: 126.66666653999998
+        },
+        {
+          x: 939.33333308,
+          y: 116
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W38",
+      from: "B1:D:14",
+      to: "B1:G:45",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 324,
+          y: 419.2222222222222
+        },
+        {
+          x: 328.1111111111111,
+          y: 423.33333333333326
+        },
+        {
+          x: 591,
+          y: 423.33333333333326
+        },
+        {
+          x: 609,
+          y: 441.33333333333326
+        },
+        {
+          x: 609,
+          y: 477.2857142857144
+        },
+        {
+          x: 627,
+          y: 495.2857142857144
+        },
+        {
+          x: 880.5714285714286,
+          y: 495.2857142857144
+        },
+        {
+          x: 882,
+          y: 493.85714285714295
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W39",
+      from: "B1:G:46",
+      to: "B0:A:39",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 900,
+          y: 489.85714285714295
+        },
+        {
+          x: 899.4285714285714,
+          y: 489.2857142857144
+        },
+        {
+          x: 792,
+          y: 489.2857142857144
+        },
+        {
+          x: 774,
+          y: 471.2857142857144
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W40",
+      from: "B3:J:45",
+      to: "B2:G:43",
+      color: "#16845b",
+      bends: [
+        {
+          x: 882,
+          y: 754.7999997480001
+        },
+        {
+          x: 870,
+          y: 742.7999997480001
+        },
+        {
+          x: 846.599999916,
+          y: 742.7999997480001
+        },
+        {
+          x: 846,
+          y: 742.1999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W41",
+      from: "B2:D:42",
+      to: "B0:A:45",
+      color: "#1976d2",
+      bends: [
+        {
+          x: 828,
+          y: 651.00000018
+        },
+        {
+          x: 823.00000009,
+          y: 646.00000027
+        },
+        {
+          x: 801.0666668933333,
+          y: 646.00000027
+        },
+        {
+          x: 787.60000034,
+          y: 632.5333337166667
+        },
+        {
+          x: 787.60000034,
+          y: 134
+        },
+        {
+          x: 805.60000034,
+          y: 116
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W42",
+      from: "B1:D:15",
+      to: "B1:D:46",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 342,
+          y: 407.2222222222222
+        },
+        {
+          x: 343.8888888888889,
+          y: 405.33333333333326
+        },
+        {
+          x: 898.1111111111111,
+          y: 405.33333333333326
+        },
+        {
+          x: 900,
+          y: 407.2222222222222
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W43",
+      from: "B1:D:47",
+      to: "B0:A:37",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 918,
+          y: 128
+        },
+        {
+          x: 900,
+          y: 110
+        },
+        {
+          x: 740,
+          y: 110
+        },
+        {
+          x: 738,
+          y: 112
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W44",
+      from: "B3:J:43",
+      to: "B2:G:42",
+      color: "#16845b",
+      bends: [
+        {
+          x: 846,
+          y: 748.7999997480001
+        },
+        {
+          x: 840,
+          y: 742.7999997480001
+        },
+        {
+          x: 828.599999916,
+          y: 742.7999997480001
+        },
+        {
+          x: 828,
+          y: 742.1999998320001
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W45",
+      from: "B2:C:41",
+      to: "B0:A:43",
+      color: "#1976d2",
+      bends: [
+        {
+          x: 810,
+          y: 642.00000018
+        },
+        {
+          x: 808.00000009,
+          y: 640.00000027
+        },
+        {
+          x: 797.8666668933333,
+          y: 640.00000027
+        },
+        {
+          x: 791.80000034,
+          y: 633.9333337166667
+        },
+        {
+          x: 791.80000034,
+          y: 146
+        },
+        {
+          x: 809.80000034,
+          y: 128
+        },
+        {
+          x: 842,
+          y: 128
+        },
+        {
+          x: 846,
+          y: 124
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W46",
+      from: "B1:D:16",
+      to: "B1:D:44",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 360,
+          y: 411.2222222222222
+        },
+        {
+          x: 360.1111111111111,
+          y: 411.33333333333326
+        },
+        {
+          x: 863.8888888888889,
+          y: 411.33333333333326
+        },
+        {
+          x: 864,
+          y: 411.2222222222222
+        }
+      ],
+      angle: 45
+    },
+    {
+      id: "W47",
+      from: "B1:D:45",
+      to: "B0:A:35",
+      color: "#0d939d",
+      bends: [
+        {
+          x: 882,
+          y: 122
+        },
+        {
+          x: 864,
+          y: 104
+        },
+        {
+          x: 706,
+          y: 104
+        },
+        {
+          x: 702,
+          y: 108
+        }
+      ],
+      angle: 45
+    }
+  ];
+
+  // src/experiments/timing-preset.mjs
+  var TIMING_EXPERIMENT_ID = "timing-system-example";
+  var TIMING_EXPERIMENT_NAME = "\u5B9E\u9A8C\u56DB \u65F6\u5E8F\u7CFB\u7EDF";
+  var TIMING_CHIPS = [
+    { id: "U1", model: "74LS161", section: 2, column: 12 },
+    { id: "U2", model: "74LS138", section: 1, column: 12 },
+    { id: "U3", model: "74LS194", section: 2, column: 40 },
+    { id: "U4", model: "74LS04", section: 1, column: 41 }
+  ];
+  var PORTS = { load: 5, inputs: 6, outputs: 8 };
+  var TIMING_NOTES = `# \u5B9E\u9A8C\u56DB \u65F6\u5E8F\u7CFB\u7EDF
+
+## \u7AEF\u53E3\u5206\u914D
+
+| \u7AEF\u53E3 | \u7528\u9014 |
+| --- | --- |
+| K3\uFF5EK0 | \u5E76\u884C\u8F93\u5165 A\u3001B\u3001C\u3001D\uFF0C\u542F\u52A8\u65F6\u8BBE\u4E3A 0001 |
+| K4 | 0 \u6E05\u96F6\uFF0C1 \u89E3\u9664\u6E05\u96F6 |
+| K5 | 1 \u5E76\u884C\u88C5\u8F7D\uFF0C0 \u5FAA\u73AF\u5DE6\u79FB |
+| P+ | \u65F6\u949F\uFF0C\u6309\u4E00\u6B21\u63A8\u8FDB\u4E00\u6B65 |
+| L0\uFF5EL3 | \u8282\u62CD T0\uFF5ET3\uFF0C\u5BF9\u5E94 74LS194 \u7684 QD\u3001QC\u3001QB\u3001QA |
+| L4\uFF5EL7 | \u5DE5\u4F5C\u8109\u51B2 M0\uFF5EM3\uFF0C\u9AD8\u7535\u5E73\u65F6\u4EAE\u8D77 |
+
+## \u542F\u52A8\u4E0E\u89C2\u5BDF
+
+1. \u6253\u5F00\u7535\u6E90\uFF0C\u9009\u62E9\u5355\u8109\u51B2\u6A21\u5F0F\u3002\u628A K4 \u62E8\u5230 0\u3001K5 \u62E8\u5230 1\uFF0C\u518D\u5C06 K3\uFF5EK0 \u8BBE\u4E3A 0001\u3002\u6B64\u65F6\u8282\u62CD\u706F\u5168\u706D\uFF0C\u53EA\u6709 M0 \u4EAE\u8D77\u3002
+2. \u628A K4 \u62E8\u5230 1\uFF0C\u6309\u4E00\u6B21 P+\u3002\u5BC4\u5B58\u5668\u88C5\u5165\u4E86 0001\uFF0C\u6B64\u65F6 T0 \u548C M0 \u4E00\u8D77\u4EAE\u8D77\u3002
+3. \u628A K5 \u62E8\u5230 0\u3002\u5728\u300C\u65F6\u5E8F\u300D\u91CC\u6309\u987A\u5E8F\u9009\u4E2D L0\uFF5EL7\uFF0C\u70B9\u300C\u5F00\u59CB\u300D\uFF0C\u7136\u540E\u9010\u6B21\u6309 P+\u3002M0 \u4EAE\u7740\u65F6\uFF0C\u8282\u62CD\u706F\u4F1A\u4F9D\u6B21\u663E\u793A T0\uFF5ET3\u3002T3 \u4EAE\u8D77\u540E\uFF0C\u518D\u6309\u4E00\u6B21 P+\uFF0C\u5DE5\u4F5C\u8109\u51B2\u5207\u5230 M1\uFF0C\u8282\u62CD\u56DE\u5230 T0\u3002
+4. \u4ECE\u5F00\u59CB\u8BB0\u5F55\u7B97\u8D77\uFF0C\u6309 16 \u6B21 P+ \u540E\u56DE\u5230 T0\u3001M0\u3002\u91CD\u65B0\u6253\u5F00\u5B58\u6863\u6216\u65AD\u7535\u540E\uFF0C\u4ECE\u7B2C 1 \u6B65\u91CD\u65B0\u521D\u59CB\u5316\u3002
+
+74LS161 \u7684 Q2\u3001Q3 \u5206\u522B\u63A5\u5230 74LS138 \u7684\u5730\u5740\u4F4E\u4F4D\u548C\u9AD8\u4F4D\u3002\u8BD1\u7801\u8F93\u51FA\u53CD\u76F8\u540E\u5F97\u5230 M0\uFF5EM3\u300274LS194 \u4E0E\u8BA1\u6570\u5668\u5171\u7528 P+ \u65F6\u949F\uFF0CQA \u56DE\u63A5\u5230 SL\uFF0C\u4F7F\u9AD8\u7535\u5E73\u5728\u56DB\u4E2A\u8282\u62CD\u8F93\u51FA\u4E4B\u95F4\u5FAA\u73AF\u3002K5 \u4E5F\u7ECF\u8FC7\u53CD\u76F8\u540E\u63A5\u5230\u8BA1\u6570\u5668\u7684 LOAD \u7AEF\uFF0C\u88C5\u8F7D\u65F6\u8BA9\u8BA1\u6570\u5668\u548C\u5BC4\u5B58\u5668\u540C\u65F6\u56DE\u5230\u8D77\u59CB\u72B6\u6001\u3002
+`;
+  function timingPreset() {
+    const project = emptyProject();
+    project.name = TIMING_EXPERIMENT_NAME;
+    project.notes = TIMING_NOTES;
+    project.inputCount = PORTS.inputs;
+    project.outputCount = PORTS.outputs;
+    project.switches[0] = 1;
+    project.switches[PORTS.load] = 1;
+    project.chips = structuredClone(TIMING_CHIPS);
+    project.wires = structuredClone(timing_wires_default);
+    return project;
+  }
+
+  // src/experiments/released-wires.json
+  var released_wires_default = {
+    "complement-adder": {
+      wires: [
+        ["W1", "R:VCC:59", "B1:D:25", [{ x: 1242, y: 402.0000002219999 }, { x: 522, y: 402.0000002219999 }], "#dc3545"],
+        ["W2", "R:GND:59", "B1:G:34", [{ x: 1210, y: 496.9999999700001 }, { x: 684, y: 496.9999999700001 }], "#46515f"],
+        ["W3", "B1:C:25", "B2:D:15", [{ x: 522, y: 399.0000002219999 }, { x: 493.9999999967, y: 399.0000002219999 }, { x: 493.9999999967, y: 651.925 }, { x: 342, y: 651.925 }], "#dc3545"],
+        ["W4", "B1:H:34", "B2:G:22", [{ x: 686.0689655172414, y: 506 }, { x: 686.0689655172414, y: 726 }, { x: 468, y: 726 }], "#46515f"],
+        ["W5", "B2:C:15", "B2:D:38", [{ x: 342, y: 642.325 }, { x: 756, y: 642.325 }], "#dc3545"],
+        ["W6", "B2:H:22", "B2:G:45", [{ x: 468, y: 767.9999998200001 }, { x: 882, y: 767.9999998200001 }], "#46515f"],
+        ["W7", "B2:C:38", "B1:D:10", [{ x: 756, y: 408.0000002219999 }, { x: 252, y: 408.0000002219999 }], "#dc3545"],
+        ["W8", "B2:H:45", "B1:G:16", [{ x: 882, y: 761.9999998200001 }, { x: 674.0689655172414, y: 761.9999998200001 }, { x: 674.0689655172414, y: 496.9999999700001 }, { x: 360, y: 496.9999999700001 }], "#46515f"],
+        ["W9", "B1:C:10", "B1:D:44", [{ x: 252, y: 390.0000002219999 }, { x: 864, y: 390.0000002219999 }], "#dc3545"],
+        ["W10", "B1:H:16", "B1:G:50", [{ x: 360, y: 514.9999999700001 }, { x: 972, y: 514.9999999700001 }], "#46515f"],
+        ["W11", "B1:H:50", "B1:D:28", [{ x: 972, y: 511.9999999700001 }, { x: 735.5260663507107, y: 511.9999999700001 }, { x: 735.5260663507107, y: 411.0000002219999 }, { x: 576, y: 411.0000002219999 }], "#46515f"],
+        ["W12", "B1:C:28", "B1:D:27", [{ x: 576, y: 399.0000002219999 }, { x: 558, y: 399.0000002219999 }], "#46515f"],
+        ["W13", "B1:C:27", "B2:D:40", [{ x: 558, y: 393.0000002219999 }, { x: 789, y: 393.0000002219999 }, { x: 789, y: 661 }], "#46515f"],
+        ["W14", "B2:C:40", "B2:D:39", [{ x: 795, y: 646 }, { x: 795, y: 661 }], "#46515f"],
+        ["W15", "B2:C:39", "B2:D:42", [{ x: 828, y: 646 }], "#46515f"],
+        ["W16", "B2:C:42", "B2:D:43", [{ x: 846, y: 646 }], "#46515f"],
+        ["W17", "B2:C:43", "B1:D:49", [{ x: 849, y: 646 }, { x: 849, y: 411.0000002219999 }, { x: 954, y: 411.0000002219999 }], "#46515f"],
+        ["W18", "B1:C:49", "B1:D:48", [{ x: 954, y: 399.0000002219999 }, { x: 936, y: 399.0000002219999 }], "#46515f"],
+        ["W19", "B1:C:48", "B1:D:46", [{ x: 936, y: 399.0000002219999 }, { x: 900, y: 399.0000002219999 }], "#46515f"],
+        ["W20", "B1:C:46", "B1:D:45", [{ x: 900, y: 399.0000002219999 }, { x: 882, y: 399.0000002219999 }], "#46515f"],
+        ["W21", "B3:J:49", "B1:G:10", [{ x: 954, y: 487.9999999700001 }, { x: 252, y: 487.9999999700001 }], "#16845b"],
+        ["W22", "B1:G:12", "B2:G:20", [{ x: 288, y: 755.9999997600002 }, { x: 432, y: 755.9999997600002 }], "#16845b"],
+        ["W23", "B3:J:47", "B1:G:13", [{ x: 918, y: 490.9999999700001 }, { x: 306, y: 490.9999999700001 }], "#16845b"],
+        ["W24", "B1:G:15", "B2:G:16", [{ x: 342, y: 493.9999999700001 }, { x: 328, y: 493.9999999700001 }, { x: 328, y: 749.9999997600002 }, { x: 360, y: 749.9999997600002 }], "#16845b"],
+        ["W25", "B3:J:45", "B1:D:15", [{ x: 882, y: 1028.5 }, { x: 487.9999999967, y: 1028.5 }, { x: 487.9999999967, y: 417.0000002219999 }, { x: 342, y: 417.0000002219999 }], "#16845b"],
+        ["W26", "B1:D:16", "B2:D:16", [{ x: 360, y: 426 }, { x: 379.99999994000007, y: 426 }, { x: 379.99999994000007, y: 647.125 }, { x: 360, y: 647.125 }], "#16845b"],
+        ["W27", "B3:J:43", "B1:D:12", [{ x: 846, y: 1034.5 }, { x: 482, y: 1034.5 }, { x: 482, y: 414.0000002219999 }, { x: 288, y: 414.0000002219999 }], "#16845b"],
+        ["W28", "B1:D:13", "B2:D:20", [{ x: 306, y: 420.0000002219999 }, { x: 432, y: 420.0000002219999 }], "#16845b"],
+        ["W29", "B3:J:41", "B1:G:44", [{ x: 810, y: 1040.5 }, { x: 896, y: 1040.5 }, { x: 896, y: 499.9999999700001 }, { x: 864, y: 499.9999999700001 }], "#16845b"],
+        ["W30", "B3:J:39", "B1:G:11", [{ x: 774, y: 1040.5 }, { x: 270, y: 1040.5 }], "#8b55c5"],
+        ["W31", "B1:H:11", "B1:G:14", [{ x: 322.00000002, y: 506 }, { x: 322.00000002, y: 491 }], "#8b55c5"],
+        ["W32", "B1:H:14", "B1:D:14", [{ x: 374, y: 506 }, { x: 374, y: 423.0000002219999 }, { x: 324, y: 423.0000002219999 }], "#8b55c5"],
+        ["W33", "B1:C:14", "B1:D:11", [{ x: 324, y: 411.0000002219999 }, { x: 270, y: 411.0000002219999 }], "#8b55c5"],
+        ["W34", "B1:C:11", "B1:G:45", [{ x: 270, y: 396.0000002219999 }, { x: 699.5260663507107, y: 396.0000002219999 }, { x: 699.5260663507107, y: 484.9999999700001 }, { x: 882, y: 484.9999999700001 }], "#8b55c5"],
+        ["W35", "B1:H:45", "B2:G:21", [{ x: 882, y: 517.9999999700001 }, { x: 668.0689655172414, y: 517.9999999700001 }, { x: 668.0689655172414, y: 755.9999997600002 }, { x: 450, y: 755.9999997600002 }], "#8b55c5"],
+        ["W36", "B1:G:46", "B2:G:43", [{ x: 901.9999999800001, y: 491 }, { x: 901.9999999800001, y: 741 }], "#16845b"],
+        ["W37", "B2:H:43", "B2:G:39", [{ x: 846, y: 755.9999998200001 }, { x: 774, y: 755.9999998200001 }], "#16845b"],
+        ["W38", "B2:D:22", "B2:G:44", [{ x: 468, y: 675.925 }, { x: 680.0689655172414, y: 675.925 }, { x: 680.0689655172414, y: 749.9999998200001 }, { x: 864, y: 749.9999998200001 }], "#8b55c5"],
+        ["W39", "B2:G:18", "B1:G:27", [{ x: 396, y: 737.9999997600002 }, { x: 558, y: 737.9999997600002 }], "#1976d2"],
+        ["W40", "B2:G:15", "B1:G:28", [{ x: 342, y: 743.9999997600002 }, { x: 576, y: 743.9999997600002 }], "#1976d2"],
+        ["W41", "B2:D:18", "B1:G:31", [{ x: 396, y: 661.525 }, { x: 630, y: 661.525 }], "#1976d2"],
+        ["W42", "B2:D:21", "B1:G:32", [{ x: 450, y: 671.125 }, { x: 648, y: 671.125 }], "#1976d2"],
+        ["W43", "B2:G:41", "B1:D:32", [{ x: 810, y: 731.9999998200001 }, { x: 731.9260663507108, y: 731.9999998200001 }, { x: 731.9260663507108, y: 414.0000002219999 }, { x: 648, y: 414.0000002219999 }], "#1976d2"],
+        ["W44", "B2:G:38", "B1:D:31", [{ x: 756, y: 743.9999998200001 }, { x: 724.7260663507108, y: 743.9999998200001 }, { x: 724.7260663507108, y: 420.0000002219999 }, { x: 630, y: 420.0000002219999 }], "#1976d2"],
+        ["W45", "B1:G:26", "B2:G:19", [{ x: 540, y: 731.9999997600002 }, { x: 414, y: 731.9999997600002 }], "#d68a0b"],
+        ["W46", "B1:G:29", "B2:G:17", [{ x: 594, y: 749.9999997600002 }, { x: 378, y: 749.9999997600002 }], "#d68a0b"],
+        ["W47", "B1:G:30", "B2:D:17", [{ x: 612, y: 656.725 }, { x: 378, y: 656.725 }], "#d68a0b"],
+        ["W48", "B1:G:33", "B2:D:19", [{ x: 662.0689655172414, y: 491 }, { x: 662.0689655172414, y: 666.325 }, { x: 414, y: 666.325 }], "#d68a0b"],
+        ["W49", "B1:D:33", "B2:G:42", [{ x: 666, y: 417.0000002219999 }, { x: 728.3260663507108, y: 417.0000002219999 }, { x: 728.3260663507108, y: 726 }, { x: 828, y: 726 }], "#d68a0b"],
+        ["W50", "B1:D:30", "B2:G:40", [{ x: 612, y: 423.0000002219999 }, { x: 721.1260663507107, y: 423.0000002219999 }, { x: 721.1260663507107, y: 737.9999998200001 }, { x: 792, y: 737.9999998200001 }], "#d68a0b"],
+        ["W51", "B1:H:26", "B0:A:49", [{ x: 540, y: 499.9999999700001 }, { x: 703.1260663507107, y: 499.9999999700001 }, { x: 703.1260663507107, y: 110 }, { x: 954, y: 110 }], "#0d939d"],
+        ["W52", "B1:H:29", "B0:A:47", [{ x: 594, y: 502.9999999700001 }, { x: 706.7260663507108, y: 502.9999999700001 }, { x: 706.7260663507108, y: 116 }], "#0d939d"],
+        ["W53", "B1:H:30", "B0:A:45", [{ x: 612, y: 505.9999999700001 }, { x: 710.3260663507108, y: 505.9999999700001 }, { x: 710.3260663507108, y: 122 }, { x: 882, y: 122 }], "#0d939d"],
+        ["W54", "B1:H:33", "B0:A:43", [{ x: 666, y: 508.9999999700001 }, { x: 843, y: 508.9999999700001 }, { x: 843, y: 116 }], "#0d939d"],
+        ["W55", "B1:C:33", "B0:A:41", [{ x: 666, y: 387.0000002219999 }, { x: 810, y: 387.0000002219999 }], "#0d939d"],
+        ["W56", "B1:C:30", "B0:A:39", [{ x: 612, y: 384.0000002219999 }, { x: 774, y: 384.0000002219999 }], "#0d939d"],
+        ["W57", "B1:B:33", "B1:G:47", [{ x: 666, y: 376.80000022199994 }, { x: 717.5260663507107, y: 376.80000022199994 }, { x: 717.5260663507107, y: 481.9999999700001 }, { x: 918, y: 481.9999999700001 }], "#e26c2b"],
+        ["W58", "B1:B:30", "B1:G:48", [{ x: 612, y: 381.0000002219999 }, { x: 713.9260663507108, y: 381.0000002219999 }, { x: 713.9260663507108, y: 478.9999999700001 }, { x: 936, y: 478.9999999700001 }], "#e26c2b"],
+        ["W59", "B1:G:49", "B0:A:37", [{ x: 954, y: 476 }, { x: 740.9260663507108, y: 476 }, { x: 740.9260663507108, y: 116 }], "#e26c2b"],
+        ["W60", "B3:J:37", "B1:G:25", [{ x: 739.1260663507107, y: 1036 }, { x: 739.1260663507107, y: 493.9999999700001 }, { x: 522, y: 493.9999999700001 }], "#d44f93"],
+        ["W61", "B3:J:57", "B1:D:34", [{ x: 1098, y: 405.0000002219999 }, { x: 684, y: 405.0000002219999 }], "#d44f93"]
+      ]
+    },
+    "ram-expansion": {
+      wires: [
+        ["W1", "R:VCC:59", "B1:D:10", [{ x: 1242, y: 405.3599999999995 }, { x: 252, y: 405.3599999999995 }], "#dc3545"],
+        ["W2", "R:GND:59", "B1:G:21", [{ x: 1210, y: 495.28571428571416 }, { x: 450, y: 495.28571428571416 }], "#46515f"],
+        ["W3", "B1:C:10", "B1:D:39", [{ x: 252, y: 396.3599999999995 }, { x: 774, y: 396.3599999999995 }], "#dc3545"],
+        ["W4", "B1:H:21", "B1:G:50", [{ x: 450, y: 514.4857142857142 }, { x: 972, y: 514.4857142857142 }], "#46515f"],
+        ["W5", "B1:C:39", "B2:D:40", [{ x: 774, y: 402.3599999999995 }, { x: 748.0000001799999, y: 402.3599999999995 }, { x: 748.0000001799999, y: 646.00000015 }, { x: 792, y: 646.00000015 }], "#dc3545"],
+        ["W6", "B1:H:50", "B2:G:49", [{ x: 973.9999999800001, y: 506 }, { x: 973.9999999800001, y: 726 }, { x: 954, y: 726 }], "#46515f"],
+        ["W7", "B2:C:40", "B2:D:12", [{ x: 792, y: 652.00000015 }, { x: 288, y: 652.00000015 }], "#dc3545"],
+        ["W8", "B2:H:49", "B2:G:19", [{ x: 951, y: 756 }, { x: 951, y: 743.9999998499999 }, { x: 414, y: 743.9999998499999 }], "#46515f"],
+        ["W9", "B2:H:19", "B1:G:13", [{ x: 414, y: 757.1999998499999 }, { x: 428, y: 757.1999998499999 }, { x: 428, y: 495.28571428571416 }, { x: 306, y: 495.28571428571416 }], "#46515f"],
+        ["W10", "B1:H:13", "B1:G:12", [{ x: 306, y: 491 }], "#46515f"],
+        ["W11", "B1:H:12", "B1:G:11", [{ x: 288, y: 491 }], "#46515f"],
+        ["W12", "B1:H:11", "B1:G:10", [{ x: 270, y: 491 }], "#46515f"],
+        ["W13", "B1:H:10", "B1:D:11", [{ x: 238, y: 506 }, { x: 238, y: 417.3599999999995 }, { x: 270, y: 417.3599999999995 }], "#46515f"],
+        ["W14", "B1:C:11", "B1:D:12", [{ x: 270, y: 399.3599999999995 }, { x: 288, y: 399.3599999999995 }], "#46515f"],
+        ["W15", "B1:C:12", "B1:D:15", [{ x: 288, y: 399.3599999999995 }, { x: 342, y: 399.3599999999995 }], "#46515f"],
+        ["W16", "B1:C:15", "B1:G:42", [{ x: 342, y: 399.3599999999995 }, { x: 594.1698113207547, y: 399.3599999999995 }, { x: 594.1698113207547, y: 480.8857142857142 }, { x: 828, y: 480.8857142857142 }], "#46515f"],
+        ["W17", "B1:H:42", "B1:G:41", [{ x: 828, y: 500.0857142857142 }, { x: 810, y: 500.0857142857142 }], "#46515f"],
+        ["W18", "B1:H:41", "B1:G:40", [{ x: 810, y: 500.0857142857142 }, { x: 792, y: 500.0857142857142 }], "#46515f"],
+        ["W19", "B1:H:40", "B1:G:39", [{ x: 792, y: 500.0857142857142 }, { x: 774, y: 500.0857142857142 }], "#46515f"],
+        ["W20", "B1:H:39", "B1:D:40", [{ x: 760, y: 506 }, { x: 760, y: 414.3599999999995 }, { x: 792, y: 414.3599999999995 }], "#46515f"],
+        ["W21", "B1:C:40", "B1:D:41", [{ x: 792, y: 402.3599999999995 }, { x: 810, y: 402.3599999999995 }], "#46515f"],
+        ["W22", "B1:C:41", "B1:D:44", [{ x: 810, y: 402.3599999999995 }, { x: 864, y: 402.3599999999995 }], "#46515f"],
+        ["W23", "B1:C:44", "B2:G:13", [{ x: 864, y: 399.3599999999995 }, { x: 618.1698113207547, y: 399.3599999999995 }, { x: 618.1698113207547, y: 751.1999998499999 }, { x: 306, y: 751.1999998499999 }], "#46515f"],
+        ["W24", "B2:H:13", "B2:G:14", [{ x: 306, y: 760.79999985 }, { x: 324, y: 760.79999985 }], "#46515f"],
+        ["W25", "B2:H:14", "B2:G:15", [{ x: 324, y: 760.79999985 }, { x: 342, y: 760.79999985 }], "#46515f"],
+        ["W26", "B2:H:15", "B2:G:16", [{ x: 342, y: 760.79999985 }, { x: 360, y: 760.79999985 }], "#46515f"],
+        ["W27", "B2:C:12", "B2:G:17", [{ x: 274, y: 646 }, { x: 274, y: 754.79999985 }, { x: 378, y: 754.79999985 }], "#dc3545"],
+        ["W28", "B3:J:33", "B1:G:17", [{ x: 666, y: 490.48571428571415 }, { x: 378, y: 490.48571428571415 }], "#d68a0b"],
+        ["W29", "B1:J:17", "B1:J:46", [{ x: 378, y: 545 }, { x: 900, y: 545 }], "#d68a0b"],
+        ["W30", "B3:J:31", "B1:G:16", [{ x: 630.1698113207547, y: 1036 }, { x: 630.1698113207547, y: 485.6857142857142 }, { x: 360, y: 485.6857142857142 }], "#d68a0b"],
+        ["W31", "B1:J:16", "B1:J:45", [{ x: 360, y: 554 }, { x: 882, y: 554 }], "#d68a0b"],
+        ["W32", "B3:J:29", "B1:G:15", [{ x: 594, y: 480.8857142857142 }, { x: 342, y: 480.8857142857142 }], "#d68a0b"],
+        ["W33", "B1:J:15", "B1:J:44", [{ x: 342, y: 563 }, { x: 864, y: 563 }], "#d68a0b"],
+        ["W34", "B3:J:27", "B1:G:14", [{ x: 558, y: 476.0857142857142 }, { x: 324, y: 476.0857142857142 }], "#d68a0b"],
+        ["W35", "B1:J:14", "B1:J:43", [{ x: 324, y: 572 }, { x: 846, y: 572 }], "#d68a0b"],
+        ["W36", "B3:J:25", "B2:G:12", [{ x: 522, y: 747.5999998499999 }, { x: 288, y: 747.5999998499999 }], "#d68a0b"],
+        ["W37", "B2:D:13", "B1:D:16", [{ x: 232.00000006, y: 661 }, { x: 232.00000006, y: 414.3599999999995 }, { x: 360, y: 414.3599999999995 }], "#0d939d"],
+        ["W38", "B2:D:14", "B1:D:45", [{ x: 324, y: 646.00000015 }, { x: 624.1698113207547, y: 646.00000015 }, { x: 624.1698113207547, y: 411.3599999999995 }, { x: 882, y: 411.3599999999995 }], "#0d939d"],
+        ["W39", "B3:J:49", "B2:G:41", [{ x: 957, y: 1036 }, { x: 957, y: 740.39999985 }, { x: 810, y: 740.39999985 }], "#16845b"],
+        ["W40", "B2:D:42", "B1:G:47", [{ x: 828, y: 649 }, { x: 918, y: 649 }], "#1976d2"],
+        ["W41", "B1:J:47", "B1:J:18", [{ x: 918, y: 581 }, { x: 396, y: 581 }], "#1976d2"],
+        ["W42", "B1:H:18", "B0:A:49", [{ x: 396, y: 500.0857142857142 }, { x: 600.1698113207547, y: 500.0857142857142 }, { x: 600.1698113207547, y: 110 }, { x: 954, y: 110 }], "#1976d2"],
+        ["W43", "B3:J:47", "B2:G:43", [{ x: 915, y: 1036 }, { x: 915, y: 749.9999998499999 }, { x: 846, y: 749.9999998499999 }], "#16845b"],
+        ["W44", "B2:D:44", "B1:G:48", [{ x: 864, y: 655 }, { x: 936, y: 655 }], "#1976d2"],
+        ["W45", "B1:J:48", "B1:J:19", [{ x: 936, y: 590 }, { x: 414, y: 590 }], "#1976d2"],
+        ["W46", "B1:H:19", "B0:A:47", [{ x: 414, y: 504.8857142857142 }, { x: 606.1698113207547, y: 504.8857142857142 }, { x: 606.1698113207547, y: 116 }], "#1976d2"],
+        ["W47", "B3:J:45", "B2:G:45", [{ x: 882, y: 888.5 }], "#16845b"],
+        ["W48", "B2:D:46", "B1:G:49", [{ x: 954, y: 661 }], "#1976d2"],
+        ["W49", "B1:J:49", "B1:J:20", [{ x: 954, y: 599 }, { x: 432, y: 599 }], "#1976d2"],
+        ["W50", "B1:H:20", "B0:A:45", [{ x: 432, y: 509.6857142857142 }, { x: 612.1698113207547, y: 509.6857142857142 }, { x: 612.1698113207547, y: 122 }, { x: 882, y: 122 }], "#1976d2"],
+        ["W51", "B3:J:43", "B2:G:47", [{ x: 846, y: 1033.0000000000002 }, { x: 921, y: 1033.0000000000002 }, { x: 921, y: 741 }], "#16845b"],
+        ["W52", "B2:D:48", "B1:D:50", [{ x: 936, y: 667 }, { x: 1003.99999964, y: 667 }, { x: 1003.99999964, y: 417.3599999999995 }, { x: 972, y: 417.3599999999995 }], "#1976d2"],
+        ["W53", "B1:A:50", "B1:A:21", [{ x: 972, y: 357 }, { x: 450, y: 357 }], "#1976d2"],
+        ["W54", "B1:C:21", "B0:A:43", [{ x: 450, y: 393.3599999999995 }, { x: 846, y: 393.3599999999995 }], "#1976d2"],
+        ["W55", "B3:J:41", "B2:D:49", [{ x: 810, y: 1039.0000000000002 }, { x: 968, y: 1039.0000000000002 }, { x: 968, y: 673 }, { x: 954, y: 673 }], "#16845b"],
+        ["W56", "B2:G:48", "B1:D:49", [{ x: 936, y: 736.79999985 }, { x: 997.99999964, y: 736.79999985 }, { x: 997.99999964, y: 414.3599999999995 }, { x: 954, y: 414.3599999999995 }], "#1976d2"],
+        ["W57", "B1:A:49", "B1:A:20", [{ x: 954, y: 348 }, { x: 432, y: 348 }], "#1976d2"],
+        ["W58", "B1:C:20", "B0:A:41", [{ x: 432, y: 390.3599999999995 }, { x: 810, y: 390.3599999999995 }], "#1976d2"],
+        ["W59", "B3:J:39", "B2:D:47", [{ x: 772.0000000200001, y: 1036 }, { x: 772.0000000200001, y: 670.00000015 }, { x: 918, y: 670.00000015 }], "#16845b"],
+        ["W60", "B2:G:46", "B1:D:48", [{ x: 900, y: 733.1999998499999 }, { x: 991.99999964, y: 733.1999998499999 }, { x: 991.99999964, y: 411.3599999999995 }, { x: 936, y: 411.3599999999995 }], "#1976d2"],
+        ["W61", "B1:A:48", "B1:A:19", [{ x: 936, y: 339 }, { x: 414, y: 339 }], "#1976d2"],
+        ["W62", "B1:C:19", "B0:A:39", [{ x: 414, y: 387.3599999999995 }, { x: 774, y: 387.3599999999995 }], "#1976d2"],
+        ["W63", "B3:J:37", "B2:D:45", [{ x: 738, y: 664.00000015 }, { x: 882, y: 664.00000015 }], "#16845b"],
+        ["W64", "B2:G:44", "B1:D:47", [{ x: 864, y: 729.5999998499999 }, { x: 986, y: 729.5999998499999 }, { x: 986, y: 408.3599999999995 }, { x: 918, y: 408.3599999999995 }], "#1976d2"],
+        ["W65", "B1:A:47", "B1:A:18", [{ x: 918, y: 330 }, { x: 396, y: 330 }], "#1976d2"],
+        ["W66", "B1:C:18", "B0:A:37", [{ x: 396, y: 384.3599999999995 }, { x: 738, y: 384.3599999999995 }], "#1976d2"],
+        ["W67", "B3:J:35", "B2:D:43", [{ x: 702, y: 658.00000015 }, { x: 846, y: 658.00000015 }], "#16845b"],
+        ["W68", "B2:G:42", "B1:D:46", [{ x: 828, y: 736.79999985 }, { x: 754.0000001799999, y: 736.79999985 }, { x: 754.0000001799999, y: 408.3599999999995 }, { x: 900, y: 408.3599999999995 }], "#1976d2"],
+        ["W69", "B1:A:46", "B1:A:17", [{ x: 900, y: 321 }, { x: 378, y: 321 }], "#1976d2"],
+        ["W70", "B1:C:17", "B0:A:35", [{ x: 378, y: 381.3599999999995 }, { x: 702, y: 381.3599999999995 }], "#1976d2"],
+        ["W71", "B3:J:23", "B1:D:13", [{ x: 486, y: 408.3599999999995 }, { x: 306, y: 408.3599999999995 }], "#8b55c5"],
+        ["W72", "B1:A:13", "B1:A:42", [{ x: 306, y: 312 }, { x: 828, y: 312 }], "#8b55c5"],
+        ["W73", "B3:J:21", "B1:D:14", [{ x: 450, y: 1033.0000000000002 }, { x: 464, y: 1033.0000000000002 }, { x: 464, y: 411.3599999999995 }, { x: 324, y: 411.3599999999995 }], "#8b55c5"],
+        ["W74", "B1:A:14", "B1:A:43", [{ x: 324, y: 303 }, { x: 846, y: 303 }], "#8b55c5"],
+        ["W75", "B3:J:19", "B2:G:40", [{ x: 414, y: 1039.0000000000002 }, { x: 792, y: 1039.0000000000002 }], "#8b55c5"],
+        ["W76", "B2:H:40", "B2:D:41", [{ x: 778, y: 756 }, { x: 778, y: 676 }, { x: 810, y: 676 }], "#8b55c5"]
+      ]
+    },
+    "timing-system": {
+      notes: "# \u5B9E\u9A8C\u56DB \u65F6\u5E8F\u7CFB\u7EDF\n\n## \u7AEF\u53E3\u5206\u914D\n\n| \u7AEF\u53E3 | \u7528\u9014 |\n| --- | --- |\n| K3\uFF5EK0 | \u5E76\u884C\u8F93\u5165 A\u3001B\u3001C\u3001D\uFF0C\u9884\u7F6E 0001 |\n| K4 | 0 \u6E05\u96F6\u8BA1\u6570\u5668\u548C\u79FB\u4F4D\u5BC4\u5B58\u5668\uFF0C1 \u89E3\u9664\u6E05\u96F6 |\n| K5 | 1 \u5E76\u884C\u88C5\u8F7D\uFF0C0 \u5FAA\u73AF\u5DE6\u79FB |\n| P+ | \u8BA1\u6570\u65F6\u949F\uFF0C\u6309\u4E0B\u65F6\u8BA1\u6570\u4E00\u6B21 |\n| L0\uFF5EL3 | \u8282\u62CD M0\uFF5EM3\uFF0C\u5BF9\u5E94 QD\u3001QC\u3001QB\u3001QA |\n| L4\uFF5EL7 | \u5DE5\u4F5C\u8109\u51B2 T0\uFF5ET3\uFF0C\u9AD8\u7535\u5E73\u6709\u6548 |\n\n## \u542F\u52A8\u4E0E\u89C2\u5BDF\n\n1. \u6253\u5F00\u7535\u6E90\uFF0C\u5148\u7528\u5355\u8109\u51B2\u6A21\u5F0F\u3002\u628A K4 \u62E8\u5230 0 \u6E05\u96F6\uFF0CK5 \u62E8\u5230 1\uFF0CK3\uFF5EK0 \u8BBE\u4E3A 0001\u3002\n2. \u628A K4 \u62E8\u56DE 1\uFF0C\u518D\u70B9\u4E00\u6B21 P+\u3002\u8BA1\u6570\u5668\u88C5\u5165 0\uFF0C\u79FB\u4F4D\u5BC4\u5B58\u5668\u88C5\u5165 0001\uFF0C\u8FD9\u65F6 M0 \u548C T0 \u4F1A\u540C\u65F6\u4EAE\u8D77\u3002\n3. \u628A K5 \u62E8\u5230 0\u3002\u5728\u53F3\u4FA7\u300C\u65F6\u5E8F\u300D\u53D6\u6D88\u52FE\u9009 P\u2212 \u548C K0\uFF08\u5217\u8868\u4E2D\u5199\u4F5C P- \u548C K0\uFF09\uFF0C\u4FDD\u7559 L0\uFF0C\u518D\u4F9D\u6B21\u52FE\u9009 L1\uFF5EL7\u3002L0\uFF5EL3 \u5BF9\u5E94 M0\uFF5EM3\uFF0CL4\uFF5EL7 \u5BF9\u5E94 T0\uFF5ET3\u3002\u70B9\u300C\u5F00\u59CB\u300D\u540E\u9010\u6B21\u70B9\u51FB P+\uFF0C\u4E5F\u53EF\u4EE5\u5F00\u542F\u8FDE\u7EED\u8109\u51B2\u6765\u8BB0\u5F55\u6BCF\u4E00\u62CD\u7684\u53D8\u5316\u3002\n4. \u91CD\u65B0\u6253\u5F00\u5B58\u6863\u6216\u65AD\u7535\u540E\uFF0C\u4ECE\u7B2C 1 \u6B65\u505A\u8D77\u3002\n\n| \u5DE5\u4F5C\u76F8 | \u987A\u5E8F\u70B9\u4EAE\u7684\u8282\u62CD |\n| --- | --- |\n| T0 | M0\u3001M1\u3001M2\u3001M3 |\n| T1 | M0\u3001M1\u3001M2\u3001M3 |\n| T2 | M0\u3001M1\u3001M2\u3001M3 |\n| T3 | M0\u3001M1\u3001M2\u3001M3 |\n\n\u88C5\u8F7D\u5B8C\u6210\u65F6\u4EAE\u8D77\u7684\u662F M0 \u548C T0\u3002U3 \u7684 QA \u63A5\u56DE SL\uFF0C\u6240\u4EE5\u8282\u62CD\u4F1A\u5FAA\u73AF\u3002U1 \u7684\u9AD8\u4E24\u4F4D Q2\u3001Q3 \u51B3\u5B9A\u5F53\u524D\u662F\u54EA\u4E00\u76F8\uFF0C\u6BCF\u56DB\u62CD\u5207\u5230\u4E0B\u4E00\u76F8\u3002\u5230\u4E86 T3 \u7684 M3\uFF0C\u518D\u53D1\u4E00\u4E2A\u8109\u51B2\u5C31\u56DE\u5230 T0\u3001M0\u3002\n",
+      wires: [
+        ["W1", "R:VCC:59", "B2:D:12", [{ x: 1242, y: 658.00000027 }, { x: 288, y: 658.00000027 }], "#dc3545"],
+        ["W2", "R:GND:59", "B2:G:19", [{ x: 1210, y: 738.5999997480001 }, { x: 414, y: 738.5999997480001 }], "#46515f"],
+        ["W3", "B2:C:12", "B1:D:12", [{ x: 274, y: 646 }, { x: 274, y: 411 }], "#dc3545"],
+        ["W4", "B2:H:19", "B1:G:19", [{ x: 414, y: 754.7999997480001 }, { x: 433.99999994000007, y: 754.7999997480001 }, { x: 433.99999994000007, y: 480.2857142857143 }, { x: 414, y: 480.2857142857143 }], "#46515f"],
+        ["W5", "B1:C:12", "B2:D:40", [{ x: 288, y: 387.33333333333326 }, { x: 779.20000034, y: 387.33333333333326 }, { x: 779.20000034, y: 661 }], "#dc3545"],
+        ["W6", "B1:H:19", "B2:G:47", [{ x: 414, y: 513.2857142857144 }, { x: 608.25, y: 513.2857142857144 }, { x: 608.25, y: 726 }, { x: 918, y: 726 }], "#46515f"],
+        ["W7", "B2:C:40", "B1:D:41", [{ x: 783.4000003399999, y: 646 }, { x: 783.4000003399999, y: 417.33333333333326 }, { x: 810, y: 417.33333333333326 }], "#dc3545"],
+        ["W8", "B2:H:47", "B1:G:47", [{ x: 918, y: 761.3999997480001 }, { x: 937.9999996199999, y: 761.3999997480001 }, { x: 937.9999996199999, y: 491 }], "#46515f"],
+        ["W9", "B1:C:41", "B2:G:18", [{ x: 810, y: 399.33333333333326 }, { x: 602.25, y: 399.33333333333326 }, { x: 602.25, y: 743.999999748 }, { x: 396, y: 743.999999748 }], "#dc3545"],
+        ["W10", "B2:H:18", "B2:D:18", [{ x: 396, y: 749.3999997480001 }, { x: 428, y: 749.3999997480001 }, { x: 428, y: 664.00000027 }, { x: 396, y: 664.00000027 }], "#dc3545"],
+        ["W11", "B2:C:18", "B1:G:17", [{ x: 381, y: 646 }, { x: 381, y: 491 }], "#dc3545"],
+        ["W12", "B1:H:17", "B2:D:46", [{ x: 378, y: 507.2857142857144 }, { x: 900, y: 507.2857142857144 }], "#dc3545"],
+        ["W13", "B1:H:47", "B1:D:42", [{ x: 943.9999996199999, y: 506 }, { x: 943.9999996199999, y: 399.33333333333326 }, { x: 828, y: 399.33333333333326 }], "#46515f"],
+        ["W14", "B1:C:42", "B1:G:14", [{ x: 828, y: 393.33333333333326 }, { x: 596.25, y: 393.33333333333326 }, { x: 596.25, y: 486.2857142857143 }, { x: 324, y: 486.2857142857143 }], "#46515f"],
+        ["W15", "B1:H:14", "B1:G:15", [{ x: 324, y: 510.2857142857143 }, { x: 342, y: 510.2857142857143 }], "#46515f"],
+        ["W16", "B1:H:15", "B1:G:16", [{ x: 342, y: 510.2857142857143 }, { x: 363, y: 510.2857142857143 }, { x: 363, y: 491 }], "#46515f"],
+        ["W17", "B1:H:16", "B2:G:14", [{ x: 360, y: 504.2857142857143 }, { x: 268.00000006, y: 504.2857142857143 }, { x: 268.00000006, y: 741 }], "#46515f"],
+        ["W18", "B2:H:14", "B2:G:15", [{ x: 324, y: 754.7999997480001 }, { x: 342, y: 754.7999997480001 }], "#46515f"],
+        ["W19", "B2:H:15", "B2:G:16", [{ x: 342, y: 754.7999997480001 }, { x: 360, y: 754.7999997480001 }], "#46515f"],
+        ["W20", "B2:H:16", "B2:G:17", [{ x: 360, y: 754.7999997480001 }, { x: 378, y: 754.7999997480001 }], "#46515f"],
+        ["W21", "B2:H:17", "B2:G:41", [{ x: 378, y: 770.999999748 }, { x: 813, y: 770.999999748 }, { x: 813, y: 741 }], "#46515f"],
+        ["W22", "B3:J:55", "B2:G:13", [{ x: 1062, y: 734.3999997480001 }, { x: 306, y: 734.3999997480001 }], "#d44f93"],
+        ["W23", "B2:H:13", "B2:D:45", [{ x: 306, y: 760.1999997480001 }, { x: 614.25, y: 760.1999997480001 }, { x: 614.25, y: 670.00000027 }, { x: 882, y: 670.00000027 }], "#d44f93"],
+        ["W24", "B2:D:16", "B1:G:12", [{ x: 357, y: 661 }, { x: 357, y: 498.2857142857143 }, { x: 288, y: 498.2857142857143 }], "#0d939d"],
+        ["W25", "B2:D:17", "B1:G:13", [{ x: 375, y: 661 }, { x: 375, y: 492.2857142857143 }, { x: 306, y: 492.2857142857143 }], "#0d939d"],
+        ["W26", "B3:J:41", "B2:G:12", [{ x: 807, y: 1036 }, { x: 807, y: 730.1999997480001 }, { x: 288, y: 730.1999997480001 }], "#8b55c5"],
+        ["W27", "B2:H:12", "B2:G:40", [{ x: 288, y: 765.5999997480001 }, { x: 792, y: 765.5999997480001 }], "#8b55c5"],
+        ["W28", "B3:J:39", "B2:D:47", [{ x: 774, y: 664.00000027 }, { x: 918, y: 664.00000027 }], "#8b55c5"],
+        ["W29", "B2:C:47", "B1:G:41", [{ x: 918, y: 483.2857142857144 }, { x: 810, y: 483.2857142857144 }], "#8b55c5"],
+        ["W30", "B1:G:42", "B2:D:19", [{ x: 828, y: 652.00000027 }, { x: 414, y: 652.00000027 }], "#8b55c5"],
+        ["W31", "B2:D:41", "B2:G:46", [{ x: 810, y: 676 }, { x: 932, y: 676 }, { x: 932, y: 755.3999997480001 }, { x: 900, y: 755.3999997480001 }], "#1976d2"],
+        ["W32", "B3:J:49", "B2:G:45", [{ x: 954, y: 751.1999997480001 }, { x: 882, y: 751.1999997480001 }], "#16845b"],
+        ["W33", "B2:D:44", "B0:A:49", [{ x: 864, y: 652.00000027 }, { x: 955.9999996199999, y: 652.00000027 }, { x: 955.9999996199999, y: 116 }], "#1976d2"],
+        ["W34", "B1:D:13", "B1:G:43", [{ x: 306, y: 417.33333333333326 }, { x: 615, y: 417.33333333333326 }, { x: 615, y: 501.2857142857144 }, { x: 846, y: 501.2857142857144 }], "#0d939d"],
+        ["W35", "B1:G:44", "B0:A:41", [{ x: 864, y: 477.2857142857144 }, { x: 796, y: 477.2857142857144 }, { x: 796, y: 122 }, { x: 810, y: 122 }], "#0d939d"],
+        ["W36", "B3:J:47", "B2:G:44", [{ x: 918, y: 746.999999748 }, { x: 864, y: 746.999999748 }], "#16845b"],
+        ["W37", "B2:D:43", "B0:A:47", [{ x: 846, y: 646.00000027 }, { x: 949.9999996199999, y: 646.00000027 }, { x: 949.9999996199999, y: 116 }], "#1976d2"],
+        ["W38", "B1:D:14", "B1:G:45", [{ x: 324, y: 423.33333333333326 }, { x: 609, y: 423.33333333333326 }, { x: 609, y: 495.2857142857144 }, { x: 882, y: 495.2857142857144 }], "#0d939d"],
+        ["W39", "B1:G:46", "B0:A:39", [{ x: 900, y: 489.2857142857144 }, { x: 774, y: 489.2857142857144 }], "#0d939d"],
+        ["W40", "B3:J:45", "B2:G:43", [{ x: 882, y: 742.7999997480001 }, { x: 846, y: 742.7999997480001 }], "#16845b"],
+        ["W41", "B2:D:42", "B0:A:45", [{ x: 828, y: 646.00000027 }, { x: 787.60000034, y: 646.00000027 }, { x: 787.60000034, y: 116 }], "#1976d2"],
+        ["W42", "B1:D:15", "B1:D:46", [{ x: 342, y: 405.33333333333326 }, { x: 900, y: 405.33333333333326 }], "#0d939d"],
+        ["W43", "B1:D:47", "B0:A:37", [{ x: 918, y: 110 }, { x: 738, y: 110 }], "#0d939d"],
+        ["W44", "B3:J:43", "B2:G:42", [{ x: 846, y: 742.7999997480001 }, { x: 828, y: 742.7999997480001 }], "#16845b"],
+        ["W45", "B2:C:41", "B0:A:43", [{ x: 810, y: 640.00000027 }, { x: 791.80000034, y: 640.00000027 }, { x: 791.80000034, y: 128 }, { x: 846, y: 128 }], "#1976d2"],
+        ["W46", "B1:D:16", "B1:D:44", [{ x: 360, y: 411.33333333333326 }, { x: 864, y: 411.33333333333326 }], "#0d939d"],
+        ["W47", "B1:D:45", "B0:A:35", [{ x: 882, y: 104 }, { x: 702, y: 104 }], "#0d939d"]
+      ]
+    }
+  };
 
   // src/experiments/preset-layout.mjs
   var PREVIOUS_LAYOUTS = [
     { create: complementPreset, columns: [24, 16, 39, 3, 44], ram: false },
     { create: ramPreset, columns: [8, 35, 35, 12], ram: true }
   ];
+  var RELEASED_PRESETS = [
+    { previous: released_wires_default["complement-adder"], create: complementPreset },
+    { previous: released_wires_default["ram-expansion"], create: ramPreset },
+    { previous: released_wires_default["timing-system"], create: timingPreset }
+  ];
+  function updatedWire(wire, expected, defaultColor) {
+    const updated = copyProject(expected);
+    if (wire.color !== defaultColor) {
+      updated.color = wire.color;
+    }
+    return updated;
+  }
+  function updateReleasedPreset(project) {
+    for (const item of RELEASED_PRESETS) {
+      const previous = item.previous;
+      if (project.wires.length !== previous.wires.length || project.pullUps.length !== 0) {
+        continue;
+      }
+      const reference = item.create();
+      if (JSON.stringify(project.chips) !== JSON.stringify(reference.chips)) {
+        continue;
+      }
+      const wires = [];
+      for (let index = 0; index < project.wires.length; index = index + 1) {
+        const wire = project.wires[index];
+        const oldWire = previous.wires[index];
+        const description = [wire.id, wire.from, wire.to, wire.bends];
+        if (wire.angle !== void 0 || JSON.stringify(description) !== JSON.stringify(oldWire.slice(0, 4))) {
+          break;
+        }
+        wires.push(updatedWire(wire, reference.wires[index], oldWire[4]));
+      }
+      if (wires.length === project.wires.length) {
+        const updated = Object.assign({}, project);
+        updated.wires = wires;
+        if (project.notes === previous.notes) {
+          updated.notes = reference.notes;
+        }
+        return updated;
+      }
+    }
+    return project;
+  }
   function previousEndpoint(endpoint, reference, columns) {
     for (let index = 0; index < reference.chips.length; index = index + 1) {
       const chip = reference.chips[index];
@@ -12308,10 +15426,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
         for (let index = 0; index < updated.wires.length; index = index + 1) {
           const wire = updated.wires[index];
           const expected = reference.wires[index];
-          wire.from = expected.from;
-          wire.to = expected.to;
-          wire.bends = copyProject(expected.bends);
-          delete wire.angle;
+          updated.wires[index] = updatedWire(wire, expected, "");
         }
         workspace2.projects[id] = updated;
         changed = true;
@@ -12358,10 +15473,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       if (wire.from !== oldWire.from || wire.to !== oldWire.to) {
         return null;
       }
-      wire.from = newWire.from;
-      wire.to = newWire.to;
-      wire.bends = copyProject(newWire.bends);
-      delete wire.angle;
+      updated.wires[index] = updatedWire(wire, newWire, "");
       changed = true;
     }
     if (!changed) {
@@ -12375,739 +15487,6 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     return updated;
   }
 
-  // src/experiments/timing-routes.json
-  var timing_routes_default = {
-    W1: [
-      {
-        x: 1242,
-        y: 658.00000027
-      },
-      {
-        x: 288,
-        y: 658.00000027
-      }
-    ],
-    W2: [
-      {
-        x: 1210,
-        y: 738.5999997480001
-      },
-      {
-        x: 414,
-        y: 738.5999997480001
-      }
-    ],
-    W3: [
-      {
-        x: 274,
-        y: 646
-      },
-      {
-        x: 274,
-        y: 411
-      }
-    ],
-    W4: [
-      {
-        x: 414,
-        y: 754.7999997480001
-      },
-      {
-        x: 433.99999994000007,
-        y: 754.7999997480001
-      },
-      {
-        x: 433.99999994000007,
-        y: 480.2857142857143
-      },
-      {
-        x: 414,
-        y: 480.2857142857143
-      }
-    ],
-    W5: [
-      {
-        x: 288,
-        y: 387.33333333333326
-      },
-      {
-        x: 779.20000034,
-        y: 387.33333333333326
-      },
-      {
-        x: 779.20000034,
-        y: 661
-      }
-    ],
-    W6: [
-      {
-        x: 414,
-        y: 513.2857142857144
-      },
-      {
-        x: 608.25,
-        y: 513.2857142857144
-      },
-      {
-        x: 608.25,
-        y: 726
-      },
-      {
-        x: 918,
-        y: 726
-      }
-    ],
-    W7: [
-      {
-        x: 783.4000003399999,
-        y: 646
-      },
-      {
-        x: 783.4000003399999,
-        y: 417.33333333333326
-      },
-      {
-        x: 810,
-        y: 417.33333333333326
-      }
-    ],
-    W8: [
-      {
-        x: 918,
-        y: 761.3999997480001
-      },
-      {
-        x: 937.9999996199999,
-        y: 761.3999997480001
-      },
-      {
-        x: 937.9999996199999,
-        y: 491
-      }
-    ],
-    W9: [
-      {
-        x: 810,
-        y: 399.33333333333326
-      },
-      {
-        x: 602.25,
-        y: 399.33333333333326
-      },
-      {
-        x: 602.25,
-        y: 743.999999748
-      },
-      {
-        x: 396,
-        y: 743.999999748
-      }
-    ],
-    W10: [
-      {
-        x: 396,
-        y: 749.3999997480001
-      },
-      {
-        x: 428,
-        y: 749.3999997480001
-      },
-      {
-        x: 428,
-        y: 664.00000027
-      },
-      {
-        x: 396,
-        y: 664.00000027
-      }
-    ],
-    W11: [
-      {
-        x: 381,
-        y: 646
-      },
-      {
-        x: 381,
-        y: 491
-      }
-    ],
-    W12: [
-      {
-        x: 378,
-        y: 507.2857142857144
-      },
-      {
-        x: 900,
-        y: 507.2857142857144
-      }
-    ],
-    W13: [
-      {
-        x: 943.9999996199999,
-        y: 506
-      },
-      {
-        x: 943.9999996199999,
-        y: 399.33333333333326
-      },
-      {
-        x: 828,
-        y: 399.33333333333326
-      }
-    ],
-    W14: [
-      {
-        x: 828,
-        y: 393.33333333333326
-      },
-      {
-        x: 596.25,
-        y: 393.33333333333326
-      },
-      {
-        x: 596.25,
-        y: 486.2857142857143
-      },
-      {
-        x: 324,
-        y: 486.2857142857143
-      }
-    ],
-    W15: [
-      {
-        x: 324,
-        y: 510.2857142857143
-      },
-      {
-        x: 342,
-        y: 510.2857142857143
-      }
-    ],
-    W16: [
-      {
-        x: 342,
-        y: 510.2857142857143
-      },
-      {
-        x: 363,
-        y: 510.2857142857143
-      },
-      {
-        x: 363,
-        y: 491
-      }
-    ],
-    W17: [
-      {
-        x: 360,
-        y: 504.2857142857143
-      },
-      {
-        x: 268.00000006,
-        y: 504.2857142857143
-      },
-      {
-        x: 268.00000006,
-        y: 741
-      }
-    ],
-    W18: [
-      {
-        x: 324,
-        y: 754.7999997480001
-      },
-      {
-        x: 342,
-        y: 754.7999997480001
-      }
-    ],
-    W19: [
-      {
-        x: 342,
-        y: 754.7999997480001
-      },
-      {
-        x: 360,
-        y: 754.7999997480001
-      }
-    ],
-    W20: [
-      {
-        x: 360,
-        y: 754.7999997480001
-      },
-      {
-        x: 378,
-        y: 754.7999997480001
-      }
-    ],
-    W21: [
-      {
-        x: 378,
-        y: 770.999999748
-      },
-      {
-        x: 813,
-        y: 770.999999748
-      },
-      {
-        x: 813,
-        y: 741
-      }
-    ],
-    W22: [
-      {
-        x: 1062,
-        y: 734.3999997480001
-      },
-      {
-        x: 306,
-        y: 734.3999997480001
-      }
-    ],
-    W23: [
-      {
-        x: 306,
-        y: 760.1999997480001
-      },
-      {
-        x: 614.25,
-        y: 760.1999997480001
-      },
-      {
-        x: 614.25,
-        y: 670.00000027
-      },
-      {
-        x: 882,
-        y: 670.00000027
-      }
-    ],
-    W24: [
-      {
-        x: 357,
-        y: 661
-      },
-      {
-        x: 357,
-        y: 498.2857142857143
-      },
-      {
-        x: 288,
-        y: 498.2857142857143
-      }
-    ],
-    W25: [
-      {
-        x: 375,
-        y: 661
-      },
-      {
-        x: 375,
-        y: 492.2857142857143
-      },
-      {
-        x: 306,
-        y: 492.2857142857143
-      }
-    ],
-    W26: [
-      {
-        x: 807,
-        y: 1036
-      },
-      {
-        x: 807,
-        y: 730.1999997480001
-      },
-      {
-        x: 288,
-        y: 730.1999997480001
-      }
-    ],
-    W27: [
-      {
-        x: 288,
-        y: 765.5999997480001
-      },
-      {
-        x: 792,
-        y: 765.5999997480001
-      }
-    ],
-    W28: [
-      {
-        x: 774,
-        y: 664.00000027
-      },
-      {
-        x: 918,
-        y: 664.00000027
-      }
-    ],
-    W29: [
-      {
-        x: 918,
-        y: 483.2857142857144
-      },
-      {
-        x: 810,
-        y: 483.2857142857144
-      }
-    ],
-    W30: [
-      {
-        x: 828,
-        y: 652.00000027
-      },
-      {
-        x: 414,
-        y: 652.00000027
-      }
-    ],
-    W31: [
-      {
-        x: 810,
-        y: 676
-      },
-      {
-        x: 932,
-        y: 676
-      },
-      {
-        x: 932,
-        y: 755.3999997480001
-      },
-      {
-        x: 900,
-        y: 755.3999997480001
-      }
-    ],
-    W32: [
-      {
-        x: 954,
-        y: 751.1999997480001
-      },
-      {
-        x: 882,
-        y: 751.1999997480001
-      }
-    ],
-    W33: [
-      {
-        x: 864,
-        y: 652.00000027
-      },
-      {
-        x: 955.9999996199999,
-        y: 652.00000027
-      },
-      {
-        x: 955.9999996199999,
-        y: 116
-      }
-    ],
-    W34: [
-      {
-        x: 306,
-        y: 417.33333333333326
-      },
-      {
-        x: 615,
-        y: 417.33333333333326
-      },
-      {
-        x: 615,
-        y: 501.2857142857144
-      },
-      {
-        x: 846,
-        y: 501.2857142857144
-      }
-    ],
-    W35: [
-      {
-        x: 864,
-        y: 477.2857142857144
-      },
-      {
-        x: 796,
-        y: 477.2857142857144
-      },
-      {
-        x: 796,
-        y: 122
-      },
-      {
-        x: 810,
-        y: 122
-      }
-    ],
-    W36: [
-      {
-        x: 918,
-        y: 746.999999748
-      },
-      {
-        x: 864,
-        y: 746.999999748
-      }
-    ],
-    W37: [
-      {
-        x: 846,
-        y: 646.00000027
-      },
-      {
-        x: 949.9999996199999,
-        y: 646.00000027
-      },
-      {
-        x: 949.9999996199999,
-        y: 116
-      }
-    ],
-    W38: [
-      {
-        x: 324,
-        y: 423.33333333333326
-      },
-      {
-        x: 609,
-        y: 423.33333333333326
-      },
-      {
-        x: 609,
-        y: 495.2857142857144
-      },
-      {
-        x: 882,
-        y: 495.2857142857144
-      }
-    ],
-    W39: [
-      {
-        x: 900,
-        y: 489.2857142857144
-      },
-      {
-        x: 774,
-        y: 489.2857142857144
-      }
-    ],
-    W40: [
-      {
-        x: 882,
-        y: 742.7999997480001
-      },
-      {
-        x: 846,
-        y: 742.7999997480001
-      }
-    ],
-    W41: [
-      {
-        x: 828,
-        y: 646.00000027
-      },
-      {
-        x: 787.60000034,
-        y: 646.00000027
-      },
-      {
-        x: 787.60000034,
-        y: 116
-      }
-    ],
-    W42: [
-      {
-        x: 342,
-        y: 405.33333333333326
-      },
-      {
-        x: 900,
-        y: 405.33333333333326
-      }
-    ],
-    W43: [
-      {
-        x: 918,
-        y: 110
-      },
-      {
-        x: 738,
-        y: 110
-      }
-    ],
-    W44: [
-      {
-        x: 846,
-        y: 742.7999997480001
-      },
-      {
-        x: 828,
-        y: 742.7999997480001
-      }
-    ],
-    W45: [
-      {
-        x: 810,
-        y: 640.00000027
-      },
-      {
-        x: 791.80000034,
-        y: 640.00000027
-      },
-      {
-        x: 791.80000034,
-        y: 128
-      },
-      {
-        x: 846,
-        y: 128
-      }
-    ],
-    W46: [
-      {
-        x: 360,
-        y: 411.33333333333326
-      },
-      {
-        x: 864,
-        y: 411.33333333333326
-      }
-    ],
-    W47: [
-      {
-        x: 882,
-        y: 104
-      },
-      {
-        x: 702,
-        y: 104
-      }
-    ]
-  };
-
-  // src/experiments/timing-preset.mjs
-  var TIMING_EXPERIMENT_ID = "timing-system-example";
-  var TIMING_EXPERIMENT_NAME = "\u5B9E\u9A8C\u56DB \u65F6\u5E8F\u7CFB\u7EDF";
-  var TIMING_CHIPS = [
-    { id: "U1", model: "74LS161", section: 2, column: 12 },
-    { id: "U2", model: "74LS138", section: 1, column: 12 },
-    { id: "U3", model: "74LS194", section: 2, column: 40 },
-    { id: "U4", model: "74LS04", section: 1, column: 41 }
-  ];
-  var PORTS = { reset: 4, load: 5, inputs: 6, outputs: 8, firstPhase: 4 };
-  var DATA_PINS = [6, 5, 4, 3];
-  var BEAT_PINS = [12, 13, 14, 15];
-  var HIGH_PINS = ["U1-7", "U1-10", "U2-6", "U3-10"];
-  var LOW_PINS = ["U4-13", "U2-3", "U2-4", "U2-5", "U1-3", "U1-4", "U1-5", "U1-6", "U3-2"];
-  var COLORS = {
-    power: WIRE_COLORS[0],
-    ground: WIRE_COLORS[7],
-    data: WIRE_COLORS[2],
-    control: WIRE_COLORS[4],
-    clock: WIRE_COLORS[6],
-    beat: WIRE_COLORS[1],
-    phase: WIRE_COLORS[5]
-  };
-  var TIMING_NOTES = `# \u5B9E\u9A8C\u56DB \u65F6\u5E8F\u7CFB\u7EDF
-
-## \u7AEF\u53E3\u5206\u914D
-
-| \u7AEF\u53E3 | \u7528\u9014 |
-| --- | --- |
-| K3\uFF5EK0 | \u5E76\u884C\u8F93\u5165 A\u3001B\u3001C\u3001D\uFF0C\u9884\u7F6E 0001 |
-| K4 | 0 \u6E05\u96F6\u8BA1\u6570\u5668\u548C\u79FB\u4F4D\u5BC4\u5B58\u5668\uFF0C1 \u89E3\u9664\u6E05\u96F6 |
-| K5 | 1 \u5E76\u884C\u88C5\u8F7D\uFF0C0 \u5FAA\u73AF\u5DE6\u79FB |
-| P+ | \u8BA1\u6570\u65F6\u949F\uFF0C\u6309\u4E0B\u65F6\u8BA1\u6570\u4E00\u6B21 |
-| L0\uFF5EL3 | \u8282\u62CD M0\uFF5EM3\uFF0C\u5BF9\u5E94 QD\u3001QC\u3001QB\u3001QA |
-| L4\uFF5EL7 | \u5DE5\u4F5C\u8109\u51B2 T0\uFF5ET3\uFF0C\u9AD8\u7535\u5E73\u6709\u6548 |
-
-## \u542F\u52A8\u4E0E\u89C2\u5BDF
-
-1. \u6253\u5F00\u7535\u6E90\uFF0C\u5148\u7528\u5355\u8109\u51B2\u6A21\u5F0F\u3002\u628A K4 \u62E8\u5230 0 \u6E05\u96F6\uFF0CK5 \u62E8\u5230 1\uFF0CK3\uFF5EK0 \u8BBE\u4E3A 0001\u3002
-2. \u628A K4 \u62E8\u56DE 1\uFF0C\u518D\u70B9\u4E00\u6B21 P+\u3002\u8BA1\u6570\u5668\u88C5\u5165 0\uFF0C\u79FB\u4F4D\u5BC4\u5B58\u5668\u88C5\u5165 0001\uFF0C\u8FD9\u65F6 M0 \u548C T0 \u4F1A\u540C\u65F6\u4EAE\u8D77\u3002
-3. \u628A K5 \u62E8\u5230 0\u3002\u5728\u53F3\u4FA7\u300C\u65F6\u5E8F\u300D\u53D6\u6D88\u52FE\u9009 P\u2212 \u548C K0\uFF08\u5217\u8868\u4E2D\u5199\u4F5C P- \u548C K0\uFF09\uFF0C\u4FDD\u7559 L0\uFF0C\u518D\u4F9D\u6B21\u52FE\u9009 L1\uFF5EL7\u3002L0\uFF5EL3 \u5BF9\u5E94 M0\uFF5EM3\uFF0CL4\uFF5EL7 \u5BF9\u5E94 T0\uFF5ET3\u3002\u70B9\u300C\u5F00\u59CB\u300D\u540E\u9010\u6B21\u70B9\u51FB P+\uFF0C\u4E5F\u53EF\u4EE5\u5F00\u542F\u8FDE\u7EED\u8109\u51B2\u6765\u8BB0\u5F55\u6BCF\u4E00\u62CD\u7684\u53D8\u5316\u3002
-4. \u91CD\u65B0\u6253\u5F00\u5B58\u6863\u6216\u65AD\u7535\u540E\uFF0C\u4ECE\u7B2C 1 \u6B65\u505A\u8D77\u3002
-
-| \u5DE5\u4F5C\u76F8 | \u987A\u5E8F\u70B9\u4EAE\u7684\u8282\u62CD |
-| --- | --- |
-| T0 | M0\u3001M1\u3001M2\u3001M3 |
-| T1 | M0\u3001M1\u3001M2\u3001M3 |
-| T2 | M0\u3001M1\u3001M2\u3001M3 |
-| T3 | M0\u3001M1\u3001M2\u3001M3 |
-
-\u88C5\u8F7D\u5B8C\u6210\u65F6\u4EAE\u8D77\u7684\u662F M0 \u548C T0\u3002U3 \u7684 QA \u63A5\u56DE SL\uFF0C\u6240\u4EE5\u8282\u62CD\u4F1A\u5FAA\u73AF\u3002U1 \u7684\u9AD8\u4E24\u4F4D Q2\u3001Q3 \u51B3\u5B9A\u5F53\u524D\u662F\u54EA\u4E00\u76F8\uFF0C\u6BCF\u56DB\u62CD\u5207\u5230\u4E0B\u4E00\u76F8\u3002\u5230\u4E86 T3 \u7684 M3\uFF0C\u518D\u53D1\u4E00\u4E2A\u8109\u51B2\u5C31\u56DE\u5230 T0\u3001M0\u3002
-`;
-  function connectPower2(project, usage) {
-    let supply = "VCC";
-    let ground = "GND";
-    for (const chip of project.chips) {
-      const model = CHIP_MODELS[chip.model];
-      const supplyPin = chip.id + "-" + model.power;
-      const groundPin = chip.id + "-" + model.ground;
-      connect(project, usage, supply, supplyPin, COLORS.power);
-      connect(project, usage, ground, groundPin, COLORS.ground);
-      supply = supplyPin;
-      ground = groundPin;
-    }
-    for (const pin of HIGH_PINS) {
-      connect(project, usage, supply, pin, COLORS.power);
-      supply = pin;
-    }
-    for (const pin of LOW_PINS) {
-      connect(project, usage, ground, pin, COLORS.ground);
-      ground = pin;
-    }
-  }
-  function connectClock(project, usage) {
-    connect(project, usage, "P+", "U1-2", COLORS.clock);
-    connect(project, usage, "U1-2", "U3-11", COLORS.clock);
-    connect(project, usage, "U1-12", "U2-1", COLORS.phase);
-    connect(project, usage, "U1-11", "U2-2", COLORS.phase);
-    connect(project, usage, "K" + PORTS.reset, "U1-1", COLORS.control);
-    connect(project, usage, "U1-1", "U3-1", COLORS.control);
-    connect(project, usage, "K" + PORTS.load, "U3-9", COLORS.control);
-    connect(project, usage, "U3-9", "U4-1", COLORS.control);
-    connect(project, usage, "U4-2", "U1-9", COLORS.control);
-  }
-  function connectOutputs(project, usage) {
-    connect(project, usage, "U3-15", "U3-7", COLORS.beat);
-    const inverter = CHIP_MODELS["74LS04"];
-    const decoder = CHIP_MODELS["74LS138"];
-    for (let bit = 0; bit < BEAT_PINS.length; bit = bit + 1) {
-      const dataPin = DATA_PINS[bit];
-      const beatPin = BEAT_PINS[bit];
-      const gate = inverter.gates[bit + 1];
-      connect(project, usage, "K" + bit, "U3-" + dataPin, COLORS.data);
-      connect(project, usage, "U3-" + beatPin, "L" + bit, COLORS.beat);
-      connect(project, usage, "U2-" + decoder.outputs[bit], "U4-" + gate[0], COLORS.phase);
-      connect(project, usage, "U4-" + gate[2], "L" + (bit + PORTS.firstPhase), COLORS.phase);
-    }
-  }
-  function timingPreset() {
-    const project = emptyProject();
-    project.name = TIMING_EXPERIMENT_NAME;
-    project.notes = TIMING_NOTES;
-    project.inputCount = PORTS.inputs;
-    project.outputCount = PORTS.outputs;
-    project.switches[0] = 1;
-    project.switches[PORTS.load] = 1;
-    project.chips = structuredClone(TIMING_CHIPS);
-    const usage = {};
-    connectPower2(project, usage);
-    connectClock(project, usage);
-    connectOutputs(project, usage);
-    for (const wire of project.wires) {
-      if (Object.hasOwn(timing_routes_default, wire.id)) {
-        wire.bends = structuredClone(timing_routes_default[wire.id]);
-      }
-    }
-    return project;
-  }
-
   // src/storage/workspace.mjs
   var WORKSPACE_KEY = "breadboard-lab-workspace-v1";
   var READ_ONLY_KEY = "breadboard-lab-read-only";
@@ -13117,13 +15496,13 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
   function emptyWorkspace() {
     return { version: WORKSPACE_VERSION, activeId: "", projects: {} };
   }
-  function migrateSavedWorkspace(workspace2, storage) {
-    const beforeCleanup = JSON.stringify(workspace2);
+  function migrateSavedWorkspace(workspace2, storage, beforeCleanup) {
     const centered = centerSavedPresets(workspace2);
     const removed = cleanWorkspace(workspace2);
-    if (centered || removed.length > 0) {
+    const updated = JSON.stringify(workspace2);
+    if (centered || removed.length > 0 || updated !== beforeCleanup) {
       storage.setItem(CLEANUP_BACKUP_KEY, beforeCleanup);
-      storage.setItem(WORKSPACE_KEY, JSON.stringify(workspace2));
+      storage.setItem(WORKSPACE_KEY, updated);
     }
     return removed.length;
   }
@@ -13142,11 +15521,12 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       const savedProject = storage.getItem(STORAGE_KEY);
       hasSavedWorkspace = Boolean(savedWorkspace || savedProject);
       if (savedWorkspace) {
-        workspace2 = validateWorkspace(JSON.parse(savedWorkspace));
-        removedCount = migrateSavedWorkspace(workspace2, storage);
+        const previous = JSON.parse(savedWorkspace);
+        workspace2 = validateWorkspace(previous);
+        removedCount = migrateSavedWorkspace(workspace2, storage, JSON.stringify(previous));
         project = copyProject(workspace2.projects[workspace2.activeId]);
       } else if (savedProject) {
-        project = validateProject(JSON.parse(savedProject));
+        project = restoreSavedProject(JSON.parse(savedProject));
       }
     } catch (error) {
       warning = "\u672C\u5730\u7535\u8DEF\u65E0\u6CD5\u6062\u590D\uFF0C\u5DF2\u6253\u5F00\u793A\u4F8B\u3002\u539F\u6587\u4EF6\u53EF\u91CD\u65B0\u5BFC\u5165";
@@ -13272,6 +15652,9 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
     workspace2.activeId = id;
     workspace2.projects[id] = copyProject(project);
   }
+  function restoreSavedProject(value) {
+    return updateReleasedPreset(validateProject(value));
+  }
   function validateWorkspace(value) {
     if (!value || value.version !== WORKSPACE_VERSION || typeof value.activeId !== "string" || !value.projects || typeof value.projects !== "object") {
       throw new Error("\u672C\u5730\u5B9E\u9A8C\u5217\u8868\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u5BFC\u5165\u4F60\u4FDD\u5B58\u7684\u5B9E\u9A8C\u6587\u4EF6");
@@ -13282,7 +15665,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       if (!EXPERIMENT_ID_PATTERN.test(id)) {
         throw new Error("\u5B9E\u9A8C\u7F16\u53F7\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5\u4FDD\u5B58\u6587\u4EF6");
       }
-      workspace2.projects[id] = validateProject(value.projects[id]);
+      workspace2.projects[id] = restoreSavedProject(value.projects[id]);
     }
     if (!Object.hasOwn(workspace2.projects, workspace2.activeId)) {
       throw new Error("\u5F53\u524D\u5B9E\u9A8C\u4E0D\u5728\u5217\u8868\u4E2D\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u5B9E\u9A8C");
@@ -16621,7 +19004,7 @@ RAM\u5185\u5BB9\u5C5E\u4E8E\u6613\u5931\u8FD0\u884C\u72B6\u6001\u3002\u65AD\u753
       if (parsed.projects) {
         await importWorkspaceBackup(parsed);
       } else {
-        const candidate = validateProject(parsed);
+        const candidate = restoreSavedProject(parsed);
         requestExperimentSwitch(openNewExperiment.bind(null, candidate));
       }
     } catch (error) {

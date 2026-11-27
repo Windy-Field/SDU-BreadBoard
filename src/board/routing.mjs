@@ -1,7 +1,7 @@
-import { BOARD, endpointPosition } from "./board.mjs";
+import { BOARD, baseNode, endpointPosition } from "./board.mjs";
 import { chipBounds, wirePoints } from "./geometry.mjs";
 import { LIMITS } from "../storage/storage.mjs";
-import { simplifyWirePath, shortCornerPath, segmentCrossesBounds } from "./wire-path.mjs";
+import { straightenWireEnds, simplifyWirePath, shortCornerPath, segmentCrossesBounds } from "./wire-path.mjs";
 import { initializeRouting } from "./routing-runtime.mjs";
 
 // libavoid 的代价是相对权重，间距和避让距离以画布逻辑像素计算
@@ -143,6 +143,26 @@ function readRoute(connection, wire, bounds) {
     return simplifyWirePath(points);
 }
 
+// 找出接在同一条板载铜排上的导线，对齐时可保留孔口附近的公共线段
+function neighboringWires(wires, wireIndex) {
+    const wire = wires[wireIndex];
+    const start = baseNode(wire.from);
+    const end = baseNode(wire.to);
+    const neighbors = new Set();
+    for (let index = 0; index < wires.length; index = index + 1) {
+        if (index === wireIndex) {
+            continue;
+        }
+        const other = wires[index];
+        const otherStart = baseNode(other.from);
+        const otherEnd = baseNode(other.to);
+        if (start === otherStart || start === otherEnd || end === otherStart || end === otherEnd) {
+            neighbors.add(index);
+        }
+    }
+    return neighbors;
+}
+
 // 批量与单线调用同一个引擎，所有路径成功后才返回，原实验始终不改动
 async function routeProject(project, angle, targetId) {
     await new Promise(yieldFrame);
@@ -153,13 +173,29 @@ async function routeProject(project, angle, targetId) {
         const bounds = addObstacles(Avoid, router, project, objects);
         const connections = addConnections(Avoid, router, project, targetId, objects);
         router.processTransaction();
+        const paths = [];
+        for (let index = 0; index < project.wires.length; index = index + 1) {
+            const wire = project.wires[index];
+            if (targetId !== "" && wire.id !== targetId) {
+                paths.push(wirePoints(wire, index));
+            } else {
+                paths.push(readRoute(connections.get(wire.id), wire, bounds));
+            }
+        }
         const routes = {};
-        for (const wire of project.wires) {
+        for (let index = 0; index < project.wires.length; index = index + 1) {
+            const wire = project.wires[index];
             if (targetId !== "" && wire.id !== targetId) {
                 continue;
             }
-            let points = readRoute(connections.get(wire.id), wire, bounds);
+            let points = paths[index];
             const preserveManualPoints = targetId !== "" && wire.bends.length > 0;
+            if (!preserveManualPoints) {
+                // 对齐整段竖线后再削角，避免把小折线变成两个斜角
+                const neighbors = neighboringWires(project.wires, index);
+                points = straightenWireEnds(points, paths, index, bounds, neighbors);
+                paths[index] = points;
+            }
             if (angle === 45 && !preserveManualPoints) {
                 points = shortCornerPath(points, bounds, LIMITS.bends + 2);
             }

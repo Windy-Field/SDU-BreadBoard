@@ -1,6 +1,6 @@
 {
   "name": "sdu-breadboard",
-  "version": "1.12.2",
+  "version": "1.12.3",
   "private": true,
   "type": "module",
   "main": "desktop/main.mjs",

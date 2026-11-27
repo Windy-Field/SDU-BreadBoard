@@ -3,11 +3,37 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { openWorkbench } from "../helpers/announcement.mjs";
+import { readImageDownload } from "../helpers/downloads.mjs";
 import { TIMING_EXPERIMENT_ID } from "../../src/experiments/timing-preset.mjs";
 import { BOARD, PORT_LAYOUT, INPUT_RESET_COLUMN, columnX } from "../../src/board/board.mjs";
+import { wirePoints } from "../../src/board/geometry.mjs";
 
 const ADDRESS = pathToFileURL(path.resolve("index.html")).href;
-const PHASES = ["0001", "0010", "0100", "1000"];
+const ONE_HOT_LEVELS = ["0001", "0010", "0100", "1000"];
+
+// 在页面按 45° 整理后导出实际路径，核对第 41 列的线已沿孔心直走
+async function testTimingWireAlignment(page) {
+    await page.locator("#wire-angle-trigger").click();
+    await page.locator("#wire-angle-option-1").click();
+    await page.locator("#arrange-wires").click();
+    await page.locator("#confirm-accept").click();
+    const completed = page.locator("#toast-region .toast").filter({ hasText: "走线已整理" });
+    await completed.waitFor();
+    const content = await readImageDownload(page, "#export-project", "json", "breadboard-circuit.json");
+    const project = JSON.parse(content.toString("utf8"));
+    let aligned = false;
+    for (let index = 0; index < project.wires.length; index = index + 1) {
+        const wire = project.wires[index];
+        if (wire.from === "B3:J:41") {
+            const points = wirePoints(wire, index);
+            assert.equal(wire.angle, 45);
+            assert.equal(points[1].x, columnX(41));
+            assert.ok(points[0].y - points[1].y > 200);
+            aligned = true;
+        }
+    }
+    assert.equal(aligned, true);
+}
 
 // 从内置列表打开实验，按备注装载 0001 并核对完整的 16 拍和回环
 async function testTimingSystem(page) {
@@ -16,8 +42,10 @@ async function testTimingSystem(page) {
     assert.equal(await page.locator("#experiment-picker").inputValue(), TIMING_EXPERIMENT_ID);
     const positive = page.locator("#pulse-positive");
     const output = page.locator("#binary-result");
+    assert.equal(await output.textContent(), "0001 0000");
     await page.getByRole("button", { name: "切换 K4", exact: true }).click();
     await positive.click();
+    assert.equal(await output.textContent(), "0001 0001");
     await page.getByRole("button", { name: "切换 K5", exact: true }).click();
     await page.locator("#tab-timing").click();
     const picker = page.getByRole("combobox", { name: "监测信号" });
@@ -32,9 +60,9 @@ async function testTimingSystem(page) {
     await page.locator("#timing-start").click();
     assert.equal(await picker.isDisabled(), true);
     for (let step = 0; step <= 16; step = step + 1) {
-        const phase = Math.floor(step / 4) % 4;
-        const beat = step % 4;
-        assert.equal(await output.textContent(), PHASES[phase] + " " + PHASES[beat]);
+        const beat = step % ONE_HOT_LEVELS.length;
+        const pulse = Math.floor(step / 4) % ONE_HOT_LEVELS.length;
+        assert.equal(await output.textContent(), ONE_HOT_LEVELS[pulse] + " " + ONE_HOT_LEVELS[beat]);
         if (step < 16) {
             await positive.click();
         }
@@ -192,6 +220,7 @@ async function main() {
         await page.clock.install();
         await openWorkbench(page, ADDRESS);
         await testTimingSystem(page);
+        await testTimingWireAlignment(page);
         await testPulseSettings(page);
         const otherPage = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
         await openWorkbench(otherPage, ADDRESS);

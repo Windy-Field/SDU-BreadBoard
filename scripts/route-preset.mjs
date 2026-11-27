@@ -3,32 +3,12 @@ import { complementPreset } from "../src/experiments/presets.mjs";
 import { routeWires } from "../src/board/routing.mjs";
 import { ramPreset } from "../src/experiments/ram-preset.mjs";
 import { timingPreset } from "../src/experiments/timing-preset.mjs";
-import { endpointPosition } from "../src/board/board.mjs";
 
 // 示例路径数据的输出位置与 JSON 缩进
 const ROUTE_OUTPUT = { filename: "src/experiments/preset-routes.json", indent: 2 };
 const RAM_ROUTE_OUTPUT = "src/experiments/ram-routes.json";
-const TIMING_ROUTE_OUTPUT = "src/experiments/timing-routes.json";
-// 横跨两片RAM的长线按上下分组，每组依次分配9像素间距
-const RAM_UPPER_WIRES = ["W53", "W57", "W61", "W65", "W69", "W72", "W74"];
-const RAM_LOWER_WIRES = ["W29", "W31", "W33", "W35", "W41", "W45", "W49"];
-const RAM_LANE_SPACING = 9;
-
-// 把跨芯片长线安排到板间空白通道，两端仍接原来的同列空孔
-function spaceRamWires(project, routes, names, direction) {
-    for (let index = 0; index < names.length; index = index + 1) {
-        for (const wire of project.wires) {
-            if (wire.id !== names[index]) {
-                continue;
-            }
-            const first = endpointPosition(wire.from);
-            const last = endpointPosition(wire.to);
-            const distance = (index + 1) * RAM_LANE_SPACING;
-            const lane = first.y + direction * distance;
-            routes[wire.id] = [{ x: first.x, y: lane }, { x: last.x, y: lane }];
-        }
-    }
-}
+const TIMING_WIRE_OUTPUT = "src/experiments/timing-wires.json";
+const PRESET_ANGLE = 45;
 
 // 构建时使用与界面相同的整理算法，生成可离线加载的示例路径
 async function main() {
@@ -40,14 +20,18 @@ async function main() {
         filename = RAM_ROUTE_OUTPUT;
     } else if (process.argv[2] === "timing") {
         project = timingPreset();
-        filename = TIMING_ROUTE_OUTPUT;
+        filename = TIMING_WIRE_OUTPUT;
     }
-    const routes = await routeWires(project);
-    if (useRamPreset) {
-        spaceRamWires(project, routes, RAM_UPPER_WIRES, -1);
-        spaceRamWires(project, routes, RAM_LOWER_WIRES, 1);
+    const routes = await routeWires(project, PRESET_ANGLE);
+    let output = routes;
+    if (filename === TIMING_WIRE_OUTPUT) {
+        for (const wire of project.wires) {
+            wire.bends = routes[wire.id];
+            wire.angle = PRESET_ANGLE;
+        }
+        output = project.wires;
     }
-    const content = JSON.stringify(routes, null, ROUTE_OUTPUT.indent);
+    const content = JSON.stringify(output, null, ROUTE_OUTPUT.indent);
     fs.writeFileSync(filename, content);
     console.log("已为 " + project.wires.length + " 根示例导线生成固定路径");
 }

@@ -246,6 +246,7 @@ export function ramPreset(useOuterHoles = true) {
         }
         if (Object.hasOwn(ramRoutes, wire.id)) {
             wire.bends = structuredClone(ramRoutes[wire.id]);
+            wire.angle = 45;
         }
     }
     return project;

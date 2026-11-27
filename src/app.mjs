@@ -23,7 +23,7 @@ import { MOTION, tween, cancelTween, wheelZoomFactor } from "./ui/motion.mjs";
 import { markdownFragment } from "./ui/notes.mjs";
 import { inspectCircuit } from "./simulation/diagnostics.mjs";
 import { CHIP_REFERENCES, sortedChipNames } from "./chips/catalog.mjs";
-import { WORKSPACE_KEY, READ_ONLY_KEY, newExperimentId, keepExperiment, validateWorkspace, findBlankExperiment, loadWorkspace } from "./storage/workspace.mjs";
+import { WORKSPACE_KEY, READ_ONLY_KEY, newExperimentId, keepExperiment, validateWorkspace, restoreSavedProject, findBlankExperiment, loadWorkspace } from "./storage/workspace.mjs";
 import { sharedWorkspaceClient } from "./storage/shared-workspace.mjs";
 import { SHARED_WORKSPACE } from "./storage/workspace-settings.mjs";
 import { CLOCK_SETTINGS } from "./version.mjs";
@@ -2180,7 +2180,7 @@ async function importProject(event) {
         if (parsed.projects) {
             await importWorkspaceBackup(parsed);
         } else {
-            const candidate = validateProject(parsed);
+            const candidate = restoreSavedProject(parsed);
             requestExperimentSwitch(openNewExperiment.bind(null, candidate));
         }
     } catch (error) {

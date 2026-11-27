@@ -12,8 +12,7 @@ const PRESET_WIRE_COLORS = {
     result: WIRE_COLORS[1],
     feedback: WIRE_COLORS[3],
     output: WIRE_COLORS[5],
-    timing: WIRE_COLORS[6],
-    overflow: WIRE_COLORS[9]
+    timing: WIRE_COLORS[6]
 };
 
 // 标准示例的芯片位置，改变位置后需重新生成路径并运行接线验证
@@ -91,7 +90,7 @@ K、L、P 信号直接连到了对应的面包板列，输入输出板用作信�
 
 第四块面包板用细线桥接了输入与脉冲对应列，上下 A～J 的空孔可以读取同一信号，其他列及 X/Y 母线分别连接
 
-红色为电源，深灰为地，绿色为数值与符号输入（包括取反后的数据），紫色为加减控制和进位，蓝色为计算结果送入寄存器，黄色为寄存器反馈，青色为 L0～L5 结果输出，橙色为溢出判断支路及 L6 输出，粉色为清零和时钟
+红色为电源，深灰色为地。绿色和紫色分别标出输入数据与加减控制，其中符号扩展也用了紫色。蓝色导线把计算结果送入寄存器，黄色导线把上次的结果送回加法器。青色对应输出和溢出判断，粉色对应清零和时钟。
 
 导线沿分开的通道绕开了芯片外框，通过两端插入的孔建立连接，交叉处保持绝缘。当你确认左侧的“整理走线”操作后，程序会调整当前路径，并保留芯片位置、端点、线色和备注，整个操作支持撤销
 
@@ -132,8 +131,8 @@ export function complementPreset() {
         connect(project, usage, control, pin, PRESET_WIRE_COLORS.control);
         control = pin;
     }
-    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.input);
-    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.input);
+    connect(project, usage, "U5-3", "U3-6", PRESET_WIRE_COLORS.control);
+    connect(project, usage, "U3-6", "U3-2", PRESET_WIRE_COLORS.control);
     connect(project, usage, "U2-9", "U3-7", PRESET_WIRE_COLORS.control);
     for (const pair of SUM_CONNECTIONS) {
         connect(project, usage, pair[0], pair[1], PRESET_WIRE_COLORS.result);
@@ -144,14 +143,15 @@ export function complementPreset() {
     for (let bit = 0; bit < 6; bit = bit + 1) {
         connect(project, usage, "U1-" + REGISTER_OUTPUTS[bit], "L" + bit, PRESET_WIRE_COLORS.output);
     }
-    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.overflow);
-    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.overflow);
+    connect(project, usage, "U1-12", "U5-4", PRESET_WIRE_COLORS.output);
+    connect(project, usage, "U1-15", "U5-5", PRESET_WIRE_COLORS.output);
+    connect(project, usage, "U5-6", "L6", PRESET_WIRE_COLORS.output);
     connect(project, usage, "K6", "U1-1", PRESET_WIRE_COLORS.timing);
     connect(project, usage, "P-", "U1-11", PRESET_WIRE_COLORS.timing);
     for (const wire of project.wires) {
         if (Object.hasOwn(presetRoutes, wire.id)) {
             wire.bends = structuredClone(presetRoutes[wire.id]);
+            wire.angle = 45;
         }
     }
     project.switches[COMPLEMENT_RESET_INPUT] = 1;
